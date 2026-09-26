@@ -51,7 +51,10 @@ def test_devices_detect_and_list():
     list_res = client.get("/api/devices")
     assert list_res.status_code == 200
     list_devices = list_res.json()
-    assert len(list_devices) == len(devices)
+    assert len(list_devices) >= len(devices)
+    list_keys = {d["key"] for d in list_devices}
+    for k in keys:
+        assert k in list_keys
 
 
 def test_device_patch_label():

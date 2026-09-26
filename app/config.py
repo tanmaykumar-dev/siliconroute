@@ -18,11 +18,14 @@ COOLDOWN_S: int = 2
 # Stability detection thresholds
 UNSTABLE_CV: float = 0.15
 SPREAD_THRESHOLD: float = 0.30  # robust spread = (p90 - p10) / median
+CI_THRESHOLD: float = 0.10      # bootstrap CI relative half-width threshold (ci_rel <= 0.10)
+BOOTSTRAP_ROUNDS: int = 1000    # resamples for median 95% confidence interval
 EXCLUDE_UNSTABLE: bool = True
 
 # Adaptive timing parameters for sub-millisecond runs
-MIN_SAMPLE_MS: float = 1.0       # target minimum duration per sample
-MAX_INNER_LOOP_K: int = 1000     # maximum iterations in inner loop
+MIN_SAMPLE_MS: float = 5.0       # target minimum duration per sample (>= 5.0 ms)
+MAX_INNER_LOOP_K: int = 5000     # maximum iterations in inner loop
+WARMUP_SUSTAINED_MS: int = 300   # sustained continuous warmup for DML GPUs to exit low-power P-states
 
 # Device duplicate detection criteria
 DUPLICATE_DIFF_PCT: float = 0.05 # median difference threshold (< 5%)

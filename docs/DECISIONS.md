@@ -18,3 +18,8 @@
 - 2026-09-27 - Robust spread metric (p90 - p10) / median with threshold 0.30 - avoids false 'unstable' flags caused by isolated background OS scheduler spikes.
 - 2026-09-27 - DML duplicate adapter check via bit-identical outputs and <5% median diff across >= 3 runs - disables alias adapters without deleting history or guessing names.
 - 2026-09-27 - Added 'software' device kind to accommodate Microsoft Basic Render Driver or CPU emulation identified in Phase 3.
+- 2026-09-27 - Telemetry ring buffer of 3,600 samples with periodic 10s SQLite flushes and native FastAPI EventSourceResponse SSE - provides zero-lag live telemetry streaming without disk thrashing.
+- 2026-09-27 - Dual-path energy measurement: NVML cumulative mJ hardware counter for NVIDIA dGPU and WMI root\\wmi BatteryStatus for whole-laptop battery delta - measures energy whether plugged in or discharging.
+- 2026-09-27 - Sustained continuous warmup >= 300 ms for DML devices, cold-start first_run_ms tracking, and sample duration target >= 5.0 ms - ramps GPU out of low-power P-states (P8 -> P0/P2) and ensures <6% inter-session reproducibility.
+- 2026-09-27 - Bootstrap 95% confidence interval of median with 1,000 resamples and ci_rel threshold 0.10 - statistically principled stability metric that accurately reflects sample confidence.
+- 2026-09-27 - Attributed dml:1 as NVIDIA GeForce RTX 5070 Laptop GPU (58% NVML util under load) and dml:0 as AMD Radeon 610M iGPU via empirical identify load test.

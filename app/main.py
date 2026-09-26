@@ -1,5 +1,6 @@
 """Main FastAPI application for SiliconRoute."""
 
+import asyncio
 from contextlib import asynccontextmanager
 import logging
 from pathlib import Path
@@ -17,6 +18,12 @@ from app.config import BASE_DIR
 from app.db import engine, init_db
 from app.devices import sync_devices_to_db
 from app.jobs import start_worker, stop_worker
+from app.telemetry import (
+    loop_holder,
+    router as telemetry_router,
+    start_sampler,
+    stop_sampler,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -29,7 +36,7 @@ FRONTEND_DIR: Path = BASE_DIR / "frontend"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Application lifespan: initialize DB, detect hardware, start job worker."""
+    """Application lifespan: initialize DB, detect hardware, start job worker and telemetry."""
     logger.info("Initializing SiliconRoute database schema (WAL mode)...")
     init_db()
 
@@ -45,7 +52,14 @@ async def lifespan(app: FastAPI):
     logger.info("Starting background single-job worker...")
     start_worker()
 
+    logger.info("Starting background 1 Hz telemetry sampler...")
+    loop_holder["loop"] = asyncio.get_running_loop()
+    start_sampler()
+
     yield
+
+    logger.info("Stopping telemetry sampler...")
+    stop_sampler()
 
     logger.info("Stopping background job worker...")
     stop_worker()
@@ -65,6 +79,7 @@ app.include_router(devices_router)
 app.include_router(models_router)
 app.include_router(benchmarks_router)
 app.include_router(runs_router)
+app.include_router(telemetry_router)
 
 # Mount static frontend at root (must be after API routers to avoid route collision)
 if FRONTEND_DIR.exists():

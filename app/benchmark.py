@@ -26,6 +26,8 @@ import psutil
 from sqlmodel import Session, select
 
 from app.config import (
+    BOOTSTRAP_ROUNDS,
+    CI_THRESHOLD,
     COOLDOWN_S,
     DUPLICATE_DIFF_PCT,
     DUPLICATE_MIN_RUNS,
@@ -36,9 +38,11 @@ from app.config import (
     TIMED_RUNS,
     UNSTABLE_CV,
     WARMUP_RUNS,
+    WARMUP_SUSTAINED_MS,
 )
 from app.db import AIModel, BenchSession, Device, Run, engine
 from app.devices import make_session
+from app.power import nvml_reader
 
 logger = logging.getLogger(__name__)
 
@@ -183,11 +187,40 @@ def run_latency_measurement(
     inp_name, inp_tensor = prepare_input_tensor(model, batch, sess)
     feed_dict = {inp_name: inp_tensor}
 
-    # 4. Warm-up runs
-    for _ in range(warmup_runs):
-        sess.run(None, feed_dict)
+    # 3b. Measure cold-start latency (1st inference after session creation, before warmups)
+    t_first_start = time.perf_counter_ns()
+    sess.run(None, feed_dict)
+    first_run_ms = (time.perf_counter_ns() - t_first_start) / 1e6
 
-    # Adaptive inner-loop determination for sub-millisecond workloads
+    # 4. Warm-up runs: for DML devices, sustain for >= WARMUP_SUSTAINED_MS (300 ms)
+    # to ensure the GPU exits idle power-saving states (e.g. P8 -> P0/P2)
+    warmup_t0 = time.perf_counter_ns()
+    warmups_done = 0
+    if "Dml" in device.provider:
+        while ((time.perf_counter_ns() - warmup_t0) / 1e6 < WARMUP_SUSTAINED_MS) or (warmups_done < warmup_runs):
+            sess.run(None, feed_dict)
+            warmups_done += 1
+    else:
+        for _ in range(warmup_runs):
+            sess.run(None, feed_dict)
+            warmups_done += 1
+
+    # Check if this device is an NVIDIA GPU to read NVML telemetry
+    is_nvidia_gpu = (
+        device.provider == "DmlExecutionProvider"
+        and nvml_reader.is_available
+        and ("nvidia" in (device.label or "").lower() or device.key == "dml:1" or device.kind == "dgpu")
+    )
+    nvml_pstate_start: Optional[int] = None
+    nvml_clock_sm_start_mhz: Optional[int] = None
+    gpu_temp_start_c: Optional[float] = None
+    if is_nvidia_gpu:
+        m_start = nvml_reader.read_metrics()
+        nvml_pstate_start = m_start.get("gpu_pstate")
+        nvml_clock_sm_start_mhz = m_start.get("gpu_clock_sm_mhz")
+        gpu_temp_start_c = m_start.get("gpu_temp_c")
+
+    # Adaptive inner-loop determination for sub-millisecond workloads (target >= MIN_SAMPLE_MS)
     t_trial_0 = time.perf_counter_ns()
     sess.run(None, feed_dict)
     t_trial_ms = (time.perf_counter_ns() - t_trial_0) / 1e6
@@ -209,7 +242,17 @@ def run_latency_measurement(
         raw_timings_ms.append(sample_ms / inner_loop_k)
         last_output = outputs[0]
 
-    # 6. Statistical calculations
+    # Post-timing NVML telemetry
+    nvml_pstate_end: Optional[int] = None
+    nvml_clock_sm_end_mhz: Optional[int] = None
+    gpu_temp_end_c: Optional[float] = None
+    if is_nvidia_gpu:
+        m_end = nvml_reader.read_metrics()
+        nvml_pstate_end = m_end.get("gpu_pstate")
+        nvml_clock_sm_end_mhz = m_end.get("gpu_clock_sm_mhz")
+        gpu_temp_end_c = m_end.get("gpu_temp_c")
+
+    # 6. Statistical calculations & Bootstrap 95% Confidence Interval
     timings = np.array(raw_timings_ms, dtype=np.float64)
     median_ms = float(np.median(timings))
     p10_ms = float(np.percentile(timings, 10))
@@ -219,10 +262,19 @@ def run_latency_measurement(
     max_ms = float(np.max(timings))
     stdev_ms = float(np.std(timings, ddof=1)) if len(timings) > 1 else 0.0
     cv = float(stdev_ms / mean_ms) if mean_ms > 0 else 0.0
-
-    # Robust spread: (p90 - p10) / median; unstable when spread > SPREAD_THRESHOLD (0.30)
     spread = float((p90_ms - p10_ms) / median_ms) if median_ms > 0 else 0.0
-    unstable = bool(spread > SPREAD_THRESHOLD)
+
+    # 1000 bootstrap resamples of the median
+    boot_rng = np.random.default_rng(SEED + (model.id or 0) * 100 + batch)
+    boot_indices = boot_rng.integers(0, len(timings), size=(BOOTSTRAP_ROUNDS, len(timings)))
+    boot_medians = np.median(timings[boot_indices], axis=1)
+    ci_low_ms = float(np.percentile(boot_medians, 2.5))
+    ci_high_ms = float(np.percentile(boot_medians, 97.5))
+    ci_half_width = (ci_high_ms - ci_low_ms) / 2.0
+    ci_rel = float(ci_half_width / median_ms) if median_ms > 0 else 0.0
+
+    # Stability rule: unstable when ci_rel > CI_THRESHOLD (0.10)
+    unstable = bool(ci_rel > CI_THRESHOLD)
     throughput_per_s = float((batch * 1000.0) / median_ms) if median_ms > 0 else 0.0
 
     # Output hash for bit-identical duplicate checking
@@ -264,6 +316,7 @@ def run_latency_measurement(
         timed_runs=timed_runs,
         inner_loop_k=inner_loop_k,
         session_create_ms=round(session_create_ms, 3),
+        first_run_ms=round(first_run_ms, 3),
         median_ms=round(median_ms, 3),
         p10_ms=round(p10_ms, 3),
         p90_ms=round(p90_ms, 3),
@@ -273,14 +326,21 @@ def run_latency_measurement(
         stdev_ms=round(stdev_ms, 3),
         cv=round(cv, 4),
         spread=round(spread, 4),
+        ci_rel=round(ci_rel, 4),
+        ci_low_ms=round(ci_low_ms, 3),
+        ci_high_ms=round(ci_high_ms, 3),
         unstable=unstable,
         throughput_per_s=round(throughput_per_s, 2),
         raw_ms_json=json.dumps([round(t, 4) for t in raw_timings_ms]),
         output_matches_cpu=output_matches_cpu,
         max_rel_err=round(max_rel_err, 6) if max_rel_err is not None else None,
         output_hash=output_hash,
-        gpu_temp_start_c=None,
-        gpu_temp_end_c=None,
+        nvml_pstate_start=nvml_pstate_start,
+        nvml_pstate_end=nvml_pstate_end,
+        nvml_clock_sm_start_mhz=nvml_clock_sm_start_mhz,
+        nvml_clock_sm_end_mhz=nvml_clock_sm_end_mhz,
+        gpu_temp_start_c=gpu_temp_start_c,
+        gpu_temp_end_c=gpu_temp_end_c,
         plugged_in=plugged_in,
         battery_pct=battery_pct,
         energy_mj_per_inf=None,

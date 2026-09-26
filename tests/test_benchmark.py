@@ -61,6 +61,10 @@ def test_tiny_mlp_cpu_benchmark():
 
         # Check statistical sanity: min <= p10 <= median <= p90 <= max
         assert run.min_ms <= run.p10_ms <= run.median_ms <= run.p90_ms <= run.max_ms
+        assert run.first_run_ms is not None and run.first_run_ms > 0
+        assert run.ci_rel is not None and run.ci_rel >= 0.0
+        assert run.ci_low_ms is not None and run.ci_high_ms is not None
+        assert run.ci_low_ms <= run.ci_high_ms
 
         raw_timings = json.loads(run.raw_ms_json)
         assert len(raw_timings) == 5
@@ -191,7 +195,34 @@ def test_duplicate_device_detection():
         # Run duplicate detection
         dups = check_and_mark_duplicate_devices(session)
         assert ("dml_dup_test:1", "dml_dup_test:0") in dups
-
         session.refresh(dev_b)
         assert dev_b.is_available is False
         assert "suspected duplicate of dml_dup_test:0" in dev_b.unavailable_reason
+
+
+def test_bootstrap_ci_calculation():
+    """Verify bootstrap CI half-width / median formula and unstable thresholding."""
+    import numpy as np
+    from app.config import BOOTSTRAP_ROUNDS, CI_THRESHOLD
+
+    # Scenario 1: highly stable timings (all around 1.0 ms)
+    stable_timings = np.array([1.0, 1.01, 0.99, 1.0, 1.02, 0.98, 1.0, 1.01, 0.99, 1.0])
+    rng = np.random.default_rng(42)
+    boot_indices = rng.integers(0, len(stable_timings), size=(BOOTSTRAP_ROUNDS, len(stable_timings)))
+    boot_medians = np.median(stable_timings[boot_indices], axis=1)
+    ci_low = float(np.percentile(boot_medians, 2.5))
+    ci_high = float(np.percentile(boot_medians, 97.5))
+    median = float(np.median(stable_timings))
+    ci_rel = (ci_high - ci_low) / (2.0 * median)
+    assert ci_rel < CI_THRESHOLD  # Must be stable
+
+    # Scenario 2: wild outlier timings (unstable)
+    unstable_timings = np.array([0.5, 0.5, 2.5, 3.0, 0.4, 0.6, 4.0, 0.5, 3.5, 0.5])
+    boot_indices = rng.integers(0, len(unstable_timings), size=(BOOTSTRAP_ROUNDS, len(unstable_timings)))
+    boot_medians = np.median(unstable_timings[boot_indices], axis=1)
+    ci_low = float(np.percentile(boot_medians, 2.5))
+    ci_high = float(np.percentile(boot_medians, 97.5))
+    median = float(np.median(unstable_timings))
+    ci_rel = (ci_high - ci_low) / (2.0 * median)
+    assert ci_rel > CI_THRESHOLD  # Must be flagged unstable
+

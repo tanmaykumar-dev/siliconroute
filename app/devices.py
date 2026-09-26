@@ -122,7 +122,9 @@ def sync_devices_to_db(session: Session, probe_model_path: Optional[str] = None)
         key = item["key"]
         if key in stored_map:
             dev = stored_map[key]
-            dev.is_available = True
+            # Preserve unavailable status if marked with a reason (e.g. duplicate)
+            if not dev.unavailable_reason:
+                dev.is_available = True
             dev.provider = item["provider"]
             dev.provider_options_json = json.dumps(item["options"])
             session.add(dev)

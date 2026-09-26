@@ -10,6 +10,7 @@ from sqlmodel import Session
 from app.benchmark import execute_latency_job
 from app.config import TIMED_RUNS, WARMUP_RUNS
 from app.db import BenchSession, get_session
+from app.energy import execute_energy_job
 from app.jobs import cancel_job, get_progress, try_submit
 
 router = APIRouter(prefix="/api/benchmarks", tags=["benchmarks"])
@@ -32,10 +33,10 @@ def create_benchmark_job(
     session: Session = Depends(get_session),
 ) -> dict[str, Any]:
     """Submit a benchmark job. Returns HTTP 409 if another job is running."""
-    if req.kind != "latency":
+    if req.kind not in ("latency", "energy"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Currently only 'latency' kind is supported in Phase 2",
+            detail="kind must be 'latency' or 'energy'",
         )
 
     if not req.model_ids:
@@ -62,15 +63,24 @@ def create_benchmark_job(
 
     # Attempt to submit to the single job worker
     def run_task(progress_state: dict[str, Any]) -> None:
-        execute_latency_job(
-            bench_session_id=bench_session.id,
-            model_ids=req.model_ids,
-            device_ids=req.device_ids,
-            batches=req.batches,
-            warmup_runs=req.warmup,
-            timed_runs=req.runs,
-            progress_state=progress_state,
-        )
+        if req.kind == "energy":
+            execute_energy_job(
+                bench_session_id=bench_session.id,
+                model_ids=req.model_ids,
+                device_ids=req.device_ids,
+                batches=req.batches,
+                progress_state=progress_state,
+            )
+        else:
+            execute_latency_job(
+                bench_session_id=bench_session.id,
+                model_ids=req.model_ids,
+                device_ids=req.device_ids,
+                batches=req.batches,
+                warmup_runs=req.warmup,
+                timed_runs=req.runs,
+                progress_state=progress_state,
+            )
 
     submitted = try_submit(bench_session.id, run_task)
     if not submitted:

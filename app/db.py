@@ -105,6 +105,7 @@ class Run(SQLModel, table=True):
     timed_runs: int
     inner_loop_k: int = Field(default=1)       # Number of runs timed together in inner loop
     session_create_ms: float
+    first_run_ms: Optional[float] = None       # Cold-start latency (1st inference after creation)
     median_ms: float
     p10_ms: float
     p90_ms: float
@@ -114,12 +115,19 @@ class Run(SQLModel, table=True):
     stdev_ms: float
     cv: float                                  # Coefficient of variation (stdev / mean)
     spread: float = Field(default=0.0)         # Robust spread: (p90 - p10) / median
-    unstable: bool                             # True if spread > SPREAD_THRESHOLD (0.30)
+    ci_rel: Optional[float] = None             # Bootstrap 95% CI half-width / median
+    ci_low_ms: Optional[float] = None          # Bootstrap 95% CI 2.5 percentile
+    ci_high_ms: Optional[float] = None         # Bootstrap 95% CI 97.5 percentile
+    unstable: bool                             # True if ci_rel > CI_THRESHOLD (0.10)
     throughput_per_s: float
     raw_ms_json: str
     output_matches_cpu: Optional[bool] = None
     max_rel_err: Optional[float] = None
     output_hash: Optional[str] = None          # SHA256 of inference output for duplicate detection
+    nvml_pstate_start: Optional[int] = None    # NVIDIA GPU P-state at timing start
+    nvml_pstate_end: Optional[int] = None      # NVIDIA GPU P-state at timing end
+    nvml_clock_sm_start_mhz: Optional[int] = None # NVIDIA SM clock (MHz) at timing start
+    nvml_clock_sm_end_mhz: Optional[int] = None   # NVIDIA SM clock (MHz) at timing end
     gpu_temp_start_c: Optional[float] = None
     gpu_temp_end_c: Optional[float] = None
     plugged_in: Optional[bool] = None
@@ -190,12 +198,22 @@ def _migrate_columns(target_engine) -> None:
             # Check run columns
             run_cols = {row[1] for row in conn.execute(text("PRAGMA table_info(run)")).fetchall()}
             if run_cols:
-                if "inner_loop_k" not in run_cols:
-                    conn.execute(text("ALTER TABLE run ADD COLUMN inner_loop_k INTEGER DEFAULT 1"))
-                if "spread" not in run_cols:
-                    conn.execute(text("ALTER TABLE run ADD COLUMN spread FLOAT DEFAULT 0.0"))
-                if "output_hash" not in run_cols:
-                    conn.execute(text("ALTER TABLE run ADD COLUMN output_hash TEXT"))
+                new_run_cols = [
+                    ("inner_loop_k", "INTEGER DEFAULT 1"),
+                    ("spread", "FLOAT DEFAULT 0.0"),
+                    ("output_hash", "TEXT"),
+                    ("first_run_ms", "FLOAT"),
+                    ("ci_rel", "FLOAT"),
+                    ("ci_low_ms", "FLOAT"),
+                    ("ci_high_ms", "FLOAT"),
+                    ("nvml_pstate_start", "INTEGER"),
+                    ("nvml_pstate_end", "INTEGER"),
+                    ("nvml_clock_sm_start_mhz", "INTEGER"),
+                    ("nvml_clock_sm_end_mhz", "INTEGER"),
+                ]
+                for col_name, col_type in new_run_cols:
+                    if col_name not in run_cols:
+                        conn.execute(text(f"ALTER TABLE run ADD COLUMN {col_name} {col_type}"))
 
             # Check device columns
             dev_cols = {row[1] for row in conn.execute(text("PRAGMA table_info(device)")).fetchall()}
