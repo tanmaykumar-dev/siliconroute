@@ -8,11 +8,15 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session
 
+from app.api.benchmarks import router as benchmarks_router
 from app.api.devices import router as devices_router
+from app.api.models import router as models_router
+from app.api.runs import router as runs_router
 from app.api.system import router as system_router
 from app.config import BASE_DIR
 from app.db import engine, init_db
 from app.devices import sync_devices_to_db
+from app.jobs import start_worker, stop_worker
 
 logging.basicConfig(
     level=logging.INFO,
@@ -25,7 +29,7 @@ FRONTEND_DIR: Path = BASE_DIR / "frontend"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Application lifespan: initialize database and detect hardware on startup."""
+    """Application lifespan: initialize DB, detect hardware, start job worker."""
     logger.info("Initializing SiliconRoute database schema (WAL mode)...")
     init_db()
 
@@ -38,8 +42,13 @@ async def lifespan(app: FastAPI):
             ", ".join(f"{d.key} ({d.label})" for d in devices),
         )
 
+    logger.info("Starting background single-job worker...")
+    start_worker()
+
     yield
 
+    logger.info("Stopping background job worker...")
+    stop_worker()
     logger.info("SiliconRoute application shutdown complete.")
 
 
@@ -53,6 +62,9 @@ app = FastAPI(
 # Register API routers
 app.include_router(system_router)
 app.include_router(devices_router)
+app.include_router(models_router)
+app.include_router(benchmarks_router)
+app.include_router(runs_router)
 
 # Mount static frontend at root (must be after API routers to avoid route collision)
 if FRONTEND_DIR.exists():

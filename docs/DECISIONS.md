@@ -11,3 +11,6 @@
 - No fake numbers in app code - every value traces back to a stored measurement; unavailable sensors show "not available".
 - 2026-09-27 - DirectML probe without hardcoded names: query adapters 0..3 via minimal ONNX probe model session and verify sess.get_providers()[0] == 'DmlExecutionProvider' - DirectML indices are adapter positions, never guess GPU names.
 - 2026-09-27 - CPU name resolution from Windows registry - platform.processor() returns generic family string on Windows; registry contains friendly brand name.
+- 2026-09-27 - Exact synthetic FLOPs and parameter formulas matching SPEC Section 3 - enables principled predictor fits without guessing model compute requirements.
+- 2026-09-27 - Single worker queue with in-memory lock rejecting concurrent benchmarks with HTTP 409 - prevents contention and protects timing accuracy.
+- 2026-09-27 - CPU reference output verification using max relative error threshold 1e-2 - ensures chips giving corrupted numerical results are caught and flagged.
