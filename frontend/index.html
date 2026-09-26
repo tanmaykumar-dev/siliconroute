@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SiliconRoute — Local-First AI Load Balancer</title>
+  <style>
+    :root {
+      --bg: #0E1116;
+      --card-bg: #1A1F29;
+      --accent: #D98A3D;
+      --mint: #3CCFA0;
+      --text: #EDEFF3;
+      --muted: #9AA3B2;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 2rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 2.5rem;
+      max-width: 650px;
+      width: 100%;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .badge {
+      display: inline-block;
+      background-color: rgba(217, 138, 61, 0.15);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: var(--text);
+    }
+    p {
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+    .status-box {
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      border-left: 4px solid var(--mint);
+      margin-bottom: 1.5rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9rem;
+    }
+    .status-title {
+      color: var(--mint);
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    .api-links {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .api-link {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+    }
+    .api-link:hover {
+      background: rgba(217, 138, 61, 0.2);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">Phase 1 Foundation Ready</div>
+    <h1>SiliconRoute</h1>
+    <p>Local-first, self-learning AI load balancer for laptops. Measures execution on CPU, iGPU, dGPU, and NPU to route AI tasks for fastest latency, battery conservation, or thermal balance.</p>
+    
+    <div class="status-box">
+      <div class="status-title">System Status: Online</div>
+      <div>Backend: FastAPI + SQLite WAL + DirectML</div>
+    </div>
+
+    <div class="api-links">
+      <a class="api-link" href="/api/health" target="_blank">GET /api/health</a>
+      <a class="api-link" href="/api/system" target="_blank">GET /api/system</a>
+      <a class="api-link" href="/api/devices" target="_blank">GET /api/devices</a>
+      <a class="api-link" href="/docs" target="_blank">Interactive Swagger Docs</a>
+    </div>
+  </div>
+</body>
+</html>

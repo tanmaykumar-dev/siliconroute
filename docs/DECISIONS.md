@@ -9,3 +9,5 @@
 - Router judged by decision accuracy and regret vs baselines (always-CPU, always-GPU, ORT policy) - ranking matters more than exact milliseconds.
 - Native FastAPI SSE for live telemetry - simpler than WebSockets for one-way server-to-browser streams.
 - No fake numbers in app code - every value traces back to a stored measurement; unavailable sensors show "not available".
+- 2026-09-27 - DirectML probe without hardcoded names: query adapters 0..3 via minimal ONNX probe model session and verify sess.get_providers()[0] == 'DmlExecutionProvider' - DirectML indices are adapter positions, never guess GPU names.
+- 2026-09-27 - CPU name resolution from Windows registry - platform.processor() returns generic family string on Windows; registry contains friendly brand name.
