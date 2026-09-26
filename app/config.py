@@ -15,9 +15,18 @@ TIMED_RUNS: int = 30
 VERIFY_RUNS: int = 10
 COOLDOWN_S: int = 2
 
-# Stability detection threshold (coefficient of variation = stdev / mean)
+# Stability detection thresholds
 UNSTABLE_CV: float = 0.15
+SPREAD_THRESHOLD: float = 0.30  # robust spread = (p90 - p10) / median
 EXCLUDE_UNSTABLE: bool = True
+
+# Adaptive timing parameters for sub-millisecond runs
+MIN_SAMPLE_MS: float = 1.0       # target minimum duration per sample
+MAX_INNER_LOOP_K: int = 1000     # maximum iterations in inner loop
+
+# Device duplicate detection criteria
+DUPLICATE_DIFF_PCT: float = 0.05 # median difference threshold (< 5%)
+DUPLICATE_MIN_RUNS: int = 3      # minimum matching runs to declare duplicate
 
 # Energy measurement windows (in seconds)
 IDLE_WINDOW_S: int = 15

@@ -44,10 +44,11 @@ class Device(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     key: str = Field(unique=True, index=True)  # e.g. "cpu", "dml:0", "dml:1", "qnn:0"
     label: str                                 # User-assigned friendly name
-    kind: str                                  # cpu | igpu | dgpu | npu | unknown
+    kind: str                                  # cpu | igpu | dgpu | npu | software | unknown
     provider: str                              # CPUExecutionProvider | DmlExecutionProvider | ...
     provider_options_json: str = "{}"          # Serialized options dict
     is_available: bool = True
+    unavailable_reason: Optional[str] = None   # Reason when is_available is false (e.g. duplicate)
     detected_at: str                           # ISO UTC timestamp
 
 
@@ -102,6 +103,7 @@ class Run(SQLModel, table=True):
     intra_op_threads: int
     warmup_runs: int
     timed_runs: int
+    inner_loop_k: int = Field(default=1)       # Number of runs timed together in inner loop
     session_create_ms: float
     median_ms: float
     p10_ms: float
@@ -110,12 +112,14 @@ class Run(SQLModel, table=True):
     min_ms: float
     max_ms: float
     stdev_ms: float
-    cv: float
-    unstable: bool
+    cv: float                                  # Coefficient of variation (stdev / mean)
+    spread: float = Field(default=0.0)         # Robust spread: (p90 - p10) / median
+    unstable: bool                             # True if spread > SPREAD_THRESHOLD (0.30)
     throughput_per_s: float
     raw_ms_json: str
     output_matches_cpu: Optional[bool] = None
     max_rel_err: Optional[float] = None
+    output_hash: Optional[str] = None          # SHA256 of inference output for duplicate detection
     gpu_temp_start_c: Optional[float] = None
     gpu_temp_end_c: Optional[float] = None
     plugged_in: Optional[bool] = None
@@ -178,10 +182,37 @@ class Decision(SQLModel, table=True):
     regret_pct: Optional[float] = None
 
 
+def _migrate_columns(target_engine) -> None:
+    """Ensure existing SQLite tables have newly added columns."""
+    from sqlalchemy import text
+    try:
+        with target_engine.connect() as conn:
+            # Check run columns
+            run_cols = {row[1] for row in conn.execute(text("PRAGMA table_info(run)")).fetchall()}
+            if run_cols:
+                if "inner_loop_k" not in run_cols:
+                    conn.execute(text("ALTER TABLE run ADD COLUMN inner_loop_k INTEGER DEFAULT 1"))
+                if "spread" not in run_cols:
+                    conn.execute(text("ALTER TABLE run ADD COLUMN spread FLOAT DEFAULT 0.0"))
+                if "output_hash" not in run_cols:
+                    conn.execute(text("ALTER TABLE run ADD COLUMN output_hash TEXT"))
+
+            # Check device columns
+            dev_cols = {row[1] for row in conn.execute(text("PRAGMA table_info(device)")).fetchall()}
+            if dev_cols:
+                if "unavailable_reason" not in dev_cols:
+                    conn.execute(text("ALTER TABLE device ADD COLUMN unavailable_reason TEXT"))
+
+            conn.commit()
+    except Exception:
+        pass
+
+
 def init_db(engine_instance=None) -> None:
-    """Create all SQLModel tables in SQLite."""
+    """Create all SQLModel tables in SQLite and apply lightweight column migrations."""
     target_engine = engine_instance or engine
     SQLModel.metadata.create_all(target_engine)
+    _migrate_columns(target_engine)
 
 
 def get_session() -> Generator[Session, None, None]:

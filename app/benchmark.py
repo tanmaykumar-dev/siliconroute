@@ -3,13 +3,15 @@
 Executes latency measurements following SPEC Section 2.1 exactly:
 - Session cold-start timing
 - Provider mismatch verification
-- Warmup and timed runs using time.perf_counter_ns()
-- Comprehensive summary statistics (median, p10, p90, mean, cv, etc.)
+- Adaptive inner-loop timing for sub-millisecond runs (>= 1.0 ms duration)
+- Robust stability metric (spread = (p90 - p10) / median)
 - Correctness check vs CPU reference outputs
 - System hygiene (power scheme, thermal cooldown, battery status)
+- Duplicate DML adapter detection
 """
 
 from datetime import datetime, timezone
+import hashlib
 import json
 import logging
 from pathlib import Path
@@ -21,11 +23,16 @@ from typing import Any, Optional
 import numpy as np
 import onnxruntime as ort
 import psutil
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from app.config import (
     COOLDOWN_S,
+    DUPLICATE_DIFF_PCT,
+    DUPLICATE_MIN_RUNS,
+    MAX_INNER_LOOP_K,
+    MIN_SAMPLE_MS,
     SEED,
+    SPREAD_THRESHOLD,
     TIMED_RUNS,
     UNSTABLE_CV,
     WARMUP_RUNS,
@@ -76,12 +83,75 @@ def prepare_input_tensor(
         else:
             concrete_shape.append(int(dim))
 
-    # Deterministic RNG based on SEED + model id + batch
     seed_val = (SEED + (model.id or 0) * 1000 + batch) % (2**32 - 1)
     rng = np.random.default_rng(seed_val)
     input_data = rng.standard_normal(concrete_shape).astype(np.float32)
 
     return inp_name, input_data
+
+
+def check_and_mark_duplicate_devices(session: Session) -> list[tuple[str, str]]:
+    """Detect if two DML devices produce bit-identical outputs and <5% diff medians across >= 3 runs.
+
+    Marks the higher-index adapter as unavailable with a reason explaining the duplicate.
+    """
+    dml_devices = session.exec(
+        select(Device).where(Device.provider == "DmlExecutionProvider").order_by(Device.id)
+    ).all()
+
+    if len(dml_devices) < 2:
+        return []
+
+    duplicates_found: list[tuple[str, str]] = []
+
+    for i in range(len(dml_devices)):
+        dev_a = dml_devices[i]
+        for j in range(i + 1, len(dml_devices)):
+            dev_b = dml_devices[j]
+            if not dev_b.is_available and dev_b.unavailable_reason:
+                continue
+
+            runs_a = session.exec(select(Run).where(Run.device_id == dev_a.id)).all()
+            runs_b = session.exec(select(Run).where(Run.device_id == dev_b.id)).all()
+
+            map_a = {(r.session_id, r.ai_model_id, r.batch): r for r in runs_a}
+            map_b = {(r.session_id, r.ai_model_id, r.batch): r for r in runs_b}
+
+            common_keys = set(map_a.keys()) & set(map_b.keys())
+            matching_duplicate_runs = 0
+            for key in common_keys:
+                ra = map_a[key]
+                rb = map_b[key]
+                # Check bit-identical output
+                hash_match = False
+                if ra.output_hash and rb.output_hash:
+                    hash_match = (ra.output_hash == rb.output_hash)
+                elif ra.output_matches_cpu is not None and rb.output_matches_cpu is not None:
+                    hash_match = (ra.output_matches_cpu == rb.output_matches_cpu and ra.max_rel_err == rb.max_rel_err)
+
+                if hash_match:
+                    max_med = max(ra.median_ms, rb.median_ms)
+                    if max_med > 0:
+                        diff_pct = abs(ra.median_ms - rb.median_ms) / max_med
+                        if diff_pct < DUPLICATE_DIFF_PCT:
+                            matching_duplicate_runs += 1
+
+            if matching_duplicate_runs >= DUPLICATE_MIN_RUNS:
+                reason = f"suspected duplicate of {dev_a.key}"
+                dev_b.is_available = False
+                dev_b.unavailable_reason = reason
+                session.add(dev_b)
+                session.commit()
+                session.refresh(dev_b)
+                logger.warning(
+                    "Marked device %s as unavailable: %s (matched on %d runs)",
+                    dev_b.key,
+                    reason,
+                    matching_duplicate_runs,
+                )
+                duplicates_found.append((dev_b.key, dev_a.key))
+
+    return duplicates_found
 
 
 def run_latency_measurement(
@@ -93,7 +163,7 @@ def run_latency_measurement(
     warmup_runs: int = WARMUP_RUNS,
     timed_runs: int = TIMED_RUNS,
 ) -> Run:
-    """Execute a single latency measurement run for (model, device, batch)."""
+    """Execute a single latency measurement run with adaptive timing and robust stability."""
     now_iso = datetime.now(timezone.utc).isoformat()
     intra_threads = psutil.cpu_count(logical=False) or 1
     device_opts = json.loads(device.provider_options_json or "{}")
@@ -117,17 +187,29 @@ def run_latency_measurement(
     for _ in range(warmup_runs):
         sess.run(None, feed_dict)
 
-    # 5. Timed runs
+    # Adaptive inner-loop determination for sub-millisecond workloads
+    t_trial_0 = time.perf_counter_ns()
+    sess.run(None, feed_dict)
+    t_trial_ms = (time.perf_counter_ns() - t_trial_0) / 1e6
+
+    inner_loop_k = 1
+    if t_trial_ms < MIN_SAMPLE_MS:
+        inner_loop_k = int(np.ceil(MIN_SAMPLE_MS / max(t_trial_ms, 0.0001)))
+        inner_loop_k = min(max(inner_loop_k, 1), MAX_INNER_LOOP_K)
+
+    # 5. Timed runs (samples >= timed_runs, each sample times inner_loop_k runs)
     raw_timings_ms: list[float] = []
     last_output: Optional[np.ndarray] = None
     for _ in range(timed_runs):
         t0 = time.perf_counter_ns()
-        outputs = sess.run(None, feed_dict)
+        for _ in range(inner_loop_k):
+            outputs = sess.run(None, feed_dict)
         t1 = time.perf_counter_ns()
-        raw_timings_ms.append((t1 - t0) / 1e6)
+        sample_ms = (t1 - t0) / 1e6
+        raw_timings_ms.append(sample_ms / inner_loop_k)
         last_output = outputs[0]
 
-    # 6. Statistical calculation
+    # 6. Statistical calculations
     timings = np.array(raw_timings_ms, dtype=np.float64)
     median_ms = float(np.median(timings))
     p10_ms = float(np.percentile(timings, 10))
@@ -137,8 +219,16 @@ def run_latency_measurement(
     max_ms = float(np.max(timings))
     stdev_ms = float(np.std(timings, ddof=1)) if len(timings) > 1 else 0.0
     cv = float(stdev_ms / mean_ms) if mean_ms > 0 else 0.0
-    unstable = bool(cv > UNSTABLE_CV)
+
+    # Robust spread: (p90 - p10) / median; unstable when spread > SPREAD_THRESHOLD (0.30)
+    spread = float((p90_ms - p10_ms) / median_ms) if median_ms > 0 else 0.0
+    unstable = bool(spread > SPREAD_THRESHOLD)
     throughput_per_s = float((batch * 1000.0) / median_ms) if median_ms > 0 else 0.0
+
+    # Output hash for bit-identical duplicate checking
+    output_hash: Optional[str] = None
+    if last_output is not None:
+        output_hash = hashlib.sha256(last_output.tobytes()).hexdigest()
 
     # 7. Correctness check vs CPU reference output
     output_matches_cpu: Optional[bool] = None
@@ -172,6 +262,7 @@ def run_latency_measurement(
         intra_op_threads=intra_threads,
         warmup_runs=warmup_runs,
         timed_runs=timed_runs,
+        inner_loop_k=inner_loop_k,
         session_create_ms=round(session_create_ms, 3),
         median_ms=round(median_ms, 3),
         p10_ms=round(p10_ms, 3),
@@ -181,11 +272,13 @@ def run_latency_measurement(
         max_ms=round(max_ms, 3),
         stdev_ms=round(stdev_ms, 3),
         cv=round(cv, 4),
+        spread=round(spread, 4),
         unstable=unstable,
         throughput_per_s=round(throughput_per_s, 2),
-        raw_ms_json=json.dumps([round(t, 3) for t in raw_timings_ms]),
+        raw_ms_json=json.dumps([round(t, 4) for t in raw_timings_ms]),
         output_matches_cpu=output_matches_cpu,
         max_rel_err=round(max_rel_err, 6) if max_rel_err is not None else None,
+        output_hash=output_hash,
         gpu_temp_start_c=None,
         gpu_temp_end_c=None,
         plugged_in=plugged_in,
@@ -229,7 +322,6 @@ def execute_latency_job(
         session.add(bench_sess)
         session.commit()
 
-        # Query models and devices
         models = [session.get(AIModel, mid) for mid in model_ids]
         models = [m for m in models if m is not None]
         devices = [session.get(Device, did) for did in device_ids]
@@ -240,11 +332,9 @@ def execute_latency_job(
         progress_state["done"] = 0
 
         completed = 0
-        error_msg: Optional[str] = None
 
         try:
             for model in models:
-                # Shuffle devices per model to mitigate thermal bias
                 shuffled_devices = list(devices)
                 random.shuffle(shuffled_devices)
 
@@ -254,7 +344,6 @@ def execute_latency_job(
                         bench_sess.status = "cancelled"
                         break
 
-                    # Thermal cooldown when switching devices
                     if dev_idx > 0 and COOLDOWN_S > 0:
                         time.sleep(COOLDOWN_S)
 
@@ -285,6 +374,9 @@ def execute_latency_job(
 
             if bench_sess.status != "cancelled":
                 bench_sess.status = "done"
+
+            # Check and mark duplicate DirectML adapters if criteria are met
+            check_and_mark_duplicate_devices(session)
 
         except Exception as exc:
             logger.exception("Error executing benchmark session %d: %s", bench_session_id, exc)

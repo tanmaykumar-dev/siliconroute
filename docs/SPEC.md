@@ -56,15 +56,19 @@ Start both threads in FastAPI `lifespan`; stop them cleanly on shutdown
    from fits.
 3. Input: `np.random.default_rng(SEED)` fixed per (model, batch), float32.
 4. Warm-up: `WARMUP_RUNS` (default 5) untimed runs.
-5. Timed: `TIMED_RUNS` (default 30) runs with `time.perf_counter_ns()`.
-6. Stats: median, p10, p90, mean, min, max, stdev, `cv = stdev/mean`.
-   `unstable = cv > 0.15` (keep it, but flag in UI; exclude from fits if
-   `EXCLUDE_UNSTABLE=True`).
-7. Correctness: compare output with the CPU reference output for the same
+5. Adaptive inner loop: run a trial inference. If trial < 1.0 ms, time an
+   inner loop of `k` runs per sample (choose `k` so each sample is >= 1.0 ms,
+   cap `k` at 1000) and store per-inference time = `sample / k`. Record `inner_loop_k`.
+6. Timed: `TIMED_RUNS` (default 30) samples with `time.perf_counter_ns()`.
+7. Stats: median, p10, p90, mean, min, max, stdev, `cv = stdev/mean`.
+   Robust stability metric: `spread = (p90 - p10) / median`.
+   Flag `unstable = spread > 0.30` (keep in DB, flag in UI; exclude from fits if
+   `EXCLUDE_UNSTABLE=True`). Keep `cv` stored for reference.
+8. Correctness: compare output with the CPU reference output for the same
    input: `rel_err = max|out-ref| / (max|ref| + 1e-9)`. Store
-   `output_matches_cpu = rel_err <= 1e-2` and `max_rel_err`. A chip that gives
+   `output_matches_cpu = rel_err <= 1e-2`, `max_rel_err`, and `output_hash`. A chip that gives
    wrong answers must never be chosen by the router.
-8. Store the 30 raw timings as JSON in `raw_ms` (for histograms).
+9. Store the 30 raw timings as JSON in `raw_ms` (for histograms).
 
 Hygiene (store with the session, show in UI):
 - `plugged_in`, `battery_pct` at start and end, `ram_pct` at start
@@ -95,11 +99,17 @@ Laptop sensors update slowly, so energy needs longer windows.
 - If no method is available → leave energy NULL and show
   "Unplug the charger to measure whole-laptop energy".
 
-### 2.3 Device identification ("blink test")
+### 2.3 Device identification & duplicate detection
 DirectML `device_id` numbers are adapter indexes, not names. Provide
 `POST /api/devices/{id}/identify`: runs a heavy model on that device for 8 s
 so the user can see which GPU graph jumps in Task Manager, then set a label
-with `PATCH /api/devices/{id}`. Never guess the GPU name.
+with `PATCH /api/devices/{id}`. Allowed device kinds: `cpu|igpu|dgpu|npu|software|unknown`.
+Never guess the GPU name.
+
+Duplicate check: If two DirectML devices give bit-identical outputs on the same
+input AND their medians differ by < 5% on at least 3 runs, mark the later device
+`is_available = false` with `unavailable_reason = "suspected duplicate of dml:X"`.
+Do not delete rows. Never guess names.
 
 ---
 

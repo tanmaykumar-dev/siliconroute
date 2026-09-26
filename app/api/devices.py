@@ -50,7 +50,7 @@ def update_device(
     if patch.label is not None:
         device.label = patch.label.strip()
     if patch.kind is not None:
-        valid_kinds = {"cpu", "igpu", "dgpu", "npu", "unknown"}
+        valid_kinds = {"cpu", "igpu", "dgpu", "npu", "software", "unknown"}
         if patch.kind not in valid_kinds:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
