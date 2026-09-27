@@ -11,6 +11,7 @@ from sqlmodel import Session
 
 from app.api.analysis import router as analysis_router
 from app.api.benchmarks import router as benchmarks_router
+from app.api.decisions import router as decisions_router
 from app.api.devices import router as devices_router
 from app.api.fits import router as fits_router
 from app.api.models import router as models_router
@@ -84,6 +85,7 @@ app.include_router(runs_router)
 app.include_router(telemetry_router)
 app.include_router(fits_router)
 app.include_router(analysis_router)
+app.include_router(decisions_router)
 
 # Mount static frontend at root (must be after API routers to avoid route collision)
 if FRONTEND_DIR.exists():

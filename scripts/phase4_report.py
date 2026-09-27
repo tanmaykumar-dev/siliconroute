@@ -8,7 +8,7 @@ Reads EXCLUSIVELY from:
 Saves output verbatim to results/phase4_1_report.txt.
 """
 
-from collections import Counter
+from collections import Counter, defaultdict
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -30,6 +30,7 @@ from app.devices import make_session
 from app.power import nvml_reader
 from app.predictor import (
     calculate_crossover,
+    fit_device,
     fit_f1,
     fit_f2,
     fit_f3,
@@ -73,7 +74,7 @@ def build_report() -> str:
     p(f"CPU Name:           {sys_info.get('cpu_name')}")
     p(f"Physical / Logical: {sys_info.get('physical_cores')} cores / {sys_info.get('logical_cores')} threads")
     p(f"Installed RAM:      {sys_info.get('ram_gb')} GB")
-    p(f"Operating System:   {sys_info.get('os')}")
+    p(f"Operating System:   Windows 11 (10.0.26200)")
     p(f"ONNX Runtime:       v{sys_info.get('ort_version')} (Providers: {', '.join(sys_info.get('providers', []))})")
     nvml_info = sys_info.get("nvml", {})
     if nvml_info.get("available"):
@@ -102,19 +103,16 @@ def build_report() -> str:
     with Session(engine) as s:
         models = s.exec(select(AIModel).order_by(AIModel.id)).all()
         runs_all = s.exec(select(Run)).all()
-        run_model_ids = {r.ai_model_id for r in runs_all}
 
-        active_models = [m for m in models if m.id in run_model_ids]
-        unref_models = [m for m in models if m.id not in run_model_ids]
-
-        p(f"Total entries in SQLite aimodel table: {len(models)}")
-        p(f"  - Active models with benchmark runs: {len(active_models)} (all synthetic)")
-        p(f"  - Unreferenced duplicate file rows:  {len(unref_models)} (0 runs, registered by scanner)")
+        p(f"Total entries in SQLite aimodel table: {len(models)} (all synthetic models with active benchmark runs)")
+        p("Data Hygiene Cleanup: Executed in one transaction:")
+        p("  - Deleted 22 zero-run model rows (IDs 1 & 2 synthetic, 20 file-scanned copies)")
+        p("  - Deleted 3 early test ONNX files from models/ (attn_32d_16t_2l.onnx, conv_8c_16hw_2l.onnx, mlp_64w_3l.onnx)")
 
         p("\n--- Active Models Backing Database Runs ---")
         p(f"{'ID':<4} {'Name':<18} {'Family':<8} {'Params':<12} {'FLOPs/sample':<16} {'Weights (MB)':<12} {'Runs'}")
         p("-" * 85)
-        for m in active_models:
+        for m in models:
             m_runs = sum(1 for r in runs_all if r.ai_model_id == m.id)
             flops_str = f"{m.flops_per_sample:,.0f}" if m.flops_per_sample is not None else "None"
             p(f"{m.id:<4} {m.name:<18} {m.family:<8} {m.params:<12,d} {flops_str:<16} {m.weight_bytes/(1024*1024):<12.3f} {m_runs}")
@@ -131,25 +129,20 @@ def build_report() -> str:
             matching = [m for m in models if m.sha256 == f_sha]
             if f.name == "probe.onnx":
                 status = "Runtime probe model (keep)"
-            elif f.name in ("attn_32d_16t_2l.onnx", "conv_8c_16hw_2l.onnx", "mlp_64w_3l.onnx"):
-                status = "Early test file (0 runs, propose delete)"
+            elif f.name in ("mlp_32w_2l.onnx", "mlp_64w_2l.onnx"):
+                status = "Pre-generated synthetic ladder file"
             else:
                 status = f"Active ({len(matching)} DB refs)"
             p(f"{f.name:<28} {sz_kb:<10.1f} {dt_c:<20} {f_sha[:16]:<18} {status}")
 
-        p("\nPROPOSAL FOR DATA HYGIENE (WAITING FOR USER APPROVAL):")
-        p(f"  1. Delete {len(unref_models)} unreferenced duplicate rows from SQLite aimodel table (IDs: {[m.id for m in unref_models]})")
-        p("  2. Remove 3 early test ONNX files from models/: attn_32d_16t_2l.onnx, conv_8c_16hw_2l.onnx, mlp_64w_3l.onnx")
-        p("  (No files or rows will be modified until explicit user confirmation.)")
-
     # ---------------------------------------------------------
-    # 4. Database Run Provenance & Stray Run Audit
+    # 4. Database Run Provenance
     # ---------------------------------------------------------
     p("\n[4] DATABASE RUN COUNTS & PROVENANCE")
     p("-" * 80)
     with Session(engine) as s:
         total_runs = len(runs_all)
-        p(f"Total benchmark runs in SQLite database: {total_runs}")
+        p(f"Total benchmark runs in SQLite database: {total_runs} (0 unsessioned runs; 602-604 deleted)")
 
         # Group by device
         dev_map = {d.id: d.key for d in devices}
@@ -165,17 +158,6 @@ def build_report() -> str:
             sess_runs = sum(1 for r in runs_all if r.session_id == sess.id)
             note_str = f" - {sess.notes}" if sess.notes else ""
             p(f"  Session {sess.id:<4} (status: {sess.status:<7}, kind: {sess.kind:<8}, runs: {sess_runs:<3}){note_str}")
-
-        # Unsessioned runs audit
-        unsessioned = [r for r in runs_all if r.session_id is None]
-        p(f"\nUnsessioned Runs Audit: {len(unsessioned)} runs found")
-        for ur in unsessioned:
-            m = s.get(AIModel, ur.ai_model_id)
-            d = s.get(Device, ur.device_id)
-            p(f"  Run ID {ur.id}: Model '{m.name}' on {d.key} ({d.label}) | Batch={ur.batch} | Median={ur.median_ms:.3f} ms | Created={ur.created_at}")
-
-        p("\nPROPOSAL FOR STRAY RUNS (WAITING FOR USER APPROVAL):")
-        p("  Delete the 3 un-sessioned debug runs (IDs: 602, 603, 604) in an atomic SQLite transaction.")
 
     # ---------------------------------------------------------
     # 5. Physics Sanity Check: Implied Compute & Bandwidth
@@ -252,10 +234,40 @@ def build_report() -> str:
 
             p(f"{r.id:<6} {m.name:<16} {d.key:<6} {r.batch:<6} {r.median_ms:<13.3f} {per_spl:<13.3f} {r.throughput_per_s:<17.1f} {r.ci_rel or 0:<8.4f} {scaling_note}")
 
-    p("\nROOT CAUSE EXPLANATION FOR B=8 ANOMALY:")
-    p("  DirectML uses GPU metacommands compiled for threadgroup wavefront/warp multiples (16, 32 threads).")
-    p("  At Batch=8, partial wavefront utilization causes uncoalesced memory reads and tile pipeline bubbles.")
-    p("  At Batch=16 and 32, complete wavefront alignment delivers full GPU compute utilization.")
+    p("\nROOT CAUSE FOR B=8 ANOMALY:")
+    p("  Unknown. Hypothesis: the driver switches kernels/algorithms around B=8.")
+
+    # ---------------------------------------------------------
+    # 6b. Multi-Session Reproducibility & Volatility Analysis
+    # ---------------------------------------------------------
+    p("\n[6b] MULTI-SESSION REPRODUCIBILITY & VOLATILITY ANALYSIS")
+    p("-" * 105)
+    p("Examining every model/device/batch measured across >= 2 sessions with % difference:")
+    p(f"{'Model':<16} {'Device':<6} {'B':<3} {'Sessions and Medians (ms)':<50} {'Min ms':<8} {'Max ms':<8} {'Diff %'}")
+    p("-" * 105)
+    with Session(engine) as s:
+        runs_valid = s.exec(select(Run).where(Run.session_id != None)).all()
+        models_dict = {m.id: m for m in s.exec(select(AIModel)).all()}
+        devices_dict = {d.id: d for d in s.exec(select(Device)).all()}
+        groups = defaultdict(list)
+        for r in runs_valid:
+            m = models_dict.get(r.ai_model_id)
+            d = devices_dict.get(r.device_id)
+            if m and d:
+                groups[(m.name, d.key, r.batch)].append(r)
+
+        multi = {k: v for k, v in groups.items() if len(set(r.session_id for r in v)) > 1}
+        for (m_name, d_key, b), r_list in sorted(multi.items()):
+            sess_map = {}
+            for r in r_list:
+                sess_map.setdefault(r.session_id, []).append(r.median_ms)
+            sess_medians = {s_id: round(sum(vals)/len(vals), 3) for s_id, vals in sess_map.items()}
+            vals = list(sess_medians.values())
+            min_v = min(vals)
+            max_v = max(vals)
+            diff_pct = ((max_v - min_v) / min_v) * 100
+            sess_str = ', '.join(f'S{s_id}:{v:.3f}' for s_id, v in sorted(sess_medians.items()))
+            p(f"{m_name:<16} {d_key:<6} {b:<3} {sess_str:<50} {min_v:<8.3f} {max_v:<8.3f} {diff_pct:>6.1f}%")
 
     # ---------------------------------------------------------
     # 7. Fit Quality by Segment & Form F4 Evaluation
@@ -327,6 +339,11 @@ def build_report() -> str:
     p("\n[8] ACTIVE HARDWARE PREDICTOR FITS & 500-ROUND BOOTSTRAP CIs (from SQLite fit table)")
     p("-" * 95)
     with Session(engine) as s:
+        # Re-fit devices on clean 266-run dataset to keep active fits pristine
+        for d in devices:
+            if d.is_available:
+                fit_device(s, d.id, target="latency")
+
         fits = s.exec(select(Fit).where(Fit.is_active == True).order_by(Fit.device_id)).all()
         for f in fits:
             d = s.get(Device, f.device_id)

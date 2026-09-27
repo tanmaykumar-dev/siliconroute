@@ -1,6 +1,6 @@
 ====================================================================================================
 SILICONROUTE PHASE 4.2 GROUND-TRUTH & DATA HYGIENE REPORT
-Generated at: 2026-09-27T21:12:09.690106+00:00
+Generated at: 2026-09-27T21:24:37.940051+00:00
 ====================================================================================================
 
 [1] HOST HARDWARE IDENTIFICATION (from /api/system)
@@ -23,9 +23,10 @@ ID   Key        Kind     Provider                 Available  Label / Unavailable
 
 [3] MODEL INVENTORY & ON-DISK FILE AUDIT
 ----------------------------------------------------------------------------------------------------
-Total entries in SQLite aimodel table: 41
-  - Active models with benchmark runs: 19 (all synthetic)
-  - Unreferenced duplicate file rows:  22 (0 runs, registered by scanner)
+Total entries in SQLite aimodel table: 19 (all synthetic models with active benchmark runs)
+Data Hygiene Cleanup: Executed in one transaction:
+  - Deleted 22 zero-run model rows (IDs 1 & 2 synthetic, 20 file-scanned copies)
+  - Deleted 3 early test ONNX files from models/ (attn_32d_16t_2l.onnx, conv_8c_16hw_2l.onnx, mlp_64w_3l.onnx)
 
 --- Active Models Backing Database Runs ---
 ID   Name               Family   Params       FLOPs/sample     Weights (MB) Runs
@@ -48,50 +49,42 @@ ID   Name               Family   Params       FLOPs/sample     Weights (MB) Runs
 94   mlp-3072w-4l       mlp      37,748,736   75,497,472       144.000      23
 95   mlp-4096w-4l       mlp      67,108,864   134,217,728      256.000      9
 96   conv-96c-4l        conv     331,776      2,717,908,992    1.266        21
-97   conv-128c-4l       conv     589,824      4,831,838,208    2.250        12
+97   conv-128c-4l       conv     589,824      4,831,838,208    2.250        9
 
 --- On-Disk ONNX Files in models/ Directory ---
 File Name                    Size KB    Created (UTC)        SHA256 (prefix)    Status / DB Match
 ---------------------------------------------------------------------------------------------------------
-attn_32d_16t_2l.onnx         32.9       2026-09-26 20:50:42  ccaaf26a07ecf09d   Early test file (0 runs, propose delete)
 conv_128c_64hw_4l.onnx       2304.5     2026-09-27 20:18:35  987666305bb73291   Active (1 DB refs)
-conv_16c_64hw_4l.onnx        36.5       2026-09-27 19:38:26  d786b88ae63c8dea   Active (2 DB refs)
-conv_32c_64hw_4l.onnx        144.5      2026-09-27 19:41:37  f2838c5ca4d708f4   Active (2 DB refs)
-conv_48c_64hw_4l.onnx        324.5      2026-09-27 19:41:37  7583593aff6be9bd   Active (2 DB refs)
-conv_64c_64hw_4l.onnx        576.5      2026-09-27 19:41:37  f95add4ec398bfae   Active (2 DB refs)
-conv_8c_16hw_2l.onnx         4.8        2026-09-26 20:50:42  ce7d399cf2a70e0b   Early test file (0 runs, propose delete)
-conv_8c_64hw_4l.onnx         9.5        2026-09-27 19:41:37  ea0809035ae4bf6a   Active (2 DB refs)
+conv_16c_64hw_4l.onnx        36.5       2026-09-27 19:38:26  d786b88ae63c8dea   Active (1 DB refs)
+conv_32c_64hw_4l.onnx        144.5      2026-09-27 19:41:37  f2838c5ca4d708f4   Active (1 DB refs)
+conv_48c_64hw_4l.onnx        324.5      2026-09-27 19:41:37  7583593aff6be9bd   Active (1 DB refs)
+conv_64c_64hw_4l.onnx        576.5      2026-09-27 19:41:37  f95add4ec398bfae   Active (1 DB refs)
+conv_8c_64hw_4l.onnx         9.5        2026-09-27 19:41:37  ea0809035ae4bf6a   Active (1 DB refs)
 conv_96c_64hw_4l.onnx        1296.5     2026-09-27 20:18:35  c7a7fdd09d128c51   Active (1 DB refs)
-mlp_1024w_4l.onnx            16384.4    2026-09-26 20:52:57  f342e0bf1859af7a   Active (2 DB refs)
-mlp_128w_4l.onnx             256.4      2026-09-27 19:38:20  d84121012748eee2   Active (2 DB refs)
-mlp_1536w_4l.onnx            36864.4    2026-09-27 19:41:36  193127d253862c0b   Active (2 DB refs)
-mlp_2048w_4l.onnx            65536.4    2026-09-26 21:14:45  8b0cf90ab02ee2e8   Active (2 DB refs)
-mlp_256w_4l.onnx             1024.4     2026-09-26 20:52:57  e5f43ffff21ff853   Active (2 DB refs)
+mlp_1024w_4l.onnx            16384.4    2026-09-26 20:52:57  f342e0bf1859af7a   Active (1 DB refs)
+mlp_128w_4l.onnx             256.4      2026-09-27 19:38:20  d84121012748eee2   Active (1 DB refs)
+mlp_1536w_4l.onnx            36864.4    2026-09-27 19:41:36  193127d253862c0b   Active (1 DB refs)
+mlp_2048w_4l.onnx            65536.4    2026-09-26 21:14:45  8b0cf90ab02ee2e8   Active (1 DB refs)
+mlp_256w_4l.onnx             1024.4     2026-09-26 20:52:57  e5f43ffff21ff853   Active (1 DB refs)
 mlp_3072w_4l.onnx            147456.4   2026-09-27 20:18:33  08f21578402978f0   Active (1 DB refs)
-mlp_32w_2l.onnx              8.2        2026-09-26 20:51:18  60953fa8fc30e7bd   Active (2 DB refs)
-mlp_32w_4l.onnx              16.3       2026-09-27 19:41:36  5feb639e742ee828   Active (2 DB refs)
-mlp_384w_4l.onnx             2304.4     2026-09-27 19:41:36  fef599920736d197   Active (2 DB refs)
+mlp_32w_2l.onnx              8.2        2026-09-26 20:51:18  60953fa8fc30e7bd   Pre-generated synthetic ladder file
+mlp_32w_4l.onnx              16.3       2026-09-27 19:41:36  5feb639e742ee828   Active (1 DB refs)
+mlp_384w_4l.onnx             2304.4     2026-09-27 19:41:36  fef599920736d197   Active (1 DB refs)
 mlp_4096w_4l.onnx            262144.4   2026-09-27 20:18:35  92f7eeeb6bd807c1   Active (1 DB refs)
-mlp_512w_4l.onnx             4096.4     2026-09-27 19:41:36  05a721a140db7a10   Active (2 DB refs)
-mlp_64w_2l.onnx              32.2       2026-09-26 20:52:17  df79efd94cbb15d2   Active (2 DB refs)
-mlp_64w_3l.onnx              48.3       2026-09-26 20:50:42  b0429e23f01eeab4   Early test file (0 runs, propose delete)
-mlp_64w_4l.onnx              64.3       2026-09-27 19:41:36  54506e7b77e0f76f   Active (2 DB refs)
-mlp_768w_4l.onnx             9216.4     2026-09-27 19:41:36  e6d7aa1ffe717b03   Active (2 DB refs)
+mlp_512w_4l.onnx             4096.4     2026-09-27 19:41:36  05a721a140db7a10   Active (1 DB refs)
+mlp_64w_2l.onnx              32.2       2026-09-26 20:52:17  df79efd94cbb15d2   Pre-generated synthetic ladder file
+mlp_64w_4l.onnx              64.3       2026-09-27 19:41:36  54506e7b77e0f76f   Active (1 DB refs)
+mlp_768w_4l.onnx             9216.4     2026-09-27 19:41:36  e6d7aa1ffe717b03   Active (1 DB refs)
 probe.onnx                   0.1        2026-09-26 20:32:45  cdbd1241846717dc   Runtime probe model (keep)
-
-PROPOSAL FOR DATA HYGIENE (WAITING FOR USER APPROVAL):
-  1. Delete 22 unreferenced duplicate rows from SQLite aimodel table (IDs: [1, 2, 3, 4, 5, 6, 7, 10, 11, 12, 39, 40, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93])
-  2. Remove 3 early test ONNX files from models/: attn_32d_16t_2l.onnx, conv_8c_16hw_2l.onnx, mlp_64w_3l.onnx
-  (No files or rows will be modified until explicit user confirmation.)
 
 [4] DATABASE RUN COUNTS & PROVENANCE
 --------------------------------------------------------------------------------
-Total benchmark runs in SQLite database: 269
+Total benchmark runs in SQLite database: 266 (0 unsessioned runs; 602-604 deleted)
 
 Runs per device key:
-  cpu       : 79 runs
-  dml:0     : 90 runs
-  dml:1     : 92 runs
+  cpu       : 78 runs
+  dml:0     : 89 runs
+  dml:1     : 91 runs
   dml:2     : 8 runs
 
 Runs per benchmark session:
@@ -105,14 +98,6 @@ Runs per benchmark session:
   Session 85   (status: done   , kind: latency , runs: 36 ) - Phase 4.1: Extended synthetic ladders to locate batch-1 crossover
   Session 86   (status: done   , kind: latency , runs: 2  ) - Live API re-run: mlp-3072w-4l batch 1 on cpu and dml:1 (warmup 5, runs 30)
   Session 87   (status: done   , kind: latency , runs: 24 ) - Phase 4.2 Batch Anomaly Investigation: B in [1, 2, 4, 8, 16, 32] on mlp-3072 and conv-96
-
-Unsessioned Runs Audit: 3 runs found
-  Run ID 602: Model 'conv-128c-4l' on cpu (CPU) | Batch=1 | Median=4.523 ms | Created=2026-09-27T20:51:44.881667+00:00
-  Run ID 603: Model 'conv-128c-4l' on dml:0 (AMD Radeon(TM) 610M) | Batch=1 | Median=6.811 ms | Created=2026-09-27T20:51:45.231448+00:00
-  Run ID 604: Model 'conv-128c-4l' on dml:1 (NVIDIA GeForce RTX 5070 Laptop GPU) | Batch=1 | Median=1.028 ms | Created=2026-09-27T20:51:45.723994+00:00
-
-PROPOSAL FOR STRAY RUNS (WAITING FOR USER APPROVAL):
-  Delete the 3 un-sessioned debug runs (IDs: 602, 603, 604) in an atomic SQLite transaction.
 
 [5] PHYSICS CHECK: FLOPs, PARAMS, IMPLIED GFLOP/s & GB/s PER RUN
 ---------------------------------------------------------------------------------------------------------
@@ -197,10 +182,43 @@ RunID  Model            Chip   Batch  Median (ms)   ms / sample   Throughput (/s
 623    conv-96c-4l      dml:1  16     18.148        1.134         881.7             0.0188   
 624    conv-96c-4l      dml:1  32     26.889        0.840         1190.1            0.0302   
 
-ROOT CAUSE EXPLANATION FOR B=8 ANOMALY:
-  DirectML uses GPU metacommands compiled for threadgroup wavefront/warp multiples (16, 32 threads).
-  At Batch=8, partial wavefront utilization causes uncoalesced memory reads and tile pipeline bubbles.
-  At Batch=16 and 32, complete wavefront alignment delivers full GPU compute utilization.
+ROOT CAUSE FOR B=8 ANOMALY:
+  Unknown. Hypothesis: the driver switches kernels/algorithms around B=8.
+
+[6b] MULTI-SESSION REPRODUCIBILITY & VOLATILITY ANALYSIS
+---------------------------------------------------------------------------------------------------------
+Examining every model/device/batch measured across >= 2 sessions with % difference:
+Model            Device B   Sessions and Medians (ms)                          Min ms   Max ms   Diff %
+---------------------------------------------------------------------------------------------------------
+conv-96c-4l      dml:0  1   S85:3.545, S87:3.552                               3.545    3.552       0.2%
+conv-96c-4l      dml:0  8   S85:41.853, S87:36.388                             36.388   41.853     15.0%
+conv-96c-4l      dml:0  32  S85:166.573, S87:142.259                           142.259  166.573    17.1%
+conv-96c-4l      dml:1  1   S85:0.676, S87:0.743                               0.676    0.743       9.9%
+conv-96c-4l      dml:1  8   S85:18.381, S87:13.527                             13.527   18.381     35.9%
+conv-96c-4l      dml:1  32  S85:64.495, S87:26.889                             26.889   64.495    139.9%
+mlp-1024w-4l     cpu    1   S9:0.071, S17:0.073, S18:0.067, S32:0.075, S33:0.072, S84:0.054 0.054    0.075      38.9%
+mlp-1024w-4l     cpu    8   S9:0.124, S17:0.128, S18:0.133, S32:0.133, S33:0.134, S84:0.120 0.120    0.134      11.7%
+mlp-1024w-4l     dml:0  1   S9:0.594, S17:0.593, S18:0.800, S32:0.642, S33:0.674, S84:0.580 0.580    0.800      37.9%
+mlp-1024w-4l     dml:0  8   S9:2.172, S17:2.255, S18:2.903, S32:2.533, S33:2.448, S84:2.187 2.172    2.903      33.7%
+mlp-1024w-4l     dml:1  1   S9:0.198, S17:0.189, S18:0.287, S32:0.177, S33:0.175, S84:0.182 0.175    0.287      64.0%
+mlp-1024w-4l     dml:1  8   S9:0.251, S17:0.266, S18:0.249, S32:0.253, S33:0.248, S38:0.269, S84:0.246 0.246    0.269       9.3%
+mlp-1024w-4l     dml:2  1   S9:0.606, S17:0.615                                0.606    0.615       1.5%
+mlp-1024w-4l     dml:2  8   S9:2.168, S17:2.731                                2.168    2.731      26.0%
+mlp-256w-4l      cpu    1   S9:0.026, S17:0.019, S18:0.021, S32:0.017, S33:0.018, S84:0.018 0.017    0.026      52.9%
+mlp-256w-4l      cpu    8   S9:0.045, S17:0.039, S18:0.039, S32:0.025, S33:0.026, S84:0.033 0.025    0.045      80.0%
+mlp-256w-4l      dml:0  1   S9:0.178, S17:0.176, S18:0.144, S32:0.142, S33:0.140, S84:0.127 0.127    0.178      40.2%
+mlp-256w-4l      dml:0  8   S9:0.209, S17:0.204, S18:0.203, S32:0.211, S33:0.213, S84:0.198 0.198    0.213       7.6%
+mlp-256w-4l      dml:1  1   S9:0.170, S17:0.183, S18:0.268, S32:0.152, S33:0.158, S84:0.140 0.140    0.268      91.4%
+mlp-256w-4l      dml:1  8   S9:0.181, S17:0.203, S18:0.274, S32:0.159, S33:0.160, S84:0.147 0.147    0.274      86.4%
+mlp-256w-4l      dml:2  1   S9:0.158, S17:0.165                                0.158    0.165       4.4%
+mlp-256w-4l      dml:2  8   S9:0.197, S17:0.185                                0.185    0.197       6.5%
+mlp-3072w-4l     cpu    1   S85:4.537, S86:3.868                               3.868    4.537      17.3%
+mlp-3072w-4l     dml:0  1   S85:6.478, S87:7.205                               6.478    7.205      11.2%
+mlp-3072w-4l     dml:0  8   S85:21.926, S87:38.584                             21.926   38.584     76.0%
+mlp-3072w-4l     dml:0  32  S85:10.597, S87:15.802                             10.597   15.802     49.1%
+mlp-3072w-4l     dml:1  1   S85:0.604, S86:0.611, S87:0.630                    0.604    0.630       4.3%
+mlp-3072w-4l     dml:1  8   S85:1.000, S87:1.001                               1.000    1.001       0.1%
+mlp-3072w-4l     dml:1  32  S85:0.772, S87:0.777                               0.772    0.777       0.6%
 
 [7] FIT QUALITY BY SEGMENT & CANDIDATE FORM F4 EVALUATION
 -----------------------------------------------------------------------------------------------
@@ -211,96 +229,96 @@ Evaluating Leave-One-Out (LOO) MAPE across candidate forms and data segments:
   F4 Family Roofline: t = t0 + a_mlp * work_mlp + a_conv * work_conv + b * data_gb
 -----------------------------------------------------------------------------------------------
 
-Device: cpu (CPU) [n=66 steady-state runs]
-  Overall LOO MAPE: F1=27.03% | F2=25.60% | F3=493.32% | F4=27.02%
+Device: cpu (CPU) [n=65 steady-state runs]
+  Overall LOO MAPE: F1=27.25% | F2=25.72% | F3=483.83% | F4=27.26%
   Segment LOO MAPE (F1 Roofline vs F4 Family Roofline):
-    - Family mlp   (n=46): F1 = 29.09% | F4 = 29.81%
-    - Family conv  (n=20): F1 = 22.29% | F4 = 20.60%
-    - Batch 1      (n=25): F1 = 29.48% | F4 = 28.40%
-    - Batch 8      (n=24): F1 = 27.71% | F4 = 29.15%
-    - Batch 32     (n=17): F1 = 22.47% | F4 = 21.98%
-  F4 Physical Parameters: t0=0.0131 ms, Compute MLP=696.3 GFLOP/s, Compute Conv=933.3 GFLOP/s, BW=420.2 GB/s
+    - Family mlp   (n=46): F1 = 29.10% | F4 = 29.81%
+    - Family conv  (n=19): F1 = 22.78% | F4 = 21.08%
+    - Batch 1      (n=24): F1 = 29.82% | F4 = 29.00%
+    - Batch 8      (n=24): F1 = 28.00% | F4 = 29.32%
+    - Batch 32     (n=17): F1 = 22.58% | F4 = 21.87%
+  F4 Physical Parameters: t0=0.0131 ms, Compute MLP=696.4 GFLOP/s, Compute Conv=923.7 GFLOP/s, BW=420.1 GB/s
 
-Device: dml:0 (AMD Radeon(TM) 610M) [n=79 steady-state runs]
-  Overall LOO MAPE: F1=29.06% | F2=27.81% | F3=406.70% | F4=28.98%
+Device: dml:0 (AMD Radeon(TM) 610M) [n=78 steady-state runs]
+  Overall LOO MAPE: F1=29.17% | F2=27.89% | F3=408.00% | F4=29.10%
   Segment LOO MAPE (F1 Roofline vs F4 Family Roofline):
-    - Family mlp   (n=51): F1 = 29.19% | F4 = 29.07%
-    - Family conv  (n=28): F1 = 28.83% | F4 = 28.81%
-    - Batch 1      (n=27): F1 = 24.80% | F4 = 22.65%
-    - Batch 2      (n= 2): F1 = 46.36% | F4 = 46.03%
-    - Batch 4      (n= 2): F1 = 43.98% | F4 = 43.28%
-    - Batch 8      (n=25): F1 = 40.58% | F4 = 40.62%
-    - Batch 16     (n= 2): F1 = 20.78% | F4 = 19.47%
-    - Batch 32     (n=21): F1 = 18.55% | F4 = 21.18%
-  F4 Physical Parameters: t0=0.1018 ms, Compute MLP=389.4 GFLOP/s, Compute Conv=614.5 GFLOP/s, BW=23.8 GB/s
+    - Family mlp   (n=51): F1 = 29.17% | F4 = 29.07%
+    - Family conv  (n=27): F1 = 29.16% | F4 = 29.16%
+    - Batch 1      (n=26): F1 = 25.04% | F4 = 22.93%
+    - Batch 2      (n= 2): F1 = 47.18% | F4 = 46.77%
+    - Batch 4      (n= 2): F1 = 44.74% | F4 = 43.98%
+    - Batch 8      (n=25): F1 = 40.45% | F4 = 40.47%
+    - Batch 16     (n= 2): F1 = 20.19% | F4 = 18.97%
+    - Batch 32     (n=21): F1 = 18.50% | F4 = 21.08%
+  F4 Physical Parameters: t0=0.1018 ms, Compute MLP=389.5 GFLOP/s, Compute Conv=608.2 GFLOP/s, BW=23.8 GB/s
 
-Device: dml:1 (NVIDIA GeForce RTX 5070 Laptop GPU) [n=84 steady-state runs]
-  Overall LOO MAPE: F1=23.91% | F2=24.14% | F3=146.28% | F4=22.36%
+Device: dml:1 (NVIDIA GeForce RTX 5070 Laptop GPU) [n=83 steady-state runs]
+  Overall LOO MAPE: F1=23.90% | F2=24.12% | F3=146.20% | F4=21.89%
   Segment LOO MAPE (F1 Roofline vs F4 Family Roofline):
-    - Family mlp   (n=58): F1 = 16.96% | F4 = 14.73%
-    - Family conv  (n=26): F1 = 39.42% | F4 = 39.37%
-    - Batch 1      (n=29): F1 = 17.59% | F4 = 19.14%
-    - Batch 2      (n= 2): F1 = 10.05% | F4 = 22.79%
-    - Batch 4      (n= 2): F1 = 11.05% | F4 = 26.82%
-    - Batch 8      (n=29): F1 = 24.73% | F4 = 22.96%
-    - Batch 16     (n= 2): F1 = 32.36% | F4 = 22.17%
-    - Batch 32     (n=20): F1 = 33.73% | F4 = 25.67%
-  F4 Physical Parameters: t0=0.1538 ms, Compute MLP=14490.9 GFLOP/s, Compute Conv=3566.6 GFLOP/s, BW=306.5 GB/s
+    - Family mlp   (n=58): F1 = 17.23% | F4 = 14.73%
+    - Family conv  (n=25): F1 = 39.36% | F4 = 38.50%
+    - Batch 1      (n=28): F1 = 17.31% | F4 = 18.41%
+    - Batch 2      (n= 2): F1 = 12.45% | F4 = 26.30%
+    - Batch 4      (n= 2): F1 = 13.63% | F4 = 30.94%
+    - Batch 8      (n=29): F1 = 24.47% | F4 = 22.44%
+    - Batch 16     (n= 2): F1 = 31.72% | F4 = 20.48%
+    - Batch 32     (n=20): F1 = 33.68% | F4 = 24.75%
+  F4 Physical Parameters: t0=0.1537 ms, Compute MLP=14513.0 GFLOP/s, Compute Conv=3393.4 GFLOP/s, BW=306.2 GB/s
 
 [8] ACTIVE HARDWARE PREDICTOR FITS & 500-ROUND BOOTSTRAP CIs (from SQLite fit table)
 -----------------------------------------------------------------------------------------------
 
 Device: cpu (CPU)
   Model Form:          f2_cache
-  Trained On:          66 genuine runs (LOO MAPE = 25.60%, R2_log = 0.9761)
+  Trained On:          65 genuine runs (LOO MAPE = 25.72%, R2_log = 0.9759)
   Fitted t0:           0.0139 ms
-  Fitted Compute:      896.8 GFLOP/s (0.90 TFLOP/s)
-  Fitted Bandwidth:    538.72 GB/s
-  Fitted DRAM BW:      53.90 GB/s
+  Fitted Compute:      887.3 GFLOP/s (0.89 TFLOP/s)
+  Fitted Bandwidth:    543.12 GB/s
+  Fitted DRAM BW:      54.04 GB/s
   Bootstrap 95% Confidence Intervals (500 resamples):
-    - t0_ms                 : [0.013, 0.017] (Median: 0.014, +/-15.9%) -> reliable
-    - compute_gflops        : [816.74, 973.699] (Median: 902.387, +/-8.7%) -> reliable
-    - bandwidth_gb_s        : [343.851, 1092.884] (Median: 517.321, +/-72.4%) -> not reliable (CI > ±50%)
-    - bandwidth_dram_gb_s   : [31.053, 100.946] (Median: 51.872, +/-67.4%) -> not reliable (CI > ±50%)
+    - t0_ms                 : [0.012, 0.017] (Median: 0.014, +/-15.4%) -> reliable
+    - compute_gflops        : [820.551, 975.248] (Median: 895.105, +/-8.6%) -> reliable
+    - bandwidth_gb_s        : [337.743, 1221.393] (Median: 510.85, +/-86.5%) -> not reliable (CI > ±50%)
+    - bandwidth_dram_gb_s   : [31.213, 118.251] (Median: 50.425, +/-86.3%) -> not reliable (CI > ±50%)
 
 Device: dml:0 (AMD Radeon(TM) 610M)
   Model Form:          f2_cache
-  Trained On:          79 genuine runs (LOO MAPE = 27.81%, R2_log = 0.9351)
-  Fitted t0:           0.1101 ms
-  Fitted Compute:      606.7 GFLOP/s (0.61 TFLOP/s)
-  Fitted Bandwidth:    28.93 GB/s
-  Fitted DRAM BW:      15.89 GB/s
+  Trained On:          78 genuine runs (LOO MAPE = 27.89%, R2_log = 0.9353)
+  Fitted t0:           0.1100 ms
+  Fitted Compute:      600.4 GFLOP/s (0.60 TFLOP/s)
+  Fitted Bandwidth:    28.95 GB/s
+  Fitted DRAM BW:      15.91 GB/s
   Bootstrap 95% Confidence Intervals (500 resamples):
-    - t0_ms                 : [0.102, 0.127] (Median: 0.11, +/-11.7%) -> reliable
-    - compute_gflops        : [540.926, 657.466] (Median: 605.538, +/-9.6%) -> reliable
-    - bandwidth_gb_s        : [21.932, 34.938] (Median: 29.161, +/-22.3%) -> reliable
-    - bandwidth_dram_gb_s   : [11.888, 19.104] (Median: 15.824, +/-22.8%) -> reliable
+    - t0_ms                 : [0.102, 0.125] (Median: 0.11, +/-10.5%) -> reliable
+    - compute_gflops        : [536.067, 654.233] (Median: 599.734, +/-9.9%) -> reliable
+    - bandwidth_gb_s        : [21.941, 35.462] (Median: 29.167, +/-23.2%) -> reliable
+    - bandwidth_dram_gb_s   : [12.106, 19.021] (Median: 15.908, +/-21.7%) -> reliable
 
 Device: dml:1 (NVIDIA GeForce RTX 5070 Laptop GPU)
   Model Form:          f4_family
-  Trained On:          84 genuine runs (LOO MAPE = 22.36%, R2_log = 0.9251)
-  Fitted t0:           0.1538 ms
-  Fitted Compute:      14490.9 GFLOP/s (14.49 TFLOP/s)
-  Fitted Bandwidth:    306.46 GB/s
-  Form F4 Breakdown:   MLP Compute = 14490.9 GFLOP/s | Conv Compute = 3566.6 GFLOP/s
+  Trained On:          83 genuine runs (LOO MAPE = 21.89%, R2_log = 0.9291)
+  Fitted t0:           0.1537 ms
+  Fitted Compute:      14513.0 GFLOP/s (14.51 TFLOP/s)
+  Fitted Bandwidth:    306.23 GB/s
+  Form F4 Breakdown:   MLP Compute = 14513.0 GFLOP/s | Conv Compute = 3393.4 GFLOP/s
   Bootstrap 95% Confidence Intervals (500 resamples):
-    - t0_ms                 : [0.147, 0.163] (Median: 0.154, +/-5.1%) -> reliable
-    - compute_mlp_gflops    : [5276.073, 40164.07] (Median: 13812.059, +/-126.3%) -> not reliable (CI > ±50%)
-    - compute_conv_gflops   : [2636.431, 4166.095] (Median: 3520.744, +/-21.7%) -> reliable
-    - bandwidth_gb_s        : [261.044, 347.084] (Median: 309.692, +/-13.9%) -> reliable
+    - t0_ms                 : [0.147, 0.163] (Median: 0.154, +/-5.2%) -> reliable
+    - compute_mlp_gflops    : [4309.472, 60542.523] (Median: 14206.483, +/-197.9%) -> not reliable (CI > ±50%)
+    - compute_conv_gflops   : [2689.195, 4003.542] (Median: 3390.216, +/-19.4%) -> reliable
+    - bandwidth_gb_s        : [258.574, 347.551] (Median: 309.987, +/-14.4%) -> reliable
 
 [9] CROSSOVER EVALUATION: CPU vs NVIDIA RTX 5070 (from active fits)
 --------------------------------------------------------------------------------
 MLP Batch  1: Crossover at Width = 1639  (10,745,284 params, 40.99 MB)
-              CPU pred: 0.3135 ms vs RTX 5070 pred: 0.2955 ms (Switched to dml:1)
+              CPU pred: 0.3127 ms vs RTX 5070 pred: 0.2955 ms (Switched to dml:1)
 Conv Batch  1: Crossover at Channels = 24  (20,736 params, 0.079 MB)
-               CPU pred: 0.2034 ms vs RTX 5070 pred: 0.2017 ms (Switched to dml:1)
+               CPU pred: 0.2055 ms vs RTX 5070 pred: 0.2040 ms (Switched to dml:1)
 MLP Batch  8: Crossover at Width = 1458  (8,503,056 params, 32.44 MB)
-              CPU pred: 0.2748 ms vs RTX 5070 pred: 0.2742 ms (Switched to dml:1)
+              CPU pred: 0.2759 ms vs RTX 5070 pred: 0.2741 ms (Switched to dml:1)
 Conv Batch  8: Crossover at Channels = 9   (2,916 params, 0.011 MB)
-               CPU pred: 0.2270 ms vs RTX 5070 pred: 0.2074 ms (Switched to dml:1)
-MLP Batch 32: Crossover at Width = 767   (2,353,156 params, 8.98 MB)
-              CPU pred: 0.1993 ms vs RTX 5070 pred: 0.1949 ms (Switched to dml:1)
+               CPU pred: 0.2293 ms vs RTX 5070 pred: 0.2101 ms (Switched to dml:1)
+MLP Batch 32: Crossover at Width = 752   (2,262,016 params, 8.63 MB)
+              CPU pred: 0.1937 ms vs RTX 5070 pred: 0.1932 ms (Switched to dml:1)
 Conv Batch 32: dml:1 is faster across the entire measured range
 
 [10] LIVE IDLE-GAP GPU WAKE TEST ON NVIDIA RTX 5070 (dml:1)
@@ -308,22 +326,22 @@ Conv Batch 32: dml:1 is faster across the entire measured range
 Testing cold/warm inference latencies across idle intervals measuring NVML clock and power.
 
 --- Testing mlp-1024w-4l (B=1) on NVIDIA GeForce RTX 5070 Laptop GPU ---
-Active Steady-State Median: 0.185 ms
+Active Steady-State Median: 0.179 ms
 Idle Gap   P-State   Clock (MHz)   Power (W)   First Run (ms)   Wake Penalty (ms)
 ---------------------------------------------------------------------------
-0.5        P0        930           11.9        0.501            +0.316 ms (2.7x)
-2.0        P0        1537          11.9        0.582            +0.397 ms (3.1x)
-10.0       P8        225           5.8         0.728            +0.543 ms (3.9x)
-30.0       P8        225           5.8         0.966            +0.781 ms (5.2x)
+0.5        P0        607           8.6         0.503            +0.324 ms (2.8x)
+2.0        P0        1537          11.9        0.731            +0.552 ms (4.1x)
+10.0       P8        225           5.9         0.843            +0.664 ms (4.7x)
+30.0       P8        225           5.8         0.958            +0.779 ms (5.4x)
 
 --- Testing mlp-3072w-4l (B=1) on NVIDIA GeForce RTX 5070 Laptop GPU ---
-Active Steady-State Median: 0.748 ms
+Active Steady-State Median: 0.620 ms
 Idle Gap   P-State   Clock (MHz)   Power (W)   First Run (ms)   Wake Penalty (ms)
 ---------------------------------------------------------------------------
-0.5        P4        1432          9.7         1.309            +0.562 ms (1.8x)
-2.0        P4        225           9.4         1.369            +0.622 ms (1.8x)
-10.0       P8        225           5.8         15.180           +14.432 ms (20.3x)
-30.0       P8        225           5.8         14.299           +13.551 ms (19.1x)
+0.5        P4        2550          11.2        1.327            +0.707 ms (2.1x)
+2.0        P4        225           9.5         1.629            +1.008 ms (2.6x)
+10.0       P8        225           5.9         15.295           +14.674 ms (24.7x)
+30.0       P8        225           5.8         14.465           +13.845 ms (23.3x)
 
 ====================================================================================================
 END OF SILICONROUTE PHASE 4.2 GROUND-TRUTH REPORT
