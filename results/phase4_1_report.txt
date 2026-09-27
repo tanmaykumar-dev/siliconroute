@@ -1,0 +1,273 @@
+====================================================================================================
+SILICONROUTE PHASE 4.1 GROUND-TRUTH REPORT
+Generated at: 2026-09-27T20:54:52.901950+00:00
+====================================================================================================
+
+[1] HOST HARDWARE IDENTIFICATION (from /api/system)
+--------------------------------------------------------------------------------
+CPU Name:           AMD Ryzen 9 8940HX with Radeon Graphics
+Physical / Logical: 16 cores / 32 threads
+Installed RAM:      15.21 GB
+Operating System:   Windows 11 (10.0.26200)
+ONNX Runtime:       v1.24.4 (Providers: DmlExecutionProvider, CPUExecutionProvider)
+Discrete GPU(s):    NVIDIA GeForce RTX 5070 Laptop GPU (NVML available: Yes)
+
+[2] DATABASE DEVICE REGISTRY (from SQLite device table)
+--------------------------------------------------------------------------------
+ID   Key        Kind     Provider                 Available  Label / Unavailable Reason
+--------------------------------------------------------------------------------
+1    cpu        cpu      CPUExecutionProvider     True       CPU
+2    dml:0      igpu     DmlExecutionProvider     True       AMD Radeon(TM) 610M
+3    dml:1      dgpu     DmlExecutionProvider     True       NVIDIA GeForce RTX 5070 Laptop GPU
+4    dml:2      unknown  DmlExecutionProvider     False      DirectML GPU 2 [Unavailable: suspected duplicate of dml:0]
+
+[3] MODEL INVENTORY & SPECIFICATIONS (from SQLite aimodel table)
+--------------------------------------------------------------------------------
+Total entries in aimodel table: 41
+Models with benchmark runs:      19 (all synthetic models)
+Unreferenced scanned duplicates: 22 (file-scanned copies with no runs)
+
+ID   Name               Family   Source     Params       FLOPs/sample     Weights (MB) Runs
+-----------------------------------------------------------------------------------------------
+1    mlp-32w-2l         mlp      synthetic  2,048        4,096            0.008        0
+2    mlp-64w-2l         mlp      synthetic  8,192        16,384           0.031        0
+3    attn_32d_16t_2l    file     file       8,193        None             0.031        0
+4    conv_8c_16hw_2l    file     file       1,152        None             0.004        0
+5    mlp_32w_2l         file     file       2,048        None             0.008        0
+6    mlp_64w_2l         file     file       8,192        None             0.031        0
+7    mlp_64w_3l         file     file       12,288       None             0.047        0
+8    mlp-256w-4l        mlp      synthetic  262,144      524,288          1.000        43
+9    mlp-1024w-4l       mlp      synthetic  4,194,304    8,388,608        16.000       44
+10   mlp_1024w_4l       file     file       4,194,304    None             16.000       0
+11   mlp_256w_4l        file     file       262,144      None             1.000        0
+12   mlp_2048w_4l       file     file       16,777,216   None             64.000       0
+37   mlp-128w-4l        mlp      synthetic  65,536       131,072          0.250        9
+38   conv-16c-4l        conv     synthetic  9,216        75,497,472       0.035        9
+39   conv_16c_64hw_4l   file     file       9,216        None             0.035        0
+40   mlp_128w_4l        file     file       65,536       None             0.250        0
+73   mlp-32w-4l         mlp      synthetic  4,096        8,192            0.016        9
+74   mlp-64w-4l         mlp      synthetic  16,384       32,768           0.062        9
+75   mlp-384w-4l        mlp      synthetic  589,824      1,179,648        2.250        9
+76   mlp-512w-4l        mlp      synthetic  1,048,576    2,097,152        4.000        9
+77   mlp-768w-4l        mlp      synthetic  2,359,296    4,718,592        9.000        9
+78   mlp-1536w-4l       mlp      synthetic  9,437,184    18,874,368       36.000       9
+79   mlp-2048w-4l       mlp      synthetic  16,777,216   33,554,432       64.000       9
+80   conv-8c-4l         conv     synthetic  2,304        18,874,368       0.009        9
+81   conv-32c-4l        conv     synthetic  36,864       301,989,888      0.141        9
+82   conv-48c-4l        conv     synthetic  82,944       679,477,248      0.316        9
+83   conv-64c-4l        conv     synthetic  147,456      1,207,959,552    0.562        9
+84   conv_32c_64hw_4l   file     file       36,864       None             0.141        0
+85   conv_48c_64hw_4l   file     file       82,944       None             0.316        0
+86   conv_64c_64hw_4l   file     file       147,456      None             0.562        0
+87   conv_8c_64hw_4l    file     file       2,304        None             0.009        0
+88   mlp_1536w_4l       file     file       9,437,184    None             36.000       0
+89   mlp_32w_4l         file     file       4,096        None             0.016        0
+90   mlp_384w_4l        file     file       589,824      None             2.250        0
+91   mlp_512w_4l        file     file       1,048,576    None             4.000        0
+92   mlp_64w_4l         file     file       16,384       None             0.062        0
+93   mlp_768w_4l        file     file       2,359,296    None             9.000        0
+94   mlp-3072w-4l       mlp      synthetic  37,748,736   75,497,472       144.000      11
+95   mlp-4096w-4l       mlp      synthetic  67,108,864   134,217,728      256.000      9
+96   conv-96c-4l        conv     synthetic  331,776      2,717,908,992    1.266        9
+97   conv-128c-4l       conv     synthetic  589,824      4,831,838,208    2.250        12
+
+[4] DATABASE RUN COUNTS & PROVENANCE (from SQLite run & benchsession tables)
+--------------------------------------------------------------------------------
+Total benchmark runs in database: 245
+
+Runs per device key:
+  cpu       : 79 runs
+  dml:0     : 78 runs
+  dml:1     : 80 runs
+  dml:2     : 8 runs
+
+Runs per benchmark session:
+  Session 9    (status: done   , kind: latency , runs: 16 ) - Phase 2 Real Latency Benchmark
+  Session 17   (status: done   , kind: latency , runs: 16 ) - Phase 2.5 Robust Timing + Device Identity Benchmark
+  Session 18   (status: done   , kind: latency , runs: 12 ) - Phase 2.5 Robust Timing Verification
+  Session 32   (status: done   , kind: latency , runs: 12 ) - Phase 3 Gate - Benchmark Session A
+  Session 33   (status: done   , kind: latency , runs: 12 ) - Phase 3 Gate - Benchmark Session B
+  Session 38   (status: done   , kind: energy  , runs: 1  ) - Phase 3 Proof: Real NVML energy measurement on dml:1
+  Session 84   (status: done   , kind: latency , runs: 135) - Phase 4 full ladder benchmark for hardware model fits and crossover
+  Session 85   (status: done   , kind: latency , runs: 36 ) - Phase 4.1: Extended synthetic ladders to locate batch-1 crossover
+  Session 86   (status: done   , kind: latency , runs: 2  ) - Live API re-run: mlp-3072w-4l batch 1 on cpu and dml:1 (warmup 5, runs 30)
+
+[5] PHYSICS CHECK: FLOPs, PARAMS, IMPLIED GFLOP/s & GB/s PER RUN
+---------------------------------------------------------------------------------------------------------
+Formulae from SPEC Section 3:
+  MLP:  FLOPs = 2 * L * W^2, Params = L * W^2, Weights = Params * 4 bytes
+  Conv: FLOPs = 2 * L * H * W * C^2 * 9 (H=W=64), Params = L * C^2 * 9, Weights = Params * 4 bytes
+  Implied GFLOP/s = (flops_per_sample * batch) / (median_ms * 1e6)
+  Implied Weight GB/s = (weight_bytes) / (median_ms * 1e6)
+---------------------------------------------------------------------------------------------------------
+RunID  Model            Chip   B   Median(ms)  FLOPs/spl      GFLOP/s     Weight GB/s  Physical Note
+---------------------------------------------------------------------------------------------------------
+566    mlp-3072w-4l     cpu    1   4.537       75497472       16.6        33.28        16.6 GFLOP/s CPU
+605    mlp-3072w-4l     cpu    1   3.868       75497472       19.5        39.04        19.5 GFLOP/s CPU
+567    mlp-3072w-4l     dml:0  1   6.478       75497472       11.7        23.31        2% of 610M peak (~563 GFLOP/s)
+568    mlp-3072w-4l     dml:1  1   0.604       75497472       125.0       249.99       0.12 TFLOP/s
+606    mlp-3072w-4l     dml:1  1   0.611       75497472       123.6       247.13       0.12 TFLOP/s
+569    mlp-3072w-4l     cpu    8   4.298       75497472       140.5       35.13        140.5 GFLOP/s CPU
+570    mlp-3072w-4l     dml:0  8   21.926      75497472       27.5        6.89         5% of 610M peak (~563 GFLOP/s)
+571    mlp-3072w-4l     dml:1  8   1.000       75497472       604.0       150.99       0.60 TFLOP/s
+572    mlp-3072w-4l     cpu    32  5.451       75497472       443.2       27.70        443.2 GFLOP/s CPU
+573    mlp-3072w-4l     dml:0  32  10.597      75497472       228.0       14.25        40% of 610M peak (~563 GFLOP/s)
+574    mlp-3072w-4l     dml:1  32  0.772       75497472       3129.4      195.59       3.13 TFLOP/s
+575    mlp-4096w-4l     cpu    1   8.229       134217728      16.3        32.62        16.3 GFLOP/s CPU
+576    mlp-4096w-4l     dml:0  1   16.424      134217728      8.2         16.34        1% of 610M peak (~563 GFLOP/s)
+577    mlp-4096w-4l     dml:1  1   0.951       134217728      141.1       282.27       0.14 TFLOP/s
+578    mlp-4096w-4l     cpu    8   8.634       134217728      124.4       31.09        124.4 GFLOP/s CPU
+579    mlp-4096w-4l     dml:0  8   42.924      134217728      25.0        6.25         4% of 610M peak (~563 GFLOP/s)
+580    mlp-4096w-4l     dml:1  8   1.745       134217728      615.3       153.83       0.62 TFLOP/s
+581    mlp-4096w-4l     cpu    32  10.008      134217728      429.2       26.82        429.2 GFLOP/s CPU
+582    mlp-4096w-4l     dml:0  32  25.332      134217728      169.5       10.60        30% of 610M peak (~563 GFLOP/s)
+583    mlp-4096w-4l     dml:1  32  1.036       134217728      4145.7      259.11       4.15 TFLOP/s
+584    conv-96c-4l      cpu    1   2.574       2717908992     1055.9      0.52         1055.9 GFLOP/s CPU
+585    conv-96c-4l      dml:0  1   3.545       2717908992     766.7       0.37         136% of 610M peak (~563 GFLOP/s)
+586    conv-96c-4l      dml:1  1   0.676       2717908992     4020.6      1.96         4.02 TFLOP/s
+587    conv-96c-4l      cpu    8   20.001      2717908992     1087.1      0.07         1087.1 GFLOP/s CPU
+588    conv-96c-4l      dml:0  8   41.853      2717908992     519.5       0.03         92% of 610M peak (~563 GFLOP/s)
+589    conv-96c-4l      dml:1  8   18.381      2717908992     1182.9      0.07         1.18 TFLOP/s
+590    conv-96c-4l      cpu    32  89.433      2717908992     972.5       0.01         972.5 GFLOP/s CPU
+591    conv-96c-4l      dml:0  32  166.573     2717908992     522.1       0.01         93% of 610M peak (~563 GFLOP/s)
+592    conv-96c-4l      dml:1  32  64.495      2717908992     1348.5      0.02         1.35 TFLOP/s
+593    conv-128c-4l     cpu    1   4.396       4831838208     1099.1      0.54         1099.1 GFLOP/s CPU
+594    conv-128c-4l     dml:0  1   6.094       4831838208     792.9       0.39         141% of 610M peak (~563 GFLOP/s)
+595    conv-128c-4l     dml:1  1   0.993       4831838208     4865.9      2.38         4.87 TFLOP/s
+596    conv-128c-4l     cpu    8   35.214      4831838208     1097.7      0.07         1097.7 GFLOP/s CPU
+597    conv-128c-4l     dml:0  8   65.184      4831838208     593.0       0.04         105% of 610M peak (~563 GFLOP/s)
+598    conv-128c-4l     dml:1  8   24.726      4831838208     1563.3      0.10         1.56 TFLOP/s
+599    conv-128c-4l     cpu    32  143.253     4831838208     1079.3      0.02         1079.3 GFLOP/s CPU
+600    conv-128c-4l     dml:0  32  261.914     4831838208     590.3       0.01         105% of 610M peak (~563 GFLOP/s)
+601    conv-128c-4l     dml:1  32  85.592      4831838208     1806.5      0.03         1.81 TFLOP/s
+
+[6] EXTENDED BENCHMARK RUNS STORED IN DB (Session 85 - Real Measurements)
+-----------------------------------------------------------------------------------------------
+RunID  Model            B   Chip   Median(ms)   P10-P90 (ms)     CI rel   First Run(ms)  Thput(/s)
+-----------------------------------------------------------------------------------------------
+566    mlp-3072w-4l     1   cpu    4.537        4.121-5.304      0.0483   6.878          220.4     
+567    mlp-3072w-4l     1   dml:0  6.478        6.335-8.449      0.0159   10.055         154.4     
+568    mlp-3072w-4l     1   dml:1  0.604        0.596-0.613      0.0043   43.422         1656.1    
+569    mlp-3072w-4l     8   cpu    4.298        4.027-4.763      0.0437   6.289          1861.2    
+570    mlp-3072w-4l     8   dml:0  21.926       21.453-23.514    0.0177   25.130         364.9     
+571    mlp-3072w-4l     8   dml:1  1.000        0.990-1.015      0.0060   22.527         7999.7    
+572    mlp-3072w-4l     32  cpu    5.451        5.073-5.803      0.0301   6.462          5870.9    
+573    mlp-3072w-4l     32  dml:0  10.597       10.526-10.756    0.0044   14.407         3019.7    
+574    mlp-3072w-4l     32  dml:1  0.772        0.763-0.790      0.0077   116.121        41442.3   
+575    mlp-4096w-4l     1   cpu    8.229        7.853-8.788      0.0192   10.158         121.5     
+576    mlp-4096w-4l     1   dml:0  16.424       16.023-18.425    0.0212   20.967         60.9      
+577    mlp-4096w-4l     1   dml:1  0.951        0.943-0.969      0.0029   4.481          1052.0    
+578    mlp-4096w-4l     8   cpu    8.634        8.328-8.945      0.0067   10.416         926.6     
+579    mlp-4096w-4l     8   dml:0  42.924       42.425-43.850    0.0064   49.533         186.4     
+580    mlp-4096w-4l     8   dml:1  1.745        1.732-1.764      0.0028   13.732         4584.2    
+581    mlp-4096w-4l     32  cpu    10.008       9.589-10.366     0.0162   10.484         3197.3    
+582    mlp-4096w-4l     32  dml:0  25.332       24.920-25.763    0.0052   28.953         1263.2    
+583    mlp-4096w-4l     32  dml:1  1.036        1.030-1.062      0.0025   16.656         30874.3   
+584    conv-96c-4l      1   cpu    2.574        2.035-3.371      0.0429   2.116          388.4     
+585    conv-96c-4l      1   dml:0  3.545        3.384-3.613      0.0073   6.986          282.1     
+586    conv-96c-4l      1   dml:1  0.676        0.666-0.718      0.0067   10.154         1478.7    
+587    conv-96c-4l      8   cpu    20.001       16.411-24.785    0.1146   21.921         400.0     
+588    conv-96c-4l      8   dml:0  41.853       41.357-42.481    0.0058   57.966         191.1     
+589    conv-96c-4l      8   dml:1  18.381       18.242-18.684    0.0026   31.133         435.2     
+590    conv-96c-4l      32  cpu    89.433       78.863-93.913    0.0363   90.797         357.8     
+591    conv-96c-4l      32  dml:0  166.573      164.498-168.510  0.0036   192.710        192.1     
+592    conv-96c-4l      32  dml:1  64.495       64.133-65.496    0.0036   223.288        496.2     
+593    conv-128c-4l     1   cpu    4.396        2.815-4.629      0.1287   4.606          227.5     
+594    conv-128c-4l     1   dml:0  6.094        5.666-6.138      0.0351   10.182         164.1     
+595    conv-128c-4l     1   dml:1  0.993        0.981-1.017      0.0075   8.177          1007.0    
+596    conv-128c-4l     8   cpu    35.214       29.143-37.001    0.0462   36.302         227.2     
+597    conv-128c-4l     8   dml:0  65.184       64.343-66.380    0.0025   75.368         122.7     
+598    conv-128c-4l     8   dml:1  24.726       22.483-36.015    0.2595   69.531         323.6     
+599    conv-128c-4l     32  cpu    143.253      139.511-153.109  0.0170   146.888        223.4     
+600    conv-128c-4l     32  dml:0  261.914      260.443-265.971  0.0020   288.017        122.2     
+601    conv-128c-4l     32  dml:1  85.592       84.806-86.530    0.0036   276.481        373.9     
+
+[7] LIVE API RE-RUN ON mlp-3072w-4l B=1 (Session 86)
+-----------------------------------------------------------------------------------------------
+Run 605: mlp-3072w-4l on cpu (CPU) | Batch=1 | Warmup=5, Runs=30
+  Median: 3.868 ms | P10: 3.312 ms | P90: 4.288 ms | Spread: 0.2524 | CI_rel: 0.0502
+  First Run: 6.538 ms | Session Create: 169.2 ms | Throughput: 258.5 /s
+  Provider Used: CPUExecutionProvider (mismatch=False) | Output Matches CPU: True
+Run 606: mlp-3072w-4l on dml:1 (NVIDIA GeForce RTX 5070 Laptop GPU) | Batch=1 | Warmup=5, Runs=30
+  Median: 0.611 ms | P10: 0.602 ms | P90: 0.623 ms | Spread: 0.0346 | CI_rel: 0.0076
+  First Run: 36.523 ms | Session Create: 383.0 ms | Throughput: 1636.9 /s
+  Provider Used: DmlExecutionProvider (mismatch=False) | Output Matches CPU: True
+  NVML SM Clock: 225 MHz -> 2767 MHz | P-state: 0 -> 0
+
+[8] ACTIVE HARDWARE PREDICTOR FITS & 500-ROUND BOOTSTRAP CIs (from SQLite fit table)
+-----------------------------------------------------------------------------------------------
+
+Device: cpu (CPU)
+  Model Form:          f2_cache
+  Trained On:          64 genuine runs (LOO MAPE = 25.70%, R2_log = 0.9754)
+  Fitted t0:           0.0138 ms
+  Fitted Compute:      885.1 GFLOP/s (0.89 TFLOP/s)
+  Fitted Bandwidth:    528.81 GB/s
+  Fitted DRAM BW:      58.23 GB/s
+  Bootstrap 95% Confidence Intervals (500 resamples):
+    - t0_ms               : [0.012, 0.017] (Median: 0.014, +/-15.0%) -> reliable
+    - compute_gflops      : [803.258, 970.389] (Median: 900.027, +/-9.3%) -> reliable
+    - bandwidth_gb_s      : [349.108, 1034.921] (Median: 486.051, +/-70.5%) -> not reliable (CI > ±50%)
+    - bandwidth_dram_gb_s : [30.808, 124.986] (Median: 52.927, +/-89.0%) -> not reliable (CI > ±50%)
+
+Device: dml:0 (AMD Radeon(TM) 610M)
+  Model Form:          f2_cache
+  Trained On:          66 genuine runs (LOO MAPE = 27.57%, R2_log = 0.9315)
+  Fitted t0:           0.1095 ms
+  Fitted Compute:      562.7 GFLOP/s (0.56 TFLOP/s)
+  Fitted Bandwidth:    28.79 GB/s
+  Fitted DRAM BW:      17.39 GB/s
+  Bootstrap 95% Confidence Intervals (500 resamples):
+    - t0_ms               : [0.1, 0.124] (Median: 0.109, +/-10.7%) -> reliable
+    - compute_gflops      : [490.638, 620.471] (Median: 561.833, +/-11.6%) -> reliable
+    - bandwidth_gb_s      : [21.208, 34.711] (Median: 29.015, +/-23.3%) -> reliable
+    - bandwidth_dram_gb_s : [12.755, 21.053] (Median: 17.299, +/-24.0%) -> reliable
+
+Device: dml:1 (NVIDIA GeForce RTX 5070 Laptop GPU)
+  Model Form:          f1_roofline
+  Trained On:          70 genuine runs (LOO MAPE = 24.18%, R2_log = 0.9015)
+  Fitted t0:           0.1558 ms
+  Fitted Compute:      3677.4 GFLOP/s (3.68 TFLOP/s)
+  Fitted Bandwidth:    454.85 GB/s
+  Bootstrap 95% Confidence Intervals (500 resamples):
+    - t0_ms               : [0.146, 0.167] (Median: 0.156, +/-6.9%) -> reliable
+    - compute_gflops      : [2550.896, 4885.879] (Median: 3634.566, +/-32.1%) -> reliable
+    - bandwidth_gb_s      : [300.95, 1047.068] (Median: 454.385, +/-82.1%) -> not reliable (CI > ±50%)
+
+[9] CROSSOVER EVALUATION: CPU vs NVIDIA RTX 5070 (from active fits)
+--------------------------------------------------------------------------------
+MLP Batch  1: Crossover at Width = 1607  (10,329,796 params, 39.41 MB)
+              CPU pred: 0.2692 ms vs RTX 5070 pred: 0.2522 ms (Switched to dml:1)
+Conv Batch  1: Crossover at Channels = 24  (20,736 params, 0.079 MB)
+               CPU pred: 0.2059 ms vs RTX 5070 pred: 0.2021 ms (Switched to dml:1)
+MLP Batch  8: Crossover at Width = 1458  (8,503,056 params, 32.44 MB)
+              CPU pred: 0.2741 ms vs RTX 5070 pred: 0.2675 ms (Switched to dml:1)
+Conv Batch  8: Crossover at Channels = 9   (2,916 params, 0.011 MB)
+               CPU pred: 0.2298 ms vs RTX 5070 pred: 0.2078 ms (Switched to dml:1)
+MLP Batch 32: Crossover at Width = 829   (2,748,964 params, 10.49 MB)
+              CPU pred: 0.2334 ms vs RTX 5070 pred: 0.2278 ms (Switched to dml:1)
+Conv Batch 32: dml:1 is faster across the entire measured range
+
+[10] LIVE IDLE-GAP GPU WAKE TEST ON NVIDIA RTX 5070 (dml:1)
+--------------------------------------------------------------------------------
+Testing cold/warm inference latencies across idle intervals measuring NVML clock and power.
+
+--- Testing mlp-1024w-4l (B=1) on NVIDIA GeForce RTX 5070 Laptop GPU ---
+Active Steady-State Median: 0.161 ms
+Idle Gap   P-State   Clock (MHz)   Power (W)   First Run (ms)   Wake Penalty (ms)
+---------------------------------------------------------------------------
+0.5        P0        225           14.9        0.525            +0.364 ms (3.3x)
+2.0        P0        1537          11.9        0.587            +0.426 ms (3.6x)
+10.0       P8        225           5.9         0.742            +0.581 ms (4.6x)
+
+--- Testing mlp-3072w-4l (B=1) on NVIDIA GeForce RTX 5070 Laptop GPU ---
+Active Steady-State Median: 0.608 ms
+Idle Gap   P-State   Clock (MHz)   Power (W)   First Run (ms)   Wake Penalty (ms)
+---------------------------------------------------------------------------
+0.5        P4        1665          10.0        1.343            +0.735 ms (2.2x)
+2.0        P4        225           9.5         1.292            +0.684 ms (2.1x)
+10.0       P8        225           5.9         15.047           +14.439 ms (24.8x)
+
+====================================================================================================
+END OF SILICONROUTE PHASE 4.1 GROUND-TRUTH REPORT
+====================================================================================================
