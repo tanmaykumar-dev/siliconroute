@@ -167,6 +167,11 @@ class Fit(SQLModel, table=True):
     n_samples: int
     r2_log: float
     loo_mape_pct: float
+    t0_ms: Optional[float] = None
+    compute_gflops: Optional[float] = None
+    bandwidth_gb_s: Optional[float] = None
+    bandwidth_dram_gb_s: Optional[float] = None
+    notes: Optional[str] = None
     trained_at: str
     is_active: bool = True
 
@@ -220,6 +225,20 @@ def _migrate_columns(target_engine) -> None:
             if dev_cols:
                 if "unavailable_reason" not in dev_cols:
                     conn.execute(text("ALTER TABLE device ADD COLUMN unavailable_reason TEXT"))
+
+            # Check fit columns
+            fit_cols = {row[1] for row in conn.execute(text("PRAGMA table_info(fit)")).fetchall()}
+            if fit_cols:
+                new_fit_cols = [
+                    ("t0_ms", "FLOAT"),
+                    ("compute_gflops", "FLOAT"),
+                    ("bandwidth_gb_s", "FLOAT"),
+                    ("bandwidth_dram_gb_s", "FLOAT"),
+                    ("notes", "TEXT"),
+                ]
+                for col_name, col_type in new_fit_cols:
+                    if col_name not in fit_cols:
+                        conn.execute(text(f"ALTER TABLE fit ADD COLUMN {col_name} {col_type}"))
 
             conn.commit()
     except Exception:

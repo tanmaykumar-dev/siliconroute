@@ -23,7 +23,7 @@ from typing import Any, Optional
 import numpy as np
 import onnxruntime as ort
 import psutil
-from sqlmodel import Session, select
+from sqlmodel import Session, func, select
 
 from app.config import (
     BOOTSTRAP_ROUNDS,
@@ -32,7 +32,9 @@ from app.config import (
     DUPLICATE_DIFF_PCT,
     DUPLICATE_MIN_RUNS,
     MAX_INNER_LOOP_K,
+    MIN_FIT_SAMPLES,
     MIN_SAMPLE_MS,
+    REFIT_EVERY,
     SEED,
     SPREAD_THRESHOLD,
     TIMED_RUNS,
@@ -376,6 +378,22 @@ def run_latency_measurement(
     session.add(run)
     session.commit()
     session.refresh(run)
+
+    # Auto-refit policy (SPEC Section 5.5): auto-refit device after every REFIT_EVERY runs
+    try:
+        from app.predictor import fit_device
+        valid_count = session.exec(
+            select(func.count(Run.id)).where(
+                Run.device_id == device.id,
+                Run.provider_mismatch == False,
+                Run.unstable == False,
+            )
+        ).one()
+        if valid_count >= MIN_FIT_SAMPLES and valid_count % REFIT_EVERY == 0:
+            fit_device(session, device.id, target="latency")
+    except Exception as exc:
+        logger.debug("Auto-refit check skipped for device %s: %s", device.key, exc)
+
     return run
 
 
