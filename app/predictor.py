@@ -1,10 +1,11 @@
 """Hardware performance predictor and model selection engine for SiliconRoute.
 
 Implements SPEC Section 5:
-- Three candidate hardware models:
+- Four candidate hardware models:
     * F1 Roofline: t = t0 + a * work_gflop + b * data_gb (weighted NNLS)
     * F2 Roofline + Cache: t = t0 + a * work_gflop + b1 * min(data, cache) + b2 * max(data - cache, 0)
     * F3 Log-Linear: log10(t) = c0 + c1 * log10(params) + c2 * log10(batch) (OLS)
+    * F4 Family Roofline: t = t0 + a_mlp * work_mlp_gflop + a_conv * work_conv_gflop + b * data_gb (weighted NNLS)
 - Leave-one-out (LOO) MAPE evaluation across all candidate forms.
 - Automatic selection of lowest LOO error form per chip.
 - Physical parameter extraction (t0 ms, GFLOP/s compute, GB/s bandwidth).
@@ -66,6 +67,18 @@ def predict_f3(X: np.ndarray, coef: np.ndarray) -> np.ndarray:
     """Predict latency using F3 Log-Linear parameters."""
     log_pred = X @ coef
     return 10.0 ** log_pred
+
+
+def fit_f4(X: np.ndarray, y: np.ndarray) -> np.ndarray:
+    """Fit F4 Family Roofline: t = t0 + a_mlp*W_mlp + a_conv*W_conv + b*data_gb via weighted NNLS."""
+    weights = 1.0 / np.maximum(y, 1e-6)
+    coef, _ = nnls(X * weights[:, None], y * weights)
+    return coef
+
+
+def predict_f4(X: np.ndarray, coef: np.ndarray) -> np.ndarray:
+    """Predict latency using F4 Family Roofline parameters."""
+    return np.maximum(X @ coef, 0.0001)
 
 
 # -----------------------------------------------------------------------------
@@ -142,6 +155,8 @@ def prepare_fit_dataset(
 
     n = len(runs)
     work_gflop = np.zeros(n, dtype=np.float64)
+    work_mlp_gflop = np.zeros(n, dtype=np.float64)
+    work_conv_gflop = np.zeros(n, dtype=np.float64)
     data_gb = np.zeros(n, dtype=np.float64)
     params = np.zeros(n, dtype=np.float64)
     batches = np.zeros(n, dtype=np.float64)
@@ -152,7 +167,12 @@ def prepare_fit_dataset(
         if not m:
             continue
         b = r.batch
-        work_gflop[i] = (m.flops_per_sample * b) / 1e9
+        gflop = (m.flops_per_sample * b) / 1e9
+        work_gflop[i] = gflop
+        if getattr(m, "family", "") == "conv":
+            work_conv_gflop[i] = gflop
+        else:
+            work_mlp_gflop[i] = gflop
         data_gb[i] = m.weight_bytes / 1e9
         params[i] = max(m.params, 1)
         batches[i] = max(b, 1)
@@ -170,10 +190,14 @@ def prepare_fit_dataset(
     # F3: [1, log10(params), log10(batch)]
     X_f3 = np.column_stack([np.ones(n), np.log10(params), np.log10(batches)])
 
+    # F4: [1, work_mlp_gflop, work_conv_gflop, data_gb]
+    X_f4 = np.column_stack([np.ones(n), work_mlp_gflop, work_conv_gflop, data_gb])
+
     matrices = {
         "f1": X_f1,
         "f2": X_f2,
         "f3": X_f3,
+        "f4": X_f4,
         "work_gflop": work_gflop,
         "data_gb": data_gb,
     }
@@ -197,12 +221,14 @@ def bootstrap_parameter_cis(
     Uses 500 resamples with fixed seed. If relative half-width > 0.50, flags as 'not reliable'.
     """
     n = len(y)
-    if n < 4 or chosen_form not in ("f1_roofline", "f2_cache"):
+    if n < 4 or chosen_form not in ("f1_roofline", "f2_cache", "f4_family"):
         return {}
 
     rng = np.random.default_rng(seed)
     boot_t0 = []
     boot_compute = []
+    boot_compute_mlp = []
+    boot_compute_conv = []
     boot_bw = []
     boot_bw_dram = []
 
@@ -210,17 +236,27 @@ def bootstrap_parameter_cis(
         idx = rng.choice(n, size=n, replace=True)
         c = fit_fn(X[idx], y[idx])
         boot_t0.append(float(c[0]))
-        if c[1] > 1e-7:
-            boot_compute.append(1000.0 / float(c[1]))
-        if c[2] > 1e-7:
-            boot_bw.append(1000.0 / float(c[2]))
-        if chosen_form == "f2_cache" and len(c) > 3 and c[3] > 1e-7:
-            boot_bw_dram.append(1000.0 / float(c[3]))
+        if chosen_form == "f4_family":
+            if c[1] > 1e-7:
+                boot_compute_mlp.append(1000.0 / float(c[1]))
+            if c[2] > 1e-7:
+                boot_compute_conv.append(1000.0 / float(c[2]))
+            if c[3] > 1e-7:
+                boot_bw.append(1000.0 / float(c[3]))
+        else:
+            if c[1] > 1e-7:
+                boot_compute.append(1000.0 / float(c[1]))
+            if c[2] > 1e-7:
+                boot_bw.append(1000.0 / float(c[2]))
+            if chosen_form == "f2_cache" and len(c) > 3 and c[3] > 1e-7:
+                boot_bw_dram.append(1000.0 / float(c[3]))
 
     results: dict[str, Any] = {}
     for name, vals in [
         ("t0_ms", boot_t0),
         ("compute_gflops", boot_compute),
+        ("compute_mlp_gflops", boot_compute_mlp),
+        ("compute_conv_gflops", boot_compute_conv),
         ("bandwidth_gb_s", boot_bw),
         ("bandwidth_dram_gb_s", boot_bw_dram),
     ]:
@@ -256,11 +292,13 @@ def fit_device(
     loo_f1 = loo_mape(matrices["f1"], y, fit_f1, predict_f1)
     loo_f2 = loo_mape(matrices["f2"], y, fit_f2, predict_f2)
     loo_f3 = loo_mape(matrices["f3"], y, fit_f3, predict_f3)
+    loo_f4 = loo_mape(matrices["f4"], y, fit_f4, predict_f4)
 
     loo_all = {
         "f1_roofline": round(loo_f1, 2),
         "f2_cache": round(loo_f2, 2),
         "f3_loglinear": round(loo_f3, 2),
+        "f4_family": round(loo_f4, 2),
     }
 
     # 2. Select lowest LOO MAPE form
@@ -268,6 +306,7 @@ def fit_device(
         ("f1_roofline", loo_f1, matrices["f1"], fit_f1, predict_f1),
         ("f2_cache", loo_f2, matrices["f2"], fit_f2, predict_f2),
         ("f3_loglinear", loo_f3, matrices["f3"], fit_f3, predict_f3),
+        ("f4_family", loo_f4, matrices["f4"], fit_f4, predict_f4),
     ]
     candidates.sort(key=lambda c: c[1])
     chosen_form, best_loo, X_chosen, fit_chosen, pred_chosen = candidates[0]
@@ -277,24 +316,34 @@ def fit_device(
     y_pred = pred_chosen(X_chosen, coef)
     r2_log = compute_r2_log(y, y_pred)
 
-    # 3. Physical parameter extraction when F1 or F2 wins
+    # 3. Physical parameter extraction when F1, F2, or F4 wins
     t0_ms: Optional[float] = None
     compute_gflops: Optional[float] = None
     bandwidth_gb_s: Optional[float] = None
     bandwidth_dram_gb_s: Optional[float] = None
     notes: Optional[str] = None
+    notes_dict: dict[str, Any] = {}
 
-    if chosen_form in ("f1_roofline", "f2_cache"):
+    if chosen_form in ("f1_roofline", "f2_cache", "f4_family"):
         t0_ms = round(float(coef[0]), 4)
 
-        # Invert compute coefficient: time = 1000 * GFLOP / (compute GFLOP/s)
-        if coef[1] > 1e-7:
-            compute_gflops = round(1000.0 / float(coef[1]), 2)
-
-        if chosen_form == "f1_roofline":
+        if chosen_form == "f4_family":
+            # coef: [t0, a_mlp, a_conv, b]
+            if coef[1] > 1e-7:
+                compute_gflops = round(1000.0 / float(coef[1]), 2)
+                notes_dict["compute_mlp_gflops"] = compute_gflops
+            if coef[2] > 1e-7:
+                notes_dict["compute_conv_gflops"] = round(1000.0 / float(coef[2]), 2)
+            if coef[3] > 1e-7:
+                bandwidth_gb_s = round(1000.0 / float(coef[3]), 2)
+        elif chosen_form == "f1_roofline":
+            if coef[1] > 1e-7:
+                compute_gflops = round(1000.0 / float(coef[1]), 2)
             if coef[2] > 1e-7:
                 bandwidth_gb_s = round(1000.0 / float(coef[2]), 2)
         else:
+            if coef[1] > 1e-7:
+                compute_gflops = round(1000.0 / float(coef[1]), 2)
             if coef[2] > 1e-7:
                 bandwidth_gb_s = round(1000.0 / float(coef[2]), 2)
             if coef[3] > 1e-7:
@@ -310,7 +359,6 @@ def fit_device(
 
     # Compute bootstrap 95% confidence intervals for physical parameters (500 resamples)
     ci_results = bootstrap_parameter_cis(X_chosen, y, fit_chosen, chosen_form, rounds=500, seed=1234)
-    notes_dict: dict[str, Any] = {}
     if notes:
         notes_dict["separability"] = notes
     if ci_results:
@@ -364,6 +412,12 @@ def predict_for_fit(fit: Fit, model: AIModel, batch: int, cache_mb: float = 32.0
         d_part = max(data_gb - cache_gb, 0.0)
         X = np.array([[1.0, work_gflop, c_part, d_part]])
         return float(predict_f2(X, coef)[0])
+    elif fit.model_form == "f4_family":
+        is_conv = getattr(model, "family", "") == "conv"
+        w_mlp = 0.0 if is_conv else work_gflop
+        w_conv = work_gflop if is_conv else 0.0
+        X = np.array([[1.0, w_mlp, w_conv, data_gb]])
+        return float(predict_f4(X, coef)[0])
     else:
         # f3_loglinear
         X = np.array([[1.0, np.log10(max(model.params, 1)), np.log10(max(batch, 1))]])

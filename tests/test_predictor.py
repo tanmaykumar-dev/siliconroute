@@ -13,9 +13,11 @@ from app.predictor import (
     fit_device,
     fit_f1,
     fit_f3,
+    fit_f4,
     loo_mape,
     predict_f1,
     predict_f3,
+    predict_f4,
 )
 
 client = TestClient(app)
@@ -40,6 +42,33 @@ def test_recover_known_params_f1():
     assert np.isclose(coef[0], t0_true, atol=1e-3)
     assert np.isclose(coef[1], a_true, atol=1e-3)
     assert np.isclose(coef[2], b_true, atol=1e-3)
+
+
+def test_recover_known_params_f4():
+    """Verify that weighted NNLS on F4 recovers separate MLP and Conv compute coefficients."""
+    # t0 = 0.20 ms, a_mlp = 0.05 ms/GFLOP (20,000 GFLOP/s), a_conv = 0.01 ms/GFLOP (100,000 GFLOP/s), b = 0.08 ms/GB
+    t0_true = 0.20
+    a_mlp_true = 0.05
+    a_conv_true = 0.01
+    b_true = 0.08
+
+    rng = np.random.default_rng(4321)
+    n = 30
+    w_mlp = np.zeros(n)
+    w_conv = np.zeros(n)
+    # Half MLP, half Conv
+    w_mlp[:15] = rng.uniform(0.1, 10.0, size=15)
+    w_conv[15:] = rng.uniform(0.1, 10.0, size=15)
+    data_gb = rng.uniform(0.01, 1.0, size=n)
+    X = np.column_stack([np.ones(n), w_mlp, w_conv, data_gb])
+
+    y = t0_true + a_mlp_true * w_mlp + a_conv_true * w_conv + b_true * data_gb
+    coef = fit_f4(X, y)
+
+    assert np.isclose(coef[0], t0_true, atol=1e-3)
+    assert np.isclose(coef[1], a_mlp_true, atol=1e-3)
+    assert np.isclose(coef[2], a_conv_true, atol=1e-3)
+    assert np.isclose(coef[3], b_true, atol=1e-3)
 
 
 def test_loo_mape_calculation():

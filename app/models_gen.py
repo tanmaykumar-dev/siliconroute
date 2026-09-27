@@ -273,7 +273,10 @@ def scan_model_files(session: Session) -> list[AIModel]:
             continue  # Internal hardware probe model
 
         name = file_path.stem
-        existing = session.exec(select(AIModel).where(AIModel.name == name)).first()
+        sha256 = compute_file_sha256(file_path)
+        existing = session.exec(
+            select(AIModel).where((AIModel.name == name) | (AIModel.sha256 == sha256))
+        ).first()
         if existing:
             registered.append(existing)
             continue
@@ -283,7 +286,6 @@ def scan_model_files(session: Session) -> list[AIModel]:
             total_params = sum(int(np.prod(init.dims)) for init in model.graph.initializer)
             weight_bytes = sum(int(np.prod(init.dims)) * 4 for init in model.graph.initializer)
             size_mb = round(file_path.stat().st_size / (1024 * 1024), 3)
-            sha256 = compute_file_sha256(file_path)
 
             input_shapes = []
             for inp in model.graph.input:

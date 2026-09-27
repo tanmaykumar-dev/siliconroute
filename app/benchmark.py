@@ -206,13 +206,14 @@ def compute_run_stats(
 
 
 def run_latency_measurement(
-    session: Session,
-    bench_session_id: int,
+    session: Optional[Session],
+    bench_session_id: Optional[int],
     model: AIModel,
     device: Device,
     batch: int,
     warmup_runs: int = WARMUP_RUNS,
     timed_runs: int = TIMED_RUNS,
+    dry_run: bool = False,
 ) -> Run:
     """Execute a single latency measurement run with adaptive timing and robust stability."""
     now_iso = datetime.now(timezone.utc).isoformat()
@@ -375,24 +376,25 @@ def run_latency_measurement(
         load_w=None,
         created_at=now_iso,
     )
-    session.add(run)
-    session.commit()
-    session.refresh(run)
+    if not dry_run and session is not None and bench_session_id is not None:
+        session.add(run)
+        session.commit()
+        session.refresh(run)
 
-    # Auto-refit policy (SPEC Section 5.5): auto-refit device after every REFIT_EVERY runs
-    try:
-        from app.predictor import fit_device
-        valid_count = session.exec(
-            select(func.count(Run.id)).where(
-                Run.device_id == device.id,
-                Run.provider_mismatch == False,
-                Run.unstable == False,
-            )
-        ).one()
-        if valid_count >= MIN_FIT_SAMPLES and valid_count % REFIT_EVERY == 0:
-            fit_device(session, device.id, target="latency")
-    except Exception as exc:
-        logger.debug("Auto-refit check skipped for device %s: %s", device.key, exc)
+        # Auto-refit policy (SPEC Section 5.5): auto-refit device after every REFIT_EVERY runs
+        try:
+            from app.predictor import fit_device
+            valid_count = session.exec(
+                select(func.count(Run.id)).where(
+                    Run.device_id == device.id,
+                    Run.provider_mismatch == False,
+                    Run.unstable == False,
+                )
+            ).one()
+            if valid_count >= MIN_FIT_SAMPLES and valid_count % REFIT_EVERY == 0:
+                fit_device(session, device.id, target="latency")
+        except Exception as exc:
+            logger.debug("Auto-refit check skipped for device %s: %s", device.key, exc)
 
     return run
 

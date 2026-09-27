@@ -60,6 +60,11 @@ def isolate_test_database(tmp_path, monkeypatch):
     test_db = tmp_path / "isolated_test.db"
     monkeypatch.setenv("SILICONROUTE_DB", str(test_db))
 
+    test_models_dir = tmp_path / "models"
+    test_models_dir.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr("app.config.MODELS_DIR", test_models_dir)
+    monkeypatch.setattr("app.models_gen.MODELS_DIR", test_models_dir)
+
     test_engine = app_db.create_db_engine(test_db)
     app_db.set_engine(test_engine)
 
