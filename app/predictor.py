@@ -184,6 +184,66 @@ def prepare_fit_dataset(
 # 4. Device Predictor Fitting and Database Persistence
 # -----------------------------------------------------------------------------
 
+def bootstrap_parameter_cis(
+    X: np.ndarray,
+    y: np.ndarray,
+    fit_fn,
+    chosen_form: str,
+    rounds: int = 500,
+    seed: int = 1234,
+) -> dict[str, Any]:
+    """Calculate 95% bootstrap confidence intervals for physical parameters.
+    
+    Uses 500 resamples with fixed seed. If relative half-width > 0.50, flags as 'not reliable'.
+    """
+    n = len(y)
+    if n < 4 or chosen_form not in ("f1_roofline", "f2_cache"):
+        return {}
+
+    rng = np.random.default_rng(seed)
+    boot_t0 = []
+    boot_compute = []
+    boot_bw = []
+    boot_bw_dram = []
+
+    for _ in range(rounds):
+        idx = rng.choice(n, size=n, replace=True)
+        c = fit_fn(X[idx], y[idx])
+        boot_t0.append(float(c[0]))
+        if c[1] > 1e-7:
+            boot_compute.append(1000.0 / float(c[1]))
+        if c[2] > 1e-7:
+            boot_bw.append(1000.0 / float(c[2]))
+        if chosen_form == "f2_cache" and len(c) > 3 and c[3] > 1e-7:
+            boot_bw_dram.append(1000.0 / float(c[3]))
+
+    results: dict[str, Any] = {}
+    for name, vals in [
+        ("t0_ms", boot_t0),
+        ("compute_gflops", boot_compute),
+        ("bandwidth_gb_s", boot_bw),
+        ("bandwidth_dram_gb_s", boot_bw_dram),
+    ]:
+        if not vals:
+            continue
+        v_arr = np.array(vals)
+        low = float(np.percentile(v_arr, 2.5))
+        high = float(np.percentile(v_arr, 97.5))
+        med = float(np.median(v_arr))
+        half_w = (high - low) / 2.0
+        rel_ci = half_w / max(med, 1e-6)
+        reliable = bool(rel_ci <= 0.50)
+        results[name] = {
+            "median": round(med, 3),
+            "ci_low": round(low, 3),
+            "ci_high": round(high, 3),
+            "rel_half_width": round(rel_ci, 3),
+            "reliable": reliable,
+            "status": "reliable" if reliable else "not reliable (CI > ±50%)",
+        }
+    return results
+
+
 def fit_device(
     session: Session,
     device_id: int,
@@ -248,6 +308,15 @@ def fit_device(
         if work_span < 0.1 or data_span < 0.1:
             notes = "compute and memory terms not separable"
 
+    # Compute bootstrap 95% confidence intervals for physical parameters (500 resamples)
+    ci_results = bootstrap_parameter_cis(X_chosen, y, fit_chosen, chosen_form, rounds=500, seed=1234)
+    notes_dict: dict[str, Any] = {}
+    if notes:
+        notes_dict["separability"] = notes
+    if ci_results:
+        notes_dict["parameter_cis"] = ci_results
+    final_notes = json.dumps(notes_dict) if notes_dict else None
+
     # Deactivate previous active fits for this device and target
     existing_fits = session.exec(
         select(Fit).where(Fit.device_id == device_id, Fit.target == target, Fit.is_active == True)
@@ -270,7 +339,7 @@ def fit_device(
         compute_gflops=compute_gflops,
         bandwidth_gb_s=bandwidth_gb_s,
         bandwidth_dram_gb_s=bandwidth_dram_gb_s,
-        notes=notes,
+        notes=final_notes,
         trained_at=now_iso,
         is_active=True,
     )
@@ -397,68 +466,76 @@ def calculate_crossover(
     max_measured_params = max(m.params for m in measured_models)
     max_extrapolated_params = max_measured_params * 2
 
-    # Grid of sizes to check
+    # Define search bounds and fine evaluation grid (>= 200 points)
     if family == "conv":
-        sizes = [8, 12, 16, 24, 32, 48, 64, 96, 128]
+        min_sz, max_sz = 8, 192
+        display_sizes = [8, 12, 16, 24, 32, 48, 64, 96, 128]
     else:
-        sizes = [32, 64, 128, 256, 512, 768, 1024, 1536, 2048, 3072, 4096]
+        min_sz, max_sz = 32, 4096
+        display_sizes = [32, 64, 128, 256, 512, 768, 1024, 1536, 2048, 3072, 4096]
 
-    grid_points = []
+    fine_sizes = [int(x) for x in np.unique(np.round(np.logspace(np.log10(min_sz), np.log10(max_sz), num=250)).astype(int))]
+
     crossover_point: Optional[dict[str, Any]] = None
     prev_faster: Optional[str] = None
+    fine_crossover_size: Optional[int] = None
 
-    for s in sizes:
+    # Helper function to predict for a size
+    def predict_size(s: int) -> tuple[float, float, int, float, bool]:
         if family == "conv":
-            # Conv: 4 layers, H=W=64
             params = 4 * s * s * 9
             flops_per_sample = float(2 * 4 * 64 * 64 * s * s * 9)
         else:
-            # MLP: 4 layers
             params = 4 * s * s
             flops_per_sample = float(2 * 4 * s * s)
-
-        if params > max_extrapolated_params:
-            break
-
-        weight_bytes = params * 4
-
         dummy_model = AIModel(
             name=f"{family}_{s}",
             family=family,
             path="",
             params=params,
             flops_per_sample=flops_per_sample,
-            weight_bytes=weight_bytes,
+            weight_bytes=params * 4,
         )
-
         pred_a = predict_for_fit(fit_a, dummy_model, batch, DEVICE_CACHE_MB.get(dev_a.key, 32.0))
         pred_b = predict_for_fit(fit_b, dummy_model, batch, DEVICE_CACHE_MB.get(dev_b.key, 32.0))
-
-        faster = dev_a.key if pred_a < pred_b else dev_b.key
         is_extrapolated = bool(params > max_measured_params)
+        return pred_a, pred_b, params, flops_per_sample, is_extrapolated
 
-        pt = {
-            "size": s,
-            "width": s,
-            "params": params,
-            "pred_a_ms": round(pred_a, 4),
-            "pred_b_ms": round(pred_b, 4),
-            "faster_device": faster,
-            "extrapolated": is_extrapolated,
-        }
-        grid_points.append(pt)
-
+    # 1. Fine-grid search over 250 log-spaced points
+    for s in fine_sizes:
+        pa, pb, params, flops, is_extrapolated = predict_size(s)
+        if params > max_extrapolated_params:
+            break
+        faster = dev_a.key if pa < pb else dev_b.key
         if prev_faster is not None and faster != prev_faster and crossover_point is None:
             crossover_point = {
                 "size": s,
                 "width": s,
                 "params": params,
                 "switched_to": faster,
-                "pred_a_ms": round(pred_a, 4),
-                "pred_b_ms": round(pred_b, 4),
+                "pred_a_ms": round(pa, 4),
+                "pred_b_ms": round(pb, 4),
                 "extrapolated": is_extrapolated,
             }
+            fine_crossover_size = s
         prev_faster = faster
+
+    # 2. Build display grid points
+    grid_points = []
+    combined_display_sizes = sorted(set(display_sizes + ([fine_crossover_size] if fine_crossover_size else [])))
+    for s in combined_display_sizes:
+        pa, pb, params, flops, is_extrapolated = predict_size(s)
+        if params > max_extrapolated_params:
+            continue
+        grid_points.append({
+            "size": s,
+            "width": s,
+            "params": params,
+            "pred_a_ms": round(pa, 4),
+            "pred_b_ms": round(pb, 4),
+            "faster_device": dev_a.key if pa < pb else dev_b.key,
+            "extrapolated": is_extrapolated,
+        })
 
     summary_text = (
         f"Crossover at size={crossover_point['size']} ({crossover_point['params']} params) where {crossover_point['switched_to']} becomes faster"

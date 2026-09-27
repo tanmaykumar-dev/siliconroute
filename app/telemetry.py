@@ -62,8 +62,14 @@ def sample_telemetry(battery_reader: BatteryReader) -> dict[str, Any]:
     cpu_pct = float(psutil.cpu_percent(interval=None))
     ram_pct = float(psutil.virtual_memory().percent)
 
-    cpu_freq_info = psutil.cpu_freq()
-    cpu_freq_mhz = float(cpu_freq_info.current) if cpu_freq_info else None
+    # On Windows, psutil.cpu_freq() reports static base clock rather than real boost clock.
+    # Per SiliconRoute Hard Rule 1, store NULL / None instead of displaying a fake-constant frequency.
+    import platform
+    if platform.system() == "Windows":
+        cpu_freq_mhz = None
+    else:
+        cpu_freq_info = psutil.cpu_freq()
+        cpu_freq_mhz = float(cpu_freq_info.current) if cpu_freq_info else None
 
     # Battery via psutil and WMI
     batt = psutil.sensors_battery()
@@ -208,7 +214,7 @@ async def telemetry_stream(request: Request):
         while not await request.is_disconnected():
             try:
                 sample = await asyncio.wait_for(q.get(), timeout=5.0)
-                yield ServerSentEvent(data=json.dumps(sample), event="message")
+                yield ServerSentEvent(data=sample, event="message")
             except asyncio.TimeoutError:
                 yield ServerSentEvent(data="ping", event="ping")
     finally:

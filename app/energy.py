@@ -105,6 +105,7 @@ def run_energy_measurement(
 
     # 4. Energy calculations
     energy_mj_per_inf: Optional[float] = None
+    energy_above_idle_mj_per_inf: Optional[float] = None
     energy_method: Optional[str] = None
     idle_w: Optional[float] = idle_baseline_w
     load_w: Optional[float] = None
@@ -115,6 +116,10 @@ def run_energy_measurement(
         if counted_inferences > 0:
             energy_mj_per_inf = round(delta_mj / counted_inferences, 3)
             energy_method = "nvml_counter"
+            if idle_baseline_w is not None:
+                idle_energy_mj = idle_baseline_w * counted_duration_s * 1000.0
+                delta_above_idle_mj = max(delta_mj - idle_energy_mj, 0.0)
+                energy_above_idle_mj_per_inf = round(delta_above_idle_mj / counted_inferences, 3)
         if nvml_power_samples_w:
             load_w = float(np.median(nvml_power_samples_w))
     elif counted_battery_samples and idle_baseline_w is not None:
@@ -122,7 +127,9 @@ def run_energy_measurement(
         load_w = float(np.median(counted_battery_samples))
         delta_w = max(load_w - idle_baseline_w, 0.0)
         if counted_inferences > 0:
-            energy_mj_per_inf = round((delta_w * counted_duration_s * 1000.0) / counted_inferences, 3)
+            total_energy_mj = (load_w * counted_duration_s * 1000.0)
+            energy_mj_per_inf = round(total_energy_mj / counted_inferences, 3)
+            energy_above_idle_mj_per_inf = round((delta_w * counted_duration_s * 1000.0) / counted_inferences, 3)
             energy_method = "battery_delta"
 
     # Store run record
@@ -151,6 +158,7 @@ def run_energy_measurement(
         throughput_per_s=round(counted_inferences / counted_duration_s, 2),
         raw_ms_json="[]",
         energy_mj_per_inf=energy_mj_per_inf,
+        energy_above_idle_mj_per_inf=energy_above_idle_mj_per_inf,
         energy_method=energy_method,
         idle_w=round(idle_w, 3) if idle_w is not None else None,
         load_w=round(load_w, 3) if load_w is not None else None,
@@ -187,58 +195,63 @@ def execute_energy_job(
         devices = [session.get(Device, did) for did in device_ids]
         devices = [d for d in devices if d is not None and d.is_available]
 
-        total_runs = len(models) * len(devices) * len(batches)
-        progress_state["total"] = total_runs
-        progress_state["done"] = 0
+    total_runs = len(models) * len(devices) * len(batches)
+    progress_state["total"] = total_runs
+    progress_state["done"] = 0
 
-        # Optional idle baseline measurement if battery is discharging (unplugged)
-        idle_w: Optional[float] = None
-        batt_reader = BatteryReader()
-        batt_info = batt_reader.read()
-        if not batt_info.get("power_online"):
-            progress_state["item"] = f"Measuring idle battery baseline ({IDLE_WINDOW_S}s)..."
-            idle_w = measure_idle_battery_w(duration_s=IDLE_WINDOW_S)
+    # Optional idle baseline measurement if battery is discharging (unplugged)
+    idle_w: Optional[float] = None
+    batt_reader = BatteryReader()
+    batt_info = batt_reader.read()
+    if not batt_info.get("power_online"):
+        progress_state["item"] = f"Measuring idle battery baseline ({IDLE_WINDOW_S}s)..."
+        idle_w = measure_idle_battery_w(duration_s=IDLE_WINDOW_S)
 
-        completed = 0
-        try:
-            for model in models:
-                for device in devices:
+    completed = 0
+    final_status = "done"
+    error_msg = None
+    try:
+        for model in models:
+            for device in devices:
+                if progress_state.get("cancel"):
+                    final_status = "cancelled"
+                    break
+
+                for batch in batches:
                     if progress_state.get("cancel"):
-                        bench_sess.status = "cancelled"
+                        final_status = "cancelled"
                         break
 
-                    for batch in batches:
-                        if progress_state.get("cancel"):
-                            bench_sess.status = "cancelled"
-                            break
+                    item_desc = f"Energy: {model.name} on {device.label} (B={batch})"
+                    progress_state["item"] = item_desc
+                    logger.info("Benchmarking energy: %s", item_desc)
 
-                        item_desc = f"Energy: {model.name} on {device.label} (B={batch})"
-                        progress_state["item"] = item_desc
-                        logger.info("Benchmarking energy: %s", item_desc)
-
+                    with Session(engine) as run_session:
                         run_energy_measurement(
-                            session=session,
+                            session=run_session,
                             bench_session_id=bench_session_id,
                             model=model,
                             device=device,
                             batch=batch,
                             idle_baseline_w=idle_w,
                         )
-                        completed += 1
-                        progress_state["done"] = completed
+                    completed += 1
+                    progress_state["done"] = completed
 
-                if bench_sess.status == "cancelled":
-                    break
+            if final_status == "cancelled":
+                break
 
-            if bench_sess.status != "cancelled":
-                bench_sess.status = "done"
+    except Exception as exc:
+        logger.exception("Error executing energy session %d: %s", bench_session_id, exc)
+        final_status = "failed"
+        error_msg = str(exc)
 
-        except Exception as exc:
-            logger.exception("Error executing energy session %d: %s", bench_session_id, exc)
-            bench_sess.status = "failed"
-            bench_sess.error = str(exc)
-
-        bench_sess.finished_at = datetime.now(timezone.utc).isoformat()
-        session.add(bench_sess)
-        session.commit()
+    with Session(engine) as finish_session:
+        bs = finish_session.get(BenchSession, bench_session_id)
+        if bs:
+            bs.status = final_status
+            bs.error = error_msg
+            bs.finished_at = datetime.now(timezone.utc).isoformat()
+            finish_session.add(bs)
+            finish_session.commit()
 

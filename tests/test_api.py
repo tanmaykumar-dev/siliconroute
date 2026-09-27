@@ -150,7 +150,7 @@ def test_benchmarks_api_and_conflict_409():
     sess_id = res.json()["session_id"]
 
     # Poll status until done
-    for _ in range(50):
+    for _ in range(100):
         status_res = client.get(f"/api/benchmarks/{sess_id}")
         assert status_res.status_code == 200
         status_data = status_res.json()
@@ -159,6 +159,8 @@ def test_benchmarks_api_and_conflict_409():
         time.sleep(0.1)
 
     assert status_data["status"] == "done"
+    from app.jobs import _jobs
+    _jobs.join()
 
     # Query runs
     runs_res = client.get(f"/api/runs?model_id={models[0]['id']}")

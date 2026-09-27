@@ -7,6 +7,7 @@ all data tables specified in SPEC Section 4.
 from collections.abc import Generator
 from pathlib import Path
 from typing import Optional
+import os
 from sqlalchemy import Index, event
 from sqlmodel import Field, Session, SQLModel, create_engine
 
@@ -15,24 +16,79 @@ from app.config import DATA_DIR, DB_PATH
 # Ensure local data directory exists
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-# Normalized SQLite database URL
-sqlite_url = f"sqlite:///{DB_PATH.as_posix()}"
 
-engine = create_engine(
-    sqlite_url,
-    connect_args={"check_same_thread": False},
-)
+from sqlalchemy.pool import NullPool
+
+def create_db_engine(db_path: Optional[Path] = None):
+    """Create a configured SQLite engine with WAL mode pragmas."""
+    env_override = os.environ.get("SILICONROUTE_DB")
+    p = db_path or (Path(env_override) if env_override else DB_PATH)
+    p.parent.mkdir(parents=True, exist_ok=True)
+
+    # Safety guard: prevent pytest from ever connecting to the production database
+    import sys
+    is_pytest = "pytest" in sys.modules or "PYTEST_CURRENT_TEST" in os.environ
+    if is_pytest and p.resolve() == DB_PATH.resolve():
+        raise RuntimeError(
+            f"SAFETY VIOLATION: Attempted to connect to production database {DB_PATH} while running under pytest! "
+            f"Tests MUST use an isolated test database via SILICONROUTE_DB or tmp_path fixture."
+        )
+
+    url = f"sqlite:///{p.as_posix()}"
+    eng = create_engine(
+        url,
+        connect_args={"check_same_thread": False, "timeout": 15},
+        poolclass=NullPool,
+    )
+
+    @event.listens_for(eng, "connect")
+    def _set_pragmas(dbapi_conn, _record) -> None:
+        """Set SQLite pragmas for high concurrency and resilience."""
+        cur = dbapi_conn.cursor()
+        cur.execute("PRAGMA busy_timeout=5000")   # wait up to 5 s instead of 'database is locked'
+        cur.execute("PRAGMA journal_mode=WAL")    # readers never block the writer
+        cur.execute("PRAGMA synchronous=NORMAL")  # recommended with WAL
+        cur.execute("PRAGMA foreign_keys=ON")     # enforce relational integrity
+        cur.close()
+
+    return eng
 
 
-@event.listens_for(engine, "connect")
-def _set_pragmas(dbapi_conn, _record) -> None:
-    """Set SQLite pragmas for high concurrency and resilience."""
-    cur = dbapi_conn.cursor()
-    cur.execute("PRAGMA journal_mode=WAL")    # readers never block the writer
-    cur.execute("PRAGMA synchronous=NORMAL")  # recommended with WAL
-    cur.execute("PRAGMA busy_timeout=5000")   # wait up to 5 s instead of 'database is locked'
-    cur.execute("PRAGMA foreign_keys=ON")     # enforce relational integrity
-    cur.close()
+class EngineProxy:
+    """Proxy allowing app.db.engine to switch targets dynamically (e.g. in tests)."""
+
+    def __init__(self, target_engine):
+        self._target = target_engine
+
+    def set_target(self, new_engine):
+        self._target = new_engine
+
+    def __getattr__(self, name):
+        return getattr(self._target, name)
+
+    def __eq__(self, other):
+        if isinstance(other, EngineProxy):
+            return self._target == other._target
+        return self._target == other
+
+    def __hash__(self):
+        return hash(self._target)
+
+    def __repr__(self):
+        return repr(self._target)
+
+
+from sqlalchemy.inspection import _inspects, inspect  # noqa: E402
+_inspects(EngineProxy)(lambda target: inspect(target._target))
+
+
+engine = EngineProxy(create_db_engine())
+
+
+def set_engine(new_engine) -> None:
+    """Switch global engine target (used by pytest fixtures to point to tmp_path)."""
+    if isinstance(engine, EngineProxy):
+        engine.set_target(new_engine)
 
 
 # -----------------------------------------------------------------------------
@@ -133,6 +189,7 @@ class Run(SQLModel, table=True):
     plugged_in: Optional[bool] = None
     battery_pct: Optional[float] = None
     energy_mj_per_inf: Optional[float] = None
+    energy_above_idle_mj_per_inf: Optional[float] = None
     energy_method: Optional[str] = None
     idle_w: Optional[float] = None
     load_w: Optional[float] = None
@@ -215,6 +272,7 @@ def _migrate_columns(target_engine) -> None:
                     ("nvml_pstate_end", "INTEGER"),
                     ("nvml_clock_sm_start_mhz", "INTEGER"),
                     ("nvml_clock_sm_end_mhz", "INTEGER"),
+                    ("energy_above_idle_mj_per_inf", "FLOAT"),
                 ]
                 for col_name, col_type in new_run_cols:
                     if col_name not in run_cols:

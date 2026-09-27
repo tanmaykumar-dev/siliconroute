@@ -429,37 +429,40 @@ def execute_latency_job(
         devices = [session.get(Device, did) for did in device_ids]
         devices = [d for d in devices if d is not None and d.is_available]
 
-        total_runs = len(models) * len(devices) * len(batches)
-        progress_state["total"] = total_runs
-        progress_state["done"] = 0
+    total_runs = len(models) * len(devices) * len(batches)
+    progress_state["total"] = total_runs
+    progress_state["done"] = 0
 
-        completed = 0
+    completed = 0
+    final_status = "done"
+    error_msg = None
 
-        try:
-            for model in models:
-                shuffled_devices = list(devices)
-                random.shuffle(shuffled_devices)
+    try:
+        for model in models:
+            shuffled_devices = list(devices)
+            random.shuffle(shuffled_devices)
 
-                for dev_idx, device in enumerate(shuffled_devices):
+            for dev_idx, device in enumerate(shuffled_devices):
+                if progress_state.get("cancel"):
+                    logger.info("Session %d cancelled by user", bench_session_id)
+                    final_status = "cancelled"
+                    break
+
+                if dev_idx > 0 and COOLDOWN_S > 0:
+                    time.sleep(COOLDOWN_S)
+
+                for batch in batches:
                     if progress_state.get("cancel"):
-                        logger.info("Session %d cancelled by user", bench_session_id)
-                        bench_sess.status = "cancelled"
+                        final_status = "cancelled"
                         break
 
-                    if dev_idx > 0 and COOLDOWN_S > 0:
-                        time.sleep(COOLDOWN_S)
+                    item_desc = f"{model.name} on {device.label} (B={batch})"
+                    progress_state["item"] = item_desc
+                    logger.info("Benchmarking %s", item_desc)
 
-                    for batch in batches:
-                        if progress_state.get("cancel"):
-                            bench_sess.status = "cancelled"
-                            break
-
-                        item_desc = f"{model.name} on {device.label} (B={batch})"
-                        progress_state["item"] = item_desc
-                        logger.info("Benchmarking %s", item_desc)
-
+                    with Session(engine) as run_session:
                         run_latency_measurement(
-                            session=session,
+                            session=run_session,
                             bench_session_id=bench_session_id,
                             model=model,
                             device=device,
@@ -468,25 +471,28 @@ def execute_latency_job(
                             timed_runs=timed_runs,
                         )
 
-                        completed += 1
-                        progress_state["done"] = completed
+                    completed += 1
+                    progress_state["done"] = completed
 
-                if bench_sess.status == "cancelled":
-                    break
+            if final_status == "cancelled":
+                break
 
-            if bench_sess.status != "cancelled":
-                bench_sess.status = "done"
+        # Check and mark duplicate DirectML adapters if criteria are met
+        with Session(engine) as dup_session:
+            check_and_mark_duplicate_devices(dup_session)
 
-            # Check and mark duplicate DirectML adapters if criteria are met
-            check_and_mark_duplicate_devices(session)
+    except Exception as exc:
+        logger.exception("Error executing benchmark session %d: %s", bench_session_id, exc)
+        final_status = "failed"
+        error_msg = str(exc)
 
-        except Exception as exc:
-            logger.exception("Error executing benchmark session %d: %s", bench_session_id, exc)
-            bench_sess.status = "failed"
-            bench_sess.error = str(exc)
-
-        batt_pct_end, _ = get_system_battery()
-        bench_sess.battery_end = batt_pct_end
-        bench_sess.finished_at = datetime.now(timezone.utc).isoformat()
-        session.add(bench_sess)
-        session.commit()
+    batt_pct_end, _ = get_system_battery()
+    with Session(engine) as finish_session:
+        bs = finish_session.get(BenchSession, bench_session_id)
+        if bs:
+            bs.status = final_status
+            bs.error = error_msg
+            bs.battery_end = batt_pct_end
+            bs.finished_at = datetime.now(timezone.utc).isoformat()
+            finish_session.add(bs)
+            finish_session.commit()

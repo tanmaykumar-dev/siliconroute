@@ -121,3 +121,29 @@ def test_nvml_retry_logic():
         assert reader.is_available is True
         assert reader.device_name == "Mocked NVIDIA GPU"
 
+
+def test_telemetry_sse_stream_single_json_encoding():
+    """Verify that SSE stream yields plain JSON dicts rather than double-encoded JSON strings."""
+    import asyncio
+    from app.telemetry import telemetry_stream, subscribers
+    from unittest.mock import AsyncMock
+
+    mock_req = AsyncMock()
+    mock_req.is_disconnected.side_effect = [False, True]
+
+    async def _run():
+        gen = telemetry_stream(mock_req)
+        task = asyncio.create_task(gen.__anext__())
+        await asyncio.sleep(0.01)
+        assert len(subscribers) > 0
+        q = list(subscribers)[0]
+        test_sample = {"ts": "2026-09-28T00:00:00Z", "cpu_pct": 5.0}
+        q.put_nowait(test_sample)
+        event = await task
+        assert event.event == "message"
+        assert event.data == test_sample
+        assert isinstance(event.data, dict)
+        await gen.aclose()
+
+    asyncio.run(_run())
+
