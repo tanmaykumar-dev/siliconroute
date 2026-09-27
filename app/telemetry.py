@@ -15,7 +15,7 @@ import time
 from typing import Any, Optional
 
 from fastapi import APIRouter, Query, Request
-from fastapi.sse import EventSourceResponse
+from fastapi.sse import EventSourceResponse, ServerSentEvent
 import psutil
 from sqlmodel import Session
 
@@ -204,17 +204,13 @@ async def telemetry_stream(request: Request):
     """Server-Sent Events (SSE) streaming live 1 Hz hardware telemetry samples."""
     q: asyncio.Queue = asyncio.Queue(maxsize=100)
     subscribers.add(q)
+    try:
+        while not await request.is_disconnected():
+            try:
+                sample = await asyncio.wait_for(q.get(), timeout=5.0)
+                yield ServerSentEvent(data=json.dumps(sample), event="message")
+            except asyncio.TimeoutError:
+                yield ServerSentEvent(data="ping", event="ping")
+    finally:
+        subscribers.discard(q)
 
-    async def event_generator():
-        try:
-            while not await request.is_disconnected():
-                try:
-                    sample = await asyncio.wait_for(q.get(), timeout=5.0)
-                    yield {"event": "message", "data": json.dumps(sample)}
-                except asyncio.TimeoutError:
-                    # Keep-alive heartbeat ping
-                    yield {"event": "ping", "data": "ping"}
-        finally:
-            subscribers.discard(q)
-
-    return EventSourceResponse(event_generator())

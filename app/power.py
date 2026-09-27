@@ -6,6 +6,7 @@ unavailable, adhering strictly to AGENTS.md Hard Rule 1 (never invent/mock numbe
 """
 
 import logging
+import time
 from typing import Any, Optional
 import psutil
 
@@ -13,16 +14,22 @@ logger = logging.getLogger(__name__)
 
 
 class NVMLReader:
-    """Reader for NVIDIA GPU power, clock, temperature, and energy metrics."""
+    """Reader for NVIDIA GPU power, clock, temperature, and energy metrics.
 
-    def __init__(self) -> None:
+    Retries initialization every 30s if unavailable instead of disabling permanently.
+    """
+
+    def __init__(self, retry_interval_s: float = 30.0) -> None:
+        self.retry_interval_s = retry_interval_s
         self._initialized = False
         self._handle = None
         self._device_name: Optional[str] = None
         self._init_error: Optional[str] = None
+        self._last_init_attempt: float = 0.0
         self._init_nvml()
 
     def _init_nvml(self) -> None:
+        self._last_init_attempt = time.time()
         try:
             import pynvml
             pynvml.nvmlInit()
@@ -31,11 +38,19 @@ class NVMLReader:
                 self._handle = pynvml.nvmlDeviceGetHandleByIndex(0)
                 self._device_name = str(pynvml.nvmlDeviceGetName(self._handle))
                 self._initialized = True
+                self._init_error = None
             else:
                 self._init_error = "No NVIDIA devices found"
+                self._initialized = False
         except Exception as exc:
             self._init_error = f"{type(exc).__name__}: {exc}"
             self._initialized = False
+            self._handle = None
+
+    def _ensure_initialized(self) -> None:
+        if not self.is_available:
+            if time.time() - self._last_init_attempt >= self.retry_interval_s:
+                self._init_nvml()
 
     @property
     def is_available(self) -> bool:
@@ -45,8 +60,13 @@ class NVMLReader:
     def device_name(self) -> Optional[str]:
         return self._device_name
 
+    @property
+    def last_error(self) -> Optional[str]:
+        return self._init_error
+
     def read_metrics(self) -> dict[str, Any]:
         """Read instantaneous GPU telemetry; returns None for any unavailable metric."""
+        self._ensure_initialized()
         if not self.is_available:
             return {
                 "gpu_power_w": None,
@@ -55,6 +75,7 @@ class NVMLReader:
                 "gpu_mem_used_mb": None,
                 "gpu_pstate": None,
                 "gpu_clock_sm_mhz": None,
+                "gpu_error": self._init_error,
             }
 
         import pynvml
@@ -95,6 +116,7 @@ class NVMLReader:
 
     def get_total_energy_mj(self) -> Optional[float]:
         """Read cumulative energy counter in mJ since driver load."""
+        self._ensure_initialized()
         if not self.is_available:
             return None
         import pynvml

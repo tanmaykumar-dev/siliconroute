@@ -107,10 +107,30 @@ def run_benchmark_session(name: str) -> int:
     return sess_id
 
 
+def format_comparison_row(ra: Run, rb: Run, model_name: str, batch_val: int, dev_key: str) -> str:
+    """Format side-by-side comparison row showing separate per-session stability flags."""
+    med_a = ra.median_ms
+    med_b = rb.median_ms
+    diff_pct = abs(med_b - med_a) / med_a * 100.0 if med_a > 0 else 0.0
+
+    unstable_a_str = "YES" if ra.unstable else "No"
+    unstable_b_str = "YES" if rb.unstable else "No"
+    nv_info = "-"
+    if ra.nvml_clock_sm_start_mhz is not None or rb.nvml_clock_sm_start_mhz is not None:
+        nv_info = f"A:{ra.nvml_clock_sm_start_mhz}->{ra.nvml_clock_sm_end_mhz} | B:{rb.nvml_clock_sm_start_mhz}->{rb.nvml_clock_sm_end_mhz}"
+
+    return (
+        f"{model_name:<14} | {batch_val:<5} | {dev_key:<8} | "
+        f"{ra.first_run_ms:<9.3f} | {med_a:<8.3f} | {ra.ci_rel:<8.4f} | {unstable_a_str:<10} | "
+        f"{rb.first_run_ms:<9.3f} | {med_b:<8.3f} | {rb.ci_rel:<8.4f} | {unstable_b_str:<10} | "
+        f"{diff_pct:<6.2f}% | {nv_info}"
+    )
+
+
 def print_comparison_table(sess_a_id: int, sess_b_id: int):
-    print("=" * 110)
+    print("=" * 125)
     print(f"PART 2: REPRODUCIBILITY & STABILITY COMPARISON (Session {sess_a_id} vs Session {sess_b_id}, 60s apart)")
-    print("=" * 110)
+    print("=" * 125)
 
     with Session(engine) as session:
         runs_a = session.exec(select(Run).where(Run.session_id == sess_a_id)).all()
@@ -123,12 +143,12 @@ def print_comparison_table(sess_a_id: int, sess_b_id: int):
 
     headers = (
         f"{'Model':<14} | {'Batch':<5} | {'Device':<8} | "
-        f"{'1stRun A':<9} | {'Med A':<8} | {'CI_rel A':<8} | "
-        f"{'1stRun B':<9} | {'Med B':<8} | {'CI_rel B':<8} | "
-        f"{'% Diff':<7} | {'Unstable':<8} | {'NV Clocks (MHz)'}"
+        f"{'1stRun A':<9} | {'Med A':<8} | {'CI_rel A':<8} | {'Unstable A':<10} | "
+        f"{'1stRun B':<9} | {'Med B':<8} | {'CI_rel B':<8} | {'Unstable B':<10} | "
+        f"{'% Diff':<7} | {'NV Clocks (MHz)'}"
     )
     print(headers)
-    print("-" * 110)
+    print("-" * 125)
 
     all_keys = sorted(list(set(map_a.keys()) | set(map_b.keys())))
     for k in all_keys:
@@ -140,24 +160,9 @@ def print_comparison_table(sess_a_id: int, sess_b_id: int):
         model_name = mod_map[ra.ai_model_id].name.replace("w-4l", "")
         batch_val = ra.batch
         dev_key = dev_map[ra.device_id].key
-
-        med_a = ra.median_ms
-        med_b = rb.median_ms
-        diff_pct = abs(med_b - med_a) / med_a * 100.0 if med_a > 0 else 0.0
-
-        unstable_str = f"{'YES' if ra.unstable or rb.unstable else 'No'}"
-        nv_info = "-"
-        if ra.nvml_clock_sm_start_mhz is not None or rb.nvml_clock_sm_start_mhz is not None:
-            nv_info = f"A:{ra.nvml_clock_sm_start_mhz}->{ra.nvml_clock_sm_end_mhz} | B:{rb.nvml_clock_sm_start_mhz}->{rb.nvml_clock_sm_end_mhz}"
-
-        row = (
-            f"{model_name:<14} | {batch_val:<5} | {dev_key:<8} | "
-            f"{ra.first_run_ms:<9.3f} | {med_a:<8.3f} | {ra.ci_rel:<8.4f} | "
-            f"{rb.first_run_ms:<9.3f} | {med_b:<8.3f} | {rb.ci_rel:<8.4f} | "
-            f"{diff_pct:<6.2f}% | {unstable_str:<8} | {nv_info}"
-        )
-        print(row)
+        print(format_comparison_row(ra, rb, model_name, batch_val, dev_key))
     print()
+
 
 
 def print_live_telemetry_samples():

@@ -88,3 +88,36 @@ def test_identify_device_api():
         data = res.json()
         assert "session_id" in data
         assert data["status"] == "queued"
+
+
+def test_nvml_retry_logic():
+    """Verify NVMLReader retries initialization after retry_interval_s instead of permanent failure."""
+    from unittest.mock import patch
+
+    # 1. Simulate initial failure
+    with patch("pynvml.nvmlInit", side_effect=RuntimeError("Simulated NVML initialization failure")):
+        reader = NVMLReader(retry_interval_s=0.1)
+        assert reader.is_available is False
+        assert "Simulated NVML" in (reader.last_error or "")
+        metrics = reader.read_metrics()
+        assert metrics["gpu_power_w"] is None
+        assert "Simulated NVML" in metrics.get("gpu_error", "")
+
+    # 2. Before retry interval expires, should not re-attempt
+    with patch("pynvml.nvmlInit") as mock_init:
+        # Directly call ensure without waiting
+        reader._ensure_initialized()
+        mock_init.assert_not_called()
+
+    # 3. After retry interval expires, should re-attempt initialization
+    import time
+    time.sleep(0.15)
+    with patch("pynvml.nvmlInit") as mock_init, \
+         patch("pynvml.nvmlDeviceGetCount", return_value=1), \
+         patch("pynvml.nvmlDeviceGetHandleByIndex", return_value="dummy_handle"), \
+         patch("pynvml.nvmlDeviceGetName", return_value="Mocked NVIDIA GPU"):
+        reader._ensure_initialized()
+        mock_init.assert_called_once()
+        assert reader.is_available is True
+        assert reader.device_name == "Mocked NVIDIA GPU"
+

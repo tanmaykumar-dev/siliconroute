@@ -158,6 +158,51 @@ def check_and_mark_duplicate_devices(session: Session) -> list[tuple[str, str]]:
     return duplicates_found
 
 
+def compute_run_stats(
+    timings: np.ndarray,
+    batch: int,
+    seed: int = SEED,
+) -> dict[str, Any]:
+    """Compute statistical summaries, bootstrap 95% CI of the median, and stability flag."""
+    median_ms = float(np.median(timings))
+    p10_ms = float(np.percentile(timings, 10))
+    p90_ms = float(np.percentile(timings, 90))
+    mean_ms = float(np.mean(timings))
+    min_ms = float(np.min(timings))
+    max_ms = float(np.max(timings))
+    stdev_ms = float(np.std(timings, ddof=1)) if len(timings) > 1 else 0.0
+    cv = float(stdev_ms / mean_ms) if mean_ms > 0 else 0.0
+    spread = float((p90_ms - p10_ms) / median_ms) if median_ms > 0 else 0.0
+
+    boot_rng = np.random.default_rng(seed)
+    boot_indices = boot_rng.integers(0, len(timings), size=(BOOTSTRAP_ROUNDS, len(timings)))
+    boot_medians = np.median(timings[boot_indices], axis=1)
+    ci_low_ms = float(np.percentile(boot_medians, 2.5))
+    ci_high_ms = float(np.percentile(boot_medians, 97.5))
+    ci_half_width = (ci_high_ms - ci_low_ms) / 2.0
+    ci_rel = float(ci_half_width / median_ms) if median_ms > 0 else 0.0
+
+    unstable = bool(ci_rel > CI_THRESHOLD)
+    throughput_per_s = float((batch * 1000.0) / median_ms) if median_ms > 0 else 0.0
+
+    return {
+        "median_ms": median_ms,
+        "p10_ms": p10_ms,
+        "p90_ms": p90_ms,
+        "mean_ms": mean_ms,
+        "min_ms": min_ms,
+        "max_ms": max_ms,
+        "stdev_ms": stdev_ms,
+        "cv": cv,
+        "spread": spread,
+        "ci_low_ms": ci_low_ms,
+        "ci_high_ms": ci_high_ms,
+        "ci_rel": ci_rel,
+        "unstable": unstable,
+        "throughput_per_s": throughput_per_s,
+    }
+
+
 def run_latency_measurement(
     session: Session,
     bench_session_id: int,
@@ -254,28 +299,7 @@ def run_latency_measurement(
 
     # 6. Statistical calculations & Bootstrap 95% Confidence Interval
     timings = np.array(raw_timings_ms, dtype=np.float64)
-    median_ms = float(np.median(timings))
-    p10_ms = float(np.percentile(timings, 10))
-    p90_ms = float(np.percentile(timings, 90))
-    mean_ms = float(np.mean(timings))
-    min_ms = float(np.min(timings))
-    max_ms = float(np.max(timings))
-    stdev_ms = float(np.std(timings, ddof=1)) if len(timings) > 1 else 0.0
-    cv = float(stdev_ms / mean_ms) if mean_ms > 0 else 0.0
-    spread = float((p90_ms - p10_ms) / median_ms) if median_ms > 0 else 0.0
-
-    # 1000 bootstrap resamples of the median
-    boot_rng = np.random.default_rng(SEED + (model.id or 0) * 100 + batch)
-    boot_indices = boot_rng.integers(0, len(timings), size=(BOOTSTRAP_ROUNDS, len(timings)))
-    boot_medians = np.median(timings[boot_indices], axis=1)
-    ci_low_ms = float(np.percentile(boot_medians, 2.5))
-    ci_high_ms = float(np.percentile(boot_medians, 97.5))
-    ci_half_width = (ci_high_ms - ci_low_ms) / 2.0
-    ci_rel = float(ci_half_width / median_ms) if median_ms > 0 else 0.0
-
-    # Stability rule: unstable when ci_rel > CI_THRESHOLD (0.10)
-    unstable = bool(ci_rel > CI_THRESHOLD)
-    throughput_per_s = float((batch * 1000.0) / median_ms) if median_ms > 0 else 0.0
+    stats = compute_run_stats(timings, batch=batch, seed=SEED + (model.id or 0) * 100 + batch)
 
     # Output hash for bit-identical duplicate checking
     output_hash: Optional[str] = None
@@ -317,20 +341,20 @@ def run_latency_measurement(
         inner_loop_k=inner_loop_k,
         session_create_ms=round(session_create_ms, 3),
         first_run_ms=round(first_run_ms, 3),
-        median_ms=round(median_ms, 3),
-        p10_ms=round(p10_ms, 3),
-        p90_ms=round(p90_ms, 3),
-        mean_ms=round(mean_ms, 3),
-        min_ms=round(min_ms, 3),
-        max_ms=round(max_ms, 3),
-        stdev_ms=round(stdev_ms, 3),
-        cv=round(cv, 4),
-        spread=round(spread, 4),
-        ci_rel=round(ci_rel, 4),
-        ci_low_ms=round(ci_low_ms, 3),
-        ci_high_ms=round(ci_high_ms, 3),
-        unstable=unstable,
-        throughput_per_s=round(throughput_per_s, 2),
+        median_ms=round(stats["median_ms"], 3),
+        p10_ms=round(stats["p10_ms"], 3),
+        p90_ms=round(stats["p90_ms"], 3),
+        mean_ms=round(stats["mean_ms"], 3),
+        min_ms=round(stats["min_ms"], 3),
+        max_ms=round(stats["max_ms"], 3),
+        stdev_ms=round(stats["stdev_ms"], 3),
+        cv=round(stats["cv"], 4),
+        spread=round(stats["spread"], 4),
+        ci_rel=round(stats["ci_rel"], 4),
+        ci_low_ms=round(stats["ci_low_ms"], 3),
+        ci_high_ms=round(stats["ci_high_ms"], 3),
+        unstable=stats["unstable"],
+        throughput_per_s=round(stats["throughput_per_s"], 2),
         raw_ms_json=json.dumps([round(t, 4) for t in raw_timings_ms]),
         output_matches_cpu=output_matches_cpu,
         max_rel_err=round(max_rel_err, 6) if max_rel_err is not None else None,

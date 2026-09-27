@@ -226,3 +226,90 @@ def test_bootstrap_ci_calculation():
     ci_rel = (ci_high - ci_low) / (2.0 * median)
     assert ci_rel > CI_THRESHOLD  # Must be flagged unstable
 
+
+def test_unstable_regression_per_run():
+    """Regression test: feed synthetic samples to compute_run_stats & table formatter, asserting unstable per session."""
+    import numpy as np
+    from app.benchmark import compute_run_stats
+    from app.db import Run
+    from scripts.run_phase3_verification import format_comparison_row
+
+    # 1. Feed real Session A timings (having early thermal/frequency transition) into compute_run_stats
+    real_session_a_timings = np.array([
+        0.0393, 0.0396, 0.0389, 0.0399, 0.0348, 0.0311, 0.0306, 0.0298, 0.0307, 0.0299,
+        0.0304, 0.0324, 0.0271, 0.0231, 0.0251, 0.0233, 0.0250, 0.0232, 0.0259, 0.0233,
+        0.0238, 0.0233, 0.0234, 0.0233, 0.0235, 0.0235, 0.0234, 0.0242, 0.0241, 0.0323
+    ], dtype=np.float64)
+    stats_a = compute_run_stats(real_session_a_timings, batch=8, seed=1234 + 800 + 8)
+    assert stats_a["ci_rel"] > 0.10, f"Expected ci_rel > 0.10, got {stats_a['ci_rel']}"
+    assert stats_a["unstable"] is True, "Must be flagged unstable when ci_rel > 0.10"
+
+    # 2. Feed tightly clustered samples into compute_run_stats (simulating Session B stable run)
+    tight_samples = np.array([0.0259, 0.0260, 0.0261, 0.0258, 0.0260] * 6, dtype=np.float64)
+    stats_b = compute_run_stats(tight_samples, batch=8, seed=42)
+    assert stats_b["ci_rel"] < 0.10, f"Expected ci_rel < 0.10, got {stats_b['ci_rel']}"
+    assert stats_b["unstable"] is False, "Must be flagged stable when ci_rel <= 0.10"
+
+    # 3. Construct Run records and pass through format_comparison_row to test table reporting
+    run_a = Run(
+        ai_model_id=1,
+        device_id=1,
+        provider_used="CPUExecutionProvider",
+        batch=8,
+        intra_op_threads=4,
+        warmup_runs=5,
+        timed_runs=30,
+        session_create_ms=1.0,
+        first_run_ms=0.136,
+        median_ms=stats_a["median_ms"],
+        p10_ms=stats_a["p10_ms"],
+        p90_ms=stats_a["p90_ms"],
+        mean_ms=stats_a["mean_ms"],
+        min_ms=stats_a["min_ms"],
+        max_ms=stats_a["max_ms"],
+        stdev_ms=stats_a["stdev_ms"],
+        cv=stats_a["cv"],
+        spread=stats_a["spread"],
+        ci_rel=stats_a["ci_rel"],
+        ci_low_ms=stats_a["ci_low_ms"],
+        ci_high_ms=stats_a["ci_high_ms"],
+        unstable=stats_a["unstable"],
+        throughput_per_s=stats_a["throughput_per_s"],
+        raw_ms_json="[]",
+        created_at="2026-09-28T00:00:00Z",
+    )
+    run_b = Run(
+        ai_model_id=1,
+        device_id=1,
+        provider_used="CPUExecutionProvider",
+        batch=8,
+        intra_op_threads=4,
+        warmup_runs=5,
+        timed_runs=30,
+        session_create_ms=1.0,
+        first_run_ms=0.133,
+        median_ms=stats_b["median_ms"],
+        p10_ms=stats_b["p10_ms"],
+        p90_ms=stats_b["p90_ms"],
+        mean_ms=stats_b["mean_ms"],
+        min_ms=stats_b["min_ms"],
+        max_ms=stats_b["max_ms"],
+        stdev_ms=stats_b["stdev_ms"],
+        cv=stats_b["cv"],
+        spread=stats_b["spread"],
+        ci_rel=stats_b["ci_rel"],
+        ci_low_ms=stats_b["ci_low_ms"],
+        ci_high_ms=stats_b["ci_high_ms"],
+        unstable=stats_b["unstable"],
+        throughput_per_s=stats_b["throughput_per_s"],
+        raw_ms_json="[]",
+        created_at="2026-09-28T00:00:00Z",
+    )
+
+    formatted_row = format_comparison_row(run_a, run_b, "mlp-256", 8, "cpu")
+    # Verify the table row explicitly displays YES for Session A and No for Session B
+    assert "YES" in formatted_row
+    assert "No" in formatted_row
+
+
+
