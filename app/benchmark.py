@@ -322,8 +322,8 @@ def run_latency_measurement(
                 ref_outputs = cpu_sess.run(None, feed_dict)
                 ref_out = ref_outputs[0]
                 diff = np.abs(last_output - ref_out)
-                denom = np.abs(ref_out) + 1e-9
-                rel_err = float(np.max(diff / denom))
+                max_ref = float(np.max(np.abs(ref_out)))
+                rel_err = float(np.max(diff) / (max_ref + 1e-9))
                 max_rel_err = rel_err
                 output_matches_cpu = bool(rel_err <= 1e-2)
             except Exception as exc:

@@ -143,6 +143,7 @@ def resolve_candidate_prediction(
     device: Device,
     model: AIModel,
     batch: int,
+    workload: str = "sustained",
 ) -> dict[str, Any]:
     """Resolve latency and energy predictions for a candidate device.
     
@@ -228,8 +229,12 @@ def resolve_candidate_prediction(
             cache_mb = DEVICE_CACHE_MB.get(device.key, 32.0)
             energy_mj = float(predict_for_fit(fit_energy, model, batch, cache_mb))
 
-    # 4. Check wake penalty
-    wake_penalty_ms, wake_status = calculate_wake_penalty(device, model)
+    # 4. Wake penalty: only applied for single-inference workloads where cold-start matters
+    if workload == "single":
+        wake_penalty_ms, wake_status = calculate_wake_penalty(device, model)
+    else:
+        wake_penalty_ms = 0.0
+        wake_status = "sustained workload: wake penalty not applied"
 
     return {
         "device_id": device.id,
@@ -261,8 +266,12 @@ def route_model(
     power_budget_w: Optional[float] = None,
     allow_explore: bool = True,
     rng_seed: Optional[int] = None,
+    workload: str = "sustained",
 ) -> dict[str, Any]:
     """Evaluate all candidate devices, score according to goal, and choose the optimal chip."""
+    if workload not in ("single", "sustained"):
+        raise ValueError(f"Invalid workload '{workload}': must be 'single' or 'sustained'")
+
     model = session.get(AIModel, model_id)
     if not model:
         raise ValueError(f"AIModel {model_id} not found")
@@ -296,11 +305,12 @@ def route_model(
 
     # Evaluate each available device
     for dev in devices:
-        # Exclusion 1: Output check vs CPU reference
+        # Exclusion 1: Output check vs CPU reference for this model and batch
         mismatch_run = session.exec(
             select(Run).where(
                 Run.ai_model_id == model.id,
                 Run.device_id == dev.id,
+                Run.batch == batch,
                 Run.output_matches_cpu == False,
             )
         ).first()
@@ -331,7 +341,7 @@ def route_model(
                 continue
 
         try:
-            cand = resolve_candidate_prediction(session, dev, model, batch)
+            cand = resolve_candidate_prediction(session, dev, model, batch, workload=workload)
             valid_candidates.append(cand)
         except Exception as exc:
             excluded_candidates.append({
@@ -475,6 +485,7 @@ def route_model(
         "ai_model_id": model.id,
         "batch": batch,
         "mode": mode,
+        "workload": workload,
         "power_budget_w": power_budget_w,
         "chosen_device_id": chosen["device_id"],
         "chosen_device_key": chosen["device_key"],
@@ -494,12 +505,19 @@ def execute_verification(
     session: Session,
     decision_dict: dict[str, Any],
     runs_count: int = VERIFY_RUNS,
+    workload: Optional[str] = None,
 ) -> Decision:
-    """Benchmark chosen device and all candidates on hardware to verify the routing decision."""
+    """Benchmark chosen device and all candidates on hardware to verify the routing decision.
+    
+    workload='single': measure ONE cold inference per device (first_run_ms, no warmup).
+    workload='sustained': warmup + timed_runs, use warm median.
+    """
     model_id = decision_dict["ai_model_id"]
     batch = decision_dict["batch"]
     chosen_id = decision_dict["chosen_device_id"]
     candidates = decision_dict["candidates"]
+    # Prefer explicit kwarg; fall back to decision_dict; default to sustained
+    workload = workload or decision_dict.get("workload", "sustained")
 
     model = session.get(AIModel, model_id)
     if not model:
@@ -515,7 +533,9 @@ def execute_verification(
     bench_session = BenchSession(
         kind="verify",
         status="running",
-        config_json=json.dumps({"model_id": model_id, "batch": batch, "runs": runs_count}),
+        config_json=json.dumps({
+            "model_id": model_id, "batch": batch, "runs": runs_count, "workload": workload,
+        }),
         created_at=now_iso,
         started_at=now_iso,
         notes=f"Router verification: {model.name} (B={batch}) across {len(candidates)} candidates",
@@ -535,16 +555,30 @@ def execute_verification(
             if not device or not device.is_available:
                 continue
 
-            run = run_latency_measurement(
-                session=session,
-                bench_session_id=bench_session.id,
-                model=model,
-                device=device,
-                batch=batch,
-                warmup_runs=2,
-                timed_runs=runs_count,
-            )
-            measured_times[dev_id] = run.median_ms
+            if workload == "single":
+                # Cold single-inference: no warmup, 1 timed run, use first_run_ms
+                run = run_latency_measurement(
+                    session=session,
+                    bench_session_id=bench_session.id,
+                    model=model,
+                    device=device,
+                    batch=batch,
+                    warmup_runs=0,
+                    timed_runs=1,
+                )
+                measured_times[dev_id] = run.first_run_ms
+            else:
+                # Sustained workload: warmup + timed runs, use warm median
+                run = run_latency_measurement(
+                    session=session,
+                    bench_session_id=bench_session.id,
+                    model=model,
+                    device=device,
+                    batch=batch,
+                    warmup_runs=2,
+                    timed_runs=runs_count,
+                )
+                measured_times[dev_id] = run.median_ms
 
         bench_session.status = "done"
         bench_session.finished_at = datetime.now(timezone.utc).isoformat()
@@ -581,6 +615,8 @@ def execute_verification(
         power_budget_w=decision_dict["power_budget_w"],
         context_json=json.dumps({
             "rules": decision_dict["context_rules"],
+            "workload": workload,
+            "excluded_candidates": decision_dict["excluded_candidates"],
             "verification_session_id": bench_session.id,
             "measured_times_ms": {str(k): round(v, 3) for k, v in measured_times.items()},
         }),
@@ -603,19 +639,26 @@ def execute_verification(
 # 6. Baseline Comparisons & Statistics Engine
 # -----------------------------------------------------------------------------
 
-def compute_decision_statistics(session: Session) -> dict[str, Any]:
+def compute_decision_statistics(
+    session: Session,
+    decision_ids: Optional[list[int]] = None,
+) -> dict[str, Any]:
     """Calculate accuracy and regret metrics for SiliconRoute and all static baselines.
     
+    All baselines use the SAME denominator (n = total verified decisions) for honest
+    comparison.  When a baseline's device is missing from measured_times for a decision,
+    that decision counts as a loss (the baseline couldn't run there).
+
     Evaluates:
     - SiliconRoute router (measured-first)
     - Always-CPU baseline
     - Always-RTX (dml:1) baseline
     - Fit-Only Router baseline (to prove measured-first benefit)
-    - ORT policy baseline (MAX_PERFORMANCE)
     """
-    decisions = session.exec(
-        select(Decision).where(Decision.actual_ms != None, Decision.best_device_id_actual != None)
-    ).all()
+    query = select(Decision).where(Decision.actual_ms != None, Decision.best_device_id_actual != None)
+    if decision_ids is not None:
+        query = query.where(Decision.id.in_(decision_ids))
+    decisions = session.exec(query).all()
 
     if not decisions:
         return {
@@ -623,33 +666,25 @@ def compute_decision_statistics(session: Session) -> dict[str, Any]:
             "message": "No verified decisions recorded yet",
         }
 
-    devices = {d.id: d for d in session.exec(select(Device)).all()}
     cpu_dev = session.exec(select(Device).where(Device.key == "cpu")).first()
     rtx_dev = session.exec(select(Device).where(Device.key == "dml:1")).first()
-    dml0_dev = session.exec(select(Device).where(Device.key == "dml:0")).first()
 
     n = len(decisions)
     sr_wins = sum(1 for d in decisions if d.was_best)
     sr_regrets = [d.regret_pct for d in decisions if d.regret_pct is not None]
 
-    # Baseline 1: Always-CPU
+    # Baseline accumulators — every baseline counts against ALL n decisions
     cpu_wins = 0
     cpu_regrets: list[float] = []
-    # Baseline 2: Always-RTX
     rtx_wins = 0
     rtx_regrets: list[float] = []
-    # Baseline 3: Fit-Only Router
     fit_only_wins = 0
     fit_only_regrets: list[float] = []
-    # Baseline 4: ORT Policy (defaults to DmlExecutionProvider adapter 0)
-    ort_wins = 0
-    ort_regrets: list[float] = []
 
     for d in decisions:
         try:
             ctx = json.loads(d.context_json)
             measured_map = ctx.get("measured_times_ms", {})
-            # Map string keys to int device_ids
             m_times = {int(k): v for k, v in measured_map.items()}
         except Exception:
             continue
@@ -659,43 +694,40 @@ def compute_decision_statistics(session: Session) -> dict[str, Any]:
 
         t_best = min(m_times.values())
 
-        # Always-CPU
+        # Always-CPU: loss if device missing from measured_times
         if cpu_dev and cpu_dev.id in m_times:
             t_cpu = m_times[cpu_dev.id]
             if t_cpu <= t_best + 1e-4:
                 cpu_wins += 1
             cpu_regrets.append(((t_cpu - t_best) / max(t_best, 1e-4)) * 100.0)
+        # else: implicit loss — cpu_wins not incremented, no regret computable
 
-        # Always-RTX
+        # Always-RTX: loss if device missing from measured_times
         if rtx_dev and rtx_dev.id in m_times:
             t_rtx = m_times[rtx_dev.id]
             if t_rtx <= t_best + 1e-4:
                 rtx_wins += 1
             rtx_regrets.append(((t_rtx - t_best) / max(t_best, 1e-4)) * 100.0)
 
-        # ORT MAX_PERFORMANCE (picks dml:0)
-        if dml0_dev and dml0_dev.id in m_times:
-            t_ort = m_times[dml0_dev.id]
-            if t_ort <= t_best + 1e-4:
-                ort_wins += 1
-            ort_regrets.append(((t_ort - t_best) / max(t_best, 1e-4)) * 100.0)
-
-        # Fit-Only Router evaluation
+        # Fit-Only Router: pick the candidate with best fit_latency_ms (or base_latency_ms fallback)
         try:
             candidates = json.loads(d.candidates_json)
-            # Find candidate that had best fit latency
             fit_scores = []
             for c in candidates:
                 d_id = c["device_id"]
-                # Use hardware fit prediction if available, else effective latency
-                fit_lat = c.get("fit_latency_ms") or c.get("base_latency_ms", c.get("effective_latency_ms"))
+                fit_lat = c.get("fit_latency_ms")
+                if fit_lat is None:
+                    fit_lat = c.get("base_latency_ms", c.get("effective_latency_ms"))
                 fit_scores.append((d_id, fit_lat))
             fit_scores.sort(key=lambda x: x[1])
             fit_chosen_id = fit_scores[0][0]
-            t_fit_chosen = m_times.get(fit_chosen_id, t_best)
-            if t_fit_chosen <= t_best + 1e-4:
-                fit_only_wins += 1
-            fit_only_regrets.append(((t_fit_chosen - t_best) / max(t_best, 1e-4)) * 100.0)
+
+            if fit_chosen_id in m_times:
+                t_fit_chosen = m_times[fit_chosen_id]
+                if t_fit_chosen <= t_best + 1e-4:
+                    fit_only_wins += 1
+                fit_only_regrets.append(((t_fit_chosen - t_best) / max(t_best, 1e-4)) * 100.0)
+            # else: fit chose a device that wasn't measured — counts as loss
         except Exception:
             pass
 
@@ -705,34 +737,42 @@ def compute_decision_statistics(session: Session) -> dict[str, Any]:
     return {
         "total_verified": n,
         "siliconroute": {
+            "wins": sr_wins,
+            "total": n,
             "accuracy_pct": round((sr_wins / n) * 100.0, 1),
             "mean_regret_pct": round(float(np.mean(sr_regrets)), 2) if sr_regrets else 0.0,
             "p90_regret_pct": round(p90(sr_regrets), 2),
         },
         "baselines": {
             "always_cpu": {
-                "accuracy_pct": round((cpu_wins / max(len(cpu_regrets), 1)) * 100.0, 1),
+                "wins": cpu_wins,
+                "total": n,
+                "measured_in": len(cpu_regrets),
+                "accuracy_pct": round((cpu_wins / n) * 100.0, 1),
                 "mean_regret_pct": round(float(np.mean(cpu_regrets)), 2) if cpu_regrets else 0.0,
                 "p90_regret_pct": round(p90(cpu_regrets), 2),
             },
             "always_rtx": {
-                "accuracy_pct": round((rtx_wins / max(len(rtx_regrets), 1)) * 100.0, 1),
+                "wins": rtx_wins,
+                "total": n,
+                "measured_in": len(rtx_regrets),
+                "accuracy_pct": round((rtx_wins / n) * 100.0, 1),
                 "mean_regret_pct": round(float(np.mean(rtx_regrets)), 2) if rtx_regrets else 0.0,
                 "p90_regret_pct": round(p90(rtx_regrets), 2),
             },
             "fit_only_router": {
-                "accuracy_pct": round((fit_only_wins / max(len(fit_only_regrets), 1)) * 100.0, 1),
+                "wins": fit_only_wins,
+                "total": n,
+                "measured_in": len(fit_only_regrets),
+                "accuracy_pct": round((fit_only_wins / n) * 100.0, 1),
                 "mean_regret_pct": round(float(np.mean(fit_only_regrets)), 2) if fit_only_regrets else 0.0,
                 "p90_regret_pct": round(p90(fit_only_regrets), 2),
                 "notes": "Routes using only hardware fits without measured lookup",
             },
             "ort_policy": {
-                "status": "supported",
-                "policy_name": "OrtExecutionProviderDevicePolicy.MAX_PERFORMANCE",
-                "behavior": "Defaults to DirectML adapter 0 (AMD Radeon 610M iGPU)",
-                "accuracy_pct": round((ort_wins / max(len(ort_regrets), 1)) * 100.0, 1),
-                "mean_regret_pct": round(float(np.mean(ort_regrets)), 2) if ort_regrets else 0.0,
-                "p90_regret_pct": round(p90(ort_regrets), 2),
+                "status": "not available",
+                "reason": "ORT ExecutionProviderDevicePolicy was not executed on hardware; result would be assumed, not measured",
             },
         },
     }
+

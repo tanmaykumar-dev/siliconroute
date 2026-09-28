@@ -17,6 +17,7 @@ class RouteRequest(BaseModel):
     ai_model_id: int
     batch: int = 1
     mode: str = "fastest"  # fastest | battery | balanced | cool
+    workload: str = "sustained"  # single | sustained
     power_budget_w: Optional[float] = None
     verify: bool = False
     allow_explore: bool = True
@@ -29,6 +30,7 @@ class DecisionResponse(BaseModel):
     ai_model_id: int
     batch: int
     mode: str
+    workload: str = "sustained"
     power_budget_w: Optional[float] = None
     chosen_device_id: int
     chosen_device_key: str
@@ -58,6 +60,7 @@ def route_inference(
             model_id=req.ai_model_id,
             batch=req.batch,
             mode=req.mode,
+            workload=req.workload,
             power_budget_w=req.power_budget_w,
             allow_explore=req.allow_explore,
         )
@@ -73,6 +76,7 @@ def route_inference(
                 ai_model_id=dec_record.ai_model_id,
                 batch=dec_record.batch,
                 mode=dec_record.mode,
+                workload=req.workload,
                 power_budget_w=dec_record.power_budget_w,
                 chosen_device_id=dec_record.chosen_device_id,
                 chosen_device_key=decision_dict["chosen_device_key"],
@@ -98,7 +102,11 @@ def route_inference(
             batch=decision_dict["batch"],
             mode=decision_dict["mode"],
             power_budget_w=decision_dict["power_budget_w"],
-            context_json=json.dumps({"rules": decision_dict["context_rules"]}),
+            context_json=json.dumps({
+                "rules": decision_dict["context_rules"],
+                "workload": req.workload,
+                "excluded_candidates": decision_dict["excluded_candidates"],
+            }),
             candidates_json=json.dumps(decision_dict["candidates"]),
             chosen_device_id=decision_dict["chosen_device_id"],
             explored=decision_dict["explored"],
@@ -114,6 +122,7 @@ def route_inference(
             ai_model_id=dec_record.ai_model_id,
             batch=dec_record.batch,
             mode=dec_record.mode,
+            workload=req.workload,
             power_budget_w=dec_record.power_budget_w,
             chosen_device_id=dec_record.chosen_device_id,
             chosen_device_key=decision_dict["chosen_device_key"],

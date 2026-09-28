@@ -416,8 +416,153 @@ def test_api_route_and_stats():
     assert "chosen_device_key" in data
     assert "reason" in data
     assert len(data["candidates"]) >= 1
+    # Default workload should be "sustained"
+    assert data.get("workload") == "sustained"
 
     stats_res = client.get("/api/decisions/stats")
     assert stats_res.status_code == 200
     stats = stats_res.json()
     assert "total_verified" in stats
+    # Validate new baseline format has wins/total counts
+    if stats["total_verified"] > 0:
+        for baseline in ["always_cpu", "always_rtx"]:
+            b = stats["baselines"][baseline]
+            assert "wins" in b
+            assert "total" in b
+        # ORT policy should be "not available"
+        ort = stats["baselines"]["ort_policy"]
+        assert ort["status"] == "not available"
+
+
+def test_workload_sustained_skips_wake_penalty():
+    """Verify that workload='sustained' sets wake_penalty_ms=0 for all devices."""
+    init_db()
+    u = uuid.uuid4().hex[:8]
+
+    with Session(engine) as session:
+        bs = BenchSession(
+            kind="latency",
+            status="done",
+            config_json="{}",
+            created_at="2026-09-28T00:00:00Z",
+        )
+        session.add(bs)
+        session.commit()
+        session.refresh(bs)
+
+        dev = Device(
+            key=f"test_wk_{u}",
+            label=f"Test WK {u}",
+            kind="dgpu",
+            provider="CPUExecutionProvider",
+            provider_options_json="{}",
+            is_available=True,
+            detected_at="2026-09-28T00:00:00Z",
+        )
+        session.add(dev)
+        session.commit()
+        session.refresh(dev)
+
+        model = AIModel(
+            name=f"test_wk_m_{u}",
+            family="mlp",
+            source="synthetic",
+            path="models/test_wk.onnx",
+            sha256="testsha_wk",
+            params=1000,
+            flops_per_sample=2000.0,
+            weight_bytes=16 * 1024 * 1024,  # 16 MB to trigger wake penalty logic
+            size_mb=16.0,
+            precision="fp32",
+            input_shape_json="[[1, 32]]",
+            created_at="2026-09-28T00:00:00Z",
+        )
+        session.add(model)
+        session.commit()
+        session.refresh(model)
+
+        fit = Fit(
+            device_id=dev.id,
+            target="latency",
+            model_form="f1_roofline",
+            loo_mape_all_json="{}",
+            coef_json="[0.5, 0.01, 0.05]",
+            n_samples=10,
+            r2_log=0.95,
+            loo_mape_pct=5.0,
+            t0_ms=0.5,
+            compute_gflops=100.0,
+            bandwidth_gb_s=20.0,
+            trained_at="2026-09-28T00:00:00Z",
+            is_active=True,
+        )
+        session.add(fit)
+        session.commit()
+
+        # Sustained workload: wake penalty always 0
+        cand_sus = resolve_candidate_prediction(session, dev, model, batch=1, workload="sustained")
+        assert cand_sus["wake_penalty_ms"] == 0.0
+        assert "sustained" in cand_sus["wake_status"]
+
+        # Single workload on a non-dml:1 device: also 0 (only dml:1 has NVML wake detection)
+        cand_single = resolve_candidate_prediction(session, dev, model, batch=1, workload="single")
+        assert cand_single["wake_penalty_ms"] == 0.0
+
+        # Clean up
+        dev.is_available = False
+        session.add(dev)
+        session.commit()
+
+
+def test_workload_parameter_in_api():
+    """Verify that /api/route accepts workload parameter and echoes it back."""
+    with Session(engine) as session:
+        m = session.exec(select(AIModel)).first()
+        assert m is not None
+        model_id = m.id
+
+        # Ensure all available devices have a fit so routing resolves all candidates
+        devices = session.exec(select(Device).where(Device.is_available == True)).all()
+        for dev in devices:
+            fit = session.exec(select(Fit).where(Fit.device_id == dev.id)).first()
+            if not fit:
+                fit = Fit(
+                    device_id=dev.id,
+                    target="latency",
+                    model_form="f1_roofline",
+                    loo_mape_all_json="{}",
+                    coef_json="[0.1, 0.01, 0.05]",
+                    n_samples=10,
+                    r2_log=0.95,
+                    loo_mape_pct=5.0,
+                    t0_ms=0.1,
+                    compute_gflops=100.0,
+                    bandwidth_gb_s=20.0,
+                    trained_at="2026-09-28T00:00:00Z",
+                    is_active=True,
+                )
+                session.add(fit)
+        session.commit()
+
+    # Test sustained
+    res = client.post("/api/route", json={
+        "ai_model_id": model_id, "batch": 1, "mode": "fastest",
+        "workload": "sustained", "verify": False,
+    })
+    assert res.status_code == 200
+    assert res.json()["workload"] == "sustained"
+
+    # Test single
+    res2 = client.post("/api/route", json={
+        "ai_model_id": model_id, "batch": 1, "mode": "fastest",
+        "workload": "single", "verify": False,
+    })
+    assert res2.status_code == 200
+    assert res2.json()["workload"] == "single"
+
+    # Test invalid workload
+    res3 = client.post("/api/route", json={
+        "ai_model_id": model_id, "batch": 1, "mode": "fastest",
+        "workload": "bogus", "verify": False,
+    })
+    assert res3.status_code == 400
