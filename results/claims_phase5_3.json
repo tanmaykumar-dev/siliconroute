@@ -134,7 +134,7 @@
   {
     "id": "claim_23",
     "claim": "Historical runs flagged as identity_suspect",
-    "value": 20,
+    "value": 12,
     "how": "python -c \"import sqlite3; con = sqlite3.connect('data/siliconroute.db'); print(con.execute('SELECT COUNT(*) FROM run WHERE identity_suspect = 1;').fetchone()[0])\""
   },
   {

@@ -198,6 +198,7 @@ class Run(SQLModel, table=True):
     load_w: Optional[float] = None
     adapter_vendor: Optional[str] = None       # DXGI vendor at run time
     adapter_luid: Optional[str] = None         # DXGI LUID at run time
+    physics_note: Optional[str] = None         # Physics notes (e.g. Winograd conv FLOP/s anomaly)
     identity_suspect: bool = Field(default=False) # True if run was mislabeled/swapped
     created_at: str
 

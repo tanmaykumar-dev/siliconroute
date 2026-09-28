@@ -63,6 +63,8 @@ IID_IDXGIFactory1 = GUID(0x770AAE78, 0xF26F, 0x4DBA, (wintypes.BYTE * 8)(*bytes.
 
 def get_dxgi_adapters() -> list[dict[str, Any]]:
     """Enumerate hardware DXGI adapters in the current process using dxgi.dll."""
+    if not hasattr(ctypes, "oledll") or getattr(ctypes, "oledll") is None:
+        return []
     try:
         dxgi = ctypes.oledll.dxgi
         factory = ctypes.c_void_p()
