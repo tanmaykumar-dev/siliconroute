@@ -92,7 +92,7 @@ def _run_identify_job(device_id: int, bench_session_id: int, progress: dict) -> 
             path, _, _, _, _ = generate_mlp(width=1024, layers=4)
             x_in = np.ones((8, 1024), dtype=np.float32)
             dev_opts = json.loads(device.provider_options_json or "{}")
-            sess = make_session(str(path), device.provider, device_id=dev_opts.get("device_id"))
+            sess = make_session(str(path), device.provider, device_id=dev_opts.get("device_id"), device=device)
 
             t_start = time.time()
             t_end = t_start + IDENTIFY_S

@@ -1,0 +1,153 @@
+===================================================================================================================
+SILICONROUTE PHASE 5.3: 24 WORKLOAD-AWARE VERIFIED DECISIONS
+  Guaranteed Physical Adapter Mapping: DXGI + NVML Fingerprint
+  8 Sustained  |  8 Idle-Loaded (Warm + Idle)  |  8 Cold-Start (Create + 1st Inf)
+===================================================================================================================
+[1/24] conv-16c-4l B=1 sustained: routing... -> cpu | actual=0.162 ms | best=cpu | WIN
+
+[2/24] Idling 5 s for GPU low-power state...
+[2/24] mlp-256w-4l B=8 cold_start: routing... -> cpu | actual=3.513 ms | best=cpu | WIN
+[3/24] conv-96c-4l B=1 sustained: routing... -> dml:1 | actual=0.709 ms | best=dml:1 | WIN
+
+[4/24] Idling 5 s for GPU low-power state...
+[4/24] conv-96c-4l B=8 cold_start: routing... -> cpu | actual=27.156 ms | best=cpu | WIN
+
+[5/24] Idling 5 s for GPU low-power state...
+[5/24] mlp-3072w-4l B=8 idle_loaded: routing... -> dml:1 | actual=1.382 ms | best=dml:1 | WIN
+
+[6/24] Idling 5 s for GPU low-power state...
+[6/24] mlp-3072w-4l B=1 idle_loaded: routing... -> dml:1 | actual=1.289 ms | best=dml:1 | WIN
+
+[7/24] Idling 5 s for GPU low-power state...
+[7/24] conv-16c-4l B=1 cold_start: routing... -> cpu | actual=2.821 ms | best=cpu | WIN
+
+[8/24] Idling 5 s for GPU low-power state...
+[8/24] mlp-3072w-4l B=1 cold_start: routing... -> dml:0 | actual=212.531 ms | best=dml:1 | LOSS (regret 6.8%)
+
+[9/24] Idling 5 s for GPU low-power state...
+[9/24] mlp-3072w-4l B=8 cold_start: routing... -> dml:1 | actual=167.424 ms | best=dml:1 | WIN
+
+[10/24] Idling 5 s for GPU low-power state...
+[10/24] conv-16c-4l B=1 idle_loaded: routing... -> cpu | actual=0.440 ms | best=cpu | WIN
+
+[11/24] Idling 5 s for GPU low-power state...
+[11/24] mlp-256w-4l B=1 idle_loaded: routing... -> cpu | actual=0.220 ms | best=cpu | WIN
+[12/24] mlp-3072w-4l B=8 sustained: routing... -> dml:1 | actual=1.029 ms | best=dml:1 | WIN
+[13/24] conv-96c-4l B=8 sustained: routing... -> cpu | actual=22.389 ms | best=dml:1 | LOSS (regret 41.8%)
+[14/24] mlp-1024w-4l B=1 sustained: routing... -> cpu | actual=0.067 ms | best=cpu | WIN
+[15/24] mlp-3072w-4l B=1 sustained: routing... -> dml:1 | actual=0.655 ms | best=dml:1 | WIN
+
+[16/24] Idling 5 s for GPU low-power state...
+[16/24] mlp-256w-4l B=1 cold_start: routing... -> cpu | actual=3.079 ms | best=cpu | WIN
+
+[17/24] Idling 5 s for GPU low-power state...
+[17/24] conv-96c-4l B=8 idle_loaded: routing... -> dml:1 | actual=6.035 ms | best=dml:1 | WIN
+
+[18/24] Idling 5 s for GPU low-power state...
+[18/24] mlp-256w-4l B=8 idle_loaded: routing... -> cpu | actual=0.261 ms | best=cpu | WIN
+
+[19/24] Idling 5 s for GPU low-power state...
+[19/24] conv-96c-4l B=1 idle_loaded: routing... -> dml:1 | actual=1.587 ms | best=dml:1 | WIN
+
+[20/24] Idling 5 s for GPU low-power state...
+[20/24] mlp-1024w-4l B=1 idle_loaded: routing... -> dml:1 | actual=0.649 ms | best=dml:1 | WIN
+
+[21/24] Idling 5 s for GPU low-power state...
+[21/24] mlp-1024w-4l B=1 cold_start: routing... -> cpu | actual=17.467 ms | best=cpu | WIN
+[22/24] mlp-256w-4l B=1 sustained: routing... -> cpu | actual=0.020 ms | best=cpu | WIN
+[23/24] mlp-256w-4l B=8 sustained: routing... -> cpu | actual=0.032 ms | best=cpu | WIN
+
+[24/24] Idling 5 s for GPU low-power state...
+[24/24] conv-96c-4l B=1 cold_start: routing... -> cpu | actual=7.202 ms | best=cpu | WIN
+
+===================================================================================================================
+ID   | Model          |  B | Workload     | Chosen | Source             | Pred(ms) |  Act(ms) |   Best | Match |  Regret
+-------------------------------------------------------------------------------------------------------------------
+93   | conv-16c-4l    |  1 | sustained    | cpu    | measured           |    0.157 |    0.162 |    cpu |   Yes |    0.0%
+94   | mlp-256w-4l    |  8 | cold_start   | cpu    | measured_cold_start |    2.728 |    3.513 |    cpu |   Yes |    0.0%
+95   | conv-96c-4l    |  1 | sustained    | dml:1  | measured           |    0.668 |    0.709 |  dml:1 |   Yes |    0.0%
+96   | conv-96c-4l    |  8 | cold_start   | cpu    | measured_cold_start |   20.871 |   27.156 |    cpu |   Yes |    0.0%
+97   | mlp-3072w-4l   |  8 | idle_loaded  | dml:1  | measured_idle_loaded |    1.543 |    1.382 |  dml:1 |   Yes |    0.0%
+98   | mlp-3072w-4l   |  1 | idle_loaded  | dml:1  | measured_idle_loaded |    1.316 |    1.289 |  dml:1 |   Yes |    0.0%
+99   | conv-16c-4l    |  1 | cold_start   | cpu    | measured_cold_start |    2.357 |    2.821 |    cpu |   Yes |    0.0%
+100  | mlp-3072w-4l   |  1 | cold_start   | dml:0  | measured_cold_start |  160.916 |  212.531 |  dml:1 |    No |    6.8%
+101  | mlp-3072w-4l   |  8 | cold_start   | dml:1  | measured_cold_start |  176.977 |  167.424 |  dml:1 |   Yes |    0.0%
+102  | conv-16c-4l    |  1 | idle_loaded  | cpu    | measured_idle_loaded |    0.448 |    0.440 |    cpu |   Yes |    0.0%
+103  | mlp-256w-4l    |  1 | idle_loaded  | cpu    | measured_idle_loaded |    0.201 |    0.220 |    cpu |   Yes |    0.0%
+104  | mlp-3072w-4l   |  8 | sustained    | dml:1  | measured           |    1.032 |    1.029 |  dml:1 |   Yes |    0.0%
+105  | conv-96c-4l    |  8 | sustained    | cpu    | measured           |   20.564 |   22.389 |  dml:1 |    No |   41.8%
+106  | mlp-1024w-4l   |  1 | sustained    | cpu    | measured           |    0.060 |    0.067 |    cpu |   Yes |    0.0%
+107  | mlp-3072w-4l   |  1 | sustained    | dml:1  | measured           |    0.608 |    0.655 |  dml:1 |   Yes |    0.0%
+108  | mlp-256w-4l    |  1 | cold_start   | cpu    | measured_cold_start |    2.575 |    3.079 |    cpu |   Yes |    0.0%
+109  | conv-96c-4l    |  8 | idle_loaded  | dml:1  | measured_idle_loaded |   15.902 |    6.035 |  dml:1 |   Yes |    0.0%
+110  | mlp-256w-4l    |  8 | idle_loaded  | cpu    | measured_idle_loaded |    0.223 |    0.261 |    cpu |   Yes |    0.0%
+111  | conv-96c-4l    |  1 | idle_loaded  | dml:1  | measured_idle_loaded |    1.569 |    1.587 |  dml:1 |   Yes |    0.0%
+112  | mlp-1024w-4l   |  1 | idle_loaded  | dml:1  | measured_idle_loaded |    0.922 |    0.649 |  dml:1 |   Yes |    0.0%
+113  | mlp-1024w-4l   |  1 | cold_start   | cpu    | measured_cold_start |   13.944 |   17.467 |    cpu |   Yes |    0.0%
+114  | mlp-256w-4l    |  1 | sustained    | cpu    | measured           |    0.026 |    0.020 |    cpu |   Yes |    0.0%
+115  | mlp-256w-4l    |  8 | sustained    | cpu    | measured           |    0.042 |    0.032 |    cpu |   Yes |    0.0%
+116  | conv-96c-4l    |  1 | cold_start   | cpu    | measured_cold_start |    6.823 |    7.202 |    cpu |   Yes |    0.0%
+
+===================================================================================================================
+BASELINE COMPARISON (same 24 decisions)
+===================================================================================================================
+
+Evaluated on the 24 decisions of this run:
+
+Strategy             |  Wins | Total | Measured In | Accuracy |  MeanReg |   P90Reg
+------------------------------------------------------------------------------------------
+SiliconRoute         |    22 |    24 |             |    91.7% |    2.03% |    0.00%
+Always-CPU           |    13 |    24 |          24 |    54.2% |   92.77% |  337.55%
+Always-RTX           |    11 |    24 |          24 |    45.8% |  297.30% |  971.80%
+Fit-Only Router      |    21 |    24 |          24 |    87.5% |   26.16% |    8.63%
+ORT Policy           | not available: ORT ExecutionProviderDevicePolicy was not executed on hardware; result would be assumed, not measured
+
+===================================================================================================================
+PER-WORKLOAD BREAKDOWN (8 decisions each)
+===================================================================================================================
+
+Workload       | Strategy         |  Wins | Total | Accuracy |  MeanReg |   P90Reg
+-------------------------------------------------------------------------------------
+sustained      | SiliconRoute     |     7 |     8 |    87.5% |    5.22% |   12.54%
+               | Always-CPU       |     4 |     8 |    50.0% |  142.63% |  380.89%
+               | Always-RTX       |     4 |     8 |    50.0% |  144.21% |  433.06%
+               | Fit-Only         |     8 |     8 |   100.0% |    0.00% |    0.00%
+-------------------------------------------------------------------------------------
+idle_loaded    | SiliconRoute     |     8 |     8 |   100.0% |    0.00% |    0.00%
+               | Always-CPU       |     3 |     8 |    37.5% |  134.19% |  369.38%
+               | Always-RTX       |     5 |     8 |    62.5% |  152.27% |  547.29%
+               | Fit-Only         |     7 |     8 |    87.5% |    1.54% |    3.70%
+-------------------------------------------------------------------------------------
+cold_start     | SiliconRoute     |     7 |     8 |    87.5% |    0.85% |    2.05%
+               | Always-CPU       |     6 |     8 |    75.0% |    1.49% |    4.70%
+               | Always-RTX       |     2 |     8 |    25.0% |  595.42% | 1342.22%
+               | Fit-Only         |     6 |     8 |    75.0% |   76.94% |  229.99%
+-------------------------------------------------------------------------------------
+
+===================================================================================================================
+PER-DECISION MEASURED TIMES FOR EVERY DEVICE
+===================================================================================================================
+  Dec  93 conv-16c-4l    B= 1 sustained    chose=cpu    best=cpu    | cpu=0.162ms, dml:0=0.477ms, dml:1=0.239ms
+  Dec  94 mlp-256w-4l    B= 8 cold_start   chose=cpu    best=cpu    | cpu=3.513ms, dml:0=14.557ms, dml:1=43.175ms
+  Dec  95 conv-96c-4l    B= 1 sustained    chose=dml:1  best=dml:1  | cpu=2.451ms, dml:0=3.681ms, dml:1=0.709ms
+  Dec  96 conv-96c-4l    B= 8 cold_start   chose=cpu    best=cpu    | cpu=27.156ms, dml:0=54.323ms, dml:1=57.930ms
+  Dec  97 mlp-3072w-4l   B= 8 idle_loaded  chose=dml:1  best=dml:1  | cpu=6.198ms, dml:0=20.284ms, dml:1=1.382ms
+  Dec  98 mlp-3072w-4l   B= 1 idle_loaded  chose=dml:1  best=dml:1  | cpu=6.679ms, dml:0=5.860ms, dml:1=1.289ms
+  Dec  99 conv-16c-4l    B= 1 cold_start   chose=cpu    best=cpu    | cpu=2.821ms, dml:0=13.492ms, dml:1=45.290ms
+  Dec 100 mlp-3072w-4l   B= 1 cold_start   chose=dml:0  best=dml:1  | cpu=204.573ms, dml:0=212.531ms, dml:1=198.967ms
+  Dec 101 mlp-3072w-4l   B= 8 cold_start   chose=dml:1  best=dml:1  | cpu=182.622ms, dml:0=200.369ms, dml:1=167.424ms
+  Dec 102 conv-16c-4l    B= 1 idle_loaded  chose=cpu    best=cpu    | cpu=0.440ms, dml:0=2.775ms, dml:1=0.909ms
+  Dec 103 mlp-256w-4l    B= 1 idle_loaded  chose=cpu    best=cpu    | cpu=0.220ms, dml:0=0.546ms, dml:1=1.396ms
+  Dec 104 mlp-3072w-4l   B= 8 sustained    chose=dml:1  best=dml:1  | cpu=4.240ms, dml:0=18.750ms, dml:1=1.029ms
+  Dec 105 conv-96c-4l    B= 8 sustained    chose=cpu    best=dml:1  | cpu=22.389ms, dml:0=40.858ms, dml:1=15.790ms
+  Dec 106 mlp-1024w-4l   B= 1 sustained    chose=cpu    best=cpu    | cpu=0.067ms, dml:0=0.594ms, dml:1=0.162ms
+  Dec 107 mlp-3072w-4l   B= 1 sustained    chose=dml:1  best=dml:1  | cpu=4.202ms, dml:0=4.419ms, dml:1=0.655ms
+  Dec 108 mlp-256w-4l    B= 1 cold_start   chose=cpu    best=cpu    | cpu=3.079ms, dml:0=13.876ms, dml:1=42.252ms
+  Dec 109 conv-96c-4l    B= 8 idle_loaded  chose=dml:1  best=dml:1  | cpu=16.956ms, dml:0=30.249ms, dml:1=6.035ms
+  Dec 110 mlp-256w-4l    B= 8 idle_loaded  chose=cpu    best=cpu    | cpu=0.261ms, dml:0=0.805ms, dml:1=1.767ms
+  Dec 111 conv-96c-4l    B= 1 idle_loaded  chose=dml:1  best=dml:1  | cpu=3.390ms, dml:0=6.036ms, dml:1=1.587ms
+  Dec 112 mlp-1024w-4l   B= 1 idle_loaded  chose=dml:1  best=dml:1  | cpu=0.729ms, dml:0=1.893ms, dml:1=0.649ms
+  Dec 113 mlp-1024w-4l   B= 1 cold_start   chose=cpu    best=cpu    | cpu=17.467ms, dml:0=31.126ms, dml:1=59.581ms
+  Dec 114 mlp-256w-4l    B= 1 sustained    chose=cpu    best=cpu    | cpu=0.020ms, dml:0=0.134ms, dml:1=0.141ms
+  Dec 115 mlp-256w-4l    B= 8 sustained    chose=cpu    best=cpu    | cpu=0.032ms, dml:0=0.191ms, dml:1=0.147ms
+  Dec 116 conv-96c-4l    B= 1 cold_start   chose=cpu    best=cpu    | cpu=7.202ms, dml:0=20.031ms, dml:1=43.371ms

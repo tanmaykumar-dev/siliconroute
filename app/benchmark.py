@@ -223,7 +223,7 @@ def run_latency_measurement(
 
     # 1. Create session and record session_create_ms
     t_create_start = time.perf_counter_ns()
-    sess = make_session(model.path, device.provider, device_id=device_id)
+    sess = make_session(model.path, device.provider, device_id=device_id, device=device)
     session_create_ms = (time.perf_counter_ns() - t_create_start) / 1e6
 
     # 2. Verify provider actually used
@@ -374,6 +374,9 @@ def run_latency_measurement(
         energy_method=None,
         idle_w=None,
         load_w=None,
+        adapter_vendor=device.vendor,
+        adapter_luid=device.luid,
+        identity_suspect=False,
         created_at=now_iso,
     )
     if not dry_run and session is not None and bench_session_id is not None:
@@ -412,7 +415,7 @@ def run_idle_loaded_measurement(
     """
     device_opts = json.loads(device.provider_options_json or "{}")
     device_id = device_opts.get("device_id")
-    sess = make_session(model.path, device.provider, device_id=device_id)
+    sess = make_session(model.path, device.provider, device_id=device_id, device=device)
     inp_name, inp_tensor = prepare_input_tensor(model, batch, sess)
     feed_dict = {inp_name: inp_tensor}
 
@@ -459,7 +462,7 @@ def run_cold_start_measurement(
 
     # 1. Time session creation
     t0_create = time.perf_counter_ns()
-    sess = make_session(model.path, device.provider, device_id=device_id)
+    sess = make_session(model.path, device.provider, device_id=device_id, device=device)
     create_ms = (time.perf_counter_ns() - t0_create) / 1e6
 
     # 2. Time first inference

@@ -36,10 +36,20 @@ def compute_file_hash(path: Path) -> str:
     if not path.exists():
         return ""
     h = hashlib.sha256()
-    with open(path, "rb") as f:
-        while chunk := f.read(65536):
-            h.update(chunk)
-    return h.hexdigest()
+    for attempt in range(5):
+        try:
+            with open(path, "rb") as f:
+                while chunk := f.read(65536):
+                    h.update(chunk)
+            return h.hexdigest()
+        except (PermissionError, OSError):
+            if attempt == 4:
+                try:
+                    return f"size:{path.stat().st_size}_mtime:{path.stat().st_mtime}"
+                except Exception:
+                    return "locked"
+            time.sleep(0.05)
+    return ""
 
 
 def compute_prod_db_fingerprint(base_path: Path) -> dict[str, str]:

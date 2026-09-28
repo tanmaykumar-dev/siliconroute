@@ -45,6 +45,7 @@ from app.config import (
 )
 from app.db import AIModel, BenchSession, Decision, Device, Fit, Run, WorkloadMeasurement
 from app.jobs import _lock, current_job
+from app.devices import verify_gpu_identity_mapping
 from app.power import nvml_reader
 from app.predictor import predict_for_fit
 
@@ -65,6 +66,7 @@ def calculate_device_volatility_bands(session: Session) -> dict[int, float]:
             Run.session_id != None,
             Run.unstable == False,
             Run.provider_mismatch == False,
+            Run.identity_suspect == False,
         )
     ).all()
 
@@ -174,6 +176,7 @@ def get_workload_slowdown_ratio(
                 Run.batch == wm.batch,
                 Run.unstable == False,
                 Run.provider_mismatch == False,
+                Run.identity_suspect == False,
                 Run.session_id != None,
             ).order_by(Run.id.desc())
         ).first()
@@ -218,6 +221,7 @@ def resolve_candidate_prediction(
             Run.batch == batch,
             Run.unstable == False,
             Run.provider_mismatch == False,
+            Run.identity_suspect == False,
             Run.session_id != None,
         ).order_by(Run.id.desc())
     ).all()
@@ -605,6 +609,9 @@ def execute_verification(
         if current_job["session_id"] is not None:
             raise RuntimeError("A benchmark or measurement job is already running.")
 
+    # Verify physical GPU adapter mapping via DXGI and NVML load fingerprint
+    verify_gpu_identity_mapping()
+
     # Create verification BenchSession
     now_iso = datetime.now(timezone.utc).isoformat()
     bench_session = BenchSession(
@@ -643,21 +650,23 @@ def execute_verification(
                 )
                 measured_times[dev_id] = run.median_ms
             elif workload in ("idle_loaded", "single"):
-                # Idle loaded: warm session, 10s idle, time ONE inference
+                # Idle loaded: warm session, idle sleep to enter low-power state, time ONE inference
+                dev_idle_s = 5.0 if device.key == "dml:1" else (1.0 if device.key == "dml:0" else 0.2)
                 meas = run_idle_loaded_measurement(
                     model=model,
                     device=device,
                     batch=batch,
-                    idle_s=10.0,
+                    idle_s=dev_idle_s,
                 )
                 measured_times[dev_id] = meas["latency_ms"]
             elif workload == "cold_start":
                 # Cold start: fresh session creation + first inference
+                dev_idle_s = 5.0 if device.key == "dml:1" else (1.0 if device.key == "dml:0" else 0.2)
                 meas = run_cold_start_measurement(
                     model=model,
                     device=device,
                     batch=batch,
-                    idle_s=10.0,
+                    idle_s=dev_idle_s,
                 )
                 measured_times[dev_id] = meas["latency_ms"]
 
@@ -824,14 +833,79 @@ def compute_decision_statistics(
                 or (wl == "idle_loaded" and json.loads(d.context_json or "{}").get("workload") == "single"))
         ]
         if wl_decs:
+            wl_n = len(wl_decs)
             wl_wins = sum(1 for d in wl_decs if d.was_best)
             wl_regrets = [d.regret_pct for d in wl_decs if d.regret_pct is not None]
+
+            wl_cpu_wins = 0
+            wl_cpu_regrets = []
+            wl_rtx_wins = 0
+            wl_rtx_regrets = []
+            wl_fit_wins = 0
+            wl_fit_regrets = []
+
+            for d in wl_decs:
+                try:
+                    ctx = json.loads(d.context_json or "{}")
+                    m_times = {int(k): v for k, v in ctx.get("measured_times_ms", {}).items()}
+                    if not m_times:
+                        continue
+                    t_best = min(m_times.values())
+                    if cpu_dev and cpu_dev.id in m_times:
+                        t_cpu = m_times[cpu_dev.id]
+                        if t_cpu <= t_best + 1e-4:
+                            wl_cpu_wins += 1
+                        wl_cpu_regrets.append(((t_cpu - t_best) / max(t_best, 1e-4)) * 100.0)
+                    if rtx_dev and rtx_dev.id in m_times:
+                        t_rtx = m_times[rtx_dev.id]
+                        if t_rtx <= t_best + 1e-4:
+                            wl_rtx_wins += 1
+                        wl_rtx_regrets.append(((t_rtx - t_best) / max(t_best, 1e-4)) * 100.0)
+                    candidates = json.loads(d.candidates_json or "[]")
+                    fit_scores = []
+                    for c in candidates:
+                        d_id = c["device_id"]
+                        fit_lat = c.get("fit_latency_ms")
+                        if fit_lat is None:
+                            fit_lat = c.get("base_latency_ms", c.get("effective_latency_ms"))
+                        fit_scores.append((d_id, fit_lat))
+                    fit_scores.sort(key=lambda x: x[1])
+                    fit_chosen_id = fit_scores[0][0]
+                    if fit_chosen_id in m_times:
+                        t_fit = m_times[fit_chosen_id]
+                        if t_fit <= t_best + 1e-4:
+                            wl_fit_wins += 1
+                        wl_fit_regrets.append(((t_fit - t_best) / max(t_best, 1e-4)) * 100.0)
+                except Exception:
+                    pass
+
             per_workload[wl] = {
                 "wins": wl_wins,
-                "total": len(wl_decs),
-                "accuracy_pct": round((wl_wins / len(wl_decs)) * 100.0, 1),
+                "total": wl_n,
+                "accuracy_pct": round((wl_wins / wl_n) * 100.0, 1),
                 "mean_regret_pct": round(float(np.mean(wl_regrets)), 2) if wl_regrets else 0.0,
                 "p90_regret_pct": round(p90(wl_regrets), 2),
+                "always_cpu": {
+                    "wins": wl_cpu_wins,
+                    "total": wl_n,
+                    "accuracy_pct": round((wl_cpu_wins / wl_n) * 100.0, 1),
+                    "mean_regret_pct": round(float(np.mean(wl_cpu_regrets)), 2) if wl_cpu_regrets else 0.0,
+                    "p90_regret_pct": round(p90(wl_cpu_regrets), 2),
+                },
+                "always_rtx": {
+                    "wins": wl_rtx_wins,
+                    "total": wl_n,
+                    "accuracy_pct": round((wl_rtx_wins / wl_n) * 100.0, 1),
+                    "mean_regret_pct": round(float(np.mean(wl_rtx_regrets)), 2) if wl_rtx_regrets else 0.0,
+                    "p90_regret_pct": round(p90(wl_rtx_regrets), 2),
+                },
+                "fit_only": {
+                    "wins": wl_fit_wins,
+                    "total": wl_n,
+                    "accuracy_pct": round((wl_fit_wins / wl_n) * 100.0, 1),
+                    "mean_regret_pct": round(float(np.mean(wl_fit_regrets)), 2) if wl_fit_regrets else 0.0,
+                    "p90_regret_pct": round(p90(wl_fit_regrets), 2),
+                },
             }
 
     return {

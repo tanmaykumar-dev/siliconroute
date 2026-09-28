@@ -1,0 +1,152 @@
+[
+  {
+    "id": "claim_01",
+    "claim": "Total workload measurements stored in database",
+    "value": 72,
+    "how": "python -c \"import sqlite3; con = sqlite3.connect('data/siliconroute.db'); print(con.execute('SELECT COUNT(*) FROM workloadmeasurement;').fetchone()[0])\""
+  },
+  {
+    "id": "claim_02",
+    "claim": "Total decisions in Phase 5.3 hardware evaluation run (IDs 93 to 116)",
+    "value": 24,
+    "how": "python -c \"import sqlite3; con = sqlite3.connect('data/siliconroute.db'); print(con.execute('SELECT COUNT(*) FROM decision WHERE id BETWEEN 93 AND 116;').fetchone()[0])\""
+  },
+  {
+    "id": "claim_03",
+    "claim": "SiliconRoute winning decisions out of 24 in Phase 5.3 evaluation",
+    "value": 22,
+    "how": "python -c \"import sqlite3; con = sqlite3.connect('data/siliconroute.db'); print(con.execute('SELECT COUNT(*) FROM decision WHERE id BETWEEN 93 AND 116 AND was_best = 1;').fetchone()[0])\""
+  },
+  {
+    "id": "claim_04",
+    "claim": "SiliconRoute accuracy percentage in Phase 5.3 evaluation",
+    "value": 91.7,
+    "how": "python -c \"import sqlite3; con = sqlite3.connect('data/siliconroute.db'); print(con.execute('SELECT ROUND(AVG(was_best) * 100.0, 1) FROM decision WHERE id BETWEEN 93 AND 116;').fetchone()[0])\""
+  },
+  {
+    "id": "claim_05",
+    "claim": "SiliconRoute mean regret percentage in Phase 5.3 evaluation",
+    "value": 2.03,
+    "how": "python -c \"import sqlite3; con = sqlite3.connect('data/siliconroute.db'); print(con.execute('SELECT ROUND(AVG(regret_pct), 2) FROM decision WHERE id BETWEEN 93 AND 116;').fetchone()[0])\""
+  },
+  {
+    "id": "claim_06",
+    "claim": "SiliconRoute p90 regret percentage in Phase 5.3 evaluation",
+    "value": 0.0,
+    "how": "python -c \"import sys; sys.path.insert(0, '.'); from sqlmodel import Session; from app.db import engine; from app.router import compute_decision_statistics; s = Session(engine); print(compute_decision_statistics(s, decision_ids=list(range(93, 117)))['siliconroute']['p90_regret_pct'])\""
+  },
+  {
+    "id": "claim_07",
+    "claim": "Always-CPU winning decisions out of 24 in Phase 5.3 evaluation",
+    "value": 13,
+    "how": "python -c \"import json, sqlite3; con = sqlite3.connect('data/siliconroute.db'); rows = con.execute('SELECT context_json FROM decision WHERE id BETWEEN 93 AND 116;').fetchall(); print(sum(1 for r in rows if (m := json.loads(r[0]).get('measured_times_ms', {})) and m.get('1') <= min(m.values()) + 1e-4))\""
+  },
+  {
+    "id": "claim_08",
+    "claim": "Always-CPU accuracy percentage in Phase 5.3 evaluation",
+    "value": 54.2,
+    "how": "python -c \"import sys; sys.path.insert(0, '.'); from sqlmodel import Session; from app.db import engine; from app.router import compute_decision_statistics; s = Session(engine); print(compute_decision_statistics(s, decision_ids=list(range(93, 117)))['baselines']['always_cpu']['accuracy_pct'])\""
+  },
+  {
+    "id": "claim_09",
+    "claim": "Always-CPU mean regret percentage in Phase 5.3 evaluation",
+    "value": 92.77,
+    "how": "python -c \"import sys; sys.path.insert(0, '.'); from sqlmodel import Session; from app.db import engine; from app.router import compute_decision_statistics; s = Session(engine); print(compute_decision_statistics(s, decision_ids=list(range(93, 117)))['baselines']['always_cpu']['mean_regret_pct'])\""
+  },
+  {
+    "id": "claim_10",
+    "claim": "Always-RTX winning decisions out of 24 in Phase 5.3 evaluation",
+    "value": 11,
+    "how": "python -c \"import json, sqlite3; con = sqlite3.connect('data/siliconroute.db'); rows = con.execute('SELECT context_json FROM decision WHERE id BETWEEN 93 AND 116;').fetchall(); print(sum(1 for r in rows if (m := json.loads(r[0]).get('measured_times_ms', {})) and m.get('3') <= min(m.values()) + 1e-4))\""
+  },
+  {
+    "id": "claim_11",
+    "claim": "Always-RTX accuracy percentage in Phase 5.3 evaluation",
+    "value": 45.8,
+    "how": "python -c \"import sys; sys.path.insert(0, '.'); from sqlmodel import Session; from app.db import engine; from app.router import compute_decision_statistics; s = Session(engine); print(compute_decision_statistics(s, decision_ids=list(range(93, 117)))['baselines']['always_rtx']['accuracy_pct'])\""
+  },
+  {
+    "id": "claim_12",
+    "claim": "Always-RTX mean regret percentage in Phase 5.3 evaluation",
+    "value": 297.3,
+    "how": "python -c \"import sys; sys.path.insert(0, '.'); from sqlmodel import Session; from app.db import engine; from app.router import compute_decision_statistics; s = Session(engine); print(compute_decision_statistics(s, decision_ids=list(range(93, 117)))['baselines']['always_rtx']['mean_regret_pct'])\""
+  },
+  {
+    "id": "claim_13",
+    "claim": "Fit-Only router winning decisions out of 24 in Phase 5.3 evaluation",
+    "value": 21,
+    "how": "python -c \"import sys; sys.path.insert(0, '.'); from sqlmodel import Session; from app.db import engine; from app.router import compute_decision_statistics; s = Session(engine); print(compute_decision_statistics(s, decision_ids=list(range(93, 117)))['baselines']['fit_only_router']['wins'])\""
+  },
+  {
+    "id": "claim_14",
+    "claim": "Fit-Only router accuracy percentage in Phase 5.3 evaluation",
+    "value": 87.5,
+    "how": "python -c \"import sys; sys.path.insert(0, '.'); from sqlmodel import Session; from app.db import engine; from app.router import compute_decision_statistics; s = Session(engine); print(compute_decision_statistics(s, decision_ids=list(range(93, 117)))['baselines']['fit_only_router']['accuracy_pct'])\""
+  },
+  {
+    "id": "claim_15",
+    "claim": "Fit-Only router mean regret percentage in Phase 5.3 evaluation",
+    "value": 26.16,
+    "how": "python -c \"import sys; sys.path.insert(0, '.'); from sqlmodel import Session; from app.db import engine; from app.router import compute_decision_statistics; s = Session(engine); print(compute_decision_statistics(s, decision_ids=list(range(93, 117)))['baselines']['fit_only_router']['mean_regret_pct'])\""
+  },
+  {
+    "id": "claim_16",
+    "claim": "SiliconRoute accuracy percentage in idle_loaded workload",
+    "value": 100.0,
+    "how": "python -c \"import sys; sys.path.insert(0, '.'); from sqlmodel import Session; from app.db import engine; from app.router import compute_decision_statistics; s = Session(engine); print(compute_decision_statistics(s, decision_ids=list(range(93, 117)))['per_workload']['idle_loaded']['accuracy_pct'])\""
+  },
+  {
+    "id": "claim_17",
+    "claim": "SiliconRoute mean regret percentage in idle_loaded workload",
+    "value": 0.0,
+    "how": "python -c \"import sys; sys.path.insert(0, '.'); from sqlmodel import Session; from app.db import engine; from app.router import compute_decision_statistics; s = Session(engine); print(compute_decision_statistics(s, decision_ids=list(range(93, 117)))['per_workload']['idle_loaded']['mean_regret_pct'])\""
+  },
+  {
+    "id": "claim_18",
+    "claim": "SiliconRoute accuracy percentage in cold_start workload",
+    "value": 87.5,
+    "how": "python -c \"import sys; sys.path.insert(0, '.'); from sqlmodel import Session; from app.db import engine; from app.router import compute_decision_statistics; s = Session(engine); print(compute_decision_statistics(s, decision_ids=list(range(93, 117)))['per_workload']['cold_start']['accuracy_pct'])\""
+  },
+  {
+    "id": "claim_19",
+    "claim": "SiliconRoute mean regret percentage in cold_start workload",
+    "value": 0.85,
+    "how": "python -c \"import sys; sys.path.insert(0, '.'); from sqlmodel import Session; from app.db import engine; from app.router import compute_decision_statistics; s = Session(engine); print(compute_decision_statistics(s, decision_ids=list(range(93, 117)))['per_workload']['cold_start']['mean_regret_pct'])\""
+  },
+  {
+    "id": "claim_20",
+    "claim": "SiliconRoute accuracy percentage in sustained workload",
+    "value": 87.5,
+    "how": "python -c \"import sys; sys.path.insert(0, '.'); from sqlmodel import Session; from app.db import engine; from app.router import compute_decision_statistics; s = Session(engine); print(compute_decision_statistics(s, decision_ids=list(range(93, 117)))['per_workload']['sustained']['accuracy_pct'])\""
+  },
+  {
+    "id": "claim_21",
+    "claim": "SiliconRoute mean regret percentage in sustained workload",
+    "value": 5.22,
+    "how": "python -c \"import sys; sys.path.insert(0, '.'); from sqlmodel import Session; from app.db import engine; from app.router import compute_decision_statistics; s = Session(engine); print(compute_decision_statistics(s, decision_ids=list(range(93, 117)))['per_workload']['sustained']['mean_regret_pct'])\""
+  },
+  {
+    "id": "claim_22",
+    "claim": "Total historical runs stored in database (0 runs deleted)",
+    "value": 456,
+    "how": "python -c \"import sqlite3; con = sqlite3.connect('data/siliconroute.db'); print(con.execute('SELECT COUNT(*) FROM run;').fetchone()[0])\""
+  },
+  {
+    "id": "claim_23",
+    "claim": "Historical runs flagged as identity_suspect",
+    "value": 20,
+    "how": "python -c \"import sqlite3; con = sqlite3.connect('data/siliconroute.db'); print(con.execute('SELECT COUNT(*) FROM run WHERE identity_suspect = 1;').fetchone()[0])\""
+  },
+  {
+    "id": "claim_24",
+    "claim": "Physical DXGI VendorId for NVIDIA GeForce RTX 5070 Laptop GPU (dml:1)",
+    "value": "0x10DE",
+    "how": "python -c \"import sqlite3; con = sqlite3.connect('data/siliconroute.db'); print(con.execute(\\\"SELECT vendor_id FROM device WHERE key = 'dml:1';\\\").fetchone()[0])\""
+  },
+  {
+    "id": "claim_25",
+    "claim": "Physical DXGI VendorId for AMD Radeon 610M (dml:0)",
+    "value": "0x1002",
+    "how": "python -c \"import sqlite3; con = sqlite3.connect('data/siliconroute.db'); print(con.execute(\\\"SELECT vendor_id FROM device WHERE key = 'dml:0';\\\").fetchone()[0])\""
+  }
+]

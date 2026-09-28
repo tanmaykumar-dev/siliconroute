@@ -45,7 +45,7 @@ REFIT_EVERY: int = 10
 
 # Hardware cache capacity per device key (in MB) for F2 Roofline+Cache model
 DEVICE_CACHE_MB: dict[str, float] = {
-    "cpu": 32.0,      # L3 Cache on AMD Ryzen 9 8940HX (~32 MB)
+    "cpu": 64.0,      # L3 Cache on AMD Ryzen 9 8940HX (64 MB across 2x 32MB CCDs)
     "dml:0": 16.0,    # AMD Radeon 610M L2/Infinity Cache partition
     "dml:1": 32.0,    # NVIDIA GeForce RTX 5070 Laptop GPU L2 Cache (~32 MB)
 }

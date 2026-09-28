@@ -23,15 +23,23 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import numpy as np
-from sqlmodel import Session, select
+from sqlmodel import Session, select, delete
 
 from app.benchmark import run_cold_start_measurement, run_idle_loaded_measurement
 from app.db import AIModel, Device, WorkloadMeasurement, engine, init_db
+from app.devices import verify_gpu_identity_mapping
 
 
 def main():
     init_db()
+    # 0. Verify physical GPU adapter mapping via DXGI and NVML load fingerprint
+    verify_gpu_identity_mapping()
+
     with Session(engine) as session:
+        # Clear previous workload measurements to ensure clean re-measurement
+        session.exec(delete(WorkloadMeasurement))
+        session.commit()
+
         models = {m.name: m for m in session.exec(select(AIModel)).all()}
         devices = {d.key: d for d in session.exec(select(Device).where(Device.is_available == True)).all()}
 

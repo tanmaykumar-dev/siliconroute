@@ -136,6 +136,7 @@ def prepare_fit_dataset(
         Run.device_id == device_id,
         Run.provider_mismatch == False,
         Run.unstable == False,
+        Run.identity_suspect == False,
     )
 
     if target == "latency":
@@ -442,6 +443,7 @@ def get_cold_start_summary(session: Session, device_id: Optional[int] = None) ->
                 Run.device_id == d.id,
                 Run.first_run_ms != None,
                 Run.median_ms > 0,
+                Run.identity_suspect == False,
             )
         ).all()
 

@@ -105,6 +105,9 @@ class Device(SQLModel, table=True):
     provider_options_json: str = "{}"          # Serialized options dict
     is_available: bool = True
     unavailable_reason: Optional[str] = None   # Reason when is_available is false (e.g. duplicate)
+    vendor: Optional[str] = None               # Physical GPU vendor: "NVIDIA" | "AMD" | "Intel" | "CPU"
+    vendor_id: Optional[str] = None            # DXGI VendorId hex: "0x10DE" | "0x1002"
+    luid: Optional[str] = None                 # DXGI Adapter LUID: e.g. "0:70776"
     detected_at: str                           # ISO UTC timestamp
 
 
@@ -193,6 +196,9 @@ class Run(SQLModel, table=True):
     energy_method: Optional[str] = None
     idle_w: Optional[float] = None
     load_w: Optional[float] = None
+    adapter_vendor: Optional[str] = None       # DXGI vendor at run time
+    adapter_luid: Optional[str] = None         # DXGI LUID at run time
+    identity_suspect: bool = Field(default=False) # True if run was mislabeled/swapped
     created_at: str
 
 

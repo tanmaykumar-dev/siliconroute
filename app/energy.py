@@ -55,7 +55,7 @@ def run_energy_measurement(
     device_id = device_opts.get("device_id")
 
     # 1. Prepare session and fixed input
-    sess = make_session(model.path, device.provider, device_id=device_id)
+    sess = make_session(model.path, device.provider, device_id=device_id, device=device)
     inp_meta = sess.get_inputs()[0]
     inp_name = inp_meta.name
     raw_shape = inp_meta.shape
