@@ -566,3 +566,126 @@ def test_workload_parameter_in_api():
         "workload": "bogus", "verify": False,
     })
     assert res3.status_code == 400
+
+    # Test idle_loaded and cold_start via API
+    res4 = client.post("/api/route", json={
+        "ai_model_id": model_id, "batch": 1, "mode": "fastest",
+        "workload": "idle_loaded", "verify": False,
+    })
+    assert res4.status_code == 200
+    assert res4.json()["workload"] == "idle_loaded"
+
+    res5 = client.post("/api/route", json={
+        "ai_model_id": model_id, "batch": 1, "mode": "fastest",
+        "workload": "cold_start", "verify": False,
+    })
+    assert res5.status_code == 200
+    assert res5.json()["workload"] == "cold_start"
+
+
+def test_idle_loaded_and_cold_start_routing():
+    """Verify that route_model resolves idle_loaded and cold_start workloads with proper sources."""
+    init_db()
+    u = uuid.uuid4().hex[:8]
+
+    with Session(engine) as session:
+        bs = BenchSession(
+            kind="latency",
+            status="done",
+            config_json="{}",
+            created_at="2026-09-29T00:00:00Z",
+        )
+        session.add(bs)
+        session.commit()
+        session.refresh(bs)
+
+        dev = Device(
+            key=f"test_wl_{u}",
+            label=f"Test WL {u}",
+            kind="dgpu",
+            provider="CPUExecutionProvider",
+            provider_options_json="{}",
+            is_available=True,
+            detected_at="2026-09-29T00:00:00Z",
+        )
+        session.add(dev)
+        session.commit()
+        session.refresh(dev)
+
+        model = AIModel(
+            name=f"test_wl_m_{u}",
+            family="mlp",
+            source="synthetic",
+            path="models/test_wl.onnx",
+            sha256="testsha_wl2",
+            params=1000,
+            flops_per_sample=2000.0,
+            weight_bytes=4000,
+            size_mb=0.004,
+            precision="fp32",
+            input_shape_json="[[1, 32]]",
+            created_at="2026-09-29T00:00:00Z",
+        )
+        session.add(model)
+        session.commit()
+        session.refresh(model)
+
+        # Add warm run
+        r = Run(
+            session_id=bs.id,
+            ai_model_id=model.id,
+            device_id=dev.id,
+            provider_used="CPUExecutionProvider",
+            provider_mismatch=False,
+            batch=1,
+            intra_op_threads=1,
+            warmup_runs=1,
+            timed_runs=5,
+            session_create_ms=2.0,
+            median_ms=1.0,
+            p10_ms=0.9,
+            p90_ms=1.1,
+            mean_ms=1.0,
+            min_ms=0.9,
+            max_ms=1.1,
+            stdev_ms=0.05,
+            cv=0.05,
+            spread=0.2,
+            ci_rel=0.05,
+            unstable=False,
+            throughput_per_s=1000.0,
+            raw_ms_json="[]",
+            created_at="2026-09-29T00:00:00Z",
+        )
+        session.add(r)
+        session.commit()
+
+        # 1. Test fallback ratio when no WorkloadMeasurement exists
+        cand_idle_ratio = resolve_candidate_prediction(session, dev, model, batch=1, workload="idle_loaded")
+        assert "ratio_idle_loaded" in cand_idle_ratio["source"]
+
+        cand_cold_ratio = resolve_candidate_prediction(session, dev, model, batch=1, workload="cold_start")
+        assert "ratio_cold_start" in cand_cold_ratio["source"]
+
+        # 2. Add exact WorkloadMeasurement and verify measured-first
+        from app.db import WorkloadMeasurement
+        wm = WorkloadMeasurement(
+            ai_model_id=model.id,
+            device_id=dev.id,
+            batch=1,
+            workload="idle_loaded",
+            latency_ms=2.345,
+            created_at="2026-09-29T00:00:00Z",
+        )
+        session.add(wm)
+        session.commit()
+
+        cand_idle_meas = resolve_candidate_prediction(session, dev, model, batch=1, workload="idle_loaded")
+        assert cand_idle_meas["source"] == "measured_idle_loaded"
+        assert cand_idle_meas["base_latency_ms"] == 2.345
+
+        # Cleanup
+        dev.is_available = False
+        session.add(dev)
+        session.commit()
+

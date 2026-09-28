@@ -28,7 +28,11 @@ import numpy as np
 import psutil
 from sqlmodel import Session, select
 
-from app.benchmark import run_latency_measurement
+from app.benchmark import (
+    run_cold_start_measurement,
+    run_idle_loaded_measurement,
+    run_latency_measurement,
+)
 from app.config import (
     DEVICE_CACHE_MB,
     EPSILON,
@@ -39,7 +43,7 @@ from app.config import (
     SEED,
     VERIFY_RUNS,
 )
-from app.db import AIModel, BenchSession, Decision, Device, Fit, Run
+from app.db import AIModel, BenchSession, Decision, Device, Fit, Run, WorkloadMeasurement
 from app.jobs import _lock, current_job
 from app.power import nvml_reader
 from app.predictor import predict_for_fit
@@ -135,8 +139,62 @@ def calculate_wake_penalty(device: Device, model: AIModel) -> tuple[float, str]:
 
 
 # -----------------------------------------------------------------------------
-# 3. Candidate Prediction Resolution (Measured vs Fit)
+# 3. Candidate Prediction Resolution (Measured vs Fit vs Workload Ratios)
 # -----------------------------------------------------------------------------
+
+def get_workload_slowdown_ratio(
+    session: Session,
+    device_id: int,
+    family: str,
+    workload: str,
+) -> float:
+    """Calculate the median slowdown ratio for a device and family under a specific workload.
+    
+    Slowdown ratio = measured_workload_latency / warm_sustained_latency.
+    Prefers median across measurements for the same model family; falls back to device median.
+    """
+    wms = session.exec(
+        select(WorkloadMeasurement).where(
+            WorkloadMeasurement.device_id == device_id,
+            WorkloadMeasurement.workload == workload,
+        )
+    ).all()
+
+    family_ratios: list[float] = []
+    all_ratios: list[float] = []
+
+    for wm in wms:
+        m = session.get(AIModel, wm.ai_model_id)
+        if not m:
+            continue
+        warm_run = session.exec(
+            select(Run).where(
+                Run.ai_model_id == m.id,
+                Run.device_id == device_id,
+                Run.batch == wm.batch,
+                Run.unstable == False,
+                Run.provider_mismatch == False,
+                Run.session_id != None,
+            ).order_by(Run.id.desc())
+        ).first()
+
+        if warm_run and warm_run.median_ms > 0:
+            r = wm.latency_ms / warm_run.median_ms
+            all_ratios.append(r)
+            if m.family == family:
+                family_ratios.append(r)
+
+    if family_ratios:
+        return float(np.median(family_ratios))
+    elif all_ratios:
+        return float(np.median(all_ratios))
+    else:
+        # Sensible hardware defaults if no measurements exist in DB yet
+        if workload == "idle_loaded":
+            return 1.1 if device_id == 1 else (3.0 if device_id == 3 else 1.5)
+        else:  # cold_start
+            return 3.0 if device_id == 1 else (15.0 if device_id == 3 else 8.0)
+
 
 def resolve_candidate_prediction(
     session: Session,
@@ -145,11 +203,14 @@ def resolve_candidate_prediction(
     batch: int,
     workload: str = "sustained",
 ) -> dict[str, Any]:
-    """Resolve latency and energy predictions for a candidate device.
+    """Resolve latency and energy predictions for a candidate device across workloads.
     
-    Prefers most recent measured median run if available; falls back to hardware fit.
+    Workloads:
+    - 'sustained': warm steady-state median (prefers Run table, falls back to Fit).
+    - 'idle_loaded': warm session after 10 s idle (prefers WorkloadMeasurement, falls back to family slowdown ratio).
+    - 'cold_start': session creation + first inference (prefers WorkloadMeasurement, falls back to family slowdown ratio).
     """
-    # 1. Check for genuine measured runs in SQLite database
+    # 1. Warm steady-state latency lookup
     runs = session.exec(
         select(Run).where(
             Run.ai_model_id == model.id,
@@ -162,22 +223,20 @@ def resolve_candidate_prediction(
     ).all()
 
     source = "fit"
-    pred_latency_ms: Optional[float] = None
+    warm_latency_ms: Optional[float] = None
     is_volatile = False
     volatility_pct: Optional[float] = None
     measured_session_id: Optional[int] = None
 
     if runs:
-        # Group runs by session to check session-to-session consistency
         sess_groups: dict[int, list[float]] = defaultdict(list)
         for r in runs:
             if r.session_id is not None:
                 sess_groups[r.session_id].append(r.median_ms)
 
-        # Most recent session ID
         latest_sess_id = max(sess_groups.keys())
         latest_med = float(np.median(sess_groups[latest_sess_id]))
-        pred_latency_ms = latest_med
+        warm_latency_ms = latest_med
         source = "measured"
         measured_session_id = latest_sess_id
 
@@ -191,7 +250,7 @@ def resolve_candidate_prediction(
                 if diff > 0.20:
                     is_volatile = True
 
-    # 2. Check active predictor fit (both for fallback and for fit-only baseline comparison)
+    # Check active predictor fit (both for fallback and for fit-only baseline)
     fit = session.exec(
         select(Fit).where(
             Fit.device_id == device.id,
@@ -205,12 +264,37 @@ def resolve_candidate_prediction(
         cache_mb = DEVICE_CACHE_MB.get(device.key, 32.0)
         fit_latency_ms = round(float(predict_for_fit(fit, model, batch, cache_mb)), 3)
 
-    if pred_latency_ms is None:
+    if warm_latency_ms is None:
         if fit_latency_ms is not None:
-            pred_latency_ms = fit_latency_ms
+            warm_latency_ms = fit_latency_ms
             source = "fit"
         else:
             raise ValueError(f"No prediction possible for device {device.key}: missing runs and fit")
+
+    # 2. Workload-specific latency resolution
+    target_wl = "idle_loaded" if workload == "single" else workload
+    final_latency_ms: float = warm_latency_ms
+    wake_status: str = "sustained workload: warm steady-state"
+
+    if target_wl in ("idle_loaded", "cold_start"):
+        wm = session.exec(
+            select(WorkloadMeasurement).where(
+                WorkloadMeasurement.ai_model_id == model.id,
+                WorkloadMeasurement.device_id == device.id,
+                WorkloadMeasurement.batch == batch,
+                WorkloadMeasurement.workload == target_wl,
+            ).order_by(WorkloadMeasurement.id.desc())
+        ).first()
+
+        if wm is not None:
+            final_latency_ms = wm.latency_ms
+            source = f"measured_{target_wl}"
+            wake_status = f"measured {target_wl} ({wm.latency_ms:.3f} ms)"
+        else:
+            ratio = get_workload_slowdown_ratio(session, device.id, model.family, target_wl)
+            final_latency_ms = round(warm_latency_ms * ratio, 3)
+            source = f"ratio_{target_wl}"
+            wake_status = f"ratio fallback ({ratio:.2f}x for {model.family} on {device.key})"
 
     # 3. Energy prediction lookup
     energy_mj: Optional[float] = None
@@ -229,23 +313,16 @@ def resolve_candidate_prediction(
             cache_mb = DEVICE_CACHE_MB.get(device.key, 32.0)
             energy_mj = float(predict_for_fit(fit_energy, model, batch, cache_mb))
 
-    # 4. Wake penalty: only applied for single-inference workloads where cold-start matters
-    if workload == "single":
-        wake_penalty_ms, wake_status = calculate_wake_penalty(device, model)
-    else:
-        wake_penalty_ms = 0.0
-        wake_status = "sustained workload: wake penalty not applied"
-
     return {
         "device_id": device.id,
         "device_key": device.key,
         "device_label": device.label,
         "device_kind": device.kind,
         "source": source,
-        "base_latency_ms": round(pred_latency_ms, 3),
+        "base_latency_ms": round(final_latency_ms, 3),
         "fit_latency_ms": fit_latency_ms,
-        "wake_penalty_ms": wake_penalty_ms,
-        "effective_latency_ms": round(pred_latency_ms + wake_penalty_ms, 3),
+        "wake_penalty_ms": 0.0,
+        "effective_latency_ms": round(final_latency_ms, 3),
         "energy_mj": round(energy_mj, 3) if energy_mj is not None else None,
         "is_volatile": is_volatile,
         "volatility_pct": volatility_pct,
@@ -269,8 +346,8 @@ def route_model(
     workload: str = "sustained",
 ) -> dict[str, Any]:
     """Evaluate all candidate devices, score according to goal, and choose the optimal chip."""
-    if workload not in ("single", "sustained"):
-        raise ValueError(f"Invalid workload '{workload}': must be 'single' or 'sustained'")
+    if workload not in ("sustained", "idle_loaded", "cold_start", "single"):
+        raise ValueError(f"Invalid workload '{workload}': must be 'sustained', 'idle_loaded', or 'cold_start'")
 
     model = session.get(AIModel, model_id)
     if not model:
@@ -549,25 +626,11 @@ def execute_verification(
 
     measured_times: dict[int, float] = {}
     try:
-        for cand in candidates:
-            dev_id = cand["device_id"]
-            device = session.get(Device, dev_id)
-            if not device or not device.is_available:
-                continue
+        available_devices = session.exec(select(Device).where(Device.is_available == True)).all()
+        for device in available_devices:
+            dev_id = device.id
 
-            if workload == "single":
-                # Cold single-inference: no warmup, 1 timed run, use first_run_ms
-                run = run_latency_measurement(
-                    session=session,
-                    bench_session_id=bench_session.id,
-                    model=model,
-                    device=device,
-                    batch=batch,
-                    warmup_runs=0,
-                    timed_runs=1,
-                )
-                measured_times[dev_id] = run.first_run_ms
-            else:
+            if workload == "sustained":
                 # Sustained workload: warmup + timed runs, use warm median
                 run = run_latency_measurement(
                     session=session,
@@ -579,6 +642,24 @@ def execute_verification(
                     timed_runs=runs_count,
                 )
                 measured_times[dev_id] = run.median_ms
+            elif workload in ("idle_loaded", "single"):
+                # Idle loaded: warm session, 10s idle, time ONE inference
+                meas = run_idle_loaded_measurement(
+                    model=model,
+                    device=device,
+                    batch=batch,
+                    idle_s=10.0,
+                )
+                measured_times[dev_id] = meas["latency_ms"]
+            elif workload == "cold_start":
+                # Cold start: fresh session creation + first inference
+                meas = run_cold_start_measurement(
+                    model=model,
+                    device=device,
+                    batch=batch,
+                    idle_s=10.0,
+                )
+                measured_times[dev_id] = meas["latency_ms"]
 
         bench_session.status = "done"
         bench_session.finished_at = datetime.now(timezone.utc).isoformat()
@@ -734,6 +815,25 @@ def compute_decision_statistics(
     def p90(arr: list[float]) -> float:
         return float(np.percentile(arr, 90)) if arr else 0.0
 
+    # Per-workload breakdown
+    per_workload: dict[str, Any] = {}
+    for wl in ("sustained", "idle_loaded", "cold_start"):
+        wl_decs = [
+            d for d in decisions
+            if (json.loads(d.context_json or "{}").get("workload") == wl
+                or (wl == "idle_loaded" and json.loads(d.context_json or "{}").get("workload") == "single"))
+        ]
+        if wl_decs:
+            wl_wins = sum(1 for d in wl_decs if d.was_best)
+            wl_regrets = [d.regret_pct for d in wl_decs if d.regret_pct is not None]
+            per_workload[wl] = {
+                "wins": wl_wins,
+                "total": len(wl_decs),
+                "accuracy_pct": round((wl_wins / len(wl_decs)) * 100.0, 1),
+                "mean_regret_pct": round(float(np.mean(wl_regrets)), 2) if wl_regrets else 0.0,
+                "p90_regret_pct": round(p90(wl_regrets), 2),
+            }
+
     return {
         "total_verified": n,
         "siliconroute": {
@@ -743,6 +843,7 @@ def compute_decision_statistics(
             "mean_regret_pct": round(float(np.mean(sr_regrets)), 2) if sr_regrets else 0.0,
             "p90_regret_pct": round(p90(sr_regrets), 2),
         },
+        "per_workload": per_workload,
         "baselines": {
             "always_cpu": {
                 "wins": cpu_wins,

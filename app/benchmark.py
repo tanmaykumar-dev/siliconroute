@@ -399,6 +399,93 @@ def run_latency_measurement(
     return run
 
 
+def run_idle_loaded_measurement(
+    model: AIModel,
+    device: Device,
+    batch: int,
+    idle_s: float = 10.0,
+) -> dict[str, Any]:
+    """Measure one inference on an existing warm session after device has been idle for idle_s seconds.
+    
+    Reflects the physical reality of a model residing warm in memory/VRAM, where the accelerator
+    has dropped into an idle power-saving state (e.g. NVIDIA P8 sleep).
+    """
+    device_opts = json.loads(device.provider_options_json or "{}")
+    device_id = device_opts.get("device_id")
+    sess = make_session(model.path, device.provider, device_id=device_id)
+    inp_name, inp_tensor = prepare_input_tensor(model, batch, sess)
+    feed_dict = {inp_name: inp_tensor}
+
+    # Warmup session
+    for _ in range(3):
+        sess.run(None, feed_dict)
+
+    # Idle wait to ensure device enters low-power P-state
+    if idle_s > 0:
+        time.sleep(idle_s)
+
+    pstate: Optional[int] = None
+    if device.key == "dml:1" and nvml_reader.is_available:
+        m = nvml_reader.read_metrics()
+        pstate = m.get("gpu_pstate")
+
+    # Time exactly ONE inference on the warm session
+    t0 = time.perf_counter_ns()
+    sess.run(None, feed_dict)
+    lat_ms = (time.perf_counter_ns() - t0) / 1e6
+
+    return {
+        "latency_ms": round(lat_ms, 3),
+        "nvml_pstate": pstate,
+        "idle_s": idle_s,
+    }
+
+
+def run_cold_start_measurement(
+    model: AIModel,
+    device: Device,
+    batch: int,
+    idle_s: float = 0.0,
+) -> dict[str, Any]:
+    """Measure fresh session creation plus first inference latency.
+    
+    Reflects the physical reality of launching an on-demand task that is not pre-loaded in memory.
+    """
+    if idle_s > 0:
+        time.sleep(idle_s)
+
+    device_opts = json.loads(device.provider_options_json or "{}")
+    device_id = device_opts.get("device_id")
+
+    # 1. Time session creation
+    t0_create = time.perf_counter_ns()
+    sess = make_session(model.path, device.provider, device_id=device_id)
+    create_ms = (time.perf_counter_ns() - t0_create) / 1e6
+
+    # 2. Time first inference
+    inp_name, inp_tensor = prepare_input_tensor(model, batch, sess)
+    feed_dict = {inp_name: inp_tensor}
+
+    pstate: Optional[int] = None
+    if device.key == "dml:1" and nvml_reader.is_available:
+        m = nvml_reader.read_metrics()
+        pstate = m.get("gpu_pstate")
+
+    t0_inf = time.perf_counter_ns()
+    sess.run(None, feed_dict)
+    first_inf_ms = (time.perf_counter_ns() - t0_inf) / 1e6
+
+    total_cold_ms = create_ms + first_inf_ms
+
+    return {
+        "latency_ms": round(total_cold_ms, 3),
+        "session_create_ms": round(create_ms, 3),
+        "first_run_ms": round(first_inf_ms, 3),
+        "nvml_pstate": pstate,
+        "idle_s": idle_s,
+    }
+
+
 def execute_latency_job(
     bench_session_id: int,
     model_ids: list[int],

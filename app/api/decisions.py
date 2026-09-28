@@ -17,7 +17,7 @@ class RouteRequest(BaseModel):
     ai_model_id: int
     batch: int = 1
     mode: str = "fastest"  # fastest | battery | balanced | cool
-    workload: str = "sustained"  # single | sustained
+    workload: str = "sustained"  # sustained | idle_loaded | cold_start | single
     power_budget_w: Optional[float] = None
     verify: bool = False
     allow_explore: bool = True

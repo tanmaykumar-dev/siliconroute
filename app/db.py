@@ -252,6 +252,24 @@ class Decision(SQLModel, table=True):
     regret_pct: Optional[float] = None
 
 
+class WorkloadMeasurement(SQLModel, table=True):
+    """Stores measured idle_loaded and cold_start latencies per (model, device, batch)."""
+    __table_args__ = (
+        Index("ix_wm_model_dev_batch_workload", "ai_model_id", "device_id", "batch", "workload"),
+    )
+    id: Optional[int] = Field(default=None, primary_key=True)
+    ai_model_id: int = Field(foreign_key="aimodel.id", index=True)
+    device_id: int = Field(foreign_key="device.id", index=True)
+    batch: int = Field(index=True)
+    workload: str = Field(index=True)  # idle_loaded | cold_start
+    latency_ms: float
+    session_create_ms: Optional[float] = None
+    first_run_ms: Optional[float] = None
+    idle_s: float = 10.0
+    nvml_pstate: Optional[int] = None
+    created_at: str
+
+
 def _migrate_columns(target_engine) -> None:
     """Ensure existing SQLite tables have newly added columns."""
     from sqlalchemy import text
