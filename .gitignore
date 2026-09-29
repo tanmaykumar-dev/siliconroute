@@ -9,3 +9,4 @@ data/backups/
 data/*.db-wal
 data/*.db-shm
 siliconroute_kit.zip
+models/*.onnx
