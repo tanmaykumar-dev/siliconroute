@@ -145,9 +145,19 @@ def list_decisions(
 
 
 @router.get("/decisions/stats")
-def get_decision_statistics(session: Session = Depends(get_session)) -> dict[str, Any]:
+def get_decision_statistics(
+    ids: Optional[str] = Query(default=None, description="Comma-separated IDs or range e.g. '93-116'"),
+    session: Session = Depends(get_session),
+) -> dict[str, Any]:
     """Retrieve accuracy, mean and p90 regret for SiliconRoute and all static baselines."""
-    return compute_decision_statistics(session)
+    dec_ids = None
+    if ids:
+        if "-" in ids:
+            parts = ids.split("-")
+            dec_ids = list(range(int(parts[0]), int(parts[1]) + 1))
+        else:
+            dec_ids = [int(x.strip()) for x in ids.split(",") if x.strip().isdigit()]
+    return compute_decision_statistics(session, decision_ids=dec_ids)
 
 
 @router.get("/decisions/{decision_id}", response_model=Decision)

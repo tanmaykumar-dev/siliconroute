@@ -174,3 +174,64 @@ def test_benchmarks_api_and_conflict_409():
     assert csv_res.status_code == 200
     assert "median_ms" in csv_res.text
     assert "text/csv" in csv_res.headers.get("content-type", "")
+
+    # Test single run endpoint
+    run_id = runs[0]["id"]
+    single_run_res = client.get(f"/api/runs/{run_id}")
+    assert single_run_res.status_code == 200
+    assert single_run_res.json()["id"] == run_id
+
+    # Test single run 404
+    missing_run_res = client.get("/api/runs/99999999")
+    assert missing_run_res.status_code == 404
+
+
+def test_analysis_endpoints():
+    """Verify analysis endpoints for variability, physics notes, chart data, and crossovers."""
+    # 1. Variability
+    var_res = client.get("/api/analysis/variability")
+    assert var_res.status_code == 200
+    var_data = var_res.json()
+    assert "summary" in var_data
+    assert "details" in var_data
+
+    # 2. Physics notes
+    phys_res = client.get("/api/analysis/physics-notes")
+    assert phys_res.status_code == 200
+    phys_data = phys_res.json()
+    assert "explanation" in phys_data
+    assert "datasheet_peaks" in phys_data
+    assert "runs" in phys_data
+
+    # 3. Chart data
+    chart_res = client.get("/api/analysis/chart-data?family=mlp&batch=1")
+    assert chart_res.status_code == 200
+    chart_data = chart_res.json()
+    assert chart_data["family"] == "mlp"
+    assert "devices" in chart_data
+    assert "runs" in chart_data
+    assert "curves" in chart_data
+
+    # 4. Crossovers
+    co_res = client.get("/api/analysis/crossovers-all")
+    assert co_res.status_code == 200
+    assert isinstance(co_res.json(), list)
+
+    # 5. Cold start
+    cs_res = client.get("/api/analysis/cold-start")
+    assert cs_res.status_code == 200
+    assert isinstance(cs_res.json(), list)
+
+
+def test_decisions_stats_with_ids():
+    """Verify GET /api/decisions/stats with optional ids filter."""
+    res_all = client.get("/api/decisions/stats")
+    assert res_all.status_code == 200
+
+    res_range = client.get("/api/decisions/stats?ids=93-116")
+    assert res_range.status_code == 200
+    data = res_range.json()
+    if data.get("total_verified", 0) >= 24:
+        sr = data["siliconroute"]
+        assert sr["wins"] == 22
+        assert sr["accuracy_pct"] == 91.7

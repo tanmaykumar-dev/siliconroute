@@ -3,7 +3,7 @@
 import csv
 import io
 from typing import Optional
-from fastapi import APIRouter, Depends, Query, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlmodel import Session, select
 
 from app.db import Run, get_session
@@ -30,6 +30,15 @@ def list_runs(
 
     statement = statement.order_by(Run.id.desc()).limit(limit)
     return list(session.exec(statement).all())
+
+
+@router.get("/api/runs/{run_id}", response_model=Run)
+def get_run_by_id(run_id: int, session: Session = Depends(get_session)) -> Run:
+    """Retrieve details and raw timing samples for a single benchmark run."""
+    run = session.get(Run, run_id)
+    if not run:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Run {run_id} not found")
+    return run
 
 
 @router.get("/api/export/runs.csv")

@@ -1,0 +1,116 @@
+[
+  {
+    "id": "c01_pytest",
+    "claim": "All unit and API tests pass cleanly",
+    "value": "49 passed, 1 warning in 33.61s",
+    "how": "python -m pytest -q"
+  },
+  {
+    "id": "c02_total_runs",
+    "claim": "Total benchmark runs stored in database",
+    "value": 456,
+    "how": "SELECT count(*) FROM run"
+  },
+  {
+    "id": "c03_identity_suspect_runs",
+    "claim": "Total suspect swapped runs flagged and excluded from fits and routing",
+    "value": 12,
+    "how": "SELECT count(*) FROM run WHERE identity_suspect = 1"
+  },
+  {
+    "id": "c04_run_777_physics_note",
+    "claim": "Run 777 physics note corrected to reflect identity swap",
+    "value": "identity swap: ran on the other GPU; excluded",
+    "how": "SELECT physics_note FROM run WHERE id = 777"
+  },
+  {
+    "id": "c05_run_783_physics_note",
+    "claim": "Run 783 physics note corrected to reflect identity swap",
+    "value": "identity swap: ran on the other GPU; excluded",
+    "how": "SELECT physics_note FROM run WHERE id = 783"
+  },
+  {
+    "id": "c06_large_git_blobs",
+    "claim": "Number of blobs over 100 MB in git history",
+    "value": 2,
+    "how": "git rev-list --objects --all (blobs 64ac0431 at 256MB and 02fb87a7 at 144MB)"
+  },
+  {
+    "id": "c07_tracked_onnx_models",
+    "claim": "Tracked .onnx models in git repository",
+    "value": 22,
+    "how": "git ls-files models (count lines ending with .onnx)"
+  },
+  {
+    "id": "c08_hardware_devices_detected",
+    "claim": "Physical compute devices active in system",
+    "value": 3,
+    "how": "SELECT count(*) FROM device WHERE is_available = 1"
+  },
+  {
+    "id": "c09_decisions_93_116_count",
+    "claim": "Total verified evaluation decisions for Phase 5.3 benchmark",
+    "value": 24,
+    "how": "SELECT count(*) FROM decision WHERE id BETWEEN 93 AND 116"
+  },
+  {
+    "id": "c10_decisions_93_116_wins",
+    "claim": "SiliconRoute winning routing decisions out of 24",
+    "value": 22,
+    "how": "SELECT count(*) FROM decision WHERE id BETWEEN 93 AND 116 AND was_best = 1"
+  },
+  {
+    "id": "c11_decisions_93_116_accuracy",
+    "claim": "SiliconRoute decision accuracy percentage",
+    "value": 91.7,
+    "how": "round(100.0 * 22 / 24, 1)"
+  },
+  {
+    "id": "c12_decisions_93_116_mean_regret",
+    "claim": "SiliconRoute average slowdown / regret percentage vs best chip",
+    "value": 2.03,
+    "how": "SELECT round(avg(regret_pct), 2) FROM decision WHERE id BETWEEN 93 AND 116"
+  },
+  {
+    "id": "c13_decisions_93_116_p90_regret",
+    "claim": "SiliconRoute 90th percentile regret percentage",
+    "value": 0.0,
+    "how": "computed in router evaluation statistics over decisions 93-116"
+  },
+  {
+    "id": "c14_sustained_wins",
+    "claim": "SiliconRoute sustained workload accuracy (7/8 wins)",
+    "value": 87.5,
+    "how": "GET /api/decisions/stats?ids=93-116 (workload sustained wins / total)"
+  },
+  {
+    "id": "c15_idle_loaded_wins",
+    "claim": "SiliconRoute idle_loaded workload accuracy (8/8 wins)",
+    "value": 100.0,
+    "how": "GET /api/decisions/stats?ids=93-116 (workload idle_loaded wins / total)"
+  },
+  {
+    "id": "c16_cold_start_wins",
+    "claim": "SiliconRoute cold_start workload accuracy (7/8 wins)",
+    "value": 87.5,
+    "how": "GET /api/decisions/stats?ids=93-116 (workload cold_start wins / total)"
+  },
+  {
+    "id": "c17_ui_check_console_errors",
+    "claim": "Total browser console errors across all 3 tabs and run inspector modal",
+    "value": 0,
+    "how": "python results/verify/ui_check.py (Edge CDP consoleAPICalled error count)"
+  },
+  {
+    "id": "c18_snapshot_file_size",
+    "claim": "Size in bytes of data/snapshot_for_review.db generated via sqlite3 backup API",
+    "value": 811008,
+    "how": "os.path.getsize('data/snapshot_for_review.db')"
+  },
+  {
+    "id": "c19_snapshot_sha256",
+    "claim": "SHA256 checksum of data/snapshot_for_review.db",
+    "value": "149d2c7524029e7dc6052d8c103e53fa20b39f687cb4170764e9969e5f7c1e67",
+    "how": "hashlib.sha256(open('data/snapshot_for_review.db', 'rb').read()).hexdigest()"
+  }
+]
