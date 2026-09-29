@@ -110,7 +110,7 @@
   {
     "id": "c19_snapshot_sha256",
     "claim": "SHA256 checksum of data/snapshot_for_review.db",
-    "value": "ce0babe4c29c53f29c40cb62945653864803e0d3429f5ec4c1402beddc708824",
+    "value": "0f969ddc8e003e913124737218f455b5356e5af43c8ed97e4d74f44f666f30f3",
     "how": "hashlib.sha256(open('data/snapshot_for_review.db', 'rb').read()).hexdigest()"
   },
   {

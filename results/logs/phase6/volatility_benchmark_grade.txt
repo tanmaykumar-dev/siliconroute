@@ -1,0 +1,4 @@
+=== REALIGNED BENCHMARK-GRADE VOLATILITY BANDS ===
+Device cpu (CPU): median=17.3% (5 configs), max=38.9%
+Device dml:0 (AMD Radeon(TM) 610M): median=15.4% (10 configs), max=76.0%
+Device dml:1 (NVIDIA GeForce RTX 5070 Laptop GPU): median=6.6% (10 configs), max=139.9%
