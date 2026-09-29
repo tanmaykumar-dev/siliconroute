@@ -1,0 +1,24 @@
+TOTAL_RUNS_COUNT: 456
+IDENTITY_SUSPECT_RUNS_COUNT: 12
+RUN_777_783_NOTES: [(777, 2, 'identity swap: ran on the other GPU; excluded', 1), (783, 2, 'identity swap: ran on the other GPU; excluded', 1)]
+TEST_LEFTOVERS_RUNS_COUNT: 0
+RUNS_BY_MODEL_BREAKDOWN:
+  conv-128c-4l: 9
+  conv-16c-4l: 34
+  conv-32c-4l: 9
+  conv-48c-4l: 9
+  conv-64c-4l: 12
+  conv-8c-4l: 9
+  conv-96c-4l: 59
+  mlp-1024w-4l: 68
+  mlp-128w-4l: 9
+  mlp-1536w-4l: 9
+  mlp-2048w-4l: 9
+  mlp-256w-4l: 103
+  mlp-3072w-4l: 63
+  mlp-32w-4l: 9
+  mlp-384w-4l: 9
+  mlp-4096w-4l: 9
+  mlp-512w-4l: 9
+  mlp-64w-4l: 9
+  mlp-768w-4l: 9

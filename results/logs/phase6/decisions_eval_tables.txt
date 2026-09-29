@@ -1,0 +1,6 @@
+DECISIONS_93_116_OVERALL: count=24, wins=22, accuracy=91.7%, mean_regret=2.03%, p90_regret=0.00%
+
+PER_WORKLOAD_BREAKDOWN:
+  SUSTAINED: count=8, wins=7/8, accuracy=87.5%, mean_regret=5.22%, p90_regret=0.00%
+  COLD_START: count=8, wins=7/8, accuracy=87.5%, mean_regret=0.85%, p90_regret=0.00%
+  IDLE_LOADED: count=8, wins=8/8, accuracy=100.0%, mean_regret=0.00%, p90_regret=0.00%

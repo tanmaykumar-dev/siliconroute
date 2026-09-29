@@ -1,0 +1,7 @@
+SCREENSHOT_FILES_LIST:
+  01_tab_live.png: 99316 bytes
+  02_tab_analysis.png: 124552 bytes
+  02b_tab_analysis_tables.png: 93060 bytes
+  03_modal_run_inspector.png: 119877 bytes
+  04_tab_router.png: 114114 bytes
+  04b_tab_router_eval_tables.png: 88170 bytes

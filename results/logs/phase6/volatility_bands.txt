@@ -1,0 +1,56 @@
+MULTI_SESSION_CONFIGS_VARIABILITY:
+  [cpu] conv-16c-4l B=1 (sessions=8): min=0.157ms, max=0.183ms, diff=16.6%
+  [cpu] conv-16c-4l B=8 (sessions=6): min=0.521ms, max=0.813ms, diff=56.0%
+  [cpu] conv-16c-4l B=32 (sessions=2): min=2.755ms, max=2.884ms, diff=4.7%
+  [cpu] conv-64c-4l B=1 (sessions=2): min=1.241ms, max=1.245ms, diff=0.3%
+  [cpu] conv-64c-4l B=8 (sessions=2): min=9.271ms, max=9.294ms, diff=0.2%
+  [cpu] conv-64c-4l B=32 (sessions=2): min=42.321ms, max=42.571ms, diff=0.6%
+  [cpu] conv-96c-4l B=1 (sessions=8): min=2.343ms, max=3.327ms, diff=42.0%
+  [cpu] conv-96c-4l B=8 (sessions=8): min=16.104ms, max=24.260ms, diff=50.6%
+  [cpu] conv-96c-4l B=32 (sessions=5): min=86.787ms, max=96.058ms, diff=10.7%
+  [cpu] mlp-1024w-4l B=1 (sessions=14): min=0.054ms, max=0.088ms, diff=63.0%
+  [cpu] mlp-1024w-4l B=8 (sessions=7): min=0.120ms, max=0.134ms, diff=11.7%
+  [cpu] mlp-1024w-4l B=32 (sessions=2): min=0.394ms, max=0.460ms, diff=16.8%
+  [cpu] mlp-256w-4l B=1 (sessions=14): min=0.017ms, max=0.026ms, diff=52.9%
+  [cpu] mlp-256w-4l B=8 (sessions=13): min=0.024ms, max=0.045ms, diff=87.5%
+  [cpu] mlp-256w-4l B=32 (sessions=6): min=0.063ms, max=0.070ms, diff=11.1%
+  [cpu] mlp-3072w-4l B=1 (sessions=10): min=3.749ms, max=5.117ms, diff=36.5%
+  [cpu] mlp-3072w-4l B=8 (sessions=8): min=4.240ms, max=5.356ms, diff=26.3%
+  [cpu] mlp-3072w-4l B=32 (sessions=6): min=5.054ms, max=6.424ms, diff=27.1%
+  [dml:0] conv-16c-4l B=1 (sessions=4): min=0.463ms, max=0.479ms, diff=3.5%
+  [dml:0] conv-16c-4l B=8 (sessions=3): min=2.950ms, max=3.010ms, diff=2.0%
+  [dml:0] conv-96c-4l B=1 (sessions=5): min=3.545ms, max=3.708ms, diff=4.6%
+  [dml:0] conv-96c-4l B=8 (sessions=5): min=36.388ms, max=41.853ms, diff=15.0%
+  [dml:0] conv-96c-4l B=32 (sessions=4): min=126.623ms, max=166.573ms, diff=31.6%
+  [dml:0] mlp-1024w-4l B=1 (sessions=9): min=0.580ms, max=0.800ms, diff=37.9%
+  [dml:0] mlp-1024w-4l B=8 (sessions=6): min=2.172ms, max=2.903ms, diff=33.7%
+  [dml:0] mlp-256w-4l B=1 (sessions=14): min=0.127ms, max=0.178ms, diff=40.2%
+  [dml:0] mlp-256w-4l B=8 (sessions=13): min=0.147ms, max=0.214ms, diff=45.6%
+  [dml:0] mlp-256w-4l B=32 (sessions=6): min=0.176ms, max=0.198ms, diff=12.5%
+  [dml:0] mlp-3072w-4l B=1 (sessions=5): min=4.419ms, max=7.205ms, diff=63.0%
+  [dml:0] mlp-3072w-4l B=8 (sessions=5): min=18.750ms, max=38.584ms, diff=105.8%
+  [dml:0] mlp-3072w-4l B=32 (sessions=4): min=10.597ms, max=15.802ms, diff=49.1%
+  [dml:1] conv-16c-4l B=1 (sessions=4): min=0.239ms, max=0.294ms, diff=23.0%
+  [dml:1] conv-16c-4l B=8 (sessions=3): min=0.770ms, max=0.857ms, diff=11.3%
+  [dml:1] conv-96c-4l B=1 (sessions=5): min=0.668ms, max=0.743ms, diff=11.2%
+  [dml:1] conv-96c-4l B=8 (sessions=5): min=13.527ms, max=23.136ms, diff=71.0%
+  [dml:1] conv-96c-4l B=32 (sessions=4): min=26.889ms, max=64.495ms, diff=139.9%
+  [dml:1] mlp-1024w-4l B=1 (sessions=13): min=0.157ms, max=0.287ms, diff=82.8%
+  [dml:1] mlp-1024w-4l B=8 (sessions=8): min=0.243ms, max=0.269ms, diff=10.7%
+  [dml:1] mlp-1024w-4l B=32 (sessions=2): min=0.341ms, max=0.347ms, diff=1.8%
+  [dml:1] mlp-256w-4l B=1 (sessions=14): min=0.138ms, max=0.268ms, diff=94.2%
+  [dml:1] mlp-256w-4l B=8 (sessions=13): min=0.146ms, max=0.274ms, diff=87.7%
+  [dml:1] mlp-256w-4l B=32 (sessions=6): min=0.170ms, max=0.180ms, diff=5.9%
+  [dml:1] mlp-3072w-4l B=1 (sessions=6): min=0.601ms, max=0.655ms, diff=9.0%
+  [dml:1] mlp-3072w-4l B=8 (sessions=5): min=1.000ms, max=1.032ms, diff=3.2%
+  [dml:1] mlp-3072w-4l B=32 (sessions=4): min=0.770ms, max=0.810ms, diff=5.2%
+  [dml:2] mlp-1024w-4l B=1 (sessions=2): min=0.606ms, max=0.615ms, diff=1.5%
+  [dml:2] mlp-1024w-4l B=8 (sessions=2): min=2.168ms, max=2.731ms, diff=26.0%
+  [dml:2] mlp-256w-4l B=1 (sessions=2): min=0.158ms, max=0.165ms, diff=4.4%
+  [dml:2] mlp-256w-4l B=8 (sessions=2): min=0.185ms, max=0.197ms, diff=6.5%
+
+VOLATILITY_BANDS_PER_DEVICE (mean percentage session spread):
+  cpu: +/-28.6% across 18 multi-session configs
+  dml:0: +/-34.2% across 13 multi-session configs
+  dml:1: +/-39.8% across 14 multi-session configs
+  dml:2: +/-9.6% across 4 multi-session configs
