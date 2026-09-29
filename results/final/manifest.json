@@ -1,0 +1,740 @@
+{
+  "metadata": {
+    "date": "2026-09-29T19:01:21.817258+00:00",
+    "database_path": "data\\final\\siliconroute_final.db",
+    "database_size_bytes": 1044480,
+    "database_sha256": "98542cffb7264eee537d218e1863ccbbc174495e0bf13eb244ee22cd6f034cf5",
+    "git_commit": "379d140c4e29a43912d4a677583a153204f25987",
+    "ort_version": "1.24.4",
+    "nvidia_driver_version": "616.56",
+    "windows_power_scheme": "Power Scheme GUID: 6fecc5ae-f350-48a5-b669-b472cb895ccf  (Turbo)"
+  },
+  "metrics": {
+    "total_runs": {
+      "value": 480,
+      "sql": "SELECT count(*) FROM run",
+      "unit": "runs",
+      "description": "Total benchmark runs stored in database"
+    },
+    "runs_sustained": {
+      "value": 265,
+      "sql": "SELECT count(*) FROM run WHERE run_kind = 'sustained'",
+      "unit": "runs",
+      "description": "Runs classified as sustained"
+    },
+    "runs_verify_sustained": {
+      "value": 159,
+      "sql": "SELECT count(*) FROM run WHERE run_kind = 'verify_sustained'",
+      "unit": "runs",
+      "description": "Runs classified as verify_sustained"
+    },
+    "runs_single_cold": {
+      "value": 55,
+      "sql": "SELECT count(*) FROM run WHERE run_kind = 'single_cold'",
+      "unit": "runs",
+      "description": "Runs classified as single_cold"
+    },
+    "runs_energy": {
+      "value": 1,
+      "sql": "SELECT count(*) FROM run WHERE run_kind = 'energy'",
+      "unit": "runs",
+      "description": "Runs classified as energy"
+    },
+    "identity_suspect_runs": {
+      "value": 12,
+      "sql": "SELECT count(*) FROM run WHERE identity_suspect = 1",
+      "unit": "runs",
+      "description": "Flagged and excluded identity swap runs"
+    },
+    "total_decisions": {
+      "value": 148,
+      "sql": "SELECT count(*) FROM decision",
+      "unit": "decisions",
+      "description": "Total router decisions logged"
+    },
+    "total_workload_measurements": {
+      "value": 144,
+      "sql": "SELECT count(*) FROM workloadmeasurement",
+      "unit": "measurements",
+      "description": "Total WorkloadMeasurement records stored"
+    },
+    "decisions_117_140_total": {
+      "value": 24,
+      "sql": "SELECT count(*) FROM decision WHERE id BETWEEN 117 AND 140",
+      "unit": "decisions",
+      "description": "Headline evaluation count"
+    },
+    "decisions_117_140_sr_wins": {
+      "value": 22,
+      "sql": "SELECT count(*) FROM decision WHERE id BETWEEN 117 AND 140 AND was_best = 1",
+      "unit": "wins",
+      "description": "SiliconRoute wins on 117-140"
+    },
+    "decisions_117_140_sr_accuracy_pct": {
+      "value": 91.7,
+      "sql": "round(100.0 * 22 / 24, 1)",
+      "unit": "%",
+      "description": "SiliconRoute decision accuracy on 117-140"
+    },
+    "decisions_117_140_sr_mean_regret_pct": {
+      "value": 1.75,
+      "sql": "SELECT round(avg(regret_pct), 2) FROM decision WHERE id BETWEEN 117 AND 140",
+      "unit": "%",
+      "description": "SiliconRoute mean regret on 117-140"
+    },
+    "decisions_117_140_sr_p90_regret_pct": {
+      "value": 0.0,
+      "sql": "percentile_90(regret_pct) over decisions 117-140",
+      "unit": "%",
+      "description": "SiliconRoute 90th percentile regret on 117-140"
+    },
+    "decisions_117_140_always_cpu_wins": {
+      "value": 15,
+      "sql": "Always-CPU win count over decisions 117-140",
+      "unit": "wins",
+      "description": "Always-CPU wins on 117-140"
+    },
+    "decisions_117_140_always_cpu_accuracy_pct": {
+      "value": 62.5,
+      "sql": "Always-CPU accuracy over decisions 117-140",
+      "unit": "%",
+      "description": "Always-CPU accuracy on 117-140"
+    },
+    "decisions_117_140_always_cpu_mean_regret_pct": {
+      "value": 113.06,
+      "sql": "Always-CPU mean regret over decisions 117-140",
+      "unit": "%",
+      "description": "Always-CPU mean regret on 117-140"
+    },
+    "decisions_117_140_always_cpu_p90_regret_pct": {
+      "value": 420.56,
+      "sql": "Always-CPU p90 regret over decisions 117-140",
+      "unit": "%",
+      "description": "Always-CPU p90 regret on 117-140"
+    },
+    "decisions_117_140_always_rtx_wins": {
+      "value": 9,
+      "sql": "Always-RTX win count over decisions 117-140",
+      "unit": "wins",
+      "description": "Always-RTX wins on 117-140"
+    },
+    "decisions_117_140_always_rtx_accuracy_pct": {
+      "value": 37.5,
+      "sql": "Always-RTX accuracy over decisions 117-140",
+      "unit": "%",
+      "description": "Always-RTX accuracy on 117-140"
+    },
+    "decisions_117_140_always_rtx_mean_regret_pct": {
+      "value": 304.93,
+      "sql": "Always-RTX mean regret over decisions 117-140",
+      "unit": "%",
+      "description": "Always-RTX mean regret on 117-140"
+    },
+    "decisions_117_140_always_rtx_p90_regret_pct": {
+      "value": 784.34,
+      "sql": "Always-RTX p90 regret over decisions 117-140",
+      "unit": "%",
+      "description": "Always-RTX p90 regret on 117-140"
+    },
+    "decisions_117_140_fit_only_wins": {
+      "value": 19,
+      "sql": "Fit-Only router win count over decisions 117-140",
+      "unit": "wins",
+      "description": "Fit-Only router wins on 117-140"
+    },
+    "decisions_117_140_fit_only_accuracy_pct": {
+      "value": 79.2,
+      "sql": "Fit-Only router accuracy over decisions 117-140",
+      "unit": "%",
+      "description": "Fit-Only router accuracy on 117-140"
+    },
+    "decisions_117_140_fit_only_mean_regret_pct": {
+      "value": 31.42,
+      "sql": "Fit-Only router mean regret over decisions 117-140",
+      "unit": "%",
+      "description": "Fit-Only router mean regret on 117-140"
+    },
+    "decisions_117_140_fit_only_p90_regret_pct": {
+      "value": 12.5,
+      "sql": "Fit-Only router p90 regret over decisions 117-140",
+      "unit": "%",
+      "description": "Fit-Only router p90 regret on 117-140"
+    },
+    "workload_sustained_sr_accuracy_pct": {
+      "value": 100.0,
+      "sql": "Decisions 117-140 sustained SR accuracy",
+      "unit": "%",
+      "description": "Sustained SiliconRoute accuracy"
+    },
+    "workload_sustained_sr_mean_regret_pct": {
+      "value": 0.0,
+      "sql": "Decisions 117-140 sustained SR mean regret",
+      "unit": "%",
+      "description": "Sustained SiliconRoute mean regret"
+    },
+    "workload_sustained_always_cpu_accuracy_pct": {
+      "value": 50.0,
+      "sql": "Decisions 117-140 sustained Always-CPU accuracy",
+      "unit": "%",
+      "description": "Sustained Always-CPU accuracy"
+    },
+    "workload_sustained_always_cpu_mean_regret_pct": {
+      "value": 195.52,
+      "sql": "Decisions 117-140 sustained Always-CPU mean regret",
+      "unit": "%",
+      "description": "Sustained Always-CPU mean regret"
+    },
+    "workload_sustained_always_cpu_p90_regret_pct": {
+      "value": 516.68,
+      "sql": "Decisions 117-140 sustained Always-CPU p90 regret",
+      "unit": "%",
+      "description": "Sustained Always-CPU p90 regret"
+    },
+    "workload_sustained_always_rtx_accuracy_pct": {
+      "value": 50.0,
+      "sql": "Decisions 117-140 sustained Always-RTX accuracy",
+      "unit": "%",
+      "description": "Sustained Always-RTX accuracy"
+    },
+    "workload_sustained_always_rtx_mean_regret_pct": {
+      "value": 177.37,
+      "sql": "Decisions 117-140 sustained Always-RTX mean regret",
+      "unit": "%",
+      "description": "Sustained Always-RTX mean regret"
+    },
+    "workload_sustained_always_rtx_p90_regret_pct": {
+      "value": 505.42,
+      "sql": "Decisions 117-140 sustained Always-RTX p90 regret",
+      "unit": "%",
+      "description": "Sustained Always-RTX p90 regret"
+    },
+    "workload_sustained_fit_only_accuracy_pct": {
+      "value": 100.0,
+      "sql": "Decisions 117-140 sustained Fit-Only accuracy",
+      "unit": "%",
+      "description": "Sustained Fit-Only accuracy"
+    },
+    "workload_sustained_fit_only_mean_regret_pct": {
+      "value": 0.0,
+      "sql": "Decisions 117-140 sustained Fit-Only mean regret",
+      "unit": "%",
+      "description": "Sustained Fit-Only mean regret"
+    },
+    "workload_idle_loaded_sr_accuracy_pct": {
+      "value": 100.0,
+      "sql": "Decisions 117-140 idle_loaded SR accuracy",
+      "unit": "%",
+      "description": "Idle-loaded SiliconRoute accuracy"
+    },
+    "workload_idle_loaded_sr_mean_regret_pct": {
+      "value": 0.0,
+      "sql": "Decisions 117-140 idle_loaded SR mean regret",
+      "unit": "%",
+      "description": "Idle-loaded SiliconRoute mean regret"
+    },
+    "workload_idle_loaded_always_cpu_accuracy_pct": {
+      "value": 37.5,
+      "sql": "Decisions 117-140 idle_loaded Always-CPU accuracy",
+      "unit": "%",
+      "description": "Idle-loaded Always-CPU accuracy"
+    },
+    "workload_idle_loaded_always_cpu_mean_regret_pct": {
+      "value": 143.65,
+      "sql": "Decisions 117-140 idle_loaded Always-CPU mean regret",
+      "unit": "%",
+      "description": "Idle-loaded Always-CPU mean regret"
+    },
+    "workload_idle_loaded_always_cpu_p90_regret_pct": {
+      "value": 410.82,
+      "sql": "Decisions 117-140 idle_loaded Always-CPU p90 regret",
+      "unit": "%",
+      "description": "Idle-loaded Always-CPU p90 regret"
+    },
+    "workload_idle_loaded_always_rtx_accuracy_pct": {
+      "value": 62.5,
+      "sql": "Decisions 117-140 idle_loaded Always-RTX accuracy",
+      "unit": "%",
+      "description": "Idle-loaded Always-RTX accuracy"
+    },
+    "workload_idle_loaded_always_rtx_mean_regret_pct": {
+      "value": 215.22,
+      "sql": "Decisions 117-140 idle_loaded Always-RTX mean regret",
+      "unit": "%",
+      "description": "Idle-loaded Always-RTX mean regret"
+    },
+    "workload_idle_loaded_always_rtx_p90_regret_pct": {
+      "value": 777.13,
+      "sql": "Decisions 117-140 idle_loaded Always-RTX p90 regret",
+      "unit": "%",
+      "description": "Idle-loaded Always-RTX p90 regret"
+    },
+    "workload_idle_loaded_fit_only_accuracy_pct": {
+      "value": 87.5,
+      "sql": "Decisions 117-140 idle_loaded Fit-Only accuracy",
+      "unit": "%",
+      "description": "Idle-loaded Fit-Only accuracy"
+    },
+    "workload_idle_loaded_fit_only_mean_regret_pct": {
+      "value": 1.86,
+      "sql": "Decisions 117-140 idle_loaded Fit-Only mean regret",
+      "unit": "%",
+      "description": "Idle-loaded Fit-Only mean regret"
+    },
+    "workload_idle_loaded_fit_only_p90_regret_pct": {
+      "value": 4.47,
+      "sql": "Decisions 117-140 idle_loaded Fit-Only p90 regret",
+      "unit": "%",
+      "description": "Idle-loaded Fit-Only p90 regret"
+    },
+    "workload_cold_start_sr_accuracy_pct": {
+      "value": 75.0,
+      "sql": "Decisions 117-140 cold_start SR accuracy",
+      "unit": "%",
+      "description": "Cold-start SiliconRoute accuracy"
+    },
+    "workload_cold_start_sr_mean_regret_pct": {
+      "value": 5.25,
+      "sql": "Decisions 117-140 cold_start SR mean regret",
+      "unit": "%",
+      "description": "Cold-start SiliconRoute mean regret"
+    },
+    "workload_cold_start_sr_p90_regret_pct": {
+      "value": 14.47,
+      "sql": "Decisions 117-140 cold_start SR p90 regret",
+      "unit": "%",
+      "description": "Cold-start SiliconRoute p90 regret"
+    },
+    "workload_cold_start_always_cpu_accuracy_pct": {
+      "value": 100.0,
+      "sql": "Decisions 117-140 cold_start Always-CPU accuracy",
+      "unit": "%",
+      "description": "Cold-start Always-CPU accuracy"
+    },
+    "workload_cold_start_always_cpu_mean_regret_pct": {
+      "value": 0.0,
+      "sql": "Decisions 117-140 cold_start Always-CPU mean regret",
+      "unit": "%",
+      "description": "Cold-start Always-CPU mean regret"
+    },
+    "workload_cold_start_always_rtx_accuracy_pct": {
+      "value": 0.0,
+      "sql": "Decisions 117-140 cold_start Always-RTX accuracy",
+      "unit": "%",
+      "description": "Cold-start Always-RTX accuracy"
+    },
+    "workload_cold_start_always_rtx_mean_regret_pct": {
+      "value": 522.22,
+      "sql": "Decisions 117-140 cold_start Always-RTX mean regret",
+      "unit": "%",
+      "description": "Cold-start Always-RTX mean regret"
+    },
+    "workload_cold_start_always_rtx_p90_regret_pct": {
+      "value": 1356.14,
+      "sql": "Decisions 117-140 cold_start Always-RTX p90 regret",
+      "unit": "%",
+      "description": "Cold-start Always-RTX p90 regret"
+    },
+    "workload_cold_start_fit_only_accuracy_pct": {
+      "value": 50.0,
+      "sql": "Decisions 117-140 cold_start Fit-Only accuracy",
+      "unit": "%",
+      "description": "Cold-start Fit-Only accuracy"
+    },
+    "workload_cold_start_fit_only_mean_regret_pct": {
+      "value": 92.41,
+      "sql": "Decisions 117-140 cold_start Fit-Only mean regret",
+      "unit": "%",
+      "description": "Cold-start Fit-Only mean regret"
+    },
+    "workload_cold_start_fit_only_p90_regret_pct": {
+      "value": 274.7,
+      "sql": "Decisions 117-140 cold_start Fit-Only p90 regret",
+      "unit": "%",
+      "description": "Cold-start Fit-Only p90 regret"
+    },
+    "cold_start_141_148_total": {
+      "value": 8,
+      "sql": "SELECT count(*) FROM decision WHERE id BETWEEN 141 AND 148",
+      "unit": "decisions",
+      "description": "New cold-start evaluation count"
+    },
+    "cold_start_141_148_sr_wins": {
+      "value": 6,
+      "sql": "SELECT count(*) FROM decision WHERE id BETWEEN 141 AND 148 AND was_best = 1",
+      "unit": "wins",
+      "description": "SiliconRoute wins on cold-start 141-148"
+    },
+    "cold_start_141_148_sr_accuracy_pct": {
+      "value": 75.0,
+      "sql": "round(100.0 * 6 / 8, 1)",
+      "unit": "%",
+      "description": "SiliconRoute accuracy on cold-start 141-148"
+    },
+    "cold_start_141_148_sr_mean_regret_pct": {
+      "value": 3.0,
+      "sql": "SELECT round(avg(regret_pct), 2) FROM decision WHERE id BETWEEN 141 AND 148",
+      "unit": "%",
+      "description": "SiliconRoute mean regret on cold-start 141-148"
+    },
+    "cold_start_141_148_sr_p90_regret_pct": {
+      "value": 11.38,
+      "sql": "percentile_90(regret_pct) over decisions 141-148",
+      "unit": "%",
+      "description": "SiliconRoute p90 regret on cold-start 141-148"
+    },
+    "cold_start_141_148_always_cpu_wins": {
+      "value": 6,
+      "sql": "Always-CPU win count over decisions 141-148",
+      "unit": "wins",
+      "description": "Always-CPU wins on cold-start 141-148"
+    },
+    "cold_start_141_148_always_cpu_accuracy_pct": {
+      "value": 75.0,
+      "sql": "Always-CPU accuracy over decisions 141-148",
+      "unit": "%",
+      "description": "Always-CPU accuracy on cold-start 141-148"
+    },
+    "cold_start_141_148_always_cpu_mean_regret_pct": {
+      "value": 3.0,
+      "sql": "Always-CPU mean regret over decisions 141-148",
+      "unit": "%",
+      "description": "Always-CPU mean regret on cold-start 141-148"
+    },
+    "cold_start_141_148_always_cpu_p90_regret_pct": {
+      "value": 11.38,
+      "sql": "Always-CPU p90 regret over decisions 141-148",
+      "unit": "%",
+      "description": "Always-CPU p90 regret on cold-start 141-148"
+    },
+    "cold_start_141_148_always_rtx_wins": {
+      "value": 0,
+      "sql": "Always-RTX win count over decisions 141-148",
+      "unit": "wins",
+      "description": "Always-RTX wins on cold-start 141-148"
+    },
+    "cold_start_141_148_always_rtx_accuracy_pct": {
+      "value": 0.0,
+      "sql": "Always-RTX accuracy over decisions 141-148",
+      "unit": "%",
+      "description": "Always-RTX accuracy on cold-start 141-148"
+    },
+    "cold_start_141_148_always_rtx_mean_regret_pct": {
+      "value": 575.15,
+      "sql": "Always-RTX mean regret over decisions 141-148",
+      "unit": "%",
+      "description": "Always-RTX mean regret on cold-start 141-148"
+    },
+    "cold_start_141_148_always_rtx_p90_regret_pct": {
+      "value": 1217.92,
+      "sql": "Always-RTX p90 regret over decisions 141-148",
+      "unit": "%",
+      "description": "Always-RTX p90 regret on cold-start 141-148"
+    },
+    "cold_start_141_148_fit_only_wins": {
+      "value": 4,
+      "sql": "Fit-Only router win count over decisions 141-148",
+      "unit": "wins",
+      "description": "Fit-Only router wins on cold-start 141-148"
+    },
+    "cold_start_141_148_fit_only_accuracy_pct": {
+      "value": 50.0,
+      "sql": "Fit-Only router accuracy over decisions 141-148",
+      "unit": "%",
+      "description": "Fit-Only router accuracy on cold-start 141-148"
+    },
+    "cold_start_141_148_fit_only_mean_regret_pct": {
+      "value": 109.26,
+      "sql": "Fit-Only router mean regret over decisions 141-148",
+      "unit": "%",
+      "description": "Fit-Only router mean regret on cold-start 141-148"
+    },
+    "cold_start_141_148_fit_only_p90_regret_pct": {
+      "value": 392.82,
+      "sql": "Fit-Only router p90 regret over decisions 141-148",
+      "unit": "%",
+      "description": "Fit-Only router p90 regret on cold-start 141-148"
+    },
+    "volatility_cpu_median_pct": {
+      "value": 17.3,
+      "sql": "Median session spread across benchmark-grade CPU configs",
+      "unit": "%",
+      "description": "CPU volatility band median"
+    },
+    "volatility_cpu_max_pct": {
+      "value": 38.9,
+      "sql": "Max session spread across benchmark-grade CPU configs",
+      "unit": "%",
+      "description": "CPU volatility band max"
+    },
+    "volatility_cpu_configs_count": {
+      "value": 5,
+      "sql": "Number of multi-session benchmark-grade CPU configs",
+      "unit": "configs",
+      "description": "CPU multi-session configs"
+    },
+    "volatility_radeon_median_pct": {
+      "value": 15.4,
+      "sql": "Median session spread across benchmark-grade Radeon configs",
+      "unit": "%",
+      "description": "Radeon volatility band median"
+    },
+    "volatility_radeon_max_pct": {
+      "value": 76.0,
+      "sql": "Max session spread across benchmark-grade Radeon configs",
+      "unit": "%",
+      "description": "Radeon volatility band max"
+    },
+    "volatility_radeon_configs_count": {
+      "value": 10,
+      "sql": "Number of multi-session benchmark-grade Radeon configs",
+      "unit": "configs",
+      "description": "Radeon multi-session configs"
+    },
+    "volatility_rtx_median_pct": {
+      "value": 6.6,
+      "sql": "Median session spread across benchmark-grade RTX configs",
+      "unit": "%",
+      "description": "RTX volatility band median"
+    },
+    "volatility_rtx_max_pct": {
+      "value": 139.9,
+      "sql": "Max session spread across benchmark-grade RTX configs",
+      "unit": "%",
+      "description": "RTX volatility band max"
+    },
+    "volatility_rtx_configs_count": {
+      "value": 10,
+      "sql": "Number of multi-session benchmark-grade RTX configs",
+      "unit": "configs",
+      "description": "RTX multi-session configs"
+    },
+    "fit_cpu_form": {
+      "value": "f2_cache",
+      "sql": "SELECT model_form FROM fit WHERE is_active=1 AND device_id=(SELECT id FROM device WHERE key='cpu')",
+      "unit": "form",
+      "description": "cpu best predictor model form"
+    },
+    "fit_cpu_samples": {
+      "value": 111,
+      "sql": "SELECT n_samples FROM fit WHERE is_active=1 AND device_id=(SELECT id FROM device WHERE key='cpu')",
+      "unit": "samples",
+      "description": "cpu fit sample count"
+    },
+    "fit_cpu_loo_mape_pct": {
+      "value": 18.89,
+      "sql": "SELECT round(loo_mape_pct, 2) FROM fit WHERE is_active=1 AND device_id=(SELECT id FROM device WHERE key='cpu')",
+      "unit": "%",
+      "description": "cpu leave-one-out MAPE"
+    },
+    "fit_cpu_t0_ms": {
+      "value": 0.0144,
+      "sql": "SELECT round(t0_ms, 4) FROM fit WHERE is_active=1 AND device_id=(SELECT id FROM device WHERE key='cpu')",
+      "unit": "ms",
+      "description": "cpu overhead t0"
+    },
+    "fit_cpu_compute_gflops": {
+      "value": 886.4,
+      "sql": "SELECT round(compute_gflops, 1) FROM fit WHERE is_active=1 AND device_id=(SELECT id FROM device WHERE key='cpu')",
+      "unit": "GFLOP/s",
+      "description": "cpu compute throughput"
+    },
+    "fit_cpu_sram_gb_s": {
+      "value": 393.4,
+      "sql": "SELECT round(bandwidth_gb_s, 1) FROM fit WHERE is_active=1 AND device_id=(SELECT id FROM device WHERE key='cpu')",
+      "unit": "GB/s",
+      "description": "cpu VRAM/SRAM bandwidth"
+    },
+    "fit_cpu_dram_gb_s": {
+      "value": 25.4,
+      "sql": "SELECT round(bandwidth_dram_gb_s, 1) FROM fit WHERE is_active=1 AND device_id=(SELECT id FROM device WHERE key='cpu')",
+      "unit": "GB/s",
+      "description": "cpu DRAM bandwidth"
+    },
+    "fit_dml:0_form": {
+      "value": "f2_cache",
+      "sql": "SELECT model_form FROM fit WHERE is_active=1 AND device_id=(SELECT id FROM device WHERE key='dml:0')",
+      "unit": "form",
+      "description": "dml:0 best predictor model form"
+    },
+    "fit_dml:0_samples": {
+      "value": 106,
+      "sql": "SELECT n_samples FROM fit WHERE is_active=1 AND device_id=(SELECT id FROM device WHERE key='dml:0')",
+      "unit": "samples",
+      "description": "dml:0 fit sample count"
+    },
+    "fit_dml:0_loo_mape_pct": {
+      "value": 26.45,
+      "sql": "SELECT round(loo_mape_pct, 2) FROM fit WHERE is_active=1 AND device_id=(SELECT id FROM device WHERE key='dml:0')",
+      "unit": "%",
+      "description": "dml:0 leave-one-out MAPE"
+    },
+    "fit_dml:0_t0_ms": {
+      "value": 0.1113,
+      "sql": "SELECT round(t0_ms, 4) FROM fit WHERE is_active=1 AND device_id=(SELECT id FROM device WHERE key='dml:0')",
+      "unit": "ms",
+      "description": "dml:0 overhead t0"
+    },
+    "fit_dml:0_compute_gflops": {
+      "value": 598.8,
+      "sql": "SELECT round(compute_gflops, 1) FROM fit WHERE is_active=1 AND device_id=(SELECT id FROM device WHERE key='dml:0')",
+      "unit": "GFLOP/s",
+      "description": "dml:0 compute throughput"
+    },
+    "fit_dml:0_sram_gb_s": {
+      "value": 29.8,
+      "sql": "SELECT round(bandwidth_gb_s, 1) FROM fit WHERE is_active=1 AND device_id=(SELECT id FROM device WHERE key='dml:0')",
+      "unit": "GB/s",
+      "description": "dml:0 VRAM/SRAM bandwidth"
+    },
+    "fit_dml:0_dram_gb_s": {
+      "value": 18.7,
+      "sql": "SELECT round(bandwidth_dram_gb_s, 1) FROM fit WHERE is_active=1 AND device_id=(SELECT id FROM device WHERE key='dml:0')",
+      "unit": "GB/s",
+      "description": "dml:0 DRAM bandwidth"
+    },
+    "fit_dml:1_form": {
+      "value": "f4_family",
+      "sql": "SELECT model_form FROM fit WHERE is_active=1 AND device_id=(SELECT id FROM device WHERE key='dml:1')",
+      "unit": "form",
+      "description": "dml:1 best predictor model form"
+    },
+    "fit_dml:1_samples": {
+      "value": 115,
+      "sql": "SELECT n_samples FROM fit WHERE is_active=1 AND device_id=(SELECT id FROM device WHERE key='dml:1')",
+      "unit": "samples",
+      "description": "dml:1 fit sample count"
+    },
+    "fit_dml:1_loo_mape_pct": {
+      "value": 21.56,
+      "sql": "SELECT round(loo_mape_pct, 2) FROM fit WHERE is_active=1 AND device_id=(SELECT id FROM device WHERE key='dml:1')",
+      "unit": "%",
+      "description": "dml:1 leave-one-out MAPE"
+    },
+    "fit_dml:1_t0_ms": {
+      "value": 0.1511,
+      "sql": "SELECT round(t0_ms, 4) FROM fit WHERE is_active=1 AND device_id=(SELECT id FROM device WHERE key='dml:1')",
+      "unit": "ms",
+      "description": "dml:1 overhead t0"
+    },
+    "fit_dml:1_compute_gflops": {
+      "value": 11279.4,
+      "sql": "SELECT round(compute_gflops, 1) FROM fit WHERE is_active=1 AND device_id=(SELECT id FROM device WHERE key='dml:1')",
+      "unit": "GFLOP/s",
+      "description": "dml:1 compute throughput"
+    },
+    "fit_dml:1_sram_gb_s": {
+      "value": 315.6,
+      "sql": "SELECT round(bandwidth_gb_s, 1) FROM fit WHERE is_active=1 AND device_id=(SELECT id FROM device WHERE key='dml:1')",
+      "unit": "GB/s",
+      "description": "dml:1 VRAM/SRAM bandwidth"
+    },
+    "crossover_mlp_b1_cpu_vs_rtx_params": {
+      "value": 17156164,
+      "sql": "Predictor F2 vs F4 crossover point for MLP B=1",
+      "unit": "params",
+      "description": "MLP Batch 1 crossover size where RTX overtakes CPU"
+    },
+    "crossover_mlp_b8_cpu_vs_rtx_params": {
+      "value": 9935104,
+      "sql": "Predictor F2 vs F4 crossover point for MLP B=8",
+      "unit": "params",
+      "description": "MLP Batch 8 crossover size where RTX overtakes CPU"
+    },
+    "crossover_conv_b1_cpu_vs_rtx_params": {
+      "value": 20736,
+      "sql": "Predictor F2 vs F4 crossover point for Conv B=1",
+      "unit": "params",
+      "description": "Conv Batch 1 crossover size where RTX overtakes CPU"
+    },
+    "crossover_conv_b8_cpu_vs_rtx_params": {
+      "value": 2916,
+      "sql": "Predictor F2 vs F4 crossover point for Conv B=8",
+      "unit": "params",
+      "description": "Conv Batch 8 crossover size where RTX overtakes CPU"
+    },
+    "speedup_cpu_over_rtx_mlp_256_b1": {
+      "value": 8.6,
+      "sql": "0.146 ms / 0.017 ms for mlp-256w-4l batch 1",
+      "unit": "x",
+      "description": "CPU speedup over RTX on tiny MLP batch 1"
+    },
+    "speedup_rtx_over_cpu_mlp_3072_b1_sustained": {
+      "value": 6.2,
+      "sql": "4.2 ms / 0.673 ms for mlp-3072w-4l batch 1 sustained",
+      "unit": "x",
+      "description": "RTX speedup over CPU on large MLP batch 1 sustained"
+    },
+    "overhead_rtx_cold_start_vs_sustained_mlp_3072": {
+      "value": 300.0,
+      "sql": "200.0 ms / 0.67 ms for mlp-3072w-4l on RTX",
+      "unit": "x",
+      "description": "RTX cold-start session initialization overhead ratio"
+    },
+    "mlp_256_b1_cpu_latency_ms": {
+      "value": 0.017,
+      "sql": "Measured latency for mlp-256w-4l B=1 on CPU",
+      "unit": "ms",
+      "description": "Tiny MLP CPU latency"
+    },
+    "mlp_256_b1_rtx_latency_ms": {
+      "value": 0.146,
+      "sql": "Measured latency for mlp-256w-4l B=1 on RTX",
+      "unit": "ms",
+      "description": "Tiny MLP RTX latency"
+    },
+    "mlp_3072_b1_sustained_cpu_ms": {
+      "value": 4.22,
+      "sql": "Measured latency for mlp-3072w-4l B=1 sustained on CPU",
+      "unit": "ms",
+      "description": "Large MLP sustained CPU latency"
+    },
+    "mlp_3072_b1_sustained_rtx_ms": {
+      "value": 0.673,
+      "sql": "Measured latency for mlp-3072w-4l B=1 sustained on RTX",
+      "unit": "ms",
+      "description": "Large MLP sustained RTX latency"
+    },
+    "mlp_3072_cold_cpu_rounded_ms": {
+      "value": 189.8,
+      "sql": "Cold start latency for mlp-3072w-4l on CPU (rounded)",
+      "unit": "ms",
+      "description": "Large MLP cold-start CPU latency"
+    },
+    "mlp_3072_cold_rtx_rounded_ms": {
+      "value": 202.8,
+      "sql": "Cold start latency for mlp-3072w-4l on RTX (rounded)",
+      "unit": "ms",
+      "description": "Large MLP cold-start RTX latency"
+    },
+    "directml_anomaly_conv96_b8_ms": {
+      "value": 13.5,
+      "sql": "DirectML batch anomaly latency on conv-96c-4l B=8",
+      "unit": "ms",
+      "description": "DirectML batch 8 anomaly latency"
+    },
+    "directml_anomaly_conv96_b4_ms": {
+      "value": 2.4,
+      "sql": "DirectML latency on conv-96c-4l B=4",
+      "unit": "ms",
+      "description": "DirectML batch 4 latency"
+    },
+    "rtx_compute_tflops": {
+      "value": 11.0,
+      "sql": "Peak compute throughput on NVIDIA RTX 5070 Laptop GPU",
+      "unit": "TFLOP/s",
+      "description": "RTX 5070 peak compute throughput"
+    },
+    "bootstrap_ci_pct": {
+      "value": 95.0,
+      "sql": "Statistical confidence interval confidence level",
+      "unit": "%",
+      "description": "Bootstrap confidence interval percentage"
+    },
+    "cold_start_rule_threshold_pct": {
+      "value": 30.0,
+      "sql": "Cold-start CPU preference threshold percentage",
+      "unit": "%",
+      "description": "Cold start threshold percentage"
+    }
+  }
+}

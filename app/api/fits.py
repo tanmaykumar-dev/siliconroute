@@ -52,6 +52,7 @@ def trigger_fit(
 
 
 @router.get("", response_model=list[Fit])
+@router.get("s", response_model=list[Fit])
 def list_active_fits(session: Session = Depends(get_session)) -> list[Fit]:
     """List all currently active predictor fits for available devices."""
     fits = session.exec(

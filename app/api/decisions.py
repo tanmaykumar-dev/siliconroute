@@ -45,7 +45,19 @@ class DecisionResponse(BaseModel):
     regret_pct: Optional[float] = None
 
 
+@router.get("/router")
+def get_router_status(session: Session = Depends(get_session)) -> dict[str, Any]:
+    """Status endpoint for the router reporting data readiness."""
+    from app.db import Fit, Run
+    has_runs = session.exec(select(Run.id)).first() is not None
+    has_fits = session.exec(select(Fit.id)).first() is not None
+    if not has_runs and not has_fits:
+        return {"status": "uninitialized", "detail": "no benchmark data; run benchmark first"}
+    return {"status": "ready", "detail": "router ready"}
+
+
 @router.post("/route", response_model=DecisionResponse)
+@router.post("/router", response_model=DecisionResponse)
 def route_inference(
     req: RouteRequest,
     session: Session = Depends(get_session),

@@ -5,6 +5,8 @@ __pycache__/
 .pytest_cache/
 data/*.db
 data/**/*.db
+!data/final/
+!data/final/*
 data/*.zip
 data/backups/
 data/*.db-wal

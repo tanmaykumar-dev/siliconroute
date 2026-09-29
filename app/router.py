@@ -365,13 +365,18 @@ def route_model(
     if workload not in ("sustained", "idle_loaded", "cold_start", "single"):
         raise ValueError(f"Invalid workload '{workload}': must be 'sustained', 'idle_loaded', or 'cold_start'")
 
-    model = session.get(AIModel, model_id)
-    if not model:
-        raise ValueError(f"AIModel {model_id} not found")
-
     devices = session.exec(select(Device).where(Device.is_available == True)).all()
     if not devices:
         raise ValueError("No available devices registered")
+
+    has_runs = session.exec(select(Run.id)).first() is not None
+    has_fits = session.exec(select(Fit.id)).first() is not None
+    if not has_runs and not has_fits:
+        raise ValueError("no benchmark data; run benchmark first")
+
+    model = session.get(AIModel, model_id)
+    if not model:
+        raise ValueError(f"AIModel {model_id} not found")
 
     context_rules: list[str] = []
     excluded_candidates: list[dict[str, Any]] = []
@@ -545,8 +550,39 @@ def route_model(
                 explored = True
                 context_rules.append(f"Exploration active (epsilon={EPSILON}): selected runner-up {chosen['device_key']}")
 
+    # Cold-Start Rule:
+    # For workload cold_start, choose the CPU unless another chip's predicted time is more than 30% lower
+    cold_start_rule_applied = False
+    cold_start_note = ""
+    if workload == "cold_start":
+        cpu_cand = next((c for c in valid_candidates if c["device_kind"] == "cpu"), None)
+        if cpu_cand is not None:
+            t_cpu = cpu_cand["effective_latency_ms"]
+            accelerators = [c for c in valid_candidates if c["device_kind"] != "cpu"]
+            best_acc = min(accelerators, key=lambda c: c["effective_latency_ms"]) if accelerators else None
+
+            # Check if any accelerator is >30% lower latency than CPU
+            has_dominant_accelerator = (
+                best_acc is not None
+                and ((t_cpu - best_acc["effective_latency_ms"]) / max(t_cpu, 1e-4)) > 0.30
+            )
+
+            cold_start_rule_applied = True
+            if not has_dominant_accelerator:
+                chosen = cpu_cand
+                explored = False
+                cold_start_note = f"Cold-start rule: chose CPU (no other chip predicted >30% lower latency vs CPU {t_cpu:.3f} ms)."
+                context_rules.append(cold_start_note)
+            else:
+                cold_start_note = (
+                    f"Cold-start rule: {best_acc['device_key']} predicted >30% lower latency than CPU "
+                    f"({best_acc['effective_latency_ms']:.3f} ms vs CPU {t_cpu:.3f} ms)."
+                )
+                context_rules.append(cold_start_note)
+
     # Formulate transparent, plain-English reason with exact numbers
-    runner_up = valid_candidates[1] if valid_candidates[0]["device_id"] == chosen["device_id"] and len(valid_candidates) > 1 else valid_candidates[0]
+    other_candidates = [c for c in valid_candidates if c["device_id"] != chosen["device_id"]]
+    runner_up = other_candidates[0] if other_candidates else valid_candidates[0]
     plug_text = "Plugged in" if plugged_in else "On battery"
     bat_text = f", battery {battery_pct:.0f}%" if battery_pct is not None else ""
 
@@ -566,10 +602,12 @@ def route_model(
         reason_parts.append(f"Flagged volatile (session diff {chosen.get('volatility_pct')} > 20%).")
 
     reason_parts.append(f"{plug_text}{bat_text}.")
-    if volatility_tie_broken:
+    if volatility_tie_broken and not cold_start_rule_applied:
         reason_parts.append("Preferred due to lower volatility.")
-    if explored:
+    if explored and not cold_start_rule_applied:
         reason_parts.append("Explored runner-up.")
+    if cold_start_note:
+        reason_parts.append(cold_start_note)
 
     final_reason = " ".join(reason_parts)
 

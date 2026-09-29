@@ -1,0 +1,68 @@
+===================================================================================================================
+SILICONROUTE PHASE 7+8: 8 NEW VERIFIED COLD-START DECISIONS (COLD-START RULE ACTIVE)
+  Rule: Choose CPU unless another chip is predicted >30% lower latency
+===================================================================================================================
+[1/8] Idling 3 s for accelerator sleep state...
+Created Decision #141: mlp-256w-4l B=8 cold_start | Chosen=cpu (measured_cold_start) | Pred=11.454 ms | Act=5.379 ms | Best=cpu | Match=Yes | Regret=0.0%
+  Reason: Chose cpu (CPU) for mlp-256w-4l (batch 8), Fastest mode. Predicted 11.454 ms (measured_cold_start) vs runner-up dml:0 (17.138 ms, measured_cold_start). Flagged volatile (session diff 73.1 > 20%). Plugged in, battery 100%. Cold-start rule: chose CPU (no other chip predicted >30% lower latency vs CPU 11.454 ms).
+[2/8] Idling 3 s for accelerator sleep state...
+Created Decision #142: conv-96c-4l B=8 cold_start | Chosen=cpu (measured_cold_start) | Pred=32.303 ms | Act=32.894 ms | Best=cpu | Match=Yes | Regret=0.0%
+  Reason: Chose cpu (CPU) for conv-96c-4l (batch 8), Fastest mode. Predicted 32.303 ms (measured_cold_start) vs runner-up dml:0 (58.896 ms, measured_cold_start). Plugged in, battery 100%. Cold-start rule: chose CPU (no other chip predicted >30% lower latency vs CPU 32.303 ms).
+[3/8] Idling 3 s for accelerator sleep state...
+Created Decision #143: conv-16c-4l B=1 cold_start | Chosen=cpu (measured_cold_start) | Pred=2.794 ms | Act=3.503 ms | Best=cpu | Match=Yes | Regret=0.0%
+  Reason: Chose cpu (CPU) for conv-16c-4l (batch 1), Fastest mode. Predicted 2.794 ms (measured_cold_start) vs runner-up dml:0 (14.140 ms, measured_cold_start). Plugged in, battery 100%. Cold-start rule: chose CPU (no other chip predicted >30% lower latency vs CPU 2.794 ms).
+[4/8] Idling 3 s for accelerator sleep state...
+Created Decision #144: mlp-3072w-4l B=1 cold_start | Chosen=cpu (measured_cold_start) | Pred=189.752 ms | Act=215.775 ms | Best=dml:0 | Match=No | Regret=10.5%
+  Reason: Chose cpu (CPU) for mlp-3072w-4l (batch 1), Fastest mode. Predicted 189.752 ms (measured_cold_start) vs runner-up dml:1 (202.779 ms, measured_cold_start). Flagged volatile (session diff 21.0 > 20%). Plugged in, battery 100%. Cold-start rule: chose CPU (no other chip predicted >30% lower latency vs CPU 189.752 ms).
+[5/8] Idling 3 s for accelerator sleep state...
+Created Decision #145: mlp-3072w-4l B=8 cold_start | Chosen=cpu (measured_cold_start) | Pred=220.565 ms | Act=217.920 ms | Best=dml:0 | Match=No | Regret=13.5%
+  Reason: Chose cpu (CPU) for mlp-3072w-4l (batch 8), Fastest mode. Predicted 220.565 ms (measured_cold_start) vs runner-up dml:0 (227.742 ms, measured_cold_start). Flagged volatile (session diff 31.2 > 20%). Plugged in, battery 100%. Cold-start rule: chose CPU (no other chip predicted >30% lower latency vs CPU 220.565 ms).
+[6/8] Idling 3 s for accelerator sleep state...
+Created Decision #146: mlp-256w-4l B=1 cold_start | Chosen=cpu (measured_cold_start) | Pred=3.489 ms | Act=4.989 ms | Best=cpu | Match=Yes | Regret=0.0%
+  Reason: Chose cpu (CPU) for mlp-256w-4l (batch 1), Fastest mode. Predicted 3.489 ms (measured_cold_start) vs runner-up dml:0 (14.521 ms, measured_cold_start). Plugged in, battery 100%. Cold-start rule: chose CPU (no other chip predicted >30% lower latency vs CPU 3.489 ms).
+[7/8] Idling 3 s for accelerator sleep state...
+Created Decision #147: mlp-1024w-4l B=1 cold_start | Chosen=cpu (measured_cold_start) | Pred=16.064 ms | Act=20.230 ms | Best=cpu | Match=Yes | Regret=0.0%
+  Reason: Chose cpu (CPU) for mlp-1024w-4l (batch 1), Fastest mode. Predicted 16.064 ms (measured_cold_start) vs runner-up dml:0 (26.946 ms, measured_cold_start). Flagged volatile (session diff 38.9 > 20%). Plugged in, battery 100%. Cold-start rule: chose CPU (no other chip predicted >30% lower latency vs CPU 16.064 ms).
+[8/8] Idling 3 s for accelerator sleep state...
+Created Decision #148: conv-96c-4l B=1 cold_start | Chosen=cpu (measured_cold_start) | Pred=6.904 ms | Act=7.741 ms | Best=cpu | Match=Yes | Regret=0.0%
+  Reason: Chose cpu (CPU) for conv-96c-4l (batch 1), Fastest mode. Predicted 6.904 ms (measured_cold_start) vs runner-up dml:0 (19.954 ms, measured_cold_start). Flagged volatile (session diff 32.2 > 20%). Plugged in, battery 100%. Cold-start rule: chose CPU (no other chip predicted >30% lower latency vs CPU 6.904 ms).
+
+===================================================================================================================
+SUMMARY TABLE: NEW COLD-START DECISIONS (IDs 141-148)
+===================================================================================================================
+ID   | Model           | B  | Workload     | Chosen | Source               | Pred(ms) |  Act(ms) | Best   | Match |  Regret
+---------------------------------------------------------------------------------------------------------------------------
+141  | mlp-256w-4l     | 8  | cold_start   | cpu    | measured_cold_start  |   11.454 |    5.379 | cpu    | Yes   |    0.0%
+142  | conv-96c-4l     | 8  | cold_start   | cpu    | measured_cold_start  |   32.303 |   32.894 | cpu    | Yes   |    0.0%
+143  | conv-16c-4l     | 1  | cold_start   | cpu    | measured_cold_start  |    2.794 |    3.503 | cpu    | Yes   |    0.0%
+144  | mlp-3072w-4l    | 1  | cold_start   | cpu    | measured_cold_start  |  189.752 |  215.775 | dml:0  | No    |   10.5%
+145  | mlp-3072w-4l    | 8  | cold_start   | cpu    | measured_cold_start  |  220.565 |  217.920 | dml:0  | No    |   13.5%
+146  | mlp-256w-4l     | 1  | cold_start   | cpu    | measured_cold_start  |    3.489 |    4.989 | cpu    | Yes   |    0.0%
+147  | mlp-1024w-4l    | 1  | cold_start   | cpu    | measured_cold_start  |   16.064 |   20.230 | cpu    | Yes   |    0.0%
+148  | conv-96c-4l     | 1  | cold_start   | cpu    | measured_cold_start  |    6.904 |    7.741 | cpu    | Yes   |    0.0%
+
+===================================================================================================================
+BASELINE COMPARISON: NEW COLD-START DECISIONS (IDs 141-148)
+===================================================================================================================
+Strategy             | Wins  | Total |  Accuracy |   MeanReg |    P90Reg
+--------------------------------------------------------------------
+SiliconRoute         | 6     | 8     |     75.0% |     3.00% |    11.38%
+Always-CPU           | 6     | 8     |     75.0% |     3.00% |    11.38%
+Always-RTX           | 0     | 8     |      0.0% |   575.15% |  1217.92%
+Fit-Only Router      | 4     | 8     |     50.0% |   109.26% |   392.82%
+
+===================================================================================================================
+COMPARISON: OLD COLD-START (Decisions 117-140) VS NEW COLD-START (Decisions 141-148)
+===================================================================================================================
+Strategy             | Old Wins/Acc (No Rule)   | New Wins/Acc (With Rule) | Old MeanReg | New MeanReg
+----------------------------------------------------------------------------------------------------
+SiliconRoute         | 6/8 (75.0%)          | 6/8 (75.0%)          |       5.25% |       3.00%
+Always-CPU           | 8/8 (100.0%)         | 6/8 (75.0%)         |       0.00% |       3.00%
+
+WorkloadMeasurement rows inserted for decisions 141-148: 24
+  id=121  | dec_id=141 | dev_id=1 | model_id=8 B=8  | cold_start   | lat=  5.379 ms | pstate_before=None
+  id=122  | dec_id=141 | dev_id=2 | model_id=8 B=8  | cold_start   | lat= 93.083 ms | pstate_before=None
+  id=123  | dec_id=141 | dev_id=3 | model_id=8 B=8  | cold_start   | lat= 85.279 ms | pstate_before=0
+  id=124  | dec_id=142 | dev_id=1 | model_id=96 B=8  | cold_start   | lat= 32.894 ms | pstate_before=None
+  id=125  | dec_id=142 | dev_id=2 | model_id=96 B=8  | cold_start   | lat= 54.524 ms | pstate_before=None
+  id=126  | dec_id=142 | dev_id=3 | model_id=96 B=8  | cold_start   | lat=147.366 ms | pstate_before=4

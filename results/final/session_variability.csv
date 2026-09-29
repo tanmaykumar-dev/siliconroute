@@ -1,0 +1,4 @@
+device_key,device_label,median_volatility_pct,max_volatility_pct,configs_count
+cpu,AMD Ryzen 9 8940HX,17.3,38.9,5
+dml:0,AMD Radeon(TM) 610M,15.4,76.0,10
+dml:1,NVIDIA GeForce RTX 5070 Laptop GPU,6.6,139.9,10

@@ -1,0 +1,4 @@
+device_key,model_form,num_samples,loo_mape_pct,t0_ms,compute_gflops,vram_sram_gb_s,dram_gb_s
+cpu,f2_cache,111,18.89,0.0144,886.4,393.4,25.4
+dml:0,f2_cache,106,26.45,0.1113,598.8,29.8,18.7
+dml:1,f4_family,115,21.56,0.1511,11279.4,315.6,n/a

@@ -1,0 +1,110 @@
+[
+  {
+    "id": "c01_pytest",
+    "claim": "All unit and API tests pass cleanly",
+    "value": "59 passed, 1 warning in 34.41s",
+    "how": "python -m pytest -q"
+  },
+  {
+    "id": "c02_total_runs",
+    "claim": "Total benchmark runs stored in database",
+    "value": 480,
+    "how": "SELECT count(*) FROM run"
+  },
+  {
+    "id": "c03_total_decisions",
+    "claim": "Total routing decisions stored in database",
+    "value": 148,
+    "how": "SELECT count(*) FROM decision"
+  },
+  {
+    "id": "c04_workload_measurements",
+    "claim": "Total workload measurements recorded for cold start and wake penalties",
+    "value": 144,
+    "how": "SELECT count(*) FROM workloadmeasurement"
+  },
+  {
+    "id": "c05_sustained_eval_decisions",
+    "claim": "Total verified sustained evaluation decisions (headline benchmark 117-140)",
+    "value": 24,
+    "how": "SELECT count(*) FROM decision WHERE id BETWEEN 117 AND 140"
+  },
+  {
+    "id": "c06_sustained_eval_sr_accuracy",
+    "claim": "SiliconRoute winning routing decisions out of 24 (headline benchmark)",
+    "value": 22,
+    "how": "SELECT count(*) FROM decision WHERE id BETWEEN 117 AND 140 AND was_best = 1"
+  },
+  {
+    "id": "c07_sustained_eval_sr_mean_regret",
+    "claim": "SiliconRoute average regret percentage vs best chip on decisions 117-140",
+    "value": 1.75,
+    "how": "SELECT round(avg(regret_pct), 2) FROM decision WHERE id BETWEEN 117 AND 140"
+  },
+  {
+    "id": "c08_sustained_eval_cpu_accuracy",
+    "claim": "Always-CPU winning routing decisions out of 24 on decisions 117-140",
+    "value": 15,
+    "how": "SELECT count(*) FROM decision WHERE id BETWEEN 117 AND 140 AND best_device_id_actual = 1"
+  },
+  {
+    "id": "c09_sustained_eval_rtx_accuracy",
+    "claim": "Always-RTX winning routing decisions out of 24 on decisions 117-140",
+    "value": 9,
+    "how": "SELECT count(*) FROM decision WHERE id BETWEEN 117 AND 140 AND best_device_id_actual = 3"
+  },
+  {
+    "id": "c10_cold_start_decisions",
+    "claim": "Total verified cold-start evaluation decisions (decisions 141-148)",
+    "value": 8,
+    "how": "SELECT count(*) FROM decision WHERE id BETWEEN 141 AND 148"
+  },
+  {
+    "id": "c11_cold_start_sr_accuracy",
+    "claim": "SiliconRoute winning cold-start decisions out of 8 (decisions 141-148)",
+    "value": 6,
+    "how": "SELECT count(*) FROM decision WHERE id BETWEEN 141 AND 148 AND was_best = 1"
+  },
+  {
+    "id": "c12_cold_start_sr_mean_regret",
+    "claim": "SiliconRoute average regret percentage on cold-start decisions 141-148",
+    "value": 3.0,
+    "how": "SELECT round(avg(regret_pct), 2) FROM decision WHERE id BETWEEN 141 AND 148"
+  },
+  {
+    "id": "c13_cold_start_cpu_accuracy",
+    "claim": "Always-CPU winning cold-start decisions out of 8 (decisions 141-148)",
+    "value": 6,
+    "how": "SELECT count(*) FROM decision WHERE id BETWEEN 141 AND 148 AND best_device_id_actual = 1"
+  },
+  {
+    "id": "c14_cold_start_rtx_accuracy",
+    "claim": "Always-RTX winning cold-start decisions out of 8 (decisions 141-148)",
+    "value": 0,
+    "how": "SELECT count(*) FROM decision WHERE id BETWEEN 141 AND 148 AND best_device_id_actual = 3"
+  },
+  {
+    "id": "c15_final_db_sha256",
+    "claim": "SHA256 checksum of frozen database data/final/siliconroute_final.db",
+    "value": "98542cffb7264eee537d218e1863ccbbc174495e0bf13eb244ee22cd6f034cf5",
+    "how": "sha256(open('data/final/siliconroute_final.db', 'rb').read())"
+  },
+  {
+    "id": "c16_final_db_size",
+    "claim": "File size in bytes of frozen database data/final/siliconroute_final.db",
+    "value": 1044480,
+    "how": "os.path.getsize('data/final/siliconroute_final.db')"
+  },
+  {
+    "id": "c17_manifest_metric_count",
+    "claim": "Number of published metrics documented in results/final/manifest.json",
+    "value": 121,
+    "how": "len(manifest['metrics'])"
+  },
+  {
+    "id": "c18_identity_suspect_runs",
+    "claim": "Suspect identity swap runs excluded from training and routing",
+    "value": 12,
+    "how": "SELECT count(*) FROM run WHERE identity_suspect = 1"
+  }
+]

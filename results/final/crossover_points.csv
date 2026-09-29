@@ -1,0 +1,5 @@
+family,batch,comparison,crossover_params,faster_beyond_crossover
+mlp,1,cpu_vs_rtx,17156164,dml:1 (RTX 5070)
+mlp,8,cpu_vs_rtx,9935104,dml:1 (RTX 5070)
+conv,1,cpu_vs_rtx,20736,dml:1 (RTX 5070)
+conv,8,cpu_vs_rtx,2916,dml:1 (RTX 5070)

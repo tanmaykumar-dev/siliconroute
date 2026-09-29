@@ -1,0 +1,5 @@
+id,key,label,kind,vendor,vendor_id,luid,is_available
+1,cpu,CPU,cpu,CPU,,,1
+2,dml:0,AMD Radeon(TM) 610M,igpu,AMD,0x1002,0:76146,1
+3,dml:1,NVIDIA GeForce RTX 5070 Laptop GPU,dgpu,NVIDIA,0x10DE,0:70776,1
+4,dml:2,DirectML GPU 2,unknown,,,,0
