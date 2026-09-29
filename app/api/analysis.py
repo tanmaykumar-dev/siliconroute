@@ -90,15 +90,18 @@ def get_session_variability(session: Session = Depends(get_session)) -> dict[str
     devices = session.exec(select(Device).where(Device.is_available == True)).all()
     dev_map = {d.id: d for d in devices}
 
-    # Query all valid, non-suspect runs
+    # Query benchmark-grade runs only (>= 20 samples, session_id >= 32, identity_suspect = 0, is_available = 1)
     runs = session.exec(
         select(Run, AIModel, Device)
         .join(AIModel, Run.ai_model_id == AIModel.id)
         .join(Device, Run.device_id == Device.id)
         .where(
-            Run.session_id != None,
-            Run.unstable == False,
+            Device.is_available == True,
+            Run.timed_runs >= 20,
+            Run.session_id >= 32,
+            Run.session_id != 38,  # exclude energy session
             Run.identity_suspect == False,
+            Run.run_kind.in_(["sustained", "verify_sustained"]),
         )
     ).all()
 
@@ -122,16 +125,16 @@ def get_session_variability(session: Session = Depends(get_session)) -> dict[str
                 }
 
     details: list[dict[str, Any]] = []
-    device_multi_counts: dict[int, int] = defaultdict(int)
+    device_diffs: dict[int, list[float]] = defaultdict(list)
 
     for key, sess_dict in configs.items():
         if len(sess_dict) > 1:
             meta = config_metadata[key]
-            device_multi_counts[meta["device_id"]] += 1
             sess_meds = {sid: round(float(np.median(vals)), 3) for sid, vals in sorted(sess_dict.items())}
             min_val = min(sess_meds.values())
             max_val = max(sess_meds.values())
             diff_pct = round(((max_val - min_val) / max(min_val, 1e-4)) * 100.0, 1)
+            device_diffs[meta["device_id"]].append(diff_pct)
 
             details.append({
                 **meta,
@@ -146,16 +149,19 @@ def get_session_variability(session: Session = Depends(get_session)) -> dict[str
 
     summary: list[dict[str, Any]] = []
     for d in devices:
-        band = bands.get(d.id, 15.0)
-        cnt = device_multi_counts.get(d.id, 0)
+        diffs = device_diffs.get(d.id, [])
+        med_pct = round(float(np.median(diffs)), 1) if diffs else bands.get(d.id, 15.0)
+        max_pct = round(float(max(diffs)), 1) if diffs else med_pct
+        cnt = len(diffs)
         summary.append({
             "device_id": d.id,
             "device_key": d.key,
             "device_label": d.label,
             "kind": d.kind,
-            "volatility_band_pct": band,
+            "volatility_band_pct": med_pct,
+            "max_volatility_pct": max_pct,
             "multi_session_configs_count": cnt,
-            "description": f"+/-{band}% historical session variability",
+            "description": f"median +/-{med_pct}%, max {max_pct}% ({cnt} configs)",
         })
 
     return {
@@ -244,6 +250,7 @@ def get_chart_data(
         .join(AIModel, Run.ai_model_id == AIModel.id)
         .join(Device, Run.device_id == Device.id)
         .where(
+            Device.is_available == True,
             AIModel.family == family,
             Run.batch == batch,
             Run.median_ms > 0,
@@ -286,11 +293,12 @@ def get_chart_data(
         if not fit:
             continue
 
+        dram_bw = round(fit.bandwidth_dram_gb_s, 1) if (fit.bandwidth_dram_gb_s is not None and fit.model_form != "f4_family") else None
         fits_info[d.key] = {
             "model_form": fit.model_form,
             "t0_ms": round(fit.t0_ms, 4) if fit.t0_ms is not None else 0.0,
             "compute_gflops": round(fit.compute_gflops, 1) if fit.compute_gflops is not None else 0.0,
-            "dram_bandwidth_gb_s": round(fit.bandwidth_dram_gb_s, 1) if fit.bandwidth_dram_gb_s is not None else 0.0,
+            "dram_bandwidth_gb_s": dram_bw,
             "sram_bandwidth_gb_s": round(fit.bandwidth_gb_s, 1) if fit.bandwidth_gb_s is not None else 0.0,
             "loo_mape_pct": round(fit.loo_mape_pct, 1) if fit.loo_mape_pct is not None else None,
         }

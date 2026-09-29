@@ -184,7 +184,10 @@ def compute_run_stats(
     ci_half_width = (ci_high_ms - ci_low_ms) / 2.0
     ci_rel = float(ci_half_width / median_ms) if median_ms > 0 else 0.0
 
-    unstable = bool(ci_rel > CI_THRESHOLD)
+    if len(timings) < 10:
+        unstable = None
+    else:
+        unstable = bool(ci_rel > CI_THRESHOLD)
     throughput_per_s = float((batch * 1000.0) / median_ms) if median_ms > 0 else 0.0
 
     return {
@@ -214,6 +217,7 @@ def run_latency_measurement(
     warmup_runs: int = WARMUP_RUNS,
     timed_runs: int = TIMED_RUNS,
     dry_run: bool = False,
+    run_kind: Optional[str] = None,
 ) -> Run:
     """Execute a single latency measurement run with adaptive timing and robust stability."""
     now_iso = datetime.now(timezone.utc).isoformat()
@@ -331,6 +335,18 @@ def run_latency_measurement(
 
     battery_pct, plugged_in = get_system_battery()
 
+    if run_kind is None:
+        if warmup_runs == 0 and timed_runs == 1:
+            run_kind = "single_cold"
+        elif bench_session_id is not None and session is not None:
+            sess_rec = session.get(BenchSession, bench_session_id)
+            if sess_rec and sess_rec.kind == "verify":
+                run_kind = "verify_sustained"
+            else:
+                run_kind = "sustained"
+        else:
+            run_kind = "sustained"
+
     run = Run(
         session_id=bench_session_id,
         ai_model_id=model.id,
@@ -353,10 +369,11 @@ def run_latency_measurement(
         stdev_ms=round(stats["stdev_ms"], 3),
         cv=round(stats["cv"], 4),
         spread=round(stats["spread"], 4),
-        ci_rel=round(stats["ci_rel"], 4),
-        ci_low_ms=round(stats["ci_low_ms"], 3),
-        ci_high_ms=round(stats["ci_high_ms"], 3),
+        ci_rel=round(stats["ci_rel"], 4) if stats["ci_rel"] is not None else None,
+        ci_low_ms=round(stats["ci_low_ms"], 3) if stats["ci_low_ms"] is not None else None,
+        ci_high_ms=round(stats["ci_high_ms"], 3) if stats["ci_high_ms"] is not None else None,
         unstable=stats["unstable"],
+        run_kind=run_kind,
         throughput_per_s=round(stats["throughput_per_s"], 2),
         raw_ms_json=json.dumps([round(t, 4) for t in raw_timings_ms]),
         output_matches_cpu=output_matches_cpu,

@@ -295,6 +295,7 @@ export class SiliconCharts {
 
     // 1. Scatter points for measured runs per device
     for (const [devKey, runs] of Object.entries(chartData.runs || {})) {
+      if (devKey === "dml:2") continue; // Hide disabled duplicate device
       const color = DEVICE_COLORS[devKey] || "#EDEFF3";
       datasets.push({
         type: "scatter",
@@ -316,6 +317,7 @@ export class SiliconCharts {
 
     // 2. Fitted smooth curve lines
     for (const [devKey, curvePoints] of Object.entries(chartData.curves || {})) {
+      if (devKey === "dml:2") continue; // Hide disabled duplicate device
       const color = DEVICE_COLORS[devKey] || "#EDEFF3";
       datasets.push({
         type: "line",

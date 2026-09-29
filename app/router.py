@@ -57,22 +57,28 @@ logger = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 def calculate_device_volatility_bands(session: Session) -> dict[int, float]:
-    """Calculate the historical median session-to-session percentage difference per device.
+    """Calculate the historical median session-to-session percentage difference per device
+    over benchmark-grade runs (>= 20 samples, session_id >= 32, identity_suspect = 0),
+    excluding disabled devices (is_available = 1).
     
-    Returns a dict mapping device_id -> median_diff_pct (e.g. 12.5 means +/-12.5% variability).
+    Returns a dict mapping device_id -> median_diff_pct (e.g. 17.3 for CPU).
     """
     runs = session.exec(
-        select(Run).where(
-            Run.session_id != None,
-            Run.unstable == False,
-            Run.provider_mismatch == False,
+        select(Run, Device)
+        .join(Device, Run.device_id == Device.id)
+        .where(
+            Device.is_available == True,
+            Run.timed_runs >= 20,
+            Run.session_id >= 32,
+            Run.session_id != 38,  # exclude energy session
             Run.identity_suspect == False,
+            Run.run_kind.in_(["sustained", "verify_sustained"]),
         )
     ).all()
 
     # Group runs by (device_id, ai_model_id, batch)
     configs: dict[tuple[int, int, int], dict[int, list[float]]] = defaultdict(lambda: defaultdict(list))
-    for r in runs:
+    for r, dev in runs:
         if r.session_id is not None:
             configs[(r.device_id, r.ai_model_id, r.batch)][r.session_id].append(r.median_ms)
 
@@ -87,7 +93,7 @@ def calculate_device_volatility_bands(session: Session) -> dict[int, float]:
                 device_diffs[dev_id].append(diff_pct)
 
     volatility: dict[int, float] = {}
-    devices = session.exec(select(Device)).all()
+    devices = session.exec(select(Device).where(Device.is_available == True)).all()
     for d in devices:
         if d.id in device_diffs and device_diffs[d.id]:
             volatility[d.id] = round(float(np.median(device_diffs[d.id])), 1)
@@ -177,6 +183,9 @@ def get_workload_slowdown_ratio(
                 Run.unstable == False,
                 Run.provider_mismatch == False,
                 Run.identity_suspect == False,
+                Run.timed_runs >= 10,
+                Run.warmup_runs >= 2,
+                Run.run_kind.in_(["sustained", "verify_sustained"]),
                 Run.session_id != None,
             ).order_by(Run.id.desc())
         ).first()
@@ -222,6 +231,9 @@ def resolve_candidate_prediction(
             Run.unstable == False,
             Run.provider_mismatch == False,
             Run.identity_suspect == False,
+            Run.timed_runs >= 10,
+            Run.warmup_runs >= 2,
+            Run.run_kind.in_(["sustained", "verify_sustained"]),
             Run.session_id != None,
         ).order_by(Run.id.desc())
     ).all()
@@ -632,6 +644,7 @@ def execute_verification(
         current_job["session_id"] = bench_session.id
 
     measured_times: dict[int, float] = {}
+    meas_info_by_dev: dict[int, dict[str, Any]] = {}
     try:
         available_devices = session.exec(select(Device).where(Device.is_available == True)).all()
         for device in available_devices:
@@ -647,6 +660,7 @@ def execute_verification(
                     batch=batch,
                     warmup_runs=2,
                     timed_runs=runs_count,
+                    run_kind="verify_sustained",
                 )
                 measured_times[dev_id] = run.median_ms
             elif workload in ("idle_loaded", "single"):
@@ -659,6 +673,7 @@ def execute_verification(
                     idle_s=dev_idle_s,
                 )
                 measured_times[dev_id] = meas["latency_ms"]
+                meas_info_by_dev[dev_id] = meas
             elif workload == "cold_start":
                 # Cold start: fresh session creation + first inference
                 dev_idle_s = 5.0 if device.key == "dml:1" else (1.0 if device.key == "dml:0" else 0.2)
@@ -669,6 +684,7 @@ def execute_verification(
                     idle_s=dev_idle_s,
                 )
                 measured_times[dev_id] = meas["latency_ms"]
+                meas_info_by_dev[dev_id] = meas
 
         bench_session.status = "done"
         bench_session.finished_at = datetime.now(timezone.utc).isoformat()
@@ -722,6 +738,31 @@ def execute_verification(
     session.add(dec_record)
     session.commit()
     session.refresh(dec_record)
+
+    # Store WorkloadMeasurement rows for idle_loaded and cold_start
+    if workload in ("idle_loaded", "single", "cold_start"):
+        now_ts = datetime.now(timezone.utc).isoformat()
+        for device in available_devices:
+            dev_id = device.id
+            if dev_id in meas_info_by_dev:
+                m_info = meas_info_by_dev[dev_id]
+                wm = WorkloadMeasurement(
+                    ai_model_id=model_id,
+                    device_id=dev_id,
+                    batch=batch,
+                    workload="idle_loaded" if workload in ("idle_loaded", "single") else "cold_start",
+                    latency_ms=m_info["latency_ms"],
+                    session_create_ms=m_info.get("session_create_ms"),
+                    first_run_ms=m_info.get("first_run_ms"),
+                    idle_s=m_info.get("idle_s", 10.0),
+                    nvml_pstate=m_info.get("nvml_pstate"),
+                    pstate_before=m_info.get("nvml_pstate"),
+                    decision_id=dec_record.id,
+                    created_at=now_ts,
+                )
+                session.add(wm)
+        session.commit()
+
     return dec_record
 
 

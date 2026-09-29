@@ -177,7 +177,8 @@ class Run(SQLModel, table=True):
     ci_rel: Optional[float] = None             # Bootstrap 95% CI half-width / median
     ci_low_ms: Optional[float] = None          # Bootstrap 95% CI 2.5 percentile
     ci_high_ms: Optional[float] = None         # Bootstrap 95% CI 97.5 percentile
-    unstable: bool                             # True if ci_rel > CI_THRESHOLD (0.10)
+    unstable: Optional[bool] = None            # True if ci_rel > CI_THRESHOLD (0.10), None if < 10 samples
+    run_kind: Optional[str] = Field(default="sustained", index=True) # sustained | verify_sustained | single_cold | energy
     throughput_per_s: float
     raw_ms_json: str
     output_matches_cpu: Optional[bool] = None
@@ -274,6 +275,8 @@ class WorkloadMeasurement(SQLModel, table=True):
     first_run_ms: Optional[float] = None
     idle_s: float = 10.0
     nvml_pstate: Optional[int] = None
+    pstate_before: Optional[int] = None
+    decision_id: Optional[int] = Field(default=None, foreign_key="decision.id", index=True)
     created_at: str
 
 
@@ -298,6 +301,7 @@ def _migrate_columns(target_engine) -> None:
                     ("nvml_clock_sm_start_mhz", "INTEGER"),
                     ("nvml_clock_sm_end_mhz", "INTEGER"),
                     ("energy_above_idle_mj_per_inf", "FLOAT"),
+                    ("run_kind", "TEXT DEFAULT 'sustained'"),
                 ]
                 for col_name, col_type in new_run_cols:
                     if col_name not in run_cols:
@@ -322,6 +326,14 @@ def _migrate_columns(target_engine) -> None:
                 for col_name, col_type in new_fit_cols:
                     if col_name not in fit_cols:
                         conn.execute(text(f"ALTER TABLE fit ADD COLUMN {col_name} {col_type}"))
+
+            # Check workloadmeasurement columns
+            wm_cols = {row[1] for row in conn.execute(text("PRAGMA table_info(workloadmeasurement)")).fetchall()}
+            if wm_cols:
+                if "decision_id" not in wm_cols:
+                    conn.execute(text("ALTER TABLE workloadmeasurement ADD COLUMN decision_id INTEGER"))
+                if "pstate_before" not in wm_cols:
+                    conn.execute(text("ALTER TABLE workloadmeasurement ADD COLUMN pstate_before INTEGER"))
 
             conn.commit()
     except Exception:

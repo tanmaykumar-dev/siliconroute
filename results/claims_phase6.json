@@ -2,7 +2,7 @@
   {
     "id": "c01_pytest",
     "claim": "All unit and API tests pass cleanly",
-    "value": "49 passed, 1 warning in 33.61s",
+    "value": "53 passed, 1 warning in 33.58s",
     "how": "python -m pytest -q"
   },
   {
@@ -104,13 +104,79 @@
   {
     "id": "c18_snapshot_file_size",
     "claim": "Size in bytes of data/snapshot_for_review.db generated via sqlite3 backup API",
-    "value": 811008,
+    "value": 1044480,
     "how": "os.path.getsize('data/snapshot_for_review.db')"
   },
   {
     "id": "c19_snapshot_sha256",
     "claim": "SHA256 checksum of data/snapshot_for_review.db",
-    "value": "ee487b6911c533282bfd76d7009586683815a2ef66b8617345a70133018d1f82",
+    "value": "ce0babe4c29c53f29c40cb62945653864803e0d3429f5ec4c1402beddc708824",
     "how": "hashlib.sha256(open('data/snapshot_for_review.db', 'rb').read()).hexdigest()"
+  },
+  {
+    "id": "c20_single_cold_runs_count",
+    "claim": "Total single-sample cold verification runs classified as single_cold",
+    "value": 55,
+    "how": "SELECT count(*) FROM run WHERE run_kind = 'single_cold'"
+  },
+  {
+    "id": "c21_single_cold_unstable_null",
+    "claim": "Single-sample runs with unstable set to NULL (not assessable)",
+    "value": 55,
+    "how": "SELECT count(*) FROM run WHERE run_kind = 'single_cold' AND unstable IS NULL"
+  },
+  {
+    "id": "c22_decisions_117_140_count",
+    "claim": "Total verified evaluation decisions for fresh Phase 6 benchmark (117-140)",
+    "value": 24,
+    "how": "SELECT count(*) FROM decision WHERE id BETWEEN 117 AND 140"
+  },
+  {
+    "id": "c23_decisions_117_140_wins",
+    "claim": "SiliconRoute winning routing decisions out of 24 in fresh benchmark (117-140)",
+    "value": 22,
+    "how": "SELECT count(*) FROM decision WHERE id BETWEEN 117 AND 140 AND was_best = 1"
+  },
+  {
+    "id": "c24_decisions_117_140_accuracy",
+    "claim": "SiliconRoute decision accuracy percentage in fresh benchmark (117-140)",
+    "value": 91.7,
+    "how": "round(100.0 * 22 / 24, 1)"
+  },
+  {
+    "id": "c25_decisions_117_140_mean_regret",
+    "claim": "SiliconRoute average slowdown / regret percentage vs best chip in fresh benchmark (117-140)",
+    "value": 1.75,
+    "how": "SELECT round(avg(regret_pct), 2) FROM decision WHERE id BETWEEN 117 AND 140"
+  },
+  {
+    "id": "c26_decisions_117_140_p90_regret",
+    "claim": "SiliconRoute 90th percentile regret percentage in fresh benchmark (117-140)",
+    "value": 0.0,
+    "how": "computed in router evaluation statistics over decisions 117-140"
+  },
+  {
+    "id": "c27_workload_measurements_117_140",
+    "claim": "WorkloadMeasurement records stored for verification runs across decisions 117-140",
+    "value": 48,
+    "how": "SELECT count(*) FROM workloadmeasurement WHERE decision_id BETWEEN 117 AND 140"
+  },
+  {
+    "id": "c28_volatility_cpu_median",
+    "claim": "CPU median session-to-session spread over benchmark-grade runs",
+    "value": 17.3,
+    "how": "GET /api/analysis/variability (cpu volatility_band_pct)"
+  },
+  {
+    "id": "c29_volatility_radeon_median",
+    "claim": "Radeon 610M median session-to-session spread over benchmark-grade runs",
+    "value": 15.4,
+    "how": "GET /api/analysis/variability (dml:0 volatility_band_pct)"
+  },
+  {
+    "id": "c30_volatility_rtx_median",
+    "claim": "RTX 5070 median session-to-session spread over benchmark-grade runs",
+    "value": 6.6,
+    "how": "GET /api/analysis/variability (dml:1 volatility_band_pct)"
   }
 ]

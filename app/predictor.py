@@ -137,6 +137,9 @@ def prepare_fit_dataset(
         Run.provider_mismatch == False,
         Run.unstable == False,
         Run.identity_suspect == False,
+        Run.timed_runs >= 10,
+        Run.warmup_runs >= 2,
+        Run.run_kind.in_(["sustained", "verify_sustained"]),
     )
 
     if target == "latency":
@@ -444,6 +447,9 @@ def get_cold_start_summary(session: Session, device_id: Optional[int] = None) ->
                 Run.first_run_ms != None,
                 Run.median_ms > 0,
                 Run.identity_suspect == False,
+                Run.timed_runs >= 10,
+                Run.warmup_runs >= 2,
+                Run.run_kind.in_(["sustained", "verify_sustained"]),
             )
         ).all()
 

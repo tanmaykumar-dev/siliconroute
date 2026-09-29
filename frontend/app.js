@@ -320,14 +320,20 @@ class SiliconApp {
     tbody.innerHTML = Object.entries(fits)
       .map(([devKey, f]) => {
         const badgeClass = devKey === "cpu" ? "badge-cpu" : devKey === "dml:0" ? "badge-dml0" : "badge-dml1";
+        const dramText = (f.model_form === "f4_family" || devKey === "dml:1" || f.dram_bandwidth_gb_s === null || f.dram_bandwidth_gb_s === undefined)
+          ? "n/a"
+          : `${f.dram_bandwidth_gb_s.toFixed(1)} GB/s`;
+        const vramText = f.sram_bandwidth_gb_s
+          ? (devKey === "dml:1" ? `${f.sram_bandwidth_gb_s.toFixed(1)} GB/s (VRAM)` : `${f.sram_bandwidth_gb_s.toFixed(1)} GB/s`)
+          : "n/a";
         return `
           <tr>
             <td><span class="badge-device ${badgeClass}">${devKey.toUpperCase()}</span></td>
             <td>${f.model_form || "F1 (affine)"}</td>
             <td class="td-mono text-right">${f.t0_ms.toFixed(4)} ms</td>
             <td class="td-mono text-right">${f.compute_gflops.toFixed(1)} GFLOP/s <span style="font-size:0.75rem; color:var(--muted);">(effective)</span></td>
-            <td class="td-mono text-right">${f.dram_bandwidth_gb_s.toFixed(1)} GB/s</td>
-            <td class="td-mono text-right">${f.sram_bandwidth_gb_s ? f.sram_bandwidth_gb_s.toFixed(1) + " GB/s" : "N/A"}</td>
+            <td class="td-mono text-right">${dramText}</td>
+            <td class="td-mono text-right">${vramText}</td>
             <td class="td-mono text-right">${f.loo_mape_pct !== null ? f.loo_mape_pct.toFixed(1) + "%" : "N/A"}</td>
           </tr>
         `;
@@ -500,7 +506,21 @@ class SiliconApp {
       document.getElementById("modal-median-ms").textContent = `${run.median_ms.toFixed(4)} ms`;
       document.getElementById("modal-p10-ms").textContent = run.p10_ms !== null ? `${run.p10_ms.toFixed(4)} ms` : "N/A";
       document.getElementById("modal-p90-ms").textContent = run.p90_ms !== null ? `${run.p90_ms.toFixed(4)} ms` : "N/A";
-      document.getElementById("modal-spread-ms").textContent = run.spread !== null ? `${run.spread.toFixed(4)} ms` : "N/A";
+
+      // Compute spread as Math.max(...samples) - Math.min(...samples)
+      let sampleSpread = null;
+      let rawSamples = [];
+      try {
+        rawSamples = JSON.parse(run.raw_ms_json || "[]");
+      } catch (e) {
+        rawSamples = [];
+      }
+      if (rawSamples.length > 0) {
+        sampleSpread = Math.max(...rawSamples) - Math.min(...rawSamples);
+      } else if (run.max_ms !== null && run.min_ms !== null) {
+        sampleSpread = run.max_ms - run.min_ms;
+      }
+      document.getElementById("modal-spread-ms").textContent = sampleSpread !== null ? `${sampleSpread.toFixed(4)} ms` : "N/A";
       document.getElementById("modal-cv").textContent = run.cv !== null ? `${(run.cv * 100).toFixed(2)}%` : "N/A";
 
       this.charts.renderRawSamplesChart(run);
