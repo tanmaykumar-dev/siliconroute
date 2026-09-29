@@ -38,7 +38,7 @@
   {
     "id": "c07_tracked_onnx_models",
     "claim": "Tracked .onnx models in git repository",
-    "value": 22,
+    "value": 0,
     "how": "git ls-files models (count lines ending with .onnx)"
   },
   {
@@ -110,7 +110,7 @@
   {
     "id": "c19_snapshot_sha256",
     "claim": "SHA256 checksum of data/snapshot_for_review.db",
-    "value": "149d2c7524029e7dc6052d8c103e53fa20b39f687cb4170764e9969e5f7c1e67",
+    "value": "7e69c6dbb59646ad30fedaaec35f5186159777cf709d243ec6fda3575b7393b9",
     "how": "hashlib.sha256(open('data/snapshot_for_review.db', 'rb').read()).hexdigest()"
   }
 ]
