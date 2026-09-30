@@ -1,5 +1,5 @@
 /**
- * SiliconRoute Design Spec v2 — About Screen (Section 6.7)
+ * SiliconRoute Design Spec v2 : About Screen (Section 6.7)
  * Mission, system architecture, honest limitations from README,
  * AI assistance disclosure, and MIT license.
  */

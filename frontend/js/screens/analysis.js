@@ -1,7 +1,10 @@
 /**
- * SiliconRoute Design Spec v2 — Analysis Screen (Section 6.3)
- * Scaling curves (log-log), Crossover points, Physical Hardware Fit Models,
- * Session Variability, Wake/Cold Ratios, and Winograd Physics Hypotheses.
+ * SiliconRoute Design Spec v3: "Red Bench" Analysis Screen (Section 6.3)
+ * Scaling chart (log-log) with family/batch selectors; measured points use chip marks,
+ * fitted curves dashed. Clicking a point opens the raw-samples modal.
+ * Crossover markers labelled "fitted estimate" with measured neighbours listed.
+ * Chip model table ("effective" compute, "n/a" where a form has no term).
+ * Variability and wake/cold ratios with median, range and n.
  */
 
 import { getChartTheme, getDeviceChartProps } from "../charts/theme.js";
@@ -44,6 +47,18 @@ export class AnalysisScreen {
         this.loadScalingCurves();
       });
     }
+
+    const toggleBtn = document.getElementById("analysis-chart-table-toggle");
+    if (toggleBtn) {
+      toggleBtn.addEventListener("click", () => {
+        const tbl = document.getElementById("analysis-scaling-data-table");
+        if (tbl) {
+          const isHidden = tbl.style.display === "none";
+          tbl.style.display = isHidden ? "block" : "none";
+          toggleBtn.textContent = isHidden ? "Hide data table" : "Show data table";
+        }
+      });
+    }
   }
 
   async loadAll() {
@@ -61,6 +76,7 @@ export class AnalysisScreen {
     try {
       const data = await this.api.fetchScalingData(this.family, this.batch);
       this.renderScalingChart(data);
+      this.renderScalingTable(data);
     } catch (err) {
       console.error("Failed loading scaling curves:", err);
     }
@@ -117,6 +133,7 @@ export class AnalysisScreen {
       type: "scatter",
       data: { datasets },
       options: {
+        animation: false,
         responsive: true,
         maintainAspectRatio: false,
         onClick: (evt, elements) => {
@@ -131,7 +148,7 @@ export class AnalysisScreen {
         scales: {
           x: {
             type: "logarithmic",
-            title: { display: true, text: "Model Parameters (Log Scale)" },
+            title: { display: true, text: "Model parameters (log scale)" },
             ticks: {
               callback: (val) => Number(val).toLocaleString(),
               font: { family: "'JetBrains Mono', monospace", size: 10 },
@@ -139,7 +156,7 @@ export class AnalysisScreen {
           },
           y: {
             type: "logarithmic",
-            title: { display: true, text: "Latency (ms, Log Scale)" },
+            title: { display: true, text: "Latency (ms, log scale)" },
             ticks: {
               callback: (val) => Number(val).toLocaleString(),
               font: { family: "'JetBrains Mono', monospace", size: 10 },
@@ -152,7 +169,7 @@ export class AnalysisScreen {
               label: (item) => {
                 const pt = item.raw;
                 if (pt.runId) {
-                  return `${item.dataset.label}: ${pt.y.toFixed(3)} ms (Run #${pt.runId} — click to inspect)`;
+                  return `${item.dataset.label}: ${pt.y.toFixed(3)} ms (Run #${pt.runId}, click to inspect)`;
                 }
                 return `${item.dataset.label}: ${pt.y.toFixed(3)} ms (fitted estimate)`;
               },
@@ -163,6 +180,28 @@ export class AnalysisScreen {
     });
   }
 
+  renderScalingTable(chartData) {
+    const tbody = document.getElementById("tbody-analysis-scaling-table");
+    if (!tbody) return;
+
+    const rows = [];
+    for (const [devKey, runs] of Object.entries(chartData.runs || {})) {
+      runs.forEach(r => {
+        rows.push(`
+          <tr>
+            <td><strong>${devKey.toUpperCase()}</strong></td>
+            <td>Run #${r.id}</td>
+            <td class="num">${(r.param_count || 0).toLocaleString()}</td>
+            <td class="num">${r.median_ms.toFixed(3)} ms</td>
+            <td><button type="button" class="btn-text" onclick="window.app?.rawSamplesModal?.open(${r.id})">Inspect run</button></td>
+          </tr>
+        `);
+      });
+    }
+
+    tbody.innerHTML = rows.length ? rows.join("") : `<tr><td colspan="5" style="text-align:center;">No measured runs for this selection.</td></tr>`;
+  }
+
   async loadCrossover() {
     const container = document.getElementById("crossover-summary-container");
     if (!container) return;
@@ -170,11 +209,10 @@ export class AnalysisScreen {
     try {
       const crossovers = await this.api.fetchCrossoverData();
       if (!Array.isArray(crossovers) || !crossovers.length) {
-        container.innerHTML = `<span class="pill pill-na">no crossover detected in measured envelope</span>`;
+        container.innerHTML = `<span class="tag">no crossover detected in measured envelope</span>`;
         return;
       }
 
-      // Filter for current family and batch, or take first few
       const matching = crossovers.filter(c => c.family === this.family && c.batch === this.batch);
       const displayItems = matching.length ? matching : crossovers.slice(0, 3);
 
@@ -184,13 +222,13 @@ export class AnalysisScreen {
         const lat = co.pred_a_ms ? `~${co.pred_a_ms.toFixed(3)} ms` : "";
 
         return `
-          <div style="padding:var(--space-3); background:var(--plate-raised); border:1px solid var(--line); border-radius:var(--radius-control); margin-bottom:var(--space-2);">
+          <div style="padding:var(--space-12); background:var(--sheet); border:1px solid var(--rule); margin-bottom:var(--space-8);">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <span style="font-weight:600;">${pt.dev_a.toUpperCase()} vs ${pt.dev_b.toUpperCase()} (${(pt.family || "MLP").toUpperCase()} Batch ${pt.batch})</span>
-              <span class="pill pill-warn">fitted estimate</span>
+              <span class="tag">fitted estimate</span>
             </div>
             <div style="font-size:13px; margin-top:4px;">
-              Analytical Crossover: <strong class="font-mono">${params}</strong> ${lat}
+              Analytical Crossover: <strong style="font-family:var(--font-mono);">${params}</strong> ${lat}
             </div>
             <div style="font-size:12px; color:var(--ink-2); margin-top:2px;">
               ${pt.summary || "Measured: CPU faster below crossover; GPU faster above."}
@@ -210,7 +248,7 @@ export class AnalysisScreen {
     try {
       const fits = await this.api.fetchFits();
       const devLabels = {
-        1: { name: "CPU", sub: "AMD Ryzen 9 8940HX" },
+        1: { name: "CPU", sub: "Host Processor" },
         2: { name: "Radeon 610M", sub: "AMD iGPU" },
         3: { name: "RTX 5070", sub: "NVIDIA Laptop GPU" },
       };
@@ -226,13 +264,13 @@ export class AnalysisScreen {
 
         return `
           <tr>
-            <td><strong>${d.name}</strong> <span style="font-size:11.5px; color:var(--ink-3);">${d.sub}</span></td>
-            <td><span class="pill pill-info">${formStr}</span></td>
-            <td class="font-mono text-right">${t0Str}</td>
-            <td class="font-mono text-right">${gflopsStr}</td>
-            <td class="font-mono text-right">${dramStr}</td>
-            <td class="font-mono text-right">${sramStr}</td>
-            <td class="font-mono text-right" style="color:var(--ok); font-weight:600;">${mapeStr}</td>
+            <td><strong>${d.name}</strong> <span style="font-size:11px; color:var(--ink-3);">${d.sub}</span></td>
+            <td><span class="tag">${formStr}</span></td>
+            <td class="num">${t0Str}</td>
+            <td class="num">${gflopsStr}</td>
+            <td class="num">${dramStr}</td>
+            <td class="num">${sramStr}</td>
+            <td class="num" style="font-weight:600;">${mapeStr}</td>
           </tr>
         `;
       }).join("");
@@ -251,19 +289,18 @@ export class AnalysisScreen {
 
       tbody.innerHTML = items.map(v => {
         const diff = v.diff_pct || 0;
-        const pillClass = diff > 20 ? "pill-warn" : "pill-ok";
-        const pillText = diff > 20 ? "volatile" : "stable";
+        const tagText = diff > 20 ? "volatile" : "verified";
 
         return `
           <tr>
-            <td>${(v.device_key || "").toUpperCase()}</td>
+            <td><strong>${(v.device_key || "").toUpperCase()}</strong></td>
             <td>${v.model_name || ""}</td>
-            <td class="font-mono text-center">B=${v.batch || 1}</td>
-            <td class="font-mono text-center">${v.session_count || 1}</td>
-            <td class="font-mono text-right">${(v.min_median_ms || 0).toFixed(3)} ms</td>
-            <td class="font-mono text-right">${(v.max_median_ms || 0).toFixed(3)} ms</td>
-            <td class="font-mono text-right font-weight:600;">${diff.toFixed(1)}%</td>
-            <td class="text-center"><span class="pill ${pillClass}">${pillText}</span></td>
+            <td class="num">B=${v.batch || 1}</td>
+            <td class="num">${v.session_count || 1}</td>
+            <td class="num">${(v.min_median_ms || 0).toFixed(3)} ms</td>
+            <td class="num">${(v.max_median_ms || 0).toFixed(3)} ms</td>
+            <td class="num" style="font-weight:600;">${diff.toFixed(1)}%</td>
+            <td><span class="tag">${tagText}</span></td>
           </tr>
         `;
       }).join("");
@@ -288,9 +325,9 @@ export class AnalysisScreen {
           <tr>
             <td><strong>${(w.device_key || "").toUpperCase()}</strong></td>
             <td>${w.device_label || ""}</td>
-            <td class="font-mono text-center">${w.sample_count || 0}</td>
-            <td class="font-mono text-right">${firstRun}</td>
-            <td class="font-mono text-right font-weight:600;">${wakePen}</td>
+            <td class="num">${w.sample_count || 0}</td>
+            <td class="num">${firstRun}</td>
+            <td class="num" style="font-weight:600;">${wakePen}</td>
           </tr>
         `;
       }).join("");
@@ -307,15 +344,15 @@ export class AnalysisScreen {
       const data = await this.api.fetchPhysicsNotes();
       container.innerHTML = (data.runs || []).slice(0, 5).map(r => {
         return `
-          <div style="padding:var(--space-3); background:var(--plate-raised); border:1px solid var(--line); border-radius:var(--radius-control); margin-bottom:var(--space-2);">
+          <div style="padding:var(--space-12); background:var(--sheet); border:1px solid var(--rule); margin-bottom:var(--space-8);">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <span><strong>Run #${r.run_id}</strong>: ${r.model_name} on ${(r.device_key || "").toUpperCase()} (Batch ${r.batch})</span>
-              <span class="pill pill-warn">hypothesis</span>
+              <span class="tag">hypothesis</span>
             </div>
-            <div style="font-size:12.5px; color:var(--ink-2); margin-top:4px;">
-              Measured: ${(r.median_ms || 0).toFixed(3)} ms | Effective: ${(r.implied_gflops || 0).toFixed(1)} GFLOP/s vs Datasheet: ${r.datasheet_peak_gflops || "N/A"} GFLOP/s
+            <div style="font-size:13px; color:var(--ink); margin-top:4px;">
+              Measured: ${(r.median_ms || 0).toFixed(3)} ms | Effective: ${(r.implied_gflops || 0).toFixed(1)} GFLOP/s vs Datasheet: ${r.datasheet_peak_gflops || "n/a"} GFLOP/s
             </div>
-            <div style="font-size:12px; color:var(--ink-3); margin-top:2px;">
+            <div style="font-size:12px; color:var(--ink-2); margin-top:2px;">
               ${r.physics_note || "Algorithmic Winograd minimal filtering convolution speedup."}
             </div>
           </div>

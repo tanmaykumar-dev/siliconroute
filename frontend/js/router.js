@@ -1,5 +1,5 @@
 /**
- * SiliconRoute Design Spec v2 — Client Screen Router
+ * SiliconRoute Design Spec v2 : Client Screen Router
  * Manages screen activation via hash routing (#/overview, #/live, etc.)
  * and keyboard navigation ('g o', 'g l', arrow keys, '?').
  */

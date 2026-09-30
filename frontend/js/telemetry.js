@@ -1,5 +1,5 @@
 /**
- * SiliconRoute Design Spec v2 — Telemetry & Socket Strip Service
+ * SiliconRoute Design Spec v2 : Telemetry & Socket Strip Service
  * Connects to live SSE stream, updates top bar chips, socket tiles,
  * and maintains 60-second load sparklines for each chip.
  */

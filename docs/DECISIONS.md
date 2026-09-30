@@ -71,5 +71,7 @@
 - 2026-09-30 - Vendored JetBrains Mono Variable Font (wght) to frontend\fonts\jetbrains-mono.woff2 (Size: 40404 B, SHA256: 18be452724bfdc236c074ca94a249a7f41a86752c7d04ab258ce9ed5651f6a7e, License: SIL Open Font License 1.1, Source: https://cdn.jsdelivr.net/npm/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2) - Local-first design requirement to eliminate all runtime CDNs and external requests.
 - 2026-10-01 - **Design Spec v3 "Red Bench" Phase R1:** Replaced v2 styles with sharp light-only v3 tokens (paper, sheet, ink, red), removed theme toggle/dark mode, created signature 96px socket strip under top bar, implemented text-only left rail with 4px red active underline, and built ui_lint.py and control_audit.py.
 - 2026-10-01 - **Design Spec v3 "Red Bench" Phase R2:** Built Red Bench components and evidence popover system (`.metric` with "Show evidence" trigger, full provenance and SQL display, raw-samples scatter modal with focus trap, dismissible toasts, animation-free Chart.js theme, and updated `test_design_v3.py`). Zero lint violations and 35/35 audited controls passing.
+- 2026-10-01 - **Design Spec v3 "Red Bench" Phase R3:** Converted all seven app screens (Overview, Live, Analysis, Router, Results, Evidence, About) to Red Bench standards: animation: false, zero border radius, token palettes only, rectangular tags, exact confirmation dialog for hardware verification, toast notifications, and Snapdragon empty state. Zero lint violations and 35/35 audited controls passing.
+
 
 

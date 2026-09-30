@@ -1,7 +1,9 @@
 /**
- * SiliconRoute Design Spec v2 — Results Screen (Section 6.5)
- * Published hardware evaluation (Decisions 117-140 and 141-148),
- * regret bar chart on log scale, and earlier evaluation (93-116).
+ * SiliconRoute Design Spec v3: "Red Bench" Results Screen (Section 6.5)
+ * Published evaluation exactly as results/final/ (overall + per workload),
+ * cold-start rule check, regret bar chart (log scale; SiliconRoute bar red, others ink/grey),
+ * collapsed earlier evaluation. A "Snapdragon X2 Elite" section that shows the v2 results
+ * when they exist, otherwise the empty state "Snapdragon results not yet recorded".
  */
 
 import { getChartTheme } from "../charts/theme.js";
@@ -11,16 +13,30 @@ export class ResultsScreen {
     this.api = apiClient;
     this.isLoaded = false;
     this.regretChart = null;
-
-    window.addEventListener("themechange", () => this.updateChartTheme());
   }
 
-  async init() {}
+  async init() {
+    this.setupTableToggle();
+  }
 
   async onActivate() {
     if (!this.isLoaded) {
       await this.loadEvaluationData();
       this.isLoaded = true;
+    }
+  }
+
+  setupTableToggle() {
+    const btn = document.getElementById("results-chart-table-toggle");
+    if (btn) {
+      btn.addEventListener("click", () => {
+        const tbl = document.getElementById("results-chart-data-table");
+        if (tbl) {
+          const isHidden = tbl.style.display === "none";
+          tbl.style.display = isHidden ? "block" : "none";
+          btn.textContent = isHidden ? "Hide data table" : "Show data table";
+        }
+      });
     }
   }
 
@@ -47,6 +63,9 @@ export class ResultsScreen {
         const ear = evalData.earlier;
         this.renderOverallTable("results-earlier-table-body", ear.stats);
       }
+
+      // 4. Snapdragon X2 Elite section
+      this.renderSnapdragonSection(evalData.snapdragon);
     } catch (err) {
       console.error("Failed loading evaluation data:", err);
     }
@@ -66,14 +85,14 @@ export class ResultsScreen {
     let html = rows.map(r => {
       const d = r.data;
       if (!d) return "";
-      const p90Str = d.p90_regret_pct !== undefined ? `${d.p90_regret_pct.toFixed(2)}%` : "N/A";
+      const p90Str = d.p90_regret_pct !== undefined ? `${d.p90_regret_pct.toFixed(2)}%` : "n/a";
       return `
-        <tr style="${r.isSr ? 'background-color: rgba(76, 199, 135, 0.08); font-weight:600;' : ''}">
-          <td style="color:${r.isSr ? 'var(--ok)' : 'var(--ink)'};">${r.name}</td>
-          <td class="font-mono text-center">${d.wins}/${d.total}</td>
-          <td class="font-mono text-right" style="color:${r.isSr ? 'var(--ok)' : 'var(--ink)'}; font-weight:600;">${d.accuracy_pct.toFixed(1)}%</td>
-          <td class="font-mono text-right">${d.mean_regret_pct.toFixed(2)}%</td>
-          <td class="font-mono text-right">${p90Str}</td>
+        <tr class="${r.isSr ? 'highlight' : ''}">
+          <td><strong>${r.name}</strong></td>
+          <td class="num">${d.wins}/${d.total}</td>
+          <td class="num" style="font-weight:700;">${d.accuracy_pct.toFixed(1)}%</td>
+          <td class="num">${d.mean_regret_pct.toFixed(2)}%</td>
+          <td class="num">${p90Str}</td>
         </tr>
       `;
     }).join("");
@@ -82,7 +101,7 @@ export class ResultsScreen {
       html += `
         <tr>
           <td style="color:var(--ink-3);">ORT ExecutionProviderDevicePolicy</td>
-          <td colspan="4"><span class="pill pill-na" title="ORT ExecutionProviderDevicePolicy was not executed on physical hardware; result would be assumed, not measured">not available</span></td>
+          <td colspan="4"><span class="tag" title="ORT ExecutionProviderDevicePolicy was not executed on physical hardware; result would be assumed, not measured">not available</span></td>
         </tr>
       `;
     }
@@ -110,13 +129,13 @@ export class ResultsScreen {
 
       strategies.forEach((st, idx) => {
         html += `
-          <tr style="${st.isSr ? 'font-weight:600;' : ''}">
-            ${idx === 0 ? `<td rowspan="4" style="vertical-align:middle; font-weight:700; border-right:1px solid var(--line);">${wl.toUpperCase()} <br><span style="font-size:11px; color:var(--ink-3);">(${d.total} decs)</span></td>` : ''}
-            <td style="color:${st.isSr ? 'var(--ok)' : 'var(--ink)'};">${st.name}</td>
-            <td class="font-mono text-center">${st.wins}/${st.total}</td>
-            <td class="font-mono text-right" style="color:${st.isSr ? 'var(--ok)' : 'var(--ink)'};">${st.acc.toFixed(1)}%</td>
-            <td class="font-mono text-right">${st.reg.toFixed(2)}%</td>
-            <td class="font-mono text-right">${st.p90 !== undefined ? st.p90.toFixed(2) + '%' : 'N/A'}</td>
+          <tr class="${st.isSr ? 'highlight' : ''}">
+            ${idx === 0 ? `<td rowspan="4" style="vertical-align:middle; font-weight:700; border-right:1px solid var(--rule);">${wl.toUpperCase()} <br><span style="font-size:11px; color:var(--ink-3);">(${d.total} decisions)</span></td>` : ''}
+            <td>${st.name}</td>
+            <td class="num">${st.wins}/${st.total}</td>
+            <td class="num" style="font-weight:700;">${st.acc.toFixed(1)}%</td>
+            <td class="num">${st.reg.toFixed(2)}%</td>
+            <td class="num">${st.p90 !== undefined ? st.p90.toFixed(2) + '%' : 'n/a'}</td>
           </tr>
         `;
       });
@@ -134,32 +153,33 @@ export class ResultsScreen {
     }
 
     const t = getChartTheme();
-    const srReg = stats.siliconroute?.mean_regret_pct || 1.75;
-    const cpuReg = stats.baselines?.always_cpu?.mean_regret_pct || 113.06;
-    const rtxReg = stats.baselines?.always_rtx?.mean_regret_pct || 304.93;
-    const fitReg = stats.baselines?.fit_only_router?.mean_regret_pct || 31.42;
+    const srReg = stats.siliconroute?.mean_regret_pct ?? 1.75;
+    const cpuReg = stats.baselines?.always_cpu?.mean_regret_pct ?? 113.06;
+    const rtxReg = stats.baselines?.always_rtx?.mean_regret_pct ?? 304.93;
+    const fitReg = stats.baselines?.fit_only_router?.mean_regret_pct ?? 31.42;
 
     this.regretChart = new Chart(ctx, {
       type: "bar",
       data: {
-        labels: ["SiliconRoute", "Fit-Only", "Always-CPU", "Always-RTX"],
+        labels: ["SiliconRoute", "Fit-Only Router", "Always-CPU", "Always-RTX"],
         datasets: [
           {
-            label: "Mean Regret / Slowdown (%)",
+            label: "Mean regret (%)",
             data: [srReg, fitReg, cpuReg, rtxReg],
-            backgroundColor: [t.ok, t.lineStrong, t.lineStrong, t.lineStrong],
+            backgroundColor: [t.red, t.ink, t.ink2, t.ink3],
             borderWidth: 0,
-            borderRadius: 4,
+            borderRadius: 0,
           },
         ],
       },
       options: {
+        animation: false,
         responsive: true,
         maintainAspectRatio: false,
         scales: {
           y: {
             type: "logarithmic",
-            title: { display: true, text: "Mean Regret % (Log Scale)" },
+            title: { display: true, text: "Mean regret % (log scale)" },
             ticks: {
               callback: (val) => `${val}%`,
               font: { family: "'JetBrains Mono', monospace", size: 10 },
@@ -174,13 +194,37 @@ export class ResultsScreen {
         },
       },
     });
+
+    // Populate data table
+    const tableBody = document.getElementById("tbody-results-regret-table");
+    if (tableBody) {
+      tableBody.innerHTML = `
+        <tr class="highlight"><td>SiliconRoute</td><td class="num">${srReg.toFixed(2)}%</td><td>Winner</td></tr>
+        <tr><td>Fit-Only Router</td><td class="num">${fitReg.toFixed(2)}%</td><td>Formula fit baseline</td></tr>
+        <tr><td>Always-CPU</td><td class="num">${cpuReg.toFixed(2)}%</td><td>Hardware baseline</td></tr>
+        <tr><td>Always-RTX</td><td class="num">${rtxReg.toFixed(2)}%</td><td>Hardware baseline</td></tr>
+      `;
+    }
   }
 
-  updateChartTheme() {
-    if (this.regretChart) {
-      const t = getChartTheme();
-      this.regretChart.data.datasets[0].backgroundColor = [t.ok, t.lineStrong, t.lineStrong, t.lineStrong];
-      this.regretChart.update("none");
+  renderSnapdragonSection(snapdragonData) {
+    const container = document.getElementById("results-snapdragon-container");
+    if (!container) return;
+
+    if (snapdragonData && snapdragonData.has_results) {
+      container.innerHTML = `
+        <div style="padding:var(--space-16); background:var(--sheet); border:1px solid var(--rule);">
+          <div style="font-weight:700; margin-bottom:8px;">Qualcomm Snapdragon X Elite Measurements</div>
+          <p style="font-size:13px; color:var(--ink-2);">${snapdragonData.summary || "Preliminary NPU profiling."}</p>
+        </div>
+      `;
+    } else {
+      container.innerHTML = `
+        <div style="padding:var(--space-24); background:var(--sheet); border:1px solid var(--rule); text-align:center;">
+          <div style="font-size:14px; font-weight:600; color:var(--ink-2); margin-bottom:4px;">Snapdragon results not yet recorded</div>
+          <div style="font-size:12px; color:var(--ink-3);">Hardware profiling on Qualcomm Snapdragon X Elite silicon is scheduled for deployment.</div>
+        </div>
+      `;
     }
   }
 }

@@ -1,5 +1,5 @@
 /**
- * SiliconRoute Design Spec v2 — API Client
+ * SiliconRoute Design Spec v2 : API Client
  * Clean REST and SSE wrappers for backend services.
  */
 

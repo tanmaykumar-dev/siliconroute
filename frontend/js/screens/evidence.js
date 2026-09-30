@@ -1,8 +1,10 @@
 /**
- * SiliconRoute Design Spec v2 — Evidence Screen (Section 6.6)
- * Frozen database verification, searchable metric browser, raw samples browser,
- * identity audit documentation, and reproduction instructions with copy buttons.
+ * SiliconRoute Design Spec v3: "Red Bench" Evidence Screen (Section 6.6)
+ * Frozen database verification, manifest metadata, searchable metric browser,
+ * raw samples browser, identity audit, and reproduction commands with Copy buttons.
  */
+
+import { toast } from "../components/toast.js";
 
 export class EvidenceScreen {
   constructor(apiClient, rawSamplesModal) {
@@ -32,6 +34,7 @@ export class EvidenceScreen {
       this.renderMetadata(this.metricsData.metadata || {});
       this.setupMetricsList(this.metricsData.metrics || {});
       await this.populateBrowserDropdowns();
+      await this.loadIdentityAudit();
     } catch (err) {
       console.error("Failed to load evidence metrics:", err);
     }
@@ -43,18 +46,18 @@ export class EvidenceScreen {
     const elCommit = document.getElementById("evidence-git-commit");
     const elDate = document.getElementById("evidence-manifest-date");
 
-    if (elSha) elSha.textContent = meta.database_sha256 || "—";
+    if (elSha) elSha.textContent = meta.database_sha256 || "n/a";
     if (elSize) {
       const bytes = meta.database_size_bytes || 0;
       elSize.textContent = `${(bytes / 1024).toFixed(1)} KB (${bytes.toLocaleString()} bytes)`;
     }
     if (elCommit) {
-      const commit = meta.git_commit || "—";
+      const commit = meta.git_commit || "n/a";
       elCommit.textContent = commit.slice(0, 10);
       elCommit.title = commit;
     }
     if (elDate) {
-      elDate.textContent = meta.date ? new Date(meta.date).toLocaleString() : "—";
+      elDate.textContent = meta.date ? new Date(meta.date).toISOString().replace("T", " ").slice(0, 19) + " UTC" : "n/a";
     }
   }
 
@@ -90,25 +93,24 @@ export class EvidenceScreen {
     if (!tbody) return;
 
     if (!items.length) {
-      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:var(--space-6); color:var(--ink-3);">No matching metrics found.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:var(--space-24); color:var(--ink-3);">No matching metrics found.</td></tr>`;
       return;
     }
 
-    // Render up to 100 items to keep DOM performant
     const slice = items.slice(0, 100);
     tbody.innerHTML = slice.map((m) => {
       let valDisplay = m.value;
       if (typeof m.value === "number") {
         valDisplay = Number.isInteger(m.value) ? m.value.toLocaleString() : m.value.toFixed(4);
       }
-      const sqlOrMethod = m.sql ? `<code class="td-mono">${this.escapeHtml(m.sql)}</code>` : `<span class="td-mono">${this.escapeHtml(m.method || "—")}</span>`;
+      const sqlOrMethod = m.sql ? `<code style="font-family:var(--font-mono); font-size:11px;">${this.escapeHtml(m.sql)}</code>` : `<span style="font-family:var(--font-mono); font-size:11px;">${this.escapeHtml(m.method || "n/a")}</span>`;
 
       return `
         <tr>
-          <td class="td-mono" style="font-size:12px; color:var(--ink); font-weight:500;">${this.escapeHtml(m.key)}</td>
-          <td class="td-num td-mono" style="font-size:12.5px; font-weight:600;">${valDisplay}</td>
-          <td style="font-size:12px; color:var(--ink-2);">${this.escapeHtml(m.unit || "")}</td>
-          <td style="font-size:11.5px; max-width:320px; overflow:hidden; text-overflow:ellipsis;">${sqlOrMethod}</td>
+          <td style="font-family:var(--font-mono); font-size:12px; font-weight:600;">${this.escapeHtml(m.key)}</td>
+          <td class="num">${valDisplay}</td>
+          <td>${this.escapeHtml(m.unit || "")}</td>
+          <td style="font-size:12px; max-width:320px; overflow:hidden; text-overflow:ellipsis;">${sqlOrMethod}</td>
           <td style="font-size:12px; color:var(--ink-2);">${this.escapeHtml(m.description || "")}</td>
         </tr>
       `;
@@ -167,20 +169,20 @@ export class EvidenceScreen {
     if (!tbody) return;
 
     if (!runs.length) {
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:var(--space-4); color:var(--ink-3);">No matching benchmark runs.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:var(--space-16); color:var(--ink-3);">No matching benchmark runs.</td></tr>`;
       return;
     }
 
     tbody.innerHTML = runs.map(r => `
       <tr>
-        <td class="td-num td-mono">#${r.id}</td>
+        <td class="num">#${r.id}</td>
         <td>${this.escapeHtml(r.provider_used)}</td>
-        <td class="td-num">${r.batch}</td>
-        <td class="td-num td-mono" style="font-weight:600;">${r.median_ms.toFixed(3)} ms</td>
-        <td class="td-num td-mono">${(r.spread * 100).toFixed(1)}%</td>
-        <td class="td-num td-mono">${(r.cv * 100).toFixed(1)}%</td>
+        <td class="num">${r.batch}</td>
+        <td class="num" style="font-weight:600;">${r.median_ms.toFixed(3)} ms</td>
+        <td class="num">${(r.spread * 100).toFixed(1)}%</td>
+        <td class="num">${(r.cv * 100).toFixed(1)}%</td>
         <td style="text-align:right;">
-          <button class="btn btn-secondary btn-sm run-inspect-btn" data-run-id="${r.id}">
+          <button type="button" class="btn btn-secondary btn-sm run-inspect-btn" data-run-id="${r.id}">
             Inspect samples
           </button>
         </td>
@@ -195,6 +197,31 @@ export class EvidenceScreen {
     });
   }
 
+  async loadIdentityAudit() {
+    const tbody = document.getElementById("evidence-identity-tbody");
+    if (!tbody) return;
+
+    try {
+      const suspects = await this.api.fetchIdentitySuspects();
+      if (!suspects || !suspects.length) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--ink-3); padding:var(--space-16);">No suspect runs flagged in database.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = suspects.map(s => `
+        <tr>
+          <td class="num">#${s.id}</td>
+          <td>${this.escapeHtml(s.device_key)}</td>
+          <td><span class="tag">identity swap</span></td>
+          <td>${this.escapeHtml(s.physics_note || "DirectML DXGI adapter index swap")}</td>
+          <td style="text-align:right;"><button type="button" class="btn-text" onclick="window.app?.rawSamplesModal?.open(${s.id})">Inspect</button></td>
+        </tr>
+      `).join("");
+    } catch (err) {
+      console.warn("Could not load identity audit:", err);
+    }
+  }
+
   setupReproduceButtons() {
     const copyBtns = document.querySelectorAll(".code-copy-btn");
     copyBtns.forEach(btn => {
@@ -207,9 +234,10 @@ export class EvidenceScreen {
         navigator.clipboard.writeText(text).then(() => {
           const original = btn.textContent;
           btn.textContent = "Copied";
+          toast.show("Copied command to clipboard.");
           setTimeout(() => {
             btn.textContent = original;
-          }, 1500);
+          }, 2000);
         }).catch(err => console.error("Clipboard copy failed:", err));
       });
     });

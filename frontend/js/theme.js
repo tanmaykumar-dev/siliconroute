@@ -1,5 +1,5 @@
 /**
- * SiliconRoute Design Spec v2 — Theme Management
+ * SiliconRoute Design Spec v2 : Theme Management
  * Manages light / dark theme switching, localStorage persistence ('sr-theme'),
  * and dispatches 'themechange' events for Chart.js and dynamic SVG elements.
  */

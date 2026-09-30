@@ -1,10 +1,11 @@
 /**
- * SiliconRoute Design Spec v2 — Live Telemetry Screen (Section 6.2)
- * Stacked full-width time series charts (CPU/RAM, RTX Power/Temp, SM Clock/P-State, Battery)
- * with 120-second rolling window and accessible data table toggles.
+ * SiliconRoute Design Spec v3: "Red Bench" Live Telemetry Screen (Section 6.2)
+ * Stacked full-width charts sharing one time axis: utilisation, power, temperature,
+ * clock and sleep state, battery discharge. Each chart: "Show data table" toggle.
+ * Unavailable series show the "not available" tag with the API's reason.
  */
 
-import { getChartTheme, getDeviceChartProps } from "../charts/theme.js";
+import { getChartTheme } from "../charts/theme.js";
 
 export class LiveScreen {
   constructor() {
@@ -13,7 +14,6 @@ export class LiveScreen {
     this.labels = [];
     this.isInitialized = false;
 
-    window.addEventListener("themechange", () => this.updateChartThemes());
     window.addEventListener("telemetrysample", (e) => this.pushSample(e.detail));
   }
 
@@ -43,24 +43,24 @@ export class LiveScreen {
           labels: this.labels,
           datasets: [
             {
-              label: "CPU Usage (%)",
+              label: "CPU utilisation (%)",
               data: [],
               borderColor: t.cpu,
               backgroundColor: "transparent",
               borderWidth: 1.5,
               pointRadius: 0,
-              tension: 0.1,
+              tension: 0,
               yAxisID: "y",
             },
             {
-              label: "RAM Usage (%)",
+              label: "RAM utilisation (%)",
               data: [],
               borderColor: t.ink2,
               backgroundColor: "transparent",
               borderWidth: 1.5,
               borderDash: [4, 4],
               pointRadius: 0,
-              tension: 0.1,
+              tension: 0,
               yAxisID: "y",
             },
           ],
@@ -71,7 +71,7 @@ export class LiveScreen {
           animation: false,
           scales: {
             x: { display: true, ticks: { maxTicksLimit: 8, font: { family: "'JetBrains Mono', monospace", size: 10 } } },
-            y: { min: 0, max: 100, title: { display: true, text: "Usage (%)" } },
+            y: { min: 0, max: 100, title: { display: true, text: "Utilisation (%)" } },
           },
         },
       });
@@ -86,22 +86,24 @@ export class LiveScreen {
           labels: this.labels,
           datasets: [
             {
-              label: "RTX 5070 Power (W)",
+              label: "RTX 5070 power (W)",
               data: [],
               borderColor: t.dgpu,
+              backgroundColor: "transparent",
               borderWidth: 1.5,
               pointRadius: 0,
-              tension: 0.1,
+              tension: 0,
               yAxisID: "y",
             },
             {
-              label: "RTX 5070 Temp (°C)",
+              label: "RTX 5070 temperature (°C)",
               data: [],
-              borderColor: t.warn,
+              borderColor: t.redDeep,
+              backgroundColor: "transparent",
               borderWidth: 1.5,
               borderDash: [3, 3],
               pointRadius: 0,
-              tension: 0.1,
+              tension: 0,
               yAxisID: "y1",
             },
           ],
@@ -113,7 +115,7 @@ export class LiveScreen {
           scales: {
             x: { display: true, ticks: { maxTicksLimit: 8, font: { family: "'JetBrains Mono', monospace", size: 10 } } },
             y: { min: 0, max: 120, title: { display: true, text: "Power (W)" } },
-            y1: { min: 0, max: 100, position: "right", grid: { drawOnChartArea: false }, title: { display: true, text: "Temp (°C)" } },
+            y1: { min: 0, max: 100, position: "right", grid: { drawOnChartArea: false }, title: { display: true, text: "Temperature (°C)" } },
           },
         },
       });
@@ -128,12 +130,13 @@ export class LiveScreen {
           labels: this.labels,
           datasets: [
             {
-              label: "SM Clock (MHz)",
+              label: "SM clock (MHz)",
               data: [],
               borderColor: t.dgpu,
+              backgroundColor: "transparent",
               borderWidth: 1.5,
               pointRadius: 0,
-              tension: 0.1,
+              tension: 0,
               yAxisID: "y",
             },
           ],
@@ -159,12 +162,13 @@ export class LiveScreen {
           labels: this.labels,
           datasets: [
             {
-              label: "Discharge Rate (W)",
+              label: "Discharge rate (W)",
               data: [],
-              borderColor: t.ok,
+              borderColor: t.ink,
+              backgroundColor: "transparent",
               borderWidth: 1.5,
               pointRadius: 0,
-              tension: 0.1,
+              tension: 0,
               yAxisID: "y",
             },
           ],
@@ -175,7 +179,7 @@ export class LiveScreen {
           animation: false,
           scales: {
             x: { display: true, ticks: { maxTicksLimit: 8, font: { family: "'JetBrains Mono', monospace", size: 10 } } },
-            y: { min: 0, title: { display: true, text: "Rate (W)" } },
+            y: { min: 0, title: { display: true, text: "Discharge rate (W)" } },
           },
         },
       });
@@ -234,31 +238,9 @@ export class LiveScreen {
         if (tbl) {
           const isHidden = tbl.style.display === "none";
           tbl.style.display = isHidden ? "block" : "none";
-          btn.textContent = isHidden ? "Hide accessible data table" : "Show accessible data table";
+          btn.textContent = isHidden ? "Hide data table" : "Show data table";
         }
       });
     });
-  }
-
-  updateChartThemes() {
-    const t = getChartTheme();
-    if (this.charts.cpuRam) {
-      this.charts.cpuRam.data.datasets[0].borderColor = t.cpu;
-      this.charts.cpuRam.data.datasets[1].borderColor = t.ink2;
-      this.charts.cpuRam.update("none");
-    }
-    if (this.charts.gpuPwrTemp) {
-      this.charts.gpuPwrTemp.data.datasets[0].borderColor = t.dgpu;
-      this.charts.gpuPwrTemp.data.datasets[1].borderColor = t.warn;
-      this.charts.gpuPwrTemp.update("none");
-    }
-    if (this.charts.gpuClock) {
-      this.charts.gpuClock.data.datasets[0].borderColor = t.dgpu;
-      this.charts.gpuClock.update("none");
-    }
-    if (this.charts.battery) {
-      this.charts.battery.data.datasets[0].borderColor = t.ok;
-      this.charts.battery.update("none");
-    }
   }
 }

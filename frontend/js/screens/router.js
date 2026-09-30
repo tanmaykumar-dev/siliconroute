@@ -1,8 +1,12 @@
 /**
- * SiliconRoute Design Spec v2 — Router Screen (Section 6.4)
- * Multi-objective routing, candidate evaluation, transparent rules justification,
- * and the animated SVG Routing Trace signature element.
+ * SiliconRoute Design Spec v3: "Red Bench" Router Screen (Section 6.4)
+ * Form + "Route task" + "Route and verify on hardware" (confirmation dialog first).
+ * Result: chosen chip, predicted time with source, plain-English reason, rules applied,
+ * candidates table (chip, predicted, source, penalty, score, eligibility with reason).
+ * Exploration checkbox off by default.
  */
+
+import { toast } from "../components/toast.js";
 
 export class RouterScreen {
   constructor(apiClient) {
@@ -33,7 +37,7 @@ export class RouterScreen {
       this.models = models;
       this.devices = devices;
       this.populateModelSelect();
-      this.handleRouteTask(false); // initial recommendation
+      this.handleRouteTask(false);
     } catch (err) {
       console.error("Failed loading router metadata:", err);
     }
@@ -97,14 +101,18 @@ export class RouterScreen {
 
       this.lastDecision = dec;
       this.renderDecision(dec);
-      this.drawRoutingTrace(dec);
+
+      // Dispatch to socket strip & trigger toast
+      window.dispatchEvent(new CustomEvent("routedecision", { detail: dec }));
+      const chipKey = (dec.chosen_device_key || "CPU").toUpperCase();
+      toast.show(`Task routed to ${chipKey}.`);
     } catch (err) {
       console.error("Routing error:", err);
     }
   }
 
   handleRouteVerify() {
-    const confirmed = window.confirm("This runs a short benchmark on all chips (about 10–30 seconds). Continue?");
+    const confirmed = window.confirm("This runs a short benchmark on every chip, about 10 to 30 seconds. Continue?");
     if (confirmed) {
       this.handleRouteTask(true);
     }
@@ -121,8 +129,8 @@ export class RouterScreen {
 
     if (badgeEl) {
       badgeEl.innerHTML = `
-        <span class="chip-label chip-${devKey.toLowerCase() === 'cpu' ? 'cpu' : devKey.toLowerCase().includes('0') ? 'igpu' : 'dgpu'}">
-          <strong>${devKey}</strong> — ${dev.label}
+        <span class="tag tag-verified" style="font-size:14px; padding:4px 8px;">
+          <strong>${devKey}</strong>: ${dev.label}
         </span>
       `;
     }
@@ -145,65 +153,19 @@ export class RouterScreen {
         const predMs = (c.effective_latency_ms || c.predicted_latency_ms || 0).toFixed(3);
         const wakeStr = c.wake_penalty_ms > 0 ? `+${c.wake_penalty_ms.toFixed(3)} ms` : "0.000 ms";
         const scoreStr = c.score !== undefined ? c.score.toFixed(3) : "n/a";
-        const statusClass = c.is_excluded ? "pill-bad" : "pill-ok";
         const statusText = c.is_excluded ? c.excluded_reason : "eligible";
 
         return `
-          <tr style="${isChosen ? 'background-color: var(--plate-raised); font-weight:600;' : ''}">
-            <td><strong>${c.device_key.toUpperCase()}</strong> ${isChosen ? '★ CHOSEN' : ''}</td>
-            <td class="font-mono text-right" style="color:${isChosen ? 'var(--ok)' : 'var(--ink)'};">${predMs} ms</td>
-            <td class="text-center"><span class="pill pill-info">${c.source}</span></td>
-            <td class="font-mono text-right">${wakeStr}</td>
-            <td class="font-mono text-right">${scoreStr}</td>
-            <td><span class="pill ${statusClass}">${statusText}</span></td>
+          <tr class="${isChosen ? 'highlight' : ''}">
+            <td><strong>${c.device_key.toUpperCase()}</strong> ${isChosen ? '<span class="tag tag-verified" style="margin-left:4px;">CHOSEN</span>' : ''}</td>
+            <td class="num">${predMs} ms</td>
+            <td><span class="tag">${c.source}</span></td>
+            <td class="num">${wakeStr}</td>
+            <td class="num">${scoreStr}</td>
+            <td><span class="tag">${statusText}</span></td>
           </tr>
         `;
       }).join("");
     }
-  }
-
-  drawRoutingTrace(dec) {
-    const traceSvg = document.getElementById("routing-trace-svg");
-    const chosenKey = dec.chosen_device_key;
-
-    // Highlight socket strip tile
-    document.querySelectorAll(".socket-tile").forEach(tile => {
-      tile.classList.remove("chosen", "dimmed");
-      const isChosen = tile.dataset.deviceKey === chosenKey;
-      if (isChosen) {
-        tile.classList.add("chosen");
-        const lat = tile.querySelector(".socket-predicted-latency");
-        const chosenCand = dec.candidates?.find(c => c.device_id === dec.chosen_device_id);
-        const latVal = chosenCand ? (chosenCand.effective_latency_ms || chosenCand.predicted_latency_ms) : null;
-        if (lat && latVal) lat.textContent = `${latVal.toFixed(3)} ms (chosen)`;
-      } else {
-        tile.classList.add("dimmed");
-      }
-    });
-
-    if (!traceSvg) return;
-
-    // SVG trace path animation
-    const taskBox = document.getElementById("trace-task-source");
-    const destBox = document.getElementById("trace-task-dest");
-    if (!taskBox || !destBox) return;
-
-    const tRect = taskBox.getBoundingClientRect();
-    const dRect = destBox.getBoundingClientRect();
-    const containerRect = traceSvg.getBoundingClientRect();
-
-    const startX = tRect.right - containerRect.left;
-    const startY = tRect.top + tRect.height / 2 - containerRect.top;
-    const endX = dRect.left - containerRect.left;
-    const endY = dRect.top + dRect.height / 2 - containerRect.top;
-
-    const midX = (startX + endX) / 2;
-    const pathD = `M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`;
-
-    traceSvg.innerHTML = `
-      <path d="${pathD}" fill="none" stroke="var(--ok)" stroke-width="2.5" stroke-dasharray="8 4" stroke-linecap="round">
-        <animate attributeName="stroke-dashoffset" from="40" to="0" dur="600ms" repeatCount="1" />
-      </path>
-    `;
   }
 }
