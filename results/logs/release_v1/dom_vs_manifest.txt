@@ -1,0 +1,16 @@
+=== DOM vs MANIFEST EVALUATION VERIFICATION ===
+
+SiliconRoute DOM: 22/24 | 91.7% | 1.75%
+SiliconRoute MANIFEST: 22/24 | 91.7% | 1.75%
+Always-CPU DOM: 15/24 | 62.5% | 113.06%
+Always-CPU MANIFEST: 15/24 | 62.5% | 113.06%
+Always-RTX DOM: 9/24 | 37.5% | 304.93%
+Always-RTX MANIFEST: 9/24 | 37.5% | 304.93%
+Fit-Only DOM: 19/24 | 79.2% | 31.42%
+Fit-Only MANIFEST: 19/24 | 79.2% | 31.42%
+
+Per-workload rows found: 12
+Cold-start check rows found: 4
+Cold-Start Rule SR DOM: 6/8 | 75.0% | 3.00%
+
+DOM matches manifest: ALL VALUES IDENTICAL
