@@ -17,7 +17,7 @@ from app.api.fits import router as fits_router
 from app.api.models import router as models_router
 from app.api.runs import router as runs_router
 from app.api.system import router as system_router
-from app.config import BASE_DIR
+from app.config import BASE_DIR, DATA_DIR, DB_PATH
 from app.db import engine, init_db
 from app.devices import sync_devices_to_db
 from app.jobs import start_worker, stop_worker
