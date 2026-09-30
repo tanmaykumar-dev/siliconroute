@@ -90,31 +90,35 @@
       <!-- Left Rail (200px, text only, red 4px underline under active label) -->
       <aside class="left-rail" role="navigation" aria-label="Screen Navigation">
         <nav class="rail-nav">
-          <button class="rail-item-btn active" data-screen="overview">
+          <button class="rail-item-btn active" data-screen="overview" data-test="nav-overview">
             <span class="rail-label">Overview</span>
           </button>
-          <button class="rail-item-btn" data-screen="live">
-            <span class="rail-label">Live</span>
+          <button class="rail-item-btn" data-screen="live" data-test="nav-live">
+            <span class="rail-label">Live telemetry</span>
           </button>
-          <button class="rail-item-btn" data-screen="analysis">
+          <button class="rail-item-btn" data-screen="analysis" data-test="nav-analysis">
             <span class="rail-label">Analysis</span>
           </button>
-          <button class="rail-item-btn" data-screen="router">
+          <button class="rail-item-btn" data-screen="router" data-test="nav-router">
             <span class="rail-label">Router</span>
           </button>
-          <button class="rail-item-btn" data-screen="results">
+          <button class="rail-item-btn" data-screen="results" data-test="nav-results">
             <span class="rail-label">Results</span>
           </button>
-          <button class="rail-item-btn" data-screen="evidence">
+          <button class="rail-item-btn" data-screen="evidence" data-test="nav-evidence">
             <span class="rail-label">Evidence</span>
           </button>
-          <button class="rail-item-btn" data-screen="about">
+          <button class="rail-item-btn" data-screen="about" data-test="nav-about">
             <span class="rail-label">About</span>
           </button>
+          <a href="/" class="rail-item-link" data-test="nav-back-to-website">
+            <span class="rail-label">Back to website</span>
+          </a>
         </nav>
 
-        <div style="padding: var(--space-24) var(--space-24) 0;">
-          <button id="btn-shortcuts-help" class="btn btn-secondary btn-sm" style="width: 100%;">Keyboard (?)</button>
+        <div style="padding: var(--space-24) var(--space-24) 0; display: flex; flex-direction: column; gap: var(--space-8);">
+          <button id="theme-toggle-btn" class="btn btn-secondary btn-sm" style="width: 100%;" data-test="theme-toggle">Light / Dark</button>
+          <button id="btn-shortcuts-help" class="btn btn-secondary btn-sm" style="width: 100%;" data-test="btn-shortcuts-help">Keyboard (?)</button>
         </div>
       </aside>
 
@@ -141,7 +145,7 @@
             <span> accuracy), reducing average slowdown to </span>
             <span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct"></span>
             <span>.</span>
-            <button class="btn btn-text" id="overview-evidence-btn" style="margin-left: 8px;">Show evidence</button>
+            <button class="btn btn-text" id="overview-evidence-btn" data-test="overview-evidence-btn" style="margin-left: 8px;">Show evidence</button>
           </div>
 
           <!-- Comparison Table of Strategies -->
@@ -242,7 +246,7 @@
               </select>
             </div>
 
-            <button type="submit" class="btn btn-primary" id="btn-overview-route">Route task</button>
+            <button type="submit" class="btn btn-primary" id="btn-overview-route" data-test="btn-overview-route">Route task</button>
           </form>
 
           <!-- Recent Decisions -->
@@ -300,7 +304,7 @@
             <div class="chart-header">
               <span class="chart-title">Processor Utilisation (%)</span>
               <div class="chart-actions">
-                <button class="btn btn-text chart-table-toggle" data-target="table-live-util">Show data table</button>
+                <button class="btn btn-text chart-table-toggle" data-target="table-live-util" data-test="toggle-table-live-util">Show data table</button>
               </div>
             </div>
             <div class="chart-canvas-wrap">
@@ -322,7 +326,7 @@
               <span class="chart-title">Power Draw (W)</span>
               <div class="chart-actions">
                 <span class="tag tag-unavailable" title="Windows does not expose unprivileged CPU/iGPU power">CPU/iGPU: not available</span>
-                <button class="btn btn-text chart-table-toggle" data-target="table-live-power">Show data table</button>
+                <button class="btn btn-text chart-table-toggle" data-target="table-live-power" data-test="toggle-table-live-power">Show data table</button>
               </div>
             </div>
             <div class="chart-canvas-wrap">
@@ -343,7 +347,7 @@
             <div class="chart-header">
               <span class="chart-title">GPU Temperature (°C)</span>
               <div class="chart-actions">
-                <button class="btn btn-text chart-table-toggle" data-target="table-live-temp">Show data table</button>
+                <button class="btn btn-text chart-table-toggle" data-target="table-live-temp" data-test="toggle-table-live-temp">Show data table</button>
               </div>
             </div>
             <div class="chart-canvas-wrap">
@@ -364,7 +368,7 @@
             <div class="chart-header">
               <span class="chart-title">Clock (MHz) &amp; P-State</span>
               <div class="chart-actions">
-                <button class="btn btn-text chart-table-toggle" data-target="table-live-clock">Show data table</button>
+                <button class="btn btn-text chart-table-toggle" data-target="table-live-clock" data-test="toggle-table-live-clock">Show data table</button>
               </div>
             </div>
             <div class="chart-canvas-wrap">
@@ -394,7 +398,7 @@
           <div class="analysis-filters">
             <div class="form-group">
               <label class="form-label" for="analysis-family-select">Architecture Family</label>
-              <select id="analysis-family-select">
+              <select id="analysis-family-select" data-test="analysis-family-select">
                 <option value="mlp">Multilayer Perceptron (MLP)</option>
                 <option value="conv">Convolutional (Conv)</option>
               </select>
@@ -402,7 +406,7 @@
 
             <div class="form-group">
               <label class="form-label" for="analysis-batch-select">Batch Size</label>
-              <select id="analysis-batch-select">
+              <select id="analysis-batch-select" data-test="analysis-batch-select">
                 <option value="1">Batch 1</option>
                 <option value="8">Batch 8</option>
                 <option value="32">Batch 32</option>
@@ -415,7 +419,7 @@
             <div class="chart-header">
               <span class="chart-title">Model Scaling Curve (Log-Log)</span>
               <div class="chart-actions">
-                <button class="btn btn-text chart-table-toggle" data-target="table-analysis-scaling">Show data table</button>
+                <button class="btn btn-text chart-table-toggle" data-target="table-analysis-scaling" data-test="toggle-table-analysis-scaling">Show data table</button>
               </div>
             </div>
             <div class="chart-canvas-wrap" style="height: 320px;">
@@ -481,7 +485,7 @@
           <form class="form-row" id="router-execution-form">
             <div class="form-group">
               <label class="form-label" for="router-model-select">Model</label>
-              <select id="router-model-select">
+              <select id="router-model-select" data-test="router-model-select">
                 <option value="mlp_256w_4l">mlp-256w-4l</option>
                 <option value="mlp_512w_4l">mlp-512w-4l</option>
                 <option value="mlp_1024w_4l">mlp-1024w-4l</option>
@@ -496,7 +500,7 @@
 
             <div class="form-group">
               <label class="form-label" for="router-batch-select">Batch</label>
-              <select id="router-batch-select">
+              <select id="router-batch-select" data-test="router-batch-select">
                 <option value="1">1</option>
                 <option value="8">8</option>
                 <option value="32">32</option>
@@ -505,7 +509,7 @@
 
             <div class="form-group">
               <label class="form-label" for="router-workload-select">Workload</label>
-              <select id="router-workload-select">
+              <select id="router-workload-select" data-test="router-workload-select">
                 <option value="sustained">sustained</option>
                 <option value="idle_loaded">idle_loaded</option>
                 <option value="cold_start">cold_start</option>
@@ -514,7 +518,7 @@
 
             <div class="form-group">
               <label class="form-label" for="router-goal-select">Goal</label>
-              <select id="router-goal-select">
+              <select id="router-goal-select" data-test="router-goal-select">
                 <option value="fastest">fastest</option>
                 <option value="battery">battery</option>
                 <option value="balanced">balanced</option>
@@ -523,13 +527,14 @@
             </div>
 
             <div class="form-group" style="flex-direction: row; align-items: center; padding-bottom: 8px;">
-              <input type="checkbox" id="router-explore-check" style="height: 18px; width: 18px;">
+              <input type="checkbox" id="router-explore-check" data-test="router-explore-check" style="height: 18px; width: 18px;">
               <label class="form-label" for="router-explore-check" style="margin-left: 6px;">Epsilon Exploration (10%)</label>
             </div>
 
             <div style="display: flex; gap: var(--space-8);">
-              <button type="submit" class="btn btn-primary" id="btn-router-submit">Route task</button>
-              <button type="button" class="btn btn-secondary" id="btn-router-verify">Route and verify on hardware</button>
+              <button type="submit" class="btn btn-primary" id="btn-router-submit" data-test="route-task">Route task</button>
+              <button type="button" class="btn btn-secondary" id="btn-router-verify" data-test="route-verify">Route and verify on hardware</button>
+              <button type="button" class="btn btn-secondary" id="btn-export-decisions-csv" data-test="export-decisions-csv">Export decisions CSV</button>
             </div>
           </form>
 
@@ -716,7 +721,7 @@
           <div style="margin-bottom: var(--space-24);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
               <span style="font-size: 13px; font-weight: 700;">One-Click Start (Windows):</span>
-              <button class="btn btn-secondary btn-sm code-copy-btn" data-code="start.bat">Copy</button>
+              <button class="btn btn-secondary btn-sm code-copy-btn" data-code="start.bat" data-test="btn-copy-start">Copy</button>
             </div>
             <pre>start.bat</pre>
           </div>
@@ -724,7 +729,7 @@
           <div style="margin-bottom: var(--space-24);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
               <span style="font-size: 13px; font-weight: 700;">15-Minute Hardware Reproduction Script:</span>
-              <button class="btn btn-secondary btn-sm code-copy-btn" data-code="python scripts/reproduce.py">Copy</button>
+              <button class="btn btn-secondary btn-sm code-copy-btn" data-code="python scripts/reproduce.py" data-test="btn-copy-reproduce">Copy</button>
             </div>
             <pre>python scripts/reproduce.py</pre>
           </div>
@@ -780,8 +785,8 @@
             <h3>License &amp; Legal</h3>
             <p>SiliconRoute is released under the MIT License.</p>
             <div style="display: flex; gap: var(--space-16); margin-top: var(--space-12);">
-              <a href="/site/privacy.html" class="btn btn-secondary btn-sm" target="_blank">Privacy Policy</a>
-              <a href="/site/terms.html" class="btn btn-secondary btn-sm" target="_blank">Terms of Use</a>
+              <a href="/privacy.html" class="btn btn-secondary btn-sm" target="_blank" data-test="link-privacy">Privacy Policy</a>
+              <a href="/terms.html" class="btn btn-secondary btn-sm" target="_blank" data-test="link-terms">Terms of Use</a>
             </div>
           </div>
         </section>
@@ -800,7 +805,7 @@
     <div class="modal-sheet">
       <div class="modal-header">
         <h2 id="raw-modal-title" style="font-size: 18px; margin: 0;">Raw Timing Samples</h2>
-        <button class="modal-close-btn" id="btn-close-raw-modal" aria-label="Close dialog">&times;</button>
+        <button class="modal-close-btn" id="btn-close-raw-modal" aria-label="Close dialog" data-test="btn-close-raw-modal">&times;</button>
       </div>
       <div class="modal-content" id="raw-modal-body">
         <p>Loading samples...</p>
@@ -813,13 +818,13 @@
     <div class="modal-sheet" style="max-width: 480px;">
       <div class="modal-header">
         <h2 id="verify-modal-title" style="font-size: 18px; margin: 0;">Confirm Hardware Benchmark</h2>
-        <button class="modal-close-btn" id="btn-close-verify-modal" aria-label="Close dialog">&times;</button>
+        <button class="modal-close-btn" id="btn-close-verify-modal" aria-label="Close dialog" data-test="btn-close-verify-modal">&times;</button>
       </div>
       <div class="modal-content">
         <p style="margin-bottom: var(--space-24);">This runs a short benchmark on every chip, about 10 to 30 seconds. Continue?</p>
         <div style="display: flex; justify-content: flex-end; gap: var(--space-12);">
-          <button class="btn btn-secondary" id="btn-verify-cancel">Cancel</button>
-          <button class="btn btn-primary" id="btn-verify-confirm">Continue</button>
+          <button class="btn btn-secondary" id="btn-verify-cancel" data-test="btn-verify-cancel">Cancel</button>
+          <button class="btn btn-primary" id="btn-verify-confirm" data-test="btn-verify-confirm">Continue</button>
         </div>
       </div>
     </div>
@@ -830,7 +835,7 @@
     <div class="modal-sheet" style="max-width: 440px;">
       <div class="modal-header">
         <h2 style="font-size: 18px; margin: 0;">Keyboard Shortcuts</h2>
-        <button class="modal-close-btn" aria-label="Close">&times;</button>
+        <button class="modal-close-btn" aria-label="Close" data-test="btn-close-shortcuts-modal">&times;</button>
       </div>
       <div class="modal-content">
         <table class="bench-table">

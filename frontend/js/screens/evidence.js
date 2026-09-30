@@ -182,7 +182,7 @@ export class EvidenceScreen {
         <td class="num">${(r.spread * 100).toFixed(1)}%</td>
         <td class="num">${(r.cv * 100).toFixed(1)}%</td>
         <td style="text-align:right;">
-          <button type="button" class="btn btn-secondary btn-sm run-inspect-btn" data-run-id="${r.id}">
+          <button type="button" class="btn btn-secondary btn-sm run-inspect-btn" data-run-id="${r.id}" data-test="show-raw-samples">
             Inspect samples
           </button>
         </td>
@@ -214,7 +214,7 @@ export class EvidenceScreen {
           <td>${this.escapeHtml(s.device_key)}</td>
           <td><span class="tag">identity swap</span></td>
           <td>${this.escapeHtml(s.physics_note || "DirectML DXGI adapter index swap")}</td>
-          <td style="text-align:right;"><button type="button" class="btn-text" onclick="window.app?.rawSamplesModal?.open(${s.id})">Inspect</button></td>
+          <td style="text-align:right;"><button type="button" class="btn-text" data-test="show-raw-samples" onclick="window.SiliconRouteApp?.modal?.open(${s.id})">Inspect</button></td>
         </tr>
       `).join("");
     } catch (err) {

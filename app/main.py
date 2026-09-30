@@ -95,8 +95,9 @@ app.include_router(fits_router)
 app.include_router(analysis_router)
 app.include_router(decisions_router)
 
-# Mount static site and frontend (must be after API routers to avoid route collision)
-if SITE_DIR.exists():
-    app.mount("/site", StaticFiles(directory=str(SITE_DIR), html=True), name="site")
+# Mount static site at / and dashboard at /app (Section 6)
 if FRONTEND_DIR.exists():
-    app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
+    app.mount("/app", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="dashboard")
+if SITE_DIR.exists():
+    app.mount("/site", StaticFiles(directory=str(SITE_DIR), html=True), name="site_legacy")
+    app.mount("/", StaticFiles(directory=str(SITE_DIR), html=True), name="site")

@@ -193,7 +193,7 @@ export class AnalysisScreen {
             <td>Run #${r.id}</td>
             <td class="num">${(r.param_count || 0).toLocaleString()}</td>
             <td class="num">${r.median_ms.toFixed(3)} ms</td>
-            <td><button type="button" class="btn-text" onclick="window.app?.rawSamplesModal?.open(${r.id})">Inspect run</button></td>
+            <td><button type="button" class="btn-text" data-test="show-raw-samples" onclick="window.SiliconRouteApp?.modal?.open(${r.id})">Inspect run</button></td>
           </tr>
         `);
       });

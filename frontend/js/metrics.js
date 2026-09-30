@@ -90,6 +90,7 @@ export class MetricsSystem {
     btn.type = "button";
     btn.className = "btn-text evidence-btn";
     btn.setAttribute("aria-label", `Show evidence for ${key}`);
+    btn.setAttribute("data-test", "evidence-popover-btn");
     btn.textContent = "Show evidence";
 
     const trigger = (e) => {
@@ -137,7 +138,7 @@ export class MetricsSystem {
     popover.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; border-bottom:1px solid var(--rule); padding-bottom:4px;">
         <span style="font-family:var(--font-mono); font-size:12px; font-weight:700; color:var(--ink);">${key}</span>
-        <button type="button" class="popover-close-btn" style="border:none; background:none; cursor:pointer; font-size:16px; line-height:1; color:var(--ink-2);" aria-label="Close evidence">×</button>
+        <button type="button" class="popover-close-btn" data-test="btn-close-popover" style="border:none; background:none; cursor:pointer; font-size:16px; line-height:1; color:var(--ink-2);" aria-label="Close evidence">×</button>
       </div>
       <div class="evidence-row" style="margin-bottom: 6px;">
         <span class="evidence-row-label">Published Value:</span>

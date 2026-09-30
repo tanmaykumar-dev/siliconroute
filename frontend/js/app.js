@@ -9,6 +9,8 @@ import { TelemetryService } from "./telemetry.js";
 import { MetricsSystem } from "./metrics.js";
 import { RawSamplesModal } from "./components/modal.js";
 import { SocketStrip } from "./components/socket_strip.js";
+import { setupTheme } from "./theme.js";
+import { downloadDecisionsCsv } from "./export_csv.js";
 
 import { OverviewScreen } from "./screens/overview.js";
 import { LiveScreen } from "./screens/live.js";
@@ -19,6 +21,9 @@ import { EvidenceScreen } from "./screens/evidence.js";
 import { AboutScreen } from "./screens/about.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
+  // 0. Theme Manager (Section 6 & 10)
+  setupTheme();
+
   // 1. Metrics & Evidence System (Section 9)
   const metrics = new MetricsSystem(api);
 
@@ -87,8 +92,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     socketStrip,
     screens,
   };
+  window.app = {
+    rawSamplesModal: modal,
+  };
 
-  // 8. Global Keyboard Shortcuts Sheet & Help Modal
+  // 8. CSV Decisions Exporter (Section 6 & 10)
+  document.getElementById("btn-export-decisions-csv")?.addEventListener("click", () => {
+    downloadDecisionsCsv();
+  });
+
+  // 9. Global Keyboard Shortcuts Sheet & Help Modal
   setupShortcutsSheet();
 });
 
