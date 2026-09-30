@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SiliconRoute: Hardware AI Load Balancer</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='4' fill='%232563EB'/></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%233B82F6'/></svg>">
   
   <!-- Modern Design Tokens, Base, Layout, Components, and Screens -->
   <link rel="stylesheet" href="css/tokens.css">
@@ -24,56 +24,57 @@
   <div class="app-root">
 
     <!-- =====================================================================
-         1. TOP NAVIGATION BAR (Header with centered segmented controls)
+         FLOATING APP WINDOW (Exact match to 24px rounded canvas in reference)
          ===================================================================== -->
-    <header class="top-bar" role="banner">
-      <div class="brand-section" onclick="window.location.hash='#/overview'">
-        <div class="brand-icon">SR</div>
-        <div class="brand-text-group">
+    <div class="app-window">
+
+      <!-- ===================================================================
+           1. TOP NAVIGATION BAR (Header with centered segmented controls)
+           =================================================================== -->
+      <header class="top-bar" role="banner">
+        <div class="brand-section" onclick="window.location.hash='#/overview'">
+          <div class="brand-icon">SR</div>
           <span class="brand-title">SiliconRoute</span>
-          <span class="brand-subtitle">Hardware AI Balancer</span>
         </div>
-      </div>
 
-      <!-- Centered Segmented Navigation Bar -->
-      <nav class="topbar-nav" role="navigation" aria-label="Screen Navigation">
-        <button class="rail-item-btn nav-tab-btn active" data-screen="overview" data-test="nav-overview">Overview</button>
-        <button class="rail-item-btn nav-tab-btn" data-screen="live" data-test="nav-live">Live telemetry</button>
-        <button class="rail-item-btn nav-tab-btn" data-screen="analysis" data-test="nav-analysis">Analysis</button>
-        <button class="rail-item-btn nav-tab-btn" data-screen="router" data-test="nav-router">Router</button>
-        <button class="rail-item-btn nav-tab-btn" data-screen="results" data-test="nav-results">Results</button>
-        <button class="rail-item-btn nav-tab-btn" data-screen="evidence" data-test="nav-evidence">Evidence</button>
-        <button class="rail-item-btn nav-tab-btn" data-screen="about" data-test="nav-about">About</button>
-      </nav>
+        <!-- Centered Segmented Navigation Capsule -->
+        <nav class="topbar-nav" role="navigation" aria-label="Screen Navigation">
+          <button class="rail-item-btn nav-tab-btn active" data-screen="overview" data-test="nav-overview">Overview</button>
+          <button class="rail-item-btn nav-tab-btn" data-screen="live" data-test="nav-live">Live telemetry</button>
+          <button class="rail-item-btn nav-tab-btn" data-screen="analysis" data-test="nav-analysis">Analysis</button>
+          <button class="rail-item-btn nav-tab-btn" data-screen="router" data-test="nav-router">Router</button>
+          <button class="rail-item-btn nav-tab-btn" data-screen="results" data-test="nav-results">Results</button>
+          <button class="rail-item-btn nav-tab-btn" data-screen="evidence" data-test="nav-evidence">Evidence</button>
+          <button class="rail-item-btn nav-tab-btn" data-screen="about" data-test="nav-about">About</button>
+        </nav>
 
-      <!-- Right Utility Controls -->
-      <div class="topbar-right-group">
-        <div class="topbar-telemetry-badge" id="topbar-telemetry">
-          <span class="live-pulse-dot"></span>
-          <span>plugged in</span>
-          <span class="telemetry-divider">|</span>
-          <span>battery 100%</span>
-          <span class="telemetry-divider">|</span>
-          <span>live</span>
+        <!-- Right Utility Controls -->
+        <div class="topbar-right-group">
+          <div class="topbar-telemetry-badge" id="topbar-telemetry">
+            <span class="live-pulse-dot"></span>
+            <span>plugged in</span>
+            <span class="telemetry-divider">|</span>
+            <span>battery 100%</span>
+            <span class="telemetry-divider">|</span>
+            <span>live</span>
+          </div>
+          <button id="theme-toggle-btn" class="btn btn-secondary btn-sm" data-test="theme-toggle">Light / Dark</button>
+          <button id="btn-shortcuts-help" class="btn btn-secondary btn-sm" data-test="btn-shortcuts-help">Shortcuts (?)</button>
+          <a href="/" class="btn btn-primary btn-sm rail-item-link" data-test="nav-back-to-website">Website</a>
         </div>
-        <button id="theme-toggle-btn" class="btn btn-secondary btn-sm" data-test="theme-toggle">Light / Dark</button>
-        <button id="btn-shortcuts-help" class="btn btn-secondary btn-sm" data-test="btn-shortcuts-help">Shortcuts (?)</button>
-        <a href="/" class="btn btn-secondary btn-sm rail-item-link" data-test="nav-back-to-website">Back to website</a>
-      </div>
-    </header>
+      </header>
 
-    <!-- =====================================================================
-         2. MAIN APPLICATION CONTENT
-         ===================================================================== -->
-    <div class="app-body">
+      <!-- ===================================================================
+           2. MAIN DASHBOARD CONTENT AREA
+           =================================================================== -->
       <main class="content-area" role="main">
 
         <!-- =================================================================
-             SCREEN 1: OVERVIEW (Master Executive Dashboard)
+             SCREEN 1: OVERVIEW (1:1 Match to Investara Reference Layout)
              ================================================================= -->
         <section class="screen-container active" id="screen-overview">
           
-          <!-- Row 1: Header Greeting + 3 Top KPI Cards -->
+          <!-- Row 1: Greeting + 3 Floating Minimal KPI Units -->
           <div class="overview-top-row">
             <div class="overview-greeting">
               <div class="greeting-headline">SiliconRoute Load Balancer</div>
@@ -81,78 +82,68 @@
             </div>
             
             <div class="overview-kpis-grid">
-              <!-- KPI Card 1: Decision Accuracy -->
-              <div class="kpi-card">
-                <div class="kpi-card-header">
-                  <span class="kpi-badge badge-success">
-                    <span class="metric" data-metric="decisions_117_140_sr_accuracy_pct"></span>
-                  </span>
-                  <div class="kpi-micro-visual">
-                    <div class="kpi-micro-bar" style="height: 10px;"></div>
-                    <div class="kpi-micro-bar" style="height: 14px;"></div>
-                    <div class="kpi-micro-bar" style="height: 12px;"></div>
-                    <div class="kpi-micro-bar highlight" style="height: 20px;"></div>
-                    <div class="kpi-micro-bar highlight" style="height: 22px;"></div>
+              <!-- KPI Unit 1: Accuracy -->
+              <div class="kpi-unit">
+                <div class="kpi-unit-top">
+                  <span class="kpi-unit-value"><span class="metric" data-metric="decisions_117_140_sr_wins"></span> of <span class="metric" data-metric="decisions_117_140_total"></span></span>
+                  <span class="kpi-trend-badge trend-up" title="91.7% accuracy">&#x2197;</span>
+                  <div class="kpi-sparkline-bars">
+                    <div class="spark-bar" style="height: 8px;"></div>
+                    <div class="spark-bar" style="height: 12px;"></div>
+                    <div class="spark-bar" style="height: 11px;"></div>
+                    <div class="spark-bar active" style="height: 18px;"></div>
+                    <div class="spark-bar active" style="height: 20px;"></div>
                   </div>
                 </div>
-                <div class="kpi-card-value">
-                  <span class="metric" data-metric="decisions_117_140_sr_wins"></span> of <span class="metric" data-metric="decisions_117_140_total"></span>
-                </div>
-                <div class="kpi-card-caption">Decisions Won (Fastest Chip)</div>
+                <div class="kpi-unit-caption">Decisions Won (Fastest Chip)</div>
               </div>
 
-              <!-- KPI Card 2: Mean Regret -->
-              <div class="kpi-card">
-                <div class="kpi-card-header">
-                  <span class="kpi-badge badge-success">Optimal</span>
-                  <div class="kpi-micro-visual">
-                    <div class="kpi-micro-bar highlight" style="height: 6px;"></div>
-                    <div class="kpi-micro-bar highlight" style="height: 8px;"></div>
-                    <div class="kpi-micro-bar highlight" style="height: 7px;"></div>
-                    <div class="kpi-micro-bar" style="height: 16px;"></div>
-                    <div class="kpi-micro-bar" style="height: 22px;"></div>
+              <!-- KPI Unit 2: Regret -->
+              <div class="kpi-unit">
+                <div class="kpi-unit-top">
+                  <span class="kpi-unit-value"><span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct"></span></span>
+                  <span class="kpi-trend-badge trend-up" title="Optimal">&#x2197;</span>
+                  <div class="kpi-sparkline-bars">
+                    <div class="spark-bar active" style="height: 6px;"></div>
+                    <div class="spark-bar active" style="height: 8px;"></div>
+                    <div class="spark-bar active" style="height: 7px;"></div>
+                    <div class="spark-bar" style="height: 14px;"></div>
+                    <div class="spark-bar" style="height: 18px;"></div>
                   </div>
                 </div>
-                <div class="kpi-card-value">
-                  <span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct"></span>
-                </div>
-                <div class="kpi-card-caption">Mean Regret vs Fastest</div>
+                <div class="kpi-unit-caption">Mean Regret vs Fastest</div>
               </div>
 
-              <!-- KPI Card 3: Profiled Hardware & Runs -->
-              <div class="kpi-card">
-                <div class="kpi-card-header">
-                  <span class="kpi-badge badge-neutral">SHA256 Verified</span>
-                  <div class="kpi-micro-visual">
-                    <div class="kpi-micro-bar highlight" style="height: 14px;"></div>
-                    <div class="kpi-micro-bar highlight" style="height: 16px;"></div>
-                    <div class="kpi-micro-bar highlight" style="height: 18px;"></div>
-                    <div class="kpi-micro-bar highlight" style="height: 20px;"></div>
-                    <div class="kpi-micro-bar highlight" style="height: 22px;"></div>
+              <!-- KPI Unit 3: Profiled Hardware & DB -->
+              <div class="kpi-unit">
+                <div class="kpi-unit-top">
+                  <span class="kpi-unit-value">3 Chips · 148 Runs</span>
+                  <span class="kpi-trend-badge trend-neutral" title="SHA256 Checksum">&#x2197;</span>
+                  <div class="kpi-sparkline-bars">
+                    <div class="spark-bar active" style="height: 10px;"></div>
+                    <div class="spark-bar active" style="height: 13px;"></div>
+                    <div class="spark-bar active" style="height: 16px;"></div>
+                    <div class="spark-bar active" style="height: 18px;"></div>
+                    <div class="spark-bar active" style="height: 20px;"></div>
                   </div>
                 </div>
-                <div class="kpi-card-value">
-                  3 Chips · 148 Runs
-                </div>
-                <div class="kpi-card-caption">Cryptographic SQLite DB</div>
+                <div class="kpi-unit-caption">Cryptographic SQLite DB</div>
               </div>
             </div>
           </div>
 
-          <!-- Row 2: Middle Grid (65% Chart / 35% Allocation) -->
+          <!-- Row 2: Middle Grid (Portfolio Performance Chart / Silicon Allocation) -->
           <div class="overview-middle-grid">
-            <!-- Left Card: Performance & Scaling Analysis -->
+            <!-- Left Card: Model Performance & Latency -->
             <div class="dashboard-card">
               <div class="card-header">
-                <div class="card-title-group">
-                  <span class="card-title">Performance &amp; Scaling Analysis</span>
-                </div>
+                <span class="card-title">Model Performance &amp; Latency</span>
                 <div class="card-actions">
-                  <select id="overview-chart-family-select" class="btn-sm" style="font-size: 12px; height: 30px;">
+                  <select id="overview-chart-family-select" class="card-filter-select">
                     <option value="mlp">Architecture: MLP</option>
                     <option value="conv">Architecture: Conv</option>
                   </select>
-                  <select id="overview-chart-batch-select" class="btn-sm" style="font-size: 12px; height: 30px;">
+                  <select id="overview-chart-batch-select" class="card-filter-select">
                     <option value="1">Batch 1</option>
                     <option value="8">Batch 8</option>
                     <option value="32">Batch 32</option>
@@ -160,7 +151,7 @@
                   <button class="btn btn-secondary btn-sm" id="btn-toggle-overview-chart-table" data-test="toggle-overview-chart-table">Show data</button>
                 </div>
               </div>
-              <div class="chart-canvas-wrap" style="height: 270px;">
+              <div class="chart-canvas-wrap" style="height: 280px;">
                 <canvas id="chart-overview-scaling"></canvas>
               </div>
               <div class="chart-table-wrap" id="table-wrap-overview-scaling" style="display: none; margin-top: 12px;">
@@ -173,124 +164,136 @@
               </div>
             </div>
 
-            <!-- Right Card: Silicon Allocation & Socket Strip -->
+            <!-- Right Card: Silicon Allocation & Equalizer Strip -->
             <div class="dashboard-card">
               <div class="card-header">
-                <div class="card-title-group">
-                  <span class="card-title">Silicon Allocation</span>
-                </div>
-                <span class="tag tag-verified">3 Active Sockets</span>
+                <span class="card-title">Silicon Allocation</span>
+                <span class="status-pill status-optimal">3 Active Sockets</span>
               </div>
-              <div class="allocation-container">
-                <div class="allocation-legend">
-                  <span class="allocation-legend-item"><span class="legend-dot cpu"></span> CPU Host</span>
-                  <span class="allocation-legend-item"><span class="legend-dot igpu"></span> Radeon 610M</span>
-                  <span class="allocation-legend-item"><span class="legend-dot dgpu"></span> RTX 5070</span>
-                </div>
-                <div class="allocation-summary-bar">
-                  <div class="allocation-seg cpu" style="width: 33%;"></div>
-                  <div class="allocation-seg igpu" style="width: 33%;"></div>
-                  <div class="allocation-seg dgpu" style="width: 34%;"></div>
-                </div>
-                <div class="socket-strip-list" id="socket-strip" role="region" aria-label="Chip Sockets">
-                  <!-- Populated dynamically by SocketStrip component -->
-                </div>
+              <div class="allocation-stat-header">
+                <span class="allocation-sub-label">Profiled Hardware Chips</span>
+              </div>
+              <div class="allocation-big-figure">
+                <span>3 Verified</span>
+                <span class="allocation-growth-tag">&#x2197; 91.7% Accuracy</span>
+              </div>
+              <div class="allocation-legend">
+                <span class="allocation-legend-item"><span class="legend-dot cpu"></span> CPU Host</span>
+                <span class="allocation-legend-item"><span class="legend-dot igpu"></span> Radeon 610M</span>
+                <span class="allocation-legend-item"><span class="legend-dot dgpu"></span> RTX 5070</span>
+              </div>
+
+              <!-- Futuristic 45-Bar Equalizer Strip -->
+              <div class="equalizer-bar-strip" id="allocation-equalizer-bar">
+                <!-- 20 Blue Bars (RTX 5070) -->
+                <div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div>
+                <div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div>
+                <div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div>
+                <div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div>
+                <div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div>
+                <!-- 12 Teal Bars (Radeon 610M) -->
+                <div class="eq-bar igpu"></div><div class="eq-bar igpu"></div><div class="eq-bar igpu"></div><div class="eq-bar igpu"></div>
+                <div class="eq-bar igpu"></div><div class="eq-bar igpu"></div><div class="eq-bar igpu"></div><div class="eq-bar igpu"></div>
+                <div class="eq-bar igpu"></div><div class="eq-bar igpu"></div><div class="eq-bar igpu"></div><div class="eq-bar igpu"></div>
+                <!-- 13 Amber Bars (CPU Host) -->
+                <div class="eq-bar cpu"></div><div class="eq-bar cpu"></div><div class="eq-bar cpu"></div><div class="eq-bar cpu"></div>
+                <div class="eq-bar cpu"></div><div class="eq-bar cpu"></div><div class="eq-bar cpu"></div><div class="eq-bar cpu"></div>
+                <div class="eq-bar cpu"></div><div class="eq-bar cpu"></div><div class="eq-bar cpu"></div><div class="eq-bar cpu"></div>
+                <div class="eq-bar cpu"></div>
+              </div>
+
+              <!-- Sockets container -->
+              <div class="socket-strip-list" id="socket-strip" role="region" aria-label="Chip Sockets">
+                <!-- Populated dynamically by SocketStrip component -->
               </div>
             </div>
           </div>
 
-          <!-- Row 3: Bottom Grid (35% Strategy / 35% Recent / 30% Copilot) -->
+          <!-- Row 3: Bottom Grid (3 Columns: Strategy / Recent Decisions / Routing Copilot) -->
           <div class="overview-bottom-grid">
-            <!-- Left Column: Strategy Comparison Card -->
+            <!-- Column 1: Strategy Comparison (Market Watchlist Style) -->
             <div class="dashboard-card">
               <div class="card-header">
-                <div class="card-title-group">
-                  <span class="card-title">Strategy Comparison</span>
-                </div>
-                <span class="tag tag-neutral">24 Tasks</span>
+                <span class="card-title">Strategy Comparison</span>
+                <button class="btn btn-text btn-sm" id="btn-overview-view-tasks" data-test="view-all-tasks-btn" onclick="window.location.hash='#/results'">View all tasks</button>
               </div>
-              <div class="table-wrap" style="margin-bottom: 0;">
-                <table class="bench-table">
-                  <thead>
-                    <tr>
-                      <th>Strategy</th>
-                      <th class="num">Won</th>
-                      <th class="num">Accuracy</th>
-                      <th class="num">Regret</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr class="chosen-row">
-                      <td><strong>SiliconRoute</strong></td>
-                      <td class="num"><span class="metric" data-metric="decisions_117_140_sr_wins"></span> / <span class="metric" data-metric="decisions_117_140_total"></span></td>
-                      <td class="num"><span class="tag tag-optimal"><span class="metric" data-metric="decisions_117_140_sr_accuracy_pct"></span></span></td>
-                      <td class="num"><span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct"></span></td>
-                    </tr>
-                    <tr>
-                      <td>Always-CPU</td>
-                      <td class="num"><span class="metric" data-metric="decisions_117_140_always_cpu_wins"></span> / <span class="metric" data-metric="decisions_117_140_total"></span></td>
-                      <td class="num"><span class="metric" data-metric="decisions_117_140_always_cpu_accuracy_pct"></span></td>
-                      <td class="num"><span class="metric" data-metric="decisions_117_140_always_cpu_mean_regret_pct"></span></td>
-                    </tr>
-                    <tr>
-                      <td>Always-RTX</td>
-                      <td class="num"><span class="metric" data-metric="decisions_117_140_always_rtx_wins"></span> / <span class="metric" data-metric="decisions_117_140_total"></span></td>
-                      <td class="num"><span class="metric" data-metric="decisions_117_140_always_rtx_accuracy_pct"></span></td>
-                      <td class="num"><span class="metric" data-metric="decisions_117_140_always_rtx_mean_regret_pct"></span></td>
-                    </tr>
-                    <tr>
-                      <td>Fit-Only Router</td>
-                      <td class="num"><span class="metric" data-metric="decisions_117_140_fit_only_wins"></span> / <span class="metric" data-metric="decisions_117_140_total"></span></td>
-                      <td class="num"><span class="metric" data-metric="decisions_117_140_fit_only_accuracy_pct"></span></td>
-                      <td class="num"><span class="metric" data-metric="decisions_117_140_fit_only_mean_regret_pct"></span></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Middle Column: Recent Decisions Card -->
-            <div class="dashboard-card">
-              <div class="card-header">
-                <div class="card-title-group">
-                  <span class="card-title">Recent Decisions</span>
-                </div>
-                <button class="btn btn-text btn-sm" id="overview-view-all-decisions-btn" data-test="view-all-decisions-btn">View all</button>
-              </div>
-              <div class="table-wrap" style="margin-bottom: 0;">
-                <table class="bench-table" id="table-overview-recent-decisions">
-                  <thead>
-                    <tr>
-                      <th>Model</th>
-                      <th>Workload</th>
-                      <th>Chosen</th>
-                      <th class="num">Time</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tbody-overview-recent-decisions">
-                    <tr>
-                      <td colspan="4" style="text-align: center; color: var(--ink-3); padding: 16px;">No decisions yet. Route a task to see it here.</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Right Column: Hardware Routing Copilot Card -->
-            <div class="dashboard-card copilot-card">
-              <div>
-                <div class="card-header">
-                  <div class="card-title-group">
-                    <div class="copilot-header-icon">&#x2699;</div>
+              <div class="strategy-list">
+                <!-- Row 1: SiliconRoute -->
+                <div class="strategy-row">
+                  <div class="strategy-name-group">
+                    <div class="strategy-avatar sr">SR</div>
                     <div>
-                      <span class="card-title">Routing Copilot</span>
-                      <div class="card-subtitle">Local Heterogeneous AI Balancer</div>
+                      <strong>SiliconRoute</strong>
+                      <div style="font-size: 11px; color: var(--ink-3);">Hybrid Adaptive</div>
                     </div>
                   </div>
-                  <span class="tag tag-verified">Ready</span>
+                  <div><span class="metric" data-metric="decisions_117_140_sr_wins"></span> / <span class="metric" data-metric="decisions_117_140_total"></span></div>
+                  <div><span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct"></span></div>
+                  <div style="text-align: right;"><span class="status-pill status-optimal">Optimized</span></div>
                 </div>
-                <div class="copilot-insight-box">
-                  SiliconRoute dynamically matches AI tasks to CPU, iGPU, or dGPU using measured execution history and hardware roofline models.
+
+                <!-- Row 2: Always-CPU -->
+                <div class="strategy-row">
+                  <div class="strategy-name-group">
+                    <div class="strategy-avatar cpu">CPU</div>
+                    <div>
+                      <strong>Always-CPU</strong>
+                      <div style="font-size: 11px; color: var(--ink-3);">Host Only</div>
+                    </div>
+                  </div>
+                  <div><span class="metric" data-metric="decisions_117_140_always_cpu_wins"></span> / <span class="metric" data-metric="decisions_117_140_total"></span></div>
+                  <div><span class="metric" data-metric="decisions_117_140_always_cpu_mean_regret_pct"></span></div>
+                  <div style="text-align: right;"><span class="status-pill status-spike">High Regret</span></div>
+                </div>
+
+                <!-- Row 3: Always-RTX -->
+                <div class="strategy-row">
+                  <div class="strategy-name-group">
+                    <div class="strategy-avatar rtx">RTX</div>
+                    <div>
+                      <strong>Always-RTX</strong>
+                      <div style="font-size: 11px; color: var(--ink-3);">Discrete Only</div>
+                    </div>
+                  </div>
+                  <div><span class="metric" data-metric="decisions_117_140_always_rtx_wins"></span> / <span class="metric" data-metric="decisions_117_140_total"></span></div>
+                  <div><span class="metric" data-metric="decisions_117_140_always_rtx_mean_regret_pct"></span></div>
+                  <div style="text-align: right;"><span class="status-pill status-spike">Overhead Spike</span></div>
+                </div>
+
+                <!-- Row 4: Fit-Only -->
+                <div class="strategy-row">
+                  <div class="strategy-name-group">
+                    <div class="strategy-avatar fit">FIT</div>
+                    <div>
+                      <strong>Fit-Only</strong>
+                      <div style="font-size: 11px; color: var(--ink-3);">Roofline Model</div>
+                    </div>
+                  </div>
+                  <div><span class="metric" data-metric="decisions_117_140_fit_only_wins"></span> / <span class="metric" data-metric="decisions_117_140_total"></span></div>
+                  <div><span class="metric" data-metric="decisions_117_140_fit_only_mean_regret_pct"></span></div>
+                  <div style="text-align: right;"><span class="status-pill status-optimal">Sub-optimal</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Column 2: Recent Decisions (Market Watchlist Style with Logo Avatars) -->
+            <div class="dashboard-card">
+              <div class="card-header">
+                <span class="card-title">Recent Decisions</span>
+                <button class="btn btn-text btn-sm" id="overview-view-all-decisions-btn" data-test="view-all-decisions-btn">View all</button>
+              </div>
+              <div class="recent-decisions-feed" id="feed-overview-recent-decisions">
+                <!-- Rendered dynamically by OverviewScreen -->
+              </div>
+            </div>
+
+            <!-- Column 3: AI Hardware Routing Copilot (Matching AI Portfolio Copilot) -->
+            <div class="dashboard-card copilot-card">
+              <div>
+                <div class="copilot-header-icon">&#x2742;</div>
+                <div class="copilot-bold-headline">Your Routing is currently</div>
+                <div class="copilot-insight-text">
+                  optimally balanced on CPU for small batches. Routing sustained tasks and batch 8+ to discrete GPU reduces latency by up to 21.7x.
                 </div>
                 <form class="copilot-form" id="overview-route-form">
                   <div class="copilot-form-row">
@@ -336,10 +339,10 @@
                       </select>
                     </div>
                   </div>
-                  <button type="submit" class="btn btn-primary copilot-cta-btn" id="btn-overview-route" data-test="btn-overview-route">Route task</button>
+                  <button type="submit" class="copilot-cta-btn" id="btn-overview-route" data-test="btn-overview-route">Route Task</button>
                 </form>
               </div>
-              <div class="copilot-secondary-actions">
+              <div class="copilot-secondary-row">
                 <button type="button" class="btn btn-secondary btn-sm" id="btn-overview-verify" data-test="route-verify" style="flex: 1;">Route &amp; verify</button>
                 <button type="button" class="btn btn-secondary btn-sm" id="btn-overview-export-csv" data-test="export-decisions-csv" style="flex: 1;">Export CSV</button>
               </div>
@@ -349,9 +352,7 @@
           <!-- Row 4: Core Physical Findings Section -->
           <div class="dashboard-card overview-findings-section">
             <div class="card-header">
-              <div class="card-title-group">
-                <span class="card-title">Core Physical Findings</span>
-              </div>
+              <span class="card-title">Core Physical Findings</span>
               <button class="btn btn-text btn-sm" id="overview-evidence-btn" data-test="overview-evidence-btn">Show evidence</button>
             </div>
             <div class="overview-findings-grid">
@@ -412,7 +413,7 @@
               <div class="chart-header">
                 <span class="chart-title">Power Draw (W)</span>
                 <div class="chart-actions">
-                  <span class="tag tag-unavailable" title="Windows does not expose unprivileged CPU/iGPU power">CPU/iGPU: not available</span>
+                  <span class="status-pill status-spike" title="Windows does not expose unprivileged CPU/iGPU power">CPU/iGPU: not available</span>
                   <button class="btn btn-secondary btn-sm chart-table-toggle" data-target="table-live-power" data-test="toggle-table-live-power">Show data table</button>
                 </div>
               </div>
@@ -527,7 +528,7 @@
           <div class="dashboard-card" style="margin-top: var(--space-20);">
             <div class="card-header">
               <span class="card-title">Crossover Points</span>
-              <span class="card-subtitle">Model size where discrete GPU overtakes CPU latency</span>
+              <span class="allocation-sub-label">Model size where discrete GPU overtakes CPU latency</span>
             </div>
             <div class="table-wrap" style="margin-bottom: 0;">
               <table class="bench-table" id="table-analysis-crossovers">

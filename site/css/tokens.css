@@ -57,14 +57,46 @@
   --dgpu: #23459F;
   --npu: #5B6B12;
 
-  /* Aliases for components */
-  --chip-cpu: var(--cpu);
-  --chip-igpu: var(--igpu);
-  --chip-dgpu: var(--dgpu);
-  --chip-npu: var(--npu);
-  --sheet: var(--paper-2);
-  --red: var(--signal);
-  --red-deep: var(--signal);
+  /* SaaS Dashboard Tokens (Matching Reference UI) */
+  --canvas-bg: #EAEBF0;
+  --app-window-bg: #FFFFFF;
+  --card-bg: #F8F9FA;
+  --card-bg-hover: #F2F4F7;
+  --card-border: rgba(0, 0, 0, 0.04);
+  --card-border-hover: rgba(0, 0, 0, 0.08);
+
+  /* Typography Colors */
+  --ink: #111827;
+  --ink-2: #4B5563;
+  --ink-3: #9CA3AF;
+  --rule: #E5E7EB;
+  --rule-light: #F3F4F6;
+
+  /* Accent & Status Colors */
+  --primary: #3B82F6;
+  --primary-hover: #2563EB;
+  --primary-wash: #EFF6FF;
+  --green: #10B981;
+  --green-bg: #ECFDF5;
+  --green-tag: #10B981;
+  --green-border: #A7F3D0;
+  --red-accent: #EF4444;
+  --red-bg: #FEF2F2;
+  --red-border: #FECACA;
+
+  /* Chip Identity Colors */
+  --chip-cpu: #D97706;
+  --chip-igpu: #0D9488;
+  --chip-dgpu: #2563EB;
+  --chip-npu: #7C3AED;
+
+  /* Aliases */
+  --sheet: #FFFFFF;
+  --sheet-hover: #F8F9FA;
+  --paper: var(--canvas-bg);
+  --paper-2: var(--card-bg);
+  --red: #9B2A3C;
+  --red-deep: #9B2A3C;
   --red-wash: #F5EAEB;
 
   /* Typography */
@@ -76,33 +108,67 @@
   --space-8: 8px;
   --space-12: 12px;
   --space-16: 16px;
+  --space-20: 20px;
   --space-24: 24px;
   --space-32: 32px;
   --space-48: 48px;
   --space-64: 64px;
   --space-96: 96px;
-  --space-160: 160px;
 
-  /* Border Radius: 0 everywhere, 2px on inputs and buttons only */
-  --radius: 0px;
-  --radius-sm: 2px;
+  /* Border Radii: Soft Rounded Rectangular Geometry (NO PILLS) */
+  --radius-window: 24px;
+  --radius-card: 16px;
+  --radius-control: 8px;
+  --radius-badge: 6px;
+  --radius: 16px;
+  --radius-sm: 8px;
+
+  /* Modern Soft Shadows */
+  --shadow-window: 0 20px 40px -15px rgba(0, 0, 0, 0.08);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.02);
+  --shadow-hover: 0 8px 20px -4px rgba(0, 0, 0, 0.06);
+  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
 :root[data-theme="dark"],
 body[data-theme="dark"] {
-  --paper: #141413;
-  --paper-2: #1C1C1A;
-  --ink: #EDEDE8;
-  --ink-2: #B4B4AC;
-  --ink-3: #8C8C84;
-  --rule: #2E2E2B;
-  --signal: #E0707F;
-  --cpu: #D99A45;
-  --igpu: #4FB3A4;
-  --dgpu: #7F9CF0;
-  --npu: #A9BC4C;
-  --sheet: var(--paper-2);
-  --red: var(--signal);
-  --red-deep: var(--signal);
-  --red-wash: #2A1A1D;
+  --canvas-bg: #0B0D13;
+  --app-window-bg: #12141C;
+  --card-bg: #1A1D27;
+  --card-bg-hover: #212532;
+  --card-border: rgba(255, 255, 255, 0.06);
+  --card-border-hover: rgba(255, 255, 255, 0.12);
+
+  --ink: #F9FAFB;
+  --ink-2: #D1D5DB;
+  --ink-3: #9CA3AF;
+  --rule: #262B36;
+  --rule-light: #1E222D;
+
+  --sheet: #1A1D27;
+  --sheet-hover: #212532;
+  --paper: var(--canvas-bg);
+  --paper-2: var(--card-bg);
+
+  --primary: #3B82F6;
+  --primary-hover: #60A5FA;
+  --primary-wash: #1E293B;
+
+  --green: #34D399;
+  --green-bg: #064E3B;
+  --green-tag: #34D399;
+  --green-border: #047857;
+
+  --red-accent: #F87171;
+  --red-bg: #450A0A;
+  --red-border: #7F1D1D;
+
+  --chip-cpu: #F59E0B;
+  --chip-igpu: #14B8A6;
+  --chip-dgpu: #3B82F6;
+  --chip-npu: #A855F7;
+
+  --shadow-window: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow-hover: 0 8px 24px -4px rgba(0, 0, 0, 0.4);
 }

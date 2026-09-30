@@ -1,33 +1,55 @@
 /**
- * SiliconRoute Modern SaaS Shell Layout
- * Layout inspired by modern executive AI SaaS dashboards (Investara reference UI).
- * Balanced 3-row grid, centered segmented top navigation, 8-12px rounded cards.
- * Zero pill shapes. Smooth transitions and high information density.
+ * SiliconRoute Exact SaaS Dashboard Layout
+ * 1:1 fidelity to Investara reference UI: floating rounded 24px app window,
+ * soft 16px grey cards (#F8F9FA), clean typography, zero harsh borders,
+ * and high-fidelity 3-row layout.
  */
 
-.app-root {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background-color: var(--paper);
+body {
+  background-color: var(--canvas-bg);
   color: var(--ink);
+  margin: 0;
+  padding: var(--space-32) var(--space-24);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  box-sizing: border-box;
+}
+
+.app-root {
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 /* --------------------------------------------------------------------------
-   Top Bar (64px, modern SaaS header with centered segmented navigation)
+   Floating App Window (Matching the 24px rounded canvas in reference UI)
+   -------------------------------------------------------------------------- */
+.app-window {
+  background-color: var(--app-window-bg);
+  border-radius: var(--radius-window);
+  box-shadow: var(--shadow-window);
+  width: 100%;
+  max-width: 1420px;
+  padding: var(--space-24) var(--space-32) var(--space-32);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.3s ease;
+}
+
+/* --------------------------------------------------------------------------
+   Top Bar Header (Clean header inside app window)
    -------------------------------------------------------------------------- */
 .top-bar {
-  height: 64px;
-  background-color: var(--sheet);
-  border-bottom: 1px solid var(--rule);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--space-32);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: var(--shadow-card);
+  margin-bottom: var(--space-24);
+  padding-bottom: var(--space-16);
+  border-bottom: 1px solid var(--card-border);
 }
 
 .brand-section {
@@ -40,54 +62,41 @@
 }
 
 .brand-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-control);
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
   background-color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #FFFFFF;
   font-weight: 800;
-  font-size: 16px;
-  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
-  transition: transform 0.2s ease;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+  box-shadow: 0 3px 8px rgba(59, 130, 246, 0.3);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .brand-section:hover .brand-icon {
   transform: scale(1.05);
 }
 
-.brand-text-group {
-  display: flex;
-  flex-direction: column;
-}
-
 .brand-title {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 800;
   color: var(--ink);
   letter-spacing: -0.02em;
-  line-height: 1.15;
 }
 
-.brand-subtitle {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--ink-3);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-/* Centered Segmented Navigation Bar */
+/* Centered Segmented Navigation Capsule */
 .topbar-nav {
   display: flex;
   align-items: center;
-  background-color: var(--paper);
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-card);
+  background-color: var(--card-bg);
+  border-radius: 10px;
   padding: 4px;
-  gap: 3px;
+  gap: 2px;
+  border: 1px solid var(--card-border);
 }
 
 .nav-tab-btn {
@@ -97,7 +106,7 @@
   padding: 6px 14px;
   font-family: var(--font-sans);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink-2);
   cursor: pointer;
   text-decoration: none;
@@ -107,26 +116,20 @@
 
 .nav-tab-btn:hover {
   color: var(--ink);
-  background-color: rgba(0, 0, 0, 0.04);
-}
-
-:root[data-theme="dark"] .nav-tab-btn:hover {
-  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .nav-tab-btn.active {
-  background-color: var(--sheet);
+  background-color: var(--app-window-bg);
   color: var(--ink);
   font-weight: 700;
-  box-shadow: var(--shadow-card);
-  border: 1px solid var(--rule);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 /* Topbar Right Utilities */
 .topbar-right-group {
   display: flex;
   align-items: center;
-  gap: var(--space-12);
+  gap: var(--space-8);
 }
 
 .topbar-telemetry-badge {
@@ -136,25 +139,24 @@
   font-size: 12px;
   font-weight: 600;
   color: var(--ink-2);
-  background-color: var(--paper);
-  border: 1px solid var(--rule);
+  background-color: var(--card-bg);
   border-radius: var(--radius-control);
   padding: 6px 12px;
   font-variant-numeric: tabular-nums;
+  border: 1px solid var(--card-border);
 }
 
 .live-pulse-dot {
   width: 7px;
   height: 7px;
-  border-radius: var(--radius-control);
+  border-radius: 4px;
   background-color: var(--green);
-  box-shadow: 0 0 0 2px var(--green-border);
   animation: pulseGreen 2s infinite ease-in-out;
 }
 
 @keyframes pulseGreen {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.85); }
+  50% { opacity: 0.4; transform: scale(0.85); }
 }
 
 .telemetry-divider {
@@ -162,58 +164,18 @@
 }
 
 /* --------------------------------------------------------------------------
-   Main Content Area (Full width, elegant layout)
+   Overview Hero Row (Greeting + 3 Floating Minimal KPI Units)
    -------------------------------------------------------------------------- */
-.app-body {
-  display: flex;
-  flex: 1;
-  width: 100%;
-}
-
-.content-area {
-  flex: 1;
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: var(--space-24) var(--space-32) var(--space-48);
-  width: 100%;
-}
-
-.screen-container {
-  display: none;
-}
-
-.screen-container.active {
-  display: block;
-  animation: screenEntrance 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes screenEntrance {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* --------------------------------------------------------------------------
-   Overview Screen Grid Layout (Exact Match to Reference UI)
-   -------------------------------------------------------------------------- */
-
-/* Row 1: Header Greeting + 3 Top KPI Cards */
 .overview-top-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-24);
+  gap: var(--space-32);
   margin-bottom: var(--space-24);
 }
 
 .overview-greeting {
   flex: 1;
-  min-width: 280px;
 }
 
 .greeting-headline {
@@ -221,7 +183,7 @@
   font-weight: 800;
   color: var(--ink);
   letter-spacing: -0.02em;
-  margin-bottom: var(--space-4);
+  margin-bottom: 2px;
   display: flex;
   align-items: center;
   gap: var(--space-8);
@@ -229,122 +191,131 @@
 
 .greeting-subtext {
   font-size: 14px;
-  color: var(--ink-2);
+  color: var(--ink-3);
   margin: 0;
+  font-weight: 400;
 }
 
-/* 3 KPI Summary Cards Grid */
+/* 3 Minimal KPI Units (Identical to Reference $2,840,000 / +$18,420 columns) */
 .overview-kpis-grid {
   display: flex;
-  gap: var(--space-16);
-  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-32);
 }
 
-.kpi-card {
-  background-color: var(--sheet);
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-card);
-  padding: var(--space-16) var(--space-20);
-  min-width: 210px;
-  box-shadow: var(--shadow-card);
+.kpi-unit {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+  min-width: 140px;
 }
 
-.kpi-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-hover);
-  border-color: var(--rule-strong);
-}
-
-.kpi-card-header {
+.kpi-unit-top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-8);
+  gap: var(--space-8);
 }
 
-.kpi-card-value {
+.kpi-unit-value {
   font-size: 22px;
   font-weight: 800;
   color: var(--ink);
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
-  margin-bottom: var(--space-4);
+  line-height: 1.1;
 }
 
-.kpi-badge {
+.kpi-trend-badge {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 2px 7px;
-  border-radius: var(--radius-badge);
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
-.kpi-badge.badge-success {
-  background-color: var(--green-bg);
-  color: var(--green-tag);
-  border: 1px solid var(--green-border);
+.kpi-trend-badge.trend-up {
+  background-color: var(--green);
+  color: #FFFFFF;
 }
 
-.kpi-badge.badge-neutral {
-  background-color: var(--paper);
+.kpi-trend-badge.trend-neutral {
+  background-color: var(--rule);
   color: var(--ink-2);
-  border: 1px solid var(--rule);
 }
 
-.kpi-micro-visual {
+.kpi-sparkline-bars {
   display: flex;
   align-items: flex-end;
-  gap: 3px;
-  height: 22px;
+  gap: 2px;
+  height: 20px;
+  margin-left: 2px;
 }
 
-.kpi-micro-bar {
-  width: 4px;
-  background-color: var(--rule);
-  border-radius: 2px;
-  transition: height 0.3s ease;
+.spark-bar {
+  width: 3px;
+  background-color: rgba(16, 185, 129, 0.2);
+  border-radius: 1px;
 }
 
-.kpi-micro-bar.highlight {
+.spark-bar.active {
   background-color: var(--green);
 }
 
-.kpi-card-caption {
+.kpi-unit-caption {
   font-size: 12px;
-  font-weight: 500;
   color: var(--ink-3);
-  margin-top: var(--space-4);
+  margin-top: 4px;
+  font-weight: 500;
 }
 
-/* Row 2: Middle Grid (65% Chart / 35% Allocation) */
+/* --------------------------------------------------------------------------
+   Middle Row Grid (65% Chart / 35% Allocation)
+   -------------------------------------------------------------------------- */
 .overview-middle-grid {
   display: grid;
-  grid-template-columns: 1.9fr 1.1fr;
+  grid-template-columns: 1.85fr 1.15fr;
   gap: var(--space-20);
-  margin-bottom: var(--space-24);
+  margin-bottom: var(--space-20);
 }
 
-/* Row 3: Bottom Grid (35% Strategy / 35% Recent / 30% Copilot) */
+/* --------------------------------------------------------------------------
+   Bottom Row Grid (35% Strategy / 35% Recent / 30% Copilot)
+   -------------------------------------------------------------------------- */
 .overview-bottom-grid {
   display: grid;
   grid-template-columns: 1.15fr 1.15fr 1fr;
   gap: var(--space-20);
-  margin-bottom: var(--space-24);
-}
-
-/* Row 4: Physical Findings Card */
-.overview-findings-section {
-  margin-top: var(--space-24);
+  margin-bottom: var(--space-20);
 }
 
 /* --------------------------------------------------------------------------
-   Responsive Layout Breakpoints
+   Findings Section
+   -------------------------------------------------------------------------- */
+.overview-findings-section {
+  margin-top: var(--space-8);
+}
+
+/* --------------------------------------------------------------------------
+   Screen Containers
+   -------------------------------------------------------------------------- */
+.screen-container {
+  display: none;
+}
+
+.screen-container.active {
+  display: block;
+  animation: screenFade 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes screenFade {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Media Queries
    -------------------------------------------------------------------------- */
 @media (max-width: 1200px) {
   .overview-middle-grid {
@@ -356,20 +327,23 @@
   .overview-top-row {
     flex-direction: column;
     align-items: flex-start;
+    gap: var(--space-16);
   }
   .overview-kpis-grid {
     width: 100%;
-  }
-  .kpi-card {
-    flex: 1;
-    min-width: 180px;
+    justify-content: space-between;
   }
 }
 
 @media (max-width: 860px) {
+  body {
+    padding: 12px;
+  }
+  .app-window {
+    padding: 16px;
+    border-radius: 16px;
+  }
   .top-bar {
-    height: auto;
-    padding: var(--space-12) var(--space-16);
     flex-wrap: wrap;
     gap: var(--space-12);
   }
@@ -377,9 +351,10 @@
     order: 3;
     width: 100%;
     overflow-x: auto;
-    justify-content: flex-start;
   }
-  .content-area {
-    padding: var(--space-16);
+  .overview-kpis-grid {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-12);
   }
 }

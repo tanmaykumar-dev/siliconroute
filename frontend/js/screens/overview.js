@@ -266,35 +266,82 @@ export class OverviewScreen {
   }
 
   async loadRecentDecisions() {
+    const feed = document.getElementById("feed-overview-recent-decisions");
     const tbody = document.getElementById("tbody-overview-recent-decisions");
-    if (!tbody) return;
+    if (!feed && !tbody) return;
 
     try {
       const decisions = await this.api.getDecisions(6);
       if (!decisions || !decisions.length) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="4" style="text-align: center; color: var(--ink-3); padding: 16px;">No decisions yet. Route a task to see it here.</td>
-          </tr>
-        `;
+        if (feed) {
+          feed.innerHTML = `
+            <div style="text-align: center; color: var(--ink-3); padding: 24px 16px; font-size: 13px;">
+              No decisions yet. Route a task to see live decisions here.
+            </div>
+          `;
+        }
+        if (tbody) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="4" style="text-align: center; color: var(--ink-3); padding: 16px;">No decisions yet. Route a task to see it here.</td>
+            </tr>
+          `;
+        }
         return;
       }
 
-      tbody.innerHTML = decisions.slice(0, 5).map(d => {
-        const timeMs = d.predicted_latency_ms != null ? `${d.predicted_latency_ms.toFixed(3)} ms` : "n/a";
-        const modelName = d.model_name || (d.model ? d.model.name : `Model #${d.ai_model_id}`);
-        const chipLabel = d.chosen_device_key || `Device #${d.chosen_device_id}`;
-        const workload = d.workload || "sustained";
+      if (feed) {
+        feed.innerHTML = decisions.slice(0, 5).map(d => {
+          const timeMs = d.predicted_latency_ms != null ? `${d.predicted_latency_ms.toFixed(2)} ms` : "n/a";
+          const modelName = d.model_name || (d.model ? d.model.name : `Model #${d.ai_model_id}`);
+          const devKey = d.chosen_device_key || "cpu";
+          let chipClass = "cpu";
+          let chipAvatar = "CPU";
+          if (devKey === "dml:0" || (d.chosen_device && d.chosen_device.kind === "igpu")) {
+            chipClass = "igpu";
+            chipAvatar = "AMD";
+          } else if (devKey === "dml:1" || (d.chosen_device && d.chosen_device.kind === "dgpu")) {
+            chipClass = "dgpu";
+            chipAvatar = "RTX";
+          }
+          const workload = d.workload || "sustained";
+          const batchInfo = d.batch ? `b${d.batch}` : "b1";
 
-        return `
-          <tr>
-            <td><strong>${modelName}</strong> · b${d.batch}</td>
-            <td><span class="tag tag-neutral">${workload}</span></td>
-            <td><span class="tag tag-verified">${chipLabel}</span></td>
-            <td class="num">${timeMs}</td>
-          </tr>
-        `;
-      }).join("");
+          return `
+            <div class="decision-feed-item">
+              <div class="decision-feed-left">
+                <div class="decision-avatar ${chipClass}">${chipAvatar}</div>
+                <div class="decision-item-meta">
+                  <div class="decision-item-name">${modelName}</div>
+                  <div class="decision-item-sub">${batchInfo} · ${workload}</div>
+                </div>
+              </div>
+              <div class="decision-feed-right">
+                <div class="decision-item-latency">${timeMs}</div>
+                <div class="decision-item-menu" title="Actions">&#x22EE;</div>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      if (tbody) {
+        tbody.innerHTML = decisions.slice(0, 5).map(d => {
+          const timeMs = d.predicted_latency_ms != null ? `${d.predicted_latency_ms.toFixed(3)} ms` : "n/a";
+          const modelName = d.model_name || (d.model ? d.model.name : `Model #${d.ai_model_id}`);
+          const chipLabel = d.chosen_device_key || `Device #${d.chosen_device_id}`;
+          const workload = d.workload || "sustained";
+
+          return `
+            <tr>
+              <td><strong>${modelName}</strong> · b${d.batch}</td>
+              <td><span class="tag tag-neutral">${workload}</span></td>
+              <td><span class="tag tag-verified">${chipLabel}</span></td>
+              <td class="num">${timeMs}</td>
+            </tr>
+          `;
+        }).join("");
+      }
     } catch (err) {
       console.error("Failed loading recent decisions for overview:", err);
     }

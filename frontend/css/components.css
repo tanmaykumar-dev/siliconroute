@@ -1,11 +1,11 @@
 /**
- * SiliconRoute Modern SaaS Components
- * Clean rounded rectangular cards (8-12px), subtle shadows, smooth transitions,
- * zero pill shapes, refined typography, and high contrast.
+ * SiliconRoute Exact SaaS Components
+ * 1:1 match to Investara reference UI: soft #F8F9FA cards, 16px radius,
+ * equalizer allocation bars, logo avatar rows, glowing blue CTA button.
  */
 
 /* --------------------------------------------------------------------------
-   1. Buttons (Clean rounded rectangles, NO PILLS)
+   1. Modern Buttons (Clean 8-10px rounded corners, NO PILLS)
    -------------------------------------------------------------------------- */
 .btn {
   display: inline-flex;
@@ -21,52 +21,53 @@
   border-radius: var(--radius-control);
   border: 1px solid transparent;
   line-height: 1;
-  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
   white-space: nowrap;
 }
 
 .btn:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
 .btn-lg {
-  height: 42px;
+  height: 44px;
   font-size: 14px;
   padding: 0 var(--space-20);
-  border-radius: var(--radius-control);
+  border-radius: 10px;
 }
 
 .btn-sm {
   height: 28px;
   font-size: 12px;
   padding: 0 var(--space-12);
-  border-radius: var(--radius-control);
+  border-radius: var(--radius-badge);
 }
 
 .btn-primary {
   background-color: var(--primary);
   color: #FFFFFF;
   border-color: var(--primary);
-  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.25);
 }
 
 .btn-primary:hover {
   background-color: var(--primary-hover);
   border-color: var(--primary-hover);
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
   transform: translateY(-1px);
 }
 
 .btn-secondary {
-  background-color: var(--sheet);
+  background-color: var(--app-window-bg);
   color: var(--ink);
-  border-color: var(--rule);
+  border-color: var(--card-border);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .btn-secondary:hover {
-  background-color: var(--sheet-hover);
-  border-color: var(--rule-strong);
+  background-color: var(--card-bg-hover);
+  border-color: var(--card-border-hover);
   color: var(--ink);
   transform: translateY(-1px);
 }
@@ -102,7 +103,7 @@ select, input[type="text"], input[type="number"] {
   font-size: 13px;
   font-weight: 500;
   color: var(--ink);
-  background-color: var(--sheet);
+  background-color: var(--app-window-bg);
   border: 1px solid var(--rule);
   border-radius: var(--radius-control);
   padding: 0 var(--space-12);
@@ -116,22 +117,24 @@ select:focus, input[type="text"]:focus, input[type="number"]:focus {
 }
 
 /* --------------------------------------------------------------------------
-   3. Cards & Panels (The primary visual container)
+   3. Cards & Panels (The Soft Grey SaaS Card from Reference UI)
    -------------------------------------------------------------------------- */
 .dashboard-card, .chart-panel {
-  background-color: var(--sheet);
-  border: 1px solid var(--rule);
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: var(--radius-card);
-  padding: var(--space-20);
+  padding: var(--space-20) var(--space-24);
+  box-sizing: border-box;
   box-shadow: var(--shadow-card);
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease, border-color 0.22s ease;
   display: flex;
   flex-direction: column;
 }
 
 .dashboard-card:hover, .chart-panel:hover {
   box-shadow: var(--shadow-hover);
-  border-color: var(--rule-strong);
+  border-color: var(--card-border-hover);
+  transform: translateY(-2px);
 }
 
 .card-header {
@@ -139,8 +142,6 @@ select:focus, input[type="text"]:focus, input[type="number"]:focus {
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--space-16);
-  padding-bottom: var(--space-12);
-  border-bottom: 1px solid var(--rule);
 }
 
 .card-title-group {
@@ -150,16 +151,10 @@ select:focus, input[type="text"]:focus, input[type="number"]:focus {
 }
 
 .card-title {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--ink);
   letter-spacing: -0.01em;
-}
-
-.card-subtitle {
-  font-size: 12px;
-  color: var(--ink-3);
-  margin-top: 2px;
 }
 
 .card-actions {
@@ -168,167 +163,111 @@ select:focus, input[type="text"]:focus, input[type="number"]:focus {
   gap: var(--space-8);
 }
 
-/* --------------------------------------------------------------------------
-   4. Tables (Clean modern SaaS data tables)
-   -------------------------------------------------------------------------- */
-.table-wrap {
-  width: 100%;
-  overflow-x: auto;
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-control);
-  background-color: var(--sheet);
-  margin-bottom: var(--space-16);
-}
-
-table.bench-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-  font-variant-numeric: tabular-nums lining-nums;
-  text-align: left;
-}
-
-table.bench-table th {
-  background-color: var(--paper);
+/* Dropdown Pill Filter Control */
+.card-filter-select {
+  height: 30px;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--ink-2);
-  font-weight: 700;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: var(--space-10, 10px) var(--space-14, 14px);
-  border-bottom: 1px solid var(--rule);
-  white-space: nowrap;
-}
-
-table.bench-table th.num,
-table.bench-table td.num {
-  text-align: right;
-}
-
-table.bench-table td {
-  padding: var(--space-10, 10px) var(--space-14, 14px);
-  border-bottom: 1px solid var(--rule);
-  color: var(--ink);
-  transition: background-color 0.15s ease;
-}
-
-table.bench-table tr:hover td {
-  background-color: var(--sheet-hover);
-}
-
-table.bench-table tr:last-child td {
-  border-bottom: none;
-}
-
-table.bench-table tr.chosen-row,
-table.bench-table tr.best-row {
-  background-color: var(--primary-wash) !important;
-}
-
-table.bench-table tr.chosen-row td {
-  color: var(--ink);
-  font-weight: 600;
+  background-color: var(--app-window-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 0 10px;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 /* --------------------------------------------------------------------------
-   5. Tags & Badges (Clean rounded rectangles, NO PILLS)
+   4. Silicon Allocation & Equalizer Visual
    -------------------------------------------------------------------------- */
-.tag, .badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 7px;
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1.3;
-  border-radius: var(--radius-badge);
-  border: 1px solid var(--rule);
-  color: var(--ink-2);
-  background-color: var(--paper);
-}
-
-.tag-verified {
-  border-color: var(--green-border);
-  color: var(--green-tag);
-  background-color: var(--green-bg);
-}
-
-.tag-hypothesis {
-  border-color: var(--rule);
-  color: var(--ink-3);
-  font-style: italic;
-}
-
-.tag-optimal {
-  border-color: var(--green-border);
-  color: var(--green-tag);
-  background-color: var(--green-bg);
-}
-
-.tag-loss {
-  border-color: #FECACA;
-  color: #DC2626;
-  background-color: #FEF2F2;
-}
-
-.tag-unavailable {
-  border-color: var(--rule);
-  color: var(--ink-3);
-}
-
-/* --------------------------------------------------------------------------
-   6. Silicon Allocation & Socket Cards Component
-   -------------------------------------------------------------------------- */
-.allocation-container {
+.allocation-stat-header {
   display: flex;
-  flex-direction: column;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.allocation-sub-label {
+  font-size: 12px;
+  color: var(--ink-3);
+  font-weight: 500;
+}
+
+.allocation-big-figure {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  margin: var(--space-2) 0 var(--space-8);
+  display: flex;
+  align-items: center;
   gap: var(--space-12);
 }
 
-.allocation-summary-bar {
-  height: 10px;
-  width: 100%;
-  border-radius: var(--radius-control);
-  display: flex;
-  overflow: hidden;
-  background-color: var(--rule);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+.allocation-growth-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  background-color: var(--green-bg);
+  color: var(--green-tag);
 }
-
-.allocation-seg {
-  height: 100%;
-  transition: width 0.3s ease;
-}
-
-.allocation-seg.cpu { background-color: var(--chip-cpu); }
-.allocation-seg.igpu { background-color: var(--chip-igpu); }
-.allocation-seg.dgpu { background-color: var(--chip-dgpu); }
 
 .allocation-legend {
   display: flex;
-  gap: var(--space-12);
-  margin-bottom: var(--space-8);
+  gap: var(--space-16);
+  margin-bottom: var(--space-12);
   font-size: 12px;
+  font-weight: 600;
   color: var(--ink-2);
 }
 
 .allocation-legend-item {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .legend-dot {
   width: 8px;
   height: 8px;
-  border-radius: 2px;
+  border-radius: 4px;
 }
 
 .legend-dot.cpu { background-color: var(--chip-cpu); }
 .legend-dot.igpu { background-color: var(--chip-igpu); }
 .legend-dot.dgpu { background-color: var(--chip-dgpu); }
 
-/* Socket List Container */
+/* The Futuristic 45-Bar Equalizer Strip from Reference UI */
+.equalizer-bar-strip {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 38px;
+  margin-bottom: var(--space-16);
+  width: 100%;
+}
+
+.eq-bar {
+  flex: 1;
+  height: 100%;
+  border-radius: 3px;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+}
+
+.eq-bar:hover {
+  transform: scaleY(1.12);
+  opacity: 0.9;
+}
+
+.eq-bar.cpu { background-color: var(--chip-cpu); }
+.eq-bar.igpu { background-color: var(--chip-igpu); }
+.eq-bar.dgpu { background-color: var(--chip-dgpu); }
+
+/* Socket Cards Container */
 .socket-strip-list {
   display: flex;
   flex-direction: column;
@@ -336,36 +275,37 @@ table.bench-table tr.chosen-row td {
   width: 100%;
 }
 
-.socket-card {
-  background-color: var(--paper);
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-control);
-  padding: var(--space-12) var(--space-14, 14px);
+.socket-item {
+  background-color: var(--app-window-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 10px 14px;
   display: flex;
   flex-direction: column;
-  gap: var(--space-6, 6px);
+  gap: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.socket-card:hover {
-  background-color: var(--sheet);
-  border-color: var(--rule-strong);
+.socket-item:hover {
+  border-color: rgba(0, 0, 0, 0.1);
   transform: translateX(2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.04);
 }
 
-.socket-card.chosen {
-  background-color: var(--primary-wash) !important;
+.socket-item.chosen {
   border-color: var(--primary) !important;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  background-color: var(--primary-wash) !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
 }
 
-.socket-card-header {
+.socket-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.socket-card-name {
+.socket-name-group {
   display: flex;
   align-items: center;
   gap: var(--space-8);
@@ -374,14 +314,14 @@ table.bench-table tr.chosen-row td {
   color: var(--ink);
 }
 
-.socket-card-telemetry {
+.socket-live-metrics {
   font-size: 12px;
   color: var(--ink-2);
   font-variant-numeric: tabular-nums;
   line-height: 1.4;
 }
 
-.socket-card-prediction {
+.socket-prediction {
   font-size: 12px;
   font-weight: 600;
   color: var(--primary);
@@ -391,7 +331,152 @@ table.bench-table tr.chosen-row td {
 }
 
 /* --------------------------------------------------------------------------
-   7. Hardware Routing Copilot Component
+   5. Strategy Comparison List/Table (Left Column)
+   -------------------------------------------------------------------------- */
+.strategy-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.strategy-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule-light);
+  font-size: 13px;
+  transition: background-color 0.15s ease;
+}
+
+.strategy-row:last-child {
+  border-bottom: none;
+}
+
+.strategy-name-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.strategy-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 11px;
+}
+
+.strategy-avatar.sr { background-color: #DBEAFE; color: #2563EB; }
+.strategy-avatar.cpu { background-color: #FEF3C7; color: #D97706; }
+.strategy-avatar.rtx { background-color: #D1FAE5; color: #059669; }
+.strategy-avatar.fit { background-color: #E0E7FF; color: #4F46E5; }
+
+/* Status Badges */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.status-pill.status-optimal {
+  background-color: var(--green-bg);
+  color: var(--green-tag);
+}
+
+.status-pill.status-spike {
+  background-color: var(--red-bg);
+  color: var(--red-accent);
+}
+
+/* --------------------------------------------------------------------------
+   6. Recent Decisions Feed (Middle Column, Company-style list with avatars)
+   -------------------------------------------------------------------------- */
+.recent-decisions-feed {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.decision-feed-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule-light);
+  transition: transform 0.15s ease;
+}
+
+.decision-feed-item:last-child {
+  border-bottom: none;
+}
+
+.decision-feed-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.decision-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.decision-avatar.cpu { background-color: #FEF3C7; color: #D97706; }
+.decision-avatar.igpu { background-color: #CCFBF1; color: #0D9488; }
+.decision-avatar.dgpu { background-color: #DBEAFE; color: #2563EB; }
+
+.decision-item-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.decision-item-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.decision-item-sub {
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+.decision-feed-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.decision-item-latency {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.decision-item-menu {
+  color: var(--ink-3);
+  font-size: 16px;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* --------------------------------------------------------------------------
+   7. AI Hardware Routing Copilot (Right Column)
    -------------------------------------------------------------------------- */
 .copilot-card {
   display: flex;
@@ -401,23 +486,29 @@ table.bench-table tr.chosen-row td {
 }
 
 .copilot-header-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-control);
-  background-color: var(--primary-wash);
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background-color: var(--app-window-bg);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
   color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 16px;
+  margin-bottom: var(--space-12);
 }
 
-.copilot-insight-box {
-  background-color: var(--paper);
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-control);
-  padding: var(--space-12);
-  font-size: 12px;
+.copilot-bold-headline {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+  margin-bottom: var(--space-6, 6px);
+  letter-spacing: -0.01em;
+}
+
+.copilot-insight-text {
+  font-size: 13px;
   line-height: 1.5;
   color: var(--ink-2);
   margin-bottom: var(--space-16);
@@ -426,7 +517,7 @@ table.bench-table tr.chosen-row td {
 .copilot-form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-12);
+  gap: var(--space-10, 10px);
 }
 
 .copilot-form-row {
@@ -444,32 +535,115 @@ table.bench-table tr.chosen-row td {
 .copilot-form-group label {
   font-size: 11px;
   font-weight: 700;
-  color: var(--ink-2);
+  color: var(--ink-3);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
 
-.copilot-cta-btn {
-  width: 100%;
-  height: 40px;
-  font-size: 14px;
-  font-weight: 700;
-  margin-top: var(--space-8);
+.copilot-form-group select {
+  height: 32px;
+  font-size: 12px;
 }
 
-.copilot-secondary-actions {
+.copilot-cta-btn {
+  width: 100%;
+  height: 44px;
+  background-color: var(--primary);
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: var(--space-12);
+}
+
+.copilot-cta-btn:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
+}
+
+.copilot-secondary-row {
   display: flex;
   gap: var(--space-8);
   margin-top: var(--space-8);
 }
 
 /* --------------------------------------------------------------------------
-   8. Modals & Dialogs (Rounded rectangular sheets, NO PILLS)
+   8. Tables (for Analysis / Results / Evidence screens)
+   -------------------------------------------------------------------------- */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  background-color: var(--app-window-bg);
+}
+
+table.bench-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums lining-nums;
+  text-align: left;
+}
+
+table.bench-table th {
+  background-color: var(--card-bg);
+  color: var(--ink-2);
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--rule-light);
+  white-space: nowrap;
+}
+
+table.bench-table th.num,
+table.bench-table td.num {
+  text-align: right;
+}
+
+table.bench-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--rule-light);
+  color: var(--ink);
+  transition: background-color 0.15s ease;
+}
+
+table.bench-table tr:hover td {
+  background-color: var(--card-bg-hover);
+}
+
+table.bench-table tr:last-child td {
+  border-bottom: none;
+}
+
+table.bench-table tr.chosen-row,
+table.bench-table tr.best-row {
+  background-color: var(--primary-wash) !important;
+}
+
+table.bench-table tr.chosen-row td {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   9. Modals & Dialogs
    -------------------------------------------------------------------------- */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(15, 17, 23, 0.55);
+  background-color: rgba(15, 17, 23, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -483,9 +657,9 @@ table.bench-table tr.chosen-row td {
 }
 
 .modal-sheet {
-  background-color: var(--sheet);
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-card);
+  background-color: var(--app-window-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-window);
   box-shadow: var(--shadow-modal);
   width: 90%;
   max-width: 680px;
@@ -505,7 +679,7 @@ table.bench-table tr.chosen-row td {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule-light);
   padding-bottom: var(--space-12);
   margin-bottom: var(--space-16);
 }
@@ -523,7 +697,7 @@ table.bench-table tr.chosen-row td {
 }
 
 .modal-close-btn:hover {
-  background-color: var(--paper);
+  background-color: var(--card-bg);
   color: var(--ink);
 }
 
@@ -533,7 +707,7 @@ table.bench-table tr.chosen-row td {
 }
 
 /* --------------------------------------------------------------------------
-   9. Toasts
+   10. Toasts
    -------------------------------------------------------------------------- */
 .toast-container {
   position: fixed;
@@ -552,16 +726,10 @@ table.bench-table tr.chosen-row td {
   font-size: 13px;
   font-weight: 600;
   border-radius: var(--radius-control);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-16);
   min-width: 260px;
-  animation: slideInToast 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes slideInToast {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
 }
