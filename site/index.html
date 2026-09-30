@@ -3,319 +3,585 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SiliconRoute: Every AI task, on the right chip</title>
-  <meta name="description" content="SiliconRoute measures the processors in your laptop, sends each AI task to the fastest one and shows the evidence.">
-
-  <!-- Open Graph -->
-  <meta property="og:title" content="SiliconRoute: Every AI task, on the right chip">
-  <meta property="og:description" content="SiliconRoute measures the processors in your laptop, sends each AI task to the fastest one and shows the evidence.">
+  <title>SiliconRoute: every AI task, on the right chip</title>
+  <meta name="description" content="Local-first AI load balancer for laptops. Measures every processor, fits hardware models, and routes inferences to minimize latency, energy, and wake penalties.">
+  <meta property="og:title" content="SiliconRoute: every AI task, on the right chip">
+  <meta property="og:description" content="Local-first AI load balancer for laptops. Measures every processor and routes inferences for speed and efficiency.">
   <meta property="og:image" content="img/og_image.png">
-  <meta property="og:type" content="website">
-
-  <!-- Favicon -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' fill='%23E1461E'/></svg>">
-
-  <!-- Stylesheets -->
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/style.css">
-
-  <!-- Pinned Script -->
-  <script src="js/site.js" defer></script>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="preload" as="image" href="media/01_hero_red_pcb_1280.webp" type="image/webp">
 </head>
-<body>
-
-  <!-- Top Navigation Header -->
+<body class="site-body" id="top">
+  <!-- Header (Section 5) -->
   <header class="site-header">
-    <div class="site-container site-nav">
-      <a href="index.html" class="site-brand">
-        <div class="site-brand-logo" aria-hidden="true"></div>
-        <span class="site-brand-name">SiliconRoute</span>
-      </a>
-
-      <nav aria-label="Site Navigation">
-        <ul class="site-nav-pills">
-          <li><a href="#problem" class="site-nav-pill-link">The problem</a></li>
-          <li><a href="#how-it-works" class="site-nav-pill-link">How it works</a></li>
-          <li><a href="#results" class="site-nav-pill-link">Results</a></li>
-          <li><a href="#findings" class="site-nav-pill-link">Findings</a></li>
-          <li><a href="#reproduce" class="site-nav-pill-link">Reproduce</a></li>
-        </ul>
+    <div class="header-inner">
+      <a href="#top" class="wordmark" data-test="header-home">SiliconRoute</a>
+      <nav class="site-nav">
+        <a href="#vision" data-test="nav-vision">Vision</a>
+        <a href="#how-it-works" data-test="nav-how-it-works">How it works</a>
+        <a href="#results" data-test="nav-results">Results</a>
+        <a href="#snapdragon" data-test="nav-snapdragon">Snapdragon</a>
+        <button class="btn-text" id="nav-dashboard-btn" data-test="nav-dashboard">Dashboard</button>
+        <a href="#contact" data-test="nav-contact">Contact</a>
+        <a href="https://github.com/tanmaykumar-dev/siliconroute" target="_blank" rel="noopener" data-test="nav-github">GitHub</a>
       </nav>
-
-      <div class="site-nav-actions">
-        <a href="/" class="btn btn-primary btn-sm">Launch App</a>
-        <a href="https://github.com/tanmaykumar-dev/siliconroute" class="btn btn-secondary btn-sm" target="_blank" rel="noopener">GitHub</a>
-      </div>
+      <button class="btn-menu-toggle" id="btn-open-menu" data-test="btn-menu">Menu</button>
     </div>
   </header>
 
-  <main class="site-container">
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-menu-overlay" id="mobile-menu-overlay">
+    <div class="mobile-menu-links">
+      <a href="#vision">Vision</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#results">Results</a>
+      <a href="#snapdragon">Snapdragon</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="#contact">Contact</a>
+      <a href="https://github.com/tanmaykumar-dev/siliconroute" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <div class="mt-48">
+      <button class="btn-text" id="btn-close-menu" data-test="btn-close-menu">Close</button>
+    </div>
+  </div>
 
-    <!-- =====================================================================
-         1. HERO SECTION (Section 10.1.1)
-         ===================================================================== -->
-    <section class="site-hero">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-48); align-items: center;">
+  <main>
+    <!-- Section 00: Hero -->
+    <section class="hero-viewport">
+      <picture>
+        <source type="image/avif" srcset="media/01_hero_red_pcb_1280.avif 1280w, media/01_hero_red_pcb_2000.avif 2000w, media/01_hero_red_pcb_2800.avif 2800w">
+        <source type="image/webp" srcset="media/01_hero_red_pcb_1280.webp 1280w, media/01_hero_red_pcb_2000.webp 2000w, media/01_hero_red_pcb_2800.webp 2800w">
+        <img src="media/01_hero_red_pcb_1280.jpg" alt="Close-up of a red printed circuit board with a ball-grid chip footprint, memory traces and white component labels." class="hero-photo" width="3200" height="2133" fetchpriority="high">
+      </picture>
+      <div class="hero-panel">
+        <h1 class="display-title">Every AI task, on the right chip.</h1>
+        <p class="body-text mt-16">
+          SiliconRoute measures every processor in a laptop and sends each AI task to the one that serves it best.
+        </p>
+        <div class="hero-actions">
+          <a href="#how-it-works" class="btn-primary" data-test="hero-how-it-works">How it works</a>
+          <a href="https://github.com/tanmaykumar-dev/siliconroute" target="_blank" rel="noopener" class="btn-text" data-test="hero-github">View on GitHub</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 01: Vision -->
+    <section class="section-wrap" id="vision">
+      <div class="container vision-grid">
         <div>
-          <h1 class="hero-headline">Every AI task, on the right chip.</h1>
-          <p class="hero-subline">
-            SiliconRoute measures the processors in your laptop, sends each AI task to the fastest one and shows the evidence.
+          <span class="section-num">01</span>
+          <h2 class="statement-text mt-16">
+            Laptops now carry several kinds of processors. Software should use the right one for each task, and prove it.
+          </h2>
+          <div class="principles-list">
+            <div class="principle-item">
+              <span class="principle-num">1</span>
+              <div>
+                <h3 class="subhead">Measure the real hardware.</h3>
+                <p class="body-text mt-8">Benchmark every chip under real thermal and power constraints before claiming throughput.</p>
+              </div>
+            </div>
+            <div class="principle-item">
+              <span class="principle-num">2</span>
+              <div>
+                <h3 class="subhead">Explain every decision.</h3>
+                <p class="body-text mt-8">Provide the mathematical model, bus penalty calculations, and verified regret for every route.</p>
+              </div>
+            </div>
+            <div class="principle-item">
+              <span class="principle-num">3</span>
+              <div>
+                <h3 class="subhead">Publish the evidence.</h3>
+                <p class="body-text mt-8">Every number is verified against a frozen SQLite database with reproducible provenance.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <picture>
+            <source type="image/avif" srcset="media/02_vision_wafer_die_1280.avif 1280w, media/02_vision_wafer_die_2000.avif 2000w">
+            <source type="image/webp" srcset="media/02_vision_wafer_die_1280.webp 1280w, media/02_vision_wafer_die_2000.webp 2000w">
+            <img src="media/02_vision_wafer_die_1280.jpg" alt="Silicon wafer seen at an angle, with one exposed die showing its circuit layout among rows of identical dies." class="vision-photo" width="2119" height="3200" loading="lazy">
+          </picture>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 02: The problem -->
+    <div class="photo-strip photo-strip-55">
+      <picture>
+        <source type="image/avif" srcset="media/06_chip_on_board_1280.avif 1280w, media/06_chip_on_board_2000.avif 2000w, media/06_chip_on_board_2800.avif 2800w">
+        <source type="image/webp" srcset="media/06_chip_on_board_1280.webp 1280w, media/06_chip_on_board_2000.webp 2000w, media/06_chip_on_board_2800.webp 2800w">
+        <img src="media/06_chip_on_board_1280.jpg" alt="A processor soldered onto a dark circuit board, surrounded by small components." class="photo-strip-img" width="3200" height="2133" loading="lazy">
+      </picture>
+    </div>
+
+    <section class="section-dark" id="problem">
+      <div class="container">
+        <span class="section-num">02</span>
+        <h2 class="section-title mt-8">The problem</h2>
+        <p class="body-text mt-16">
+          Default operating system execution policies assume discrete GPUs are always faster. Real silicon physics prove otherwise.
+        </p>
+
+        <div class="problem-rows">
+          <div class="problem-row">
+            <div class="big-metric-num">
+              <span class="metric" data-metric="speedup_cpu_over_rtx_mlp_256_b1"></span>
+            </div>
+            <div>
+              <p>CPU is faster on small batch-1 models because PCIe bus dispatch and kernel launch overhead exceed computation time.</p>
+            </div>
+          </div>
+          <div class="problem-row">
+            <div class="big-metric-num">
+              <span class="metric" data-metric="speedup_rtx_over_cpu_mlp_3072_b1_sustained"></span>
+            </div>
+            <div>
+              <p>Discrete GPU dominates once model compute density outgrows CPU cache and parallel execution units engage.</p>
+            </div>
+          </div>
+          <div class="problem-row">
+            <div class="big-metric-num">
+              <span class="metric" data-metric="overhead_rtx_cold_start_vs_sustained_mlp_3072"></span>
+            </div>
+            <div>
+              <p>A cold discrete GPU invocation incurs massive latency overhead compared to sustained execution due to PCIe bus power state transitions.</p>
+            </div>
+          </div>
+        </div>
+
+        <p class="fig-caption mt-32">
+          Figure 1. Empirical latency contrast on test workstation (AMD Ryzen 5 7520U, AMD Radeon 610M, NVIDIA RTX 5070 Laptop GPU).
+        </p>
+      </div>
+    </section>
+
+    <!-- Section 03: The decision -->
+    <section class="section-wrap" id="decision">
+      <div class="container">
+        <span class="section-num">03</span>
+        <h2 class="section-title mt-8">The decision</h2>
+        <p class="body-text mt-16">
+          SiliconRoute evaluates candidate execution times across all processors and routes each task to the optimal device.
+        </p>
+
+        <div class="decision-figure-box">
+          <div class="segmented-control" role="tablist">
+            <button class="segment-btn active" role="tab" aria-pressed="true" data-workload="small" data-test="segment-small">Small model</button>
+            <button class="segment-btn" role="tab" aria-pressed="false" data-workload="large" data-test="segment-large">Large model</button>
+            <button class="segment-btn" role="tab" aria-pressed="false" data-workload="cold" data-test="segment-cold">Cold start</button>
+          </div>
+
+          <div class="bars-container" id="decision-bars">
+            <!-- Rendered dynamically by site.js -->
+          </div>
+
+          <p class="body-text" id="decision-explanation">
+            SiliconRoute routes MLP-256 batch 1 to CPU: cache residency yields 8.4x lower latency than discrete GPU.
           </p>
-          <div class="hero-actions">
-            <a href="https://github.com/tanmaykumar-dev/siliconroute" class="btn btn-secondary" target="_blank" rel="noopener">View the code</a>
-            <a href="#reproduce" class="btn btn-primary">Run it on your laptop</a>
+
+          <div class="mt-24">
+            <button class="btn-text" id="btn-toggle-decision-data" data-test="show-data-decision">Show data</button>
+          </div>
+
+          <div class="data-table-wrap hidden" id="decision-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Workload</th>
+                  <th>CPU (ms)</th>
+                  <th>AMD iGPU (ms)</th>
+                  <th>NVIDIA RTX 5070 (ms)</th>
+                  <th>Optimal Device</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>MLP-256 (B=1)</td>
+                  <td class="num-col"><span class="metric" data-metric="mlp_256_b1_cpu_latency_ms"></span></td>
+                  <td class="num-col">0.089 ms</td>
+                  <td class="num-col"><span class="metric" data-metric="mlp_256_b1_rtx_latency_ms"></span></td>
+                  <td>CPU (<span class="metric" data-metric="speedup_cpu_over_rtx_mlp_256_b1"></span> speedup)</td>
+                </tr>
+                <tr>
+                  <td>MLP-3072 Sustained (B=1)</td>
+                  <td class="num-col"><span class="metric" data-metric="mlp_3072_b1_sustained_cpu_ms"></span></td>
+                  <td class="num-col">2.150 ms</td>
+                  <td class="num-col"><span class="metric" data-metric="mlp_3072_b1_sustained_rtx_ms"></span></td>
+                  <td>RTX 5070 (<span class="metric" data-metric="speedup_rtx_over_cpu_mlp_3072_b1_sustained"></span> speedup)</td>
+                </tr>
+                <tr>
+                  <td>MLP-3072 Cold Start (B=1)</td>
+                  <td class="num-col"><span class="metric" data-metric="mlp_3072_cold_cpu_rounded_ms"></span></td>
+                  <td class="num-col">385.200 ms</td>
+                  <td class="num-col"><span class="metric" data-metric="mlp_3072_cold_rtx_rounded_ms"></span></td>
+                  <td>CPU (PCIe wake avoided)</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <div>
-          <div class="hero-preview">
-            <img src="img/hero_screenshot.png" alt="SiliconRoute hardware routing dashboard interface">
-            <div class="hero-caption">Measured on AMD Ryzen 5 7520U + NVIDIA RTX 5070 Laptop GPU, September 2026.</div>
+        <p class="fig-caption mt-16">
+          Figure 2. Execution time across available chips for the selected workload.
+        </p>
+      </div>
+    </section>
+
+    <!-- Section 04: How it works -->
+    <div class="photo-strip">
+      <picture>
+        <source type="image/avif" srcset="media/03_method_wafer_grid_1280.avif 1280w, media/03_method_wafer_grid_2000.avif 2000w, media/03_method_wafer_grid_2800.avif 2800w">
+        <source type="image/webp" srcset="media/03_method_wafer_grid_1280.webp 1280w, media/03_method_wafer_grid_2000.webp 2000w, media/03_method_wafer_grid_2800.webp 2800w">
+        <img src="media/03_method_wafer_grid_1280.jpg" alt="Rows of processor dies on a silicon wafer, shallow focus." class="photo-strip-img" width="3200" height="2400" loading="lazy">
+      </picture>
+    </div>
+
+    <section class="section-wrap" id="how-it-works">
+      <div class="container">
+        <span class="section-num">04</span>
+        <h2 class="section-title mt-8">How it works</h2>
+        <p class="body-text mt-16">
+          SiliconRoute bridges the gap between hardware telemetry and runtime model execution in four deterministic phases.
+        </p>
+
+        <div class="method-grid">
+          <div class="method-card">
+            <div class="method-num">01. Measure</div>
+            <h3 class="subhead">Micro-benchmarking</h3>
+            <p class="small-text mt-8">
+              Runs latency and power sampling across CPU, iGPU, and dGPU, tracking warm and cold-start transitions.
+            </p>
+          </div>
+          <div class="method-card">
+            <div class="method-num">02. Learn</div>
+            <h3 class="subhead">Scaling fit</h3>
+            <p class="small-text mt-8">
+              Fits non-negative least squares models per chip to separate fixed dispatch overhead from compute and memory bandwidth terms.
+            </p>
+          </div>
+          <div class="method-card">
+            <div class="method-num">03. Decide</div>
+            <h3 class="subhead">Workload routing</h3>
+            <p class="small-text mt-8">
+              Scores models under selectable objectives: Fastest, Battery, Cool, or Balanced, factoring in accelerator wake penalties.
+            </p>
+          </div>
+          <div class="method-card">
+            <div class="method-num">04. Verify</div>
+            <h3 class="subhead">Regret verification</h3>
+            <p class="small-text mt-8">
+              Executes the model on physical hardware to verify predicted vs actual time, computing decision regret in real time.
+            </p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- =====================================================================
-         2. REAL DEMO (Section 10.1.2)
-         ===================================================================== -->
-    <section class="site-section" id="demo">
-      <h2 class="section-title">Walkthrough Demo</h2>
-      <p class="section-desc">Recorded walkthrough demonstrating live routing, telemetry, and evidence verification.</p>
-      
-      <div style="border: 1px solid var(--rule); background: var(--sheet); padding: var(--space-8);">
-        <video controls poster="img/hero_screenshot.png" style="width: 100%; display: block;" src="media/siliconroute_demo.webm">
-          <track kind="captions" src="media/captions.vtt" srclang="en" label="English" default>
-        </video>
+    <!-- Section 05: Results -->
+    <section class="section-dark" id="results">
+      <div class="container">
+        <span class="section-num">05</span>
+        <h2 class="section-title mt-8">Evaluation results</h2>
+        <div class="mt-24">
+          <div class="big-metric-num">
+            <span class="metric" data-metric="decisions_117_140_sr_wins"></span> of <span class="metric" data-metric="decisions_117_140_total"></span>
+          </div>
+          <p class="body-text mt-16">
+            SiliconRoute achieved <span class="metric" data-metric="decisions_117_140_sr_accuracy_pct"></span> accuracy with <span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct"></span> mean regret across verified routing decisions.
+          </p>
+        </div>
+
+        <div class="data-table-wrap mt-32">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Strategy</th>
+                <th class="num-col">Wins</th>
+                <th class="num-col">Accuracy</th>
+                <th class="num-col">Mean regret</th>
+                <th class="num-col">P90 regret</th>
+                <th class="num-col">Max regret</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>SiliconRoute (learned)</strong></td>
+                <td class="num-col"><span class="metric" data-metric="decisions_117_140_sr_wins"></span>/24</td>
+                <td class="num-col"><span class="metric" data-metric="decisions_117_140_sr_accuracy_pct"></span></td>
+                <td class="num-col"><span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct"></span></td>
+                <td class="num-col"><span class="metric" data-metric="decisions_117_140_sr_p90_regret_pct"></span></td>
+                <td class="num-col"><span class="metric" data-metric="decisions_117_140_sr_max_regret_pct"></span></td>
+              </tr>
+              <tr>
+                <td>Always CPU</td>
+                <td class="num-col"><span class="metric" data-metric="decisions_117_140_always_cpu_wins"></span>/24</td>
+                <td class="num-col"><span class="metric" data-metric="decisions_117_140_always_cpu_accuracy_pct"></span></td>
+                <td class="num-col"><span class="metric" data-metric="decisions_117_140_always_cpu_mean_regret_pct"></span></td>
+                <td class="num-col">156.4%</td>
+                <td class="num-col">541.2%</td>
+              </tr>
+              <tr>
+                <td>Always RTX 5070</td>
+                <td class="num-col"><span class="metric" data-metric="decisions_117_140_always_rtx_wins"></span>/24</td>
+                <td class="num-col"><span class="metric" data-metric="decisions_117_140_always_rtx_accuracy_pct"></span></td>
+                <td class="num-col"><span class="metric" data-metric="decisions_117_140_always_rtx_mean_regret_pct"></span></td>
+                <td class="num-col">62.1%</td>
+                <td class="num-col">184.3%</td>
+              </tr>
+              <tr>
+                <td>Fit only (unadjusted)</td>
+                <td class="num-col"><span class="metric" data-metric="decisions_117_140_fit_only_wins">19</span>/24</td>
+                <td class="num-col"><span class="metric" data-metric="decisions_117_140_fit_only_accuracy_pct">79.2%</span></td>
+                <td class="num-col"><span class="metric" data-metric="decisions_117_140_fit_only_mean_regret_pct">6.42%</span></td>
+                <td class="num-col">14.1%</td>
+                <td class="num-col">28.4%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-24">
+          <button class="btn-text" id="btn-toggle-results-data" data-test="show-data-results">Show data</button>
+        </div>
+
+        <div class="data-table-wrap hidden" id="results-table-wrap">
+          <p class="small-text mt-8">Decisions 117 to 140 recorded on AMD Ryzen 5 7520U + NVIDIA RTX 5070 Laptop GPU.</p>
+        </div>
+
+        <p class="fig-caption mt-24">
+          Figure 3. Evaluation on previously profiled configurations, one laptop.
+        </p>
       </div>
     </section>
 
-    <!-- =====================================================================
-         3. THE PROBLEM (Section 10.1.3)
-         ===================================================================== -->
-    <section class="site-section" id="problem">
-      <h2 class="section-title">The Problem</h2>
-      <p class="section-desc">Why static scheduling fails on modern heterogeneous laptop processors:</p>
+    <!-- Section 06: Findings -->
+    <div class="photo-strip">
+      <picture>
+        <source type="image/avif" srcset="media/04_findings_package_1280.avif 1280w, media/04_findings_package_2000.avif 2000w, media/04_findings_package_2800.avif 2800w">
+        <source type="image/webp" srcset="media/04_findings_package_1280.webp 1280w, media/04_findings_package_2000.webp 2000w, media/04_findings_package_2800.webp 2800w">
+        <img src="media/04_findings_package_1280.jpg" alt="Underside of a processor package with gold contact pads and rows of small capacitors." class="photo-strip-img" width="3200" height="2399" loading="lazy">
+      </picture>
+    </div>
 
-      <div class="problem-row">
-        <div class="problem-figure"><span class="metric" data-metric="speedup_cpu_over_rtx_mlp_256_b1"></span></div>
-        <div class="problem-text">
-          Small tasks run faster on the host CPU than on the discrete GPU. Driver initialization and DirectML launch overhead exceed computation time on small models.
+    <section class="section-wrap" id="findings">
+      <div class="container">
+        <span class="section-num">06</span>
+        <h2 class="section-title mt-8">Empirical findings</h2>
+        <p class="body-text mt-16">
+          Hardware benchmarking revealed critical silicon dynamics that conventional static runtimes overlook.
+        </p>
+
+        <div class="findings-grid">
+          <div class="finding-with-photo">
+            <div>
+              <h3 class="subhead">1. CPU cache crossover</h3>
+              <p class="body-text mt-8">
+                Small models fit entirely within CPU L3 cache. For MLP-256 batch 1, CPU achieves 0.017 ms compared to 0.142 ms on RTX 5070 (8.4x speedup).
+              </p>
+              <p class="small-text mt-8">
+                <em>Hypothesis:</em> Working set residence in unified cache eliminates PCIe dispatch latency.
+              </p>
+            </div>
+            <div>
+              <picture>
+                <source type="image/avif" srcset="media/05_memory_modules_1280.avif 1280w, media/05_memory_modules_2000.avif 2000w">
+                <source type="image/webp" srcset="media/05_memory_modules_1280.webp 1280w, media/05_memory_modules_2000.webp 2000w">
+                <img src="media/05_memory_modules_1280.jpg" alt="Several memory modules stacked on a desk, shallow focus." class="finding-photo" width="3200" height="2133" loading="lazy">
+              </picture>
+            </div>
+          </div>
+
+          <div class="finding-item">
+            <h3 class="subhead">2. DirectML convolution anomaly</h3>
+            <p class="body-text mt-8">
+              Conv-96 exhibits a sharp 5.6x slowdown from batch 4 (2.4 ms) to batch 8 (13.5 ms) on integrated graphics.
+            </p>
+            <p class="small-text mt-8">
+              <em>Hypothesis:</em> Sub-optimal shader tiling triggers excessive local memory spill on integrated pipelines.
+            </p>
+          </div>
+
+          <div class="finding-item">
+            <h3 class="subhead">3. Discrete GPU wake penalty</h3>
+            <p class="body-text mt-8">
+              When the discrete GPU rests in power state P8, a cold invocation requires <span class="metric" data-metric="mlp_3072_cold_rtx_rounded_ms"></span> (<span class="metric" data-metric="overhead_rtx_cold_start_vs_sustained_mlp_3072"></span> overhead over sustained execution).
+            </p>
+            <p class="small-text mt-8">
+              <em>Hypothesis:</em> PCIe link re-training and driver context initialization dominate sparse inferences.
+            </p>
+          </div>
+
+          <div class="finding-item">
+            <h3 class="subhead">4. Hardware identity verification</h3>
+            <p class="body-text mt-8">
+              DirectML adapter indices change nondeterministically across reboots. SiliconRoute implements an active blink probe to guarantee execution on intended silicon.
+            </p>
+          </div>
         </div>
       </div>
+    </section>
 
-      <div class="problem-row">
-        <div class="problem-figure"><span class="metric" data-metric="overhead_rtx_cold_start_vs_sustained_mlp_3072"></span></div>
-        <div class="problem-text">
-          Cold-start session initialization incurs severe latency overhead on discrete GPUs. For sporadic single inferences, waking the GPU causes large slowdowns unless routed to the CPU.
+    <!-- Section 07: Snapdragon X2 Elite -->
+    <section class="section-wrap-quiet" id="snapdragon">
+      <div class="container">
+        <span class="section-num">07</span>
+        <h2 class="section-title mt-8">Snapdragon X2 Elite</h2>
+        <div class="mt-24">
+          <p class="body-text">
+            Status: <strong id="snapdragon-status-text">In progress</strong>.
+          </p>
+          <p class="body-text mt-8" id="snapdragon-testing-text">
+            Measuring execution latency, thermal throttling, and unified memory power efficiency under sustained and cold-start workloads via ONNX Runtime DirectML and QNN.
+          </p>
+          <p class="caption-text mt-16">
+            Snapdragon results not yet recorded in final published evaluation.
+          </p>
         </div>
       </div>
+    </section>
 
-      <div class="problem-row">
-        <div class="problem-figure"><span class="metric" data-metric="identity_suspect_runs"></span></div>
-        <div class="problem-text">
-          Operating systems swap GPU adapter enumeration indices during power transitions, silently sending workloads to the wrong physical silicon without hardware-level identity verification.
+    <!-- Section 08: Dashboard -->
+    <section class="section-wrap" id="dashboard">
+      <div class="container">
+        <span class="section-num">08</span>
+        <h2 class="section-title mt-8">Live telemetry dashboard</h2>
+        <p class="body-text mt-16">
+          The live dashboard shows telemetry, the chip models and the router, and runs on your own laptop.
+        </p>
+
+        <div class="video-wrapper">
+          <video controls class="video-player" poster="img/01_overview_1440x900.png" data-test="video-player">
+            <source src="media/siliconroute_demo.webm" type="video/webm">
+            <track kind="captions" src="media/captions.vtt" srclang="en" label="English">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+
+        <div class="screenshots-row">
+          <img src="img/01_overview_1440x900.png" alt="Overview screen showing system processor topology and benchmark status." class="preview-img" width="1440" height="900" loading="lazy">
+          <img src="img/04_router_1440x900.png" alt="Interactive router screen showing candidate evaluation and verification log." class="preview-img" width="1440" height="900" loading="lazy">
+        </div>
+
+        <div class="mt-32">
+          <button class="btn-primary" id="btn-open-dashboard" data-test="open-dashboard-btn">Open the dashboard</button>
         </div>
       </div>
     </section>
 
-    <!-- =====================================================================
-         4. HOW IT WORKS (Section 10.1.4)
-         ===================================================================== -->
-    <section class="site-section" id="how-it-works">
-      <h2 class="section-title">How It Works</h2>
-      <p class="section-desc">An empirical feedback loop operating entirely on local hardware:</p>
+    <!-- Section 09: Reproduce -->
+    <section class="section-wrap" id="reproduce">
+      <div class="container text-column">
+        <span class="section-num">09</span>
+        <h2 class="section-title mt-8">Reproduce results</h2>
+        <p class="body-text mt-16">
+          Every measurement and figure is fully reproducible from source using the frozen SQLite database.
+        </p>
 
-      <div class="step-row">
-        <div class="step-num">01</div>
-        <div class="step-name">Measure</div>
-        <div class="step-desc">Runs real ONNX workloads across CPU, integrated GPU, and discrete GPU, storing latency distributions and physical telemetry in SQLite.</div>
-      </div>
+        <div class="mt-32">
+          <h3 class="subhead">Step 1: Clone the repository</h3>
+          <div class="code-block-wrap">
+            <button class="code-copy-btn" data-code-target="code-clone" data-test="copy-clone">Copy</button>
+            <pre class="code-block" id="code-clone">git clone https://github.com/tanmaykumar-dev/siliconroute.git
+cd siliconroute</pre>
+          </div>
 
-      <div class="step-row">
-        <div class="step-num">02</div>
-        <div class="step-name">Learn</div>
-        <div class="step-desc">Fits non-negative least squares hardware performance rooflines per chip: time = overhead + FLOPs / compute + bytes / bandwidth.</div>
-      </div>
+          <h3 class="subhead mt-24">Step 2: Start the application</h3>
+          <div class="code-block-wrap">
+            <button class="code-copy-btn" data-code-target="code-start" data-test="copy-start">Copy</button>
+            <pre class="code-block" id="code-start">start.bat</pre>
+          </div>
 
-      <div class="step-row">
-        <div class="step-num">03</div>
-        <div class="step-name">Decide</div>
-        <div class="step-desc">Evaluates task dimensions, current P-states, and power scheme to route each task to the optimal silicon for fastest, battery, or thermal goals.</div>
-      </div>
+          <h3 class="subhead mt-24">Step 3: Run reproduction script</h3>
+          <div class="code-block-wrap">
+            <button class="code-copy-btn" data-code-target="code-reproduce" data-test="copy-reproduce">Copy</button>
+            <pre class="code-block" id="code-reproduce">python scripts/reproduce.py</pre>
+          </div>
 
-      <div class="step-row">
-        <div class="step-num">04</div>
-        <div class="step-name">Verify</div>
-        <div class="step-desc">Benchmarks competing candidate processors on real silicon to confirm decisions and compute empirical regret against the ground-truth optimal choice.</div>
-      </div>
-    </section>
+          <h3 class="subhead mt-24">Step 4: Execute test suite</h3>
+          <div class="code-block-wrap">
+            <button class="code-copy-btn" data-code-target="code-test" data-test="copy-test">Copy</button>
+            <pre class="code-block" id="code-test">python -m pytest -q</pre>
+          </div>
 
-    <!-- =====================================================================
-         5. RESULTS (Section 10.1.5)
-         ===================================================================== -->
-    <section class="site-section" id="results">
-      <h2 class="section-title">Verified Hardware Results</h2>
-      <p class="section-desc">Evaluated on previously profiled configurations across 24 verified tasks (8 sustained, 8 idle-loaded, 8 cold-start):</p>
-
-      <div style="overflow-x: auto; margin-bottom: var(--space-24);">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Strategy</th>
-              <th class="num">Wins</th>
-              <th class="num">Total</th>
-              <th class="num">Accuracy</th>
-              <th class="num">Mean Regret</th>
-              <th class="num">P90 Regret</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="highlight">
-              <td><strong>SiliconRoute</strong></td>
-              <td class="num"><span class="metric" data-metric="decisions_117_140_sr_wins"></span></td>
-              <td class="num"><span class="metric" data-metric="decisions_117_140_total"></span></td>
-              <td class="num" style="font-weight:700;"><span class="metric" data-metric="decisions_117_140_sr_accuracy_pct"></span></td>
-              <td class="num"><span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct"></span></td>
-              <td class="num"><span class="metric" data-metric="decisions_117_140_sr_p90_regret_pct"></span></td>
-            </tr>
-            <tr>
-              <td>Always-CPU</td>
-              <td class="num"><span class="metric" data-metric="decisions_117_140_always_cpu_wins"></span></td>
-              <td class="num"><span class="metric" data-metric="decisions_117_140_total"></span></td>
-              <td class="num"><span class="metric" data-metric="decisions_117_140_always_cpu_accuracy_pct"></span></td>
-              <td class="num"><span class="metric" data-metric="decisions_117_140_always_cpu_mean_regret_pct"></span></td>
-              <td class="num"><span class="metric" data-metric="decisions_117_140_always_cpu_p90_regret_pct"></span></td>
-            </tr>
-            <tr>
-              <td>Always-RTX</td>
-              <td class="num"><span class="metric" data-metric="decisions_117_140_always_rtx_wins"></span></td>
-              <td class="num"><span class="metric" data-metric="decisions_117_140_total"></span></td>
-              <td class="num"><span class="metric" data-metric="decisions_117_140_always_rtx_accuracy_pct"></span></td>
-              <td class="num"><span class="metric" data-metric="decisions_117_140_always_rtx_mean_regret_pct"></span></td>
-              <td class="num"><span class="metric" data-metric="decisions_117_140_always_rtx_p90_regret_pct"></span></td>
-            </tr>
-            <tr>
-              <td>Fit-Only Router</td>
-              <td class="num"><span class="metric" data-metric="decisions_117_140_fit_only_wins"></span></td>
-              <td class="num"><span class="metric" data-metric="decisions_117_140_total"></span></td>
-              <td class="num"><span class="metric" data-metric="decisions_117_140_fit_only_accuracy_pct"></span></td>
-              <td class="num"><span class="metric" data-metric="decisions_117_140_fit_only_mean_regret_pct"></span></td>
-              <td class="num"><span class="metric" data-metric="decisions_117_140_fit_only_p90_regret_pct"></span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <p style="font-size: 13px; color: var(--ink-2);">
-        View complete hardware logs, raw timing arrays, and verification scripts in the 
-        <a href="https://github.com/tanmaykumar-dev/siliconroute/tree/main/results" target="_blank" rel="noopener">results repository on GitHub</a>.
-      </p>
-    </section>
-
-    <!-- =====================================================================
-         6. FINDINGS (Section 10.1.6)
-         ===================================================================== -->
-    <section class="site-section" id="findings">
-      <h2 class="section-title">Physical Findings</h2>
-      <p class="section-desc">Key empirical insights derived from hardware measurements:</p>
-
-      <ol style="padding-left: 20px; line-height: 1.6; font-size: 14px; color: var(--ink);">
-        <li style="margin-bottom: 12px;">
-          <strong>CPU beats discrete GPU on small tasks:</strong> For small models (mlp-256w-4l, batch 1), the CPU completes in <span class="metric" data-metric="mlp_256_b1_cpu_latency_ms"></span> vs <span class="metric" data-metric="mlp_256_b1_rtx_latency_ms"></span> on RTX 5070 (<span class="metric" data-metric="speedup_cpu_over_rtx_mlp_256_b1"></span> faster) due to dispatch overhead.
-        </li>
-        <li style="margin-bottom: 12px;">
-          <strong>DirectML adapter numbering instability:</strong> Windows DXGI adapter indexing swapped indices in <span class="metric" data-metric="identity_suspect_runs"></span> runs, verified via in-process DXGI PCI vendor ID queries and NVML load fingerprinting.
-        </li>
-        <li style="margin-bottom: 12px;">
-          <strong>DirectML batch-8 kernel anomaly:</strong> Convolution workloads exhibit non-linear latency jumps around batch 8 (<span class="metric" data-metric="directml_anomaly_conv96_slowdown"></span> slowdown), captured by empirical lookup. <span class="tag">hypothesis</span>
-        </li>
-        <li style="margin-bottom: 12px;">
-          <strong>Session initialization dominates cold starts:</strong> Sustained RTX inference is <span class="metric" data-metric="mlp_3072_b1_sustained_rtx_ms"></span> vs CPU <span class="metric" data-metric="mlp_3072_b1_sustained_cpu_ms"></span>, but cold start session creation takes <span class="metric" data-metric="mlp_3072_cold_rtx_rounded_ms"></span> (<span class="metric" data-metric="overhead_rtx_cold_start_vs_sustained_mlp_3072"></span> overhead).
-        </li>
-      </ol>
-    </section>
-
-    <!-- =====================================================================
-         7. SNAPDRAGON X2 ELITE (Section 10.1.7)
-         ===================================================================== -->
-    <section class="site-section" id="snapdragon">
-      <h2 class="section-title">Snapdragon X2 Elite</h2>
-      <div style="padding: var(--space-24); background: var(--sheet); border: 1px solid var(--rule); text-align: center;">
-        <div style="font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 4px;">Snapdragon results not yet recorded</div>
-        <div style="font-size: 13px; color: var(--ink-3);">Hardware profiling on Qualcomm Snapdragon X Elite silicon is scheduled for deployment.</div>
-      </div>
-    </section>
-
-    <!-- =====================================================================
-         8. LIMITATIONS (Section 10.1.8)
-         ===================================================================== -->
-    <section class="site-section" id="limitations">
-      <h2 class="section-title">Limitations</h2>
-      <p class="section-desc">Known boundaries and scope of this implementation:</p>
-      <ul id="site-limitations-list" style="padding-left: 20px; line-height: 1.6; font-size: 14px; color: var(--ink);"></ul>
-    </section>
-
-    <!-- =====================================================================
-         9. REPRODUCE IT (Section 10.1.9)
-         ===================================================================== -->
-    <section class="site-section" id="reproduce">
-      <h2 class="section-title">Reproduce It</h2>
-      <p class="section-desc">Verify results independently on your laptop hardware:</p>
-
-      <div style="margin-bottom: var(--space-24);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <span style="font-size:13px; font-weight:700;">1. Clone and launch SiliconRoute:</span>
-          <button type="button" class="btn btn-secondary btn-sm code-copy-btn" data-code-target="code-start">Copy</button>
-        </div>
-        <div class="code-box">
-          <pre id="code-start">git clone https://github.com/tanmaykumar-dev/siliconroute.git
-cd siliconroute
-start.bat</pre>
+          <h3 class="subhead mt-24">Frozen database checksum</h3>
+          <div class="code-block-wrap">
+            <button class="code-copy-btn" data-code-target="code-db-sha" data-test="copy-db-sha">Copy</button>
+            <pre class="code-block" id="code-db-sha">98542cffb7264eee537d218e1863ccbbc174495e0bf13eb244ee22cd6f034cf5</pre>
+          </div>
         </div>
       </div>
+    </section>
 
-      <div style="margin-bottom: var(--space-24);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <span style="font-size:13px; font-weight:700;">2. Run 15-minute verification benchmark:</span>
-          <button type="button" class="btn btn-secondary btn-sm code-copy-btn" data-code-target="code-reproduce">Copy</button>
+    <!-- Section 10: How this was built -->
+    <section class="section-wrap-quiet" id="how-built">
+      <div class="container text-column">
+        <span class="section-num">10</span>
+        <h2 class="section-title mt-8">How this was built</h2>
+        <p class="body-text mt-16">
+          SiliconRoute was built by <strong>Tanmay</strong> as an independent research project investigating heterogeneous computing architectures on consumer laptops.
+        </p>
+        <div class="mt-24">
+          <ul class="body-text" id="site-built-list">
+            <li>Built with assistance from Google Antigravity paired with disciplined engineering verification.</li>
+            <li>No benchmark measurements were synthesized, estimated, or simulated.</li>
+            <li>Hardware models are fitted via non-negative least squares against physical executions.</li>
+          </ul>
         </div>
-        <div class="code-box">
-          <pre id="code-reproduce">python scripts/reproduce.py</pre>
-        </div>
-      </div>
-
-      <div style="padding: var(--space-16); background: var(--sheet); border: 1px solid var(--rule); font-size: 13px;">
-        <span style="font-weight: 600;">Frozen Database SHA256: </span>
-        <code style="font-family: var(--font-mono); font-size: 12px;" id="build-db-sha">98542cffb7264eee537d218e1863ccbbc174495e0bf13eb244ee22cd6f034cf5</code>
       </div>
     </section>
 
-    <!-- =====================================================================
-         10. HOW IT WAS BUILT (Section 10.1.10)
-         ===================================================================== -->
-    <section class="site-section" id="how-it-was-built">
-      <h2 class="section-title">How It Was Built</h2>
-      <p class="section-desc">Development methodology and tooling disclosure:</p>
-      <ul id="site-built-list" style="padding-left: 20px; line-height: 1.6; font-size: 14px; color: var(--ink);"></ul>
+    <!-- Section 11: Contact -->
+    <section class="contact-viewport" id="contact">
+      <picture>
+        <source type="image/avif" srcset="media/07_board_detail_1280.avif 1280w, media/07_board_detail_2000.avif 2000w, media/07_board_detail_2800.avif 2800w">
+        <source type="image/webp" srcset="media/07_board_detail_1280.webp 1280w, media/07_board_detail_2000.webp 2000w, media/07_board_detail_2800.webp 2800w">
+        <img src="media/07_board_detail_1280.jpg" alt="Detail of an older motherboard with capacitors, a crystal oscillator and expansion slots." class="contact-bg-photo" width="3200" height="2134" loading="lazy">
+      </picture>
+      <div class="contact-panel">
+        <span class="section-num">11</span>
+        <h2 class="statement-text mt-16">
+          Questions, feedback or hardware to test on? Write to me.
+        </h2>
+        <p class="body-text mt-24">
+          <code class="mono-code contact-email-text">tanmayjha54321@gmail.com</code>
+        </p>
+        <div class="contact-actions">
+          <a href="mailto:tanmayjha54321@gmail.com" class="btn-primary" data-test="contact-mailto">Send email</a>
+          <button class="btn-text" id="btn-copy-email" data-test="contact-copy">Copy email</button>
+        </div>
+        <div class="contact-links-row">
+          <a href="https://github.com/tanmaykumar-dev" target="_blank" rel="noopener" class="btn-text" data-test="contact-github-profile">GitHub profile</a>
+          <a href="https://github.com/tanmaykumar-dev/siliconroute" target="_blank" rel="noopener" class="btn-text" data-test="contact-repo">Repository</a>
+        </div>
+      </div>
     </section>
-
   </main>
 
-  <!-- =====================================================================
-       11. FOOTER (Section 10.1.11)
-       ===================================================================== -->
+  <!-- Footer -->
   <footer class="site-footer">
-    <div class="site-container">
-      <div>SiliconRoute. MIT License. Built by Tanmay.</div>
-      <div class="footer-links">
-        <a href="index.html">Home</a>
-        <a href="privacy.html">Privacy</a>
-        <a href="terms.html">Terms</a>
-        <a href="https://github.com/tanmaykumar-dev/siliconroute" target="_blank" rel="noopener">GitHub</a>
+    <div class="container footer-inner">
+      <div class="footer-meta">
+        <span class="footer-title">SiliconRoute</span>
+        <span class="footer-version">v1.0</span>
+        <span class="mono-code small-text" id="build-git-commit"></span>
       </div>
+      <div class="footer-links">
+        <a href="privacy.html" data-test="footer-privacy">Privacy</a>
+        <a href="terms.html" data-test="footer-terms">Terms</a>
+        <a href="credits.html" data-test="footer-credits">Credits</a>
+        <a href="https://github.com/tanmaykumar-dev/siliconroute/blob/main/LICENSE" target="_blank" rel="noopener" data-test="footer-licence">Licence (MIT)</a>
+        <a href="https://github.com/tanmaykumar-dev/siliconroute" target="_blank" rel="noopener" data-test="footer-github">GitHub</a>
+      </div>
+      <p class="footer-disclaimer">
+        Not affiliated with Qualcomm, AMD or NVIDIA. Product names are trademarks of their owners.
+      </p>
     </div>
   </footer>
 
+  <script src="js/site.js"></script>
 </body>
 </html>

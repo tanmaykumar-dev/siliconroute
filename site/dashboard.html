@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terms: SiliconRoute</title>
+  <title>Local Dashboard: SiliconRoute</title>
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/style.css">
   <link rel="icon" href="favicon.ico" type="image/x-icon">
@@ -27,36 +27,48 @@
   <main class="page-content">
     <div class="container text-column">
       <div class="page-header">
-        <span class="section-num">00</span>
-        <h1 class="page-title">Terms of use</h1>
+        <span class="section-num">08</span>
+        <h1 class="page-title">Run the local telemetry dashboard</h1>
         <p class="lead-text">
-          SiliconRoute is open-source research software licensed under the MIT License.
+          The interactive telemetry dashboard runs locally on your workstation to profile your physical CPU, iGPU, and dGPU.
         </p>
       </div>
 
       <section class="policy-section">
-        <h2 class="subhead">Open source software licence</h2>
-        <p>
-          Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files, to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software.
+        <h2 class="subhead">How to start the dashboard locally</h2>
+        <div class="step-card">
+          <h3 class="step-num">Step 1: Clone the repository</h3>
+          <pre class="code-block"><code>git clone https://github.com/tanmaykumar-dev/siliconroute.git
+cd siliconroute</code></pre>
+        </div>
+
+        <div class="step-card">
+          <h3 class="step-num">Step 2: Start the application</h3>
+          <p>Double-click <code class="mono-code">start.bat</code> on Windows, or run:</p>
+          <pre class="code-block"><code>.\venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000</code></pre>
+        </div>
+
+        <p class="mt-24">
+          Once started, open <a href="/app" class="btn-text" data-test="dashboard-local-link">http://127.0.0.1:8000/app</a> to view live device telemetry, interactive fits, and the workload router.
         </p>
       </section>
 
       <section class="policy-section">
-        <h2 class="subhead">Empirical results notice</h2>
-        <p>
-          All benchmark numbers, crossover models, latency statistics, and routing results published on this website describe physical hardware measurements recorded on a single test workstation (AMD Ryzen 5 7520U CPU, AMD Radeon 610M iGPU, NVIDIA GeForce RTX 5070 Laptop GPU). Results may vary across different hardware architectures, silicon steppings, thermal conditions, and driver revisions.
-        </p>
-      </section>
-
-      <section class="policy-section">
-        <h2 class="subhead">Vendor independence</h2>
-        <p>
-          SiliconRoute is an independent engineering project and is not affiliated with, endorsed by, or sponsored by Qualcomm, AMD, Microsoft, or NVIDIA. All processor trademarks and product names belong to their respective owners.
-        </p>
+        <h2 class="subhead">Dashboard preview</h2>
+        <div class="dashboard-preview-grid">
+          <figure class="preview-fig">
+            <img src="img/01_overview_1440x900.png" alt="Overview screen showing system processor topology and benchmark status." width="1440" height="900" class="preview-img">
+            <figcaption class="fig-caption">Figure 3. System overview and chip topology.</figcaption>
+          </figure>
+          <figure class="preview-fig mt-24">
+            <img src="img/04_router_1440x900.png" alt="Interactive router screen showing candidate evaluation and verification log." width="1440" height="900" class="preview-img">
+            <figcaption class="fig-caption">Figure 4. Interactive router and hardware verification.</figcaption>
+          </figure>
+        </div>
       </section>
 
       <div class="back-home-wrap">
-        <a href="/" class="btn-text" data-test="terms-back">Back to home</a>
+        <a href="/" class="btn-text" data-test="dashboard-back">Back to home</a>
       </div>
     </div>
   </main>

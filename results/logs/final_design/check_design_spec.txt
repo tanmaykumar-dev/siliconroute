@@ -1,0 +1,35 @@
+=== SiliconRoute Design Spec (final, revision 2) Section 12 Checks ===
+Total Violations: 33
+FAIL: frontend\index.html: <a href='/site/privacy.html'> missing data-test attribute
+FAIL: frontend\index.html: <a href='/site/terms.html'> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: frontend\index.html: <button> missing data-test attribute
+FAIL: site\index.html: <a href='#vision'> missing data-test attribute
+FAIL: site\index.html: <a href='#how-it-works'> missing data-test attribute
+FAIL: site\index.html: <a href='#results'> missing data-test attribute
+FAIL: site\index.html: <a href='#snapdragon'> missing data-test attribute
+FAIL: site\index.html: <a href='dashboard.html'> missing data-test attribute
+FAIL: site\index.html: <a href='#contact'> missing data-test attribute
+FAIL: site\index.html: <a href='https://github.com/tanmaykumar-dev/siliconroute'> missing data-test attribute

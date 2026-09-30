@@ -1,0 +1,6 @@
+{
+  "status": "In progress",
+  "hardware": "Snapdragon X2 Elite (Oryon CPU, Adreno GPU, Hexagon NPU)",
+  "testing": "Measuring execution latency, thermal throttling, and unified memory power efficiency under sustained and cold-start workloads via ONNX Runtime DirectML and QNN.",
+  "results_recorded": false
+}

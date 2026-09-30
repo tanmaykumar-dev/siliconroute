@@ -14,7 +14,10 @@ import shutil
 import subprocess
 from PIL import Image, ImageDraw
 
+import sys
 ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 SITE_DIR = ROOT_DIR / "site"
 DATA_DIR = SITE_DIR / "data"
 IMG_DIR = SITE_DIR / "img"
@@ -175,10 +178,13 @@ def build_site():
         shutil.copyfile(DEMO_SRC, MEDIA_DIR / "siliconroute_demo.webm")
         print("  Copied demo video -> site/media/")
 
-    # 7. Generate OG Image
-    og_path = IMG_DIR / "og_image.png"
-    generate_og_image(og_path)
-    print(f"  Generated Open Graph card -> {og_path}")
+    # 7. Run media pipeline (responsive variants, hero crop OG image, favicon)
+    try:
+        from scripts.build_media import build_media
+        build_media()
+    except Exception as e:
+        print(f"  Warning: build_media error: {e}")
+
 
     print("Site build complete.")
 

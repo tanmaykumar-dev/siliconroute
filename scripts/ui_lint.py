@@ -68,12 +68,12 @@ def lint_css_file(path: Path) -> list[str]:
             if re.search(rf"\b{re.escape(font)}\b", clean, re.I):
                 violations.append(f"{path.name}:{idx}: Rule 10 violation: banned font '{font}': '{clean}'")
 
-        # Rule 19: Corner radius must be 0
+        # Rule 19: Corner radius must be 0 (2px on buttons and inputs only per Section 1)
         m_radius = re.search(r"border-radius\s*:\s*([^;]+);", clean, re.I)
         if m_radius:
             val = m_radius.group(1).replace("!important", "").strip()
-            if val not in ("0", "0px", "0rem", "0em"):
-                violations.append(f"{path.name}:{idx}: Rule 19 violation: border-radius must be 0: '{val}'")
+            if val not in ("0", "0px", "0rem", "0em", "2px", "var(--radius)", "var(--radius-sm)"):
+                violations.append(f"{path.name}:{idx}: Rule 19 violation: border-radius must be 0 or 2px: '{val}'")
 
         # Rule 22: No blur filters
         if re.search(r"filter\s*:\s*blur\(", clean, re.I):
