@@ -1,14 +1,14 @@
 /**
- * SiliconRoute Design Spec v2 — Application Entrypoint
- * Initializes Theme, Router, Telemetry, Published Metrics, and Screen Controllers.
+ * SiliconRoute Design Spec v3: "Red Bench" Application Entrypoint
+ * Light theme only. Initializes Socket Strip, Router, Metrics, Telemetry, and Screens.
  */
 
-import { ThemeManager } from "./theme.js";
 import { ClientRouter } from "./router.js";
 import { api } from "./api.js";
 import { TelemetryService } from "./telemetry.js";
 import { MetricsSystem } from "./metrics.js";
 import { RawSamplesModal } from "./components/modal.js";
+import { SocketStrip } from "./components/socket_strip.js";
 
 import { OverviewScreen } from "./screens/overview.js";
 import { LiveScreen } from "./screens/live.js";
@@ -19,19 +19,16 @@ import { EvidenceScreen } from "./screens/evidence.js";
 import { AboutScreen } from "./screens/about.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // 1. Theme Manager
-  const theme = new ThemeManager("dark");
-  const btnTheme = document.getElementById("btn-theme-toggle");
-  if (btnTheme) {
-    btnTheme.addEventListener("click", () => theme.toggle());
-  }
-
-  // 2. Metrics & Evidence System
+  // 1. Metrics & Evidence System (Section 9)
   const metrics = new MetricsSystem(api);
 
-  // 3. Raw Samples Modal
+  // 2. Raw Samples Modal (Section 7.6)
   const modal = new RawSamplesModal(api);
   modal.init();
+
+  // 3. Socket Strip (Section 4)
+  const socketStrip = new SocketStrip(api);
+  await socketStrip.init();
 
   // 4. Screen Controllers
   const screens = {
@@ -55,7 +52,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     screens.about.init(),
   ]);
 
-  // 5. Client Router (handles hash navigation & keyboard shortcuts)
+  // 5. Client Router (Section 5, handles hash navigation & keyboard shortcuts)
   const router = new ClientRouter(
     ["overview", "live", "analysis", "router", "results", "evidence", "about"],
     "overview"
@@ -83,11 +80,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Expose for testing and verification scripts
   window.SiliconRouteApp = {
-    theme,
     router,
     metrics,
     telemetry,
     modal,
+    socketStrip,
     screens,
   };
 
@@ -127,6 +124,9 @@ function setupShortcutsSheet() {
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && modal.classList.contains("active")) {
       closeSheet();
+    }
+    if (e.key === "?" && !["INPUT", "SELECT", "TEXTAREA"].includes(document.activeElement?.tagName)) {
+      openSheet();
     }
   });
 }

@@ -1,433 +1,224 @@
 /**
- * SiliconRoute Design Spec v2 — Elevated SaaS Shell Layout
- * Inspired directly by the reference mockups in E:\THE SNAP X HP\ui ux data.
- * Features centered pill navigation, generous canvas padding, and floating cards.
+ * SiliconRoute Design Spec v3: "Red Bench" Shell Layout
+ * Section 4: Socket strip. Section 5: App shell.
  */
 
-/* --------------------------------------------------------------------------
-   App Root
-   -------------------------------------------------------------------------- */
 .app-root {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: var(--bench);
+  background-color: var(--paper);
   color: var(--ink);
-  transition: background-color var(--motion-base), color var(--motion-base);
 }
 
 /* --------------------------------------------------------------------------
-   Top Bar (Header with Centered Pill Navigation)
+   Top Bar (56px, ink on paper)
    -------------------------------------------------------------------------- */
 .top-bar {
-  position: sticky;
-  top: 0;
-  background-color: rgba(244, 245, 247, 0.90);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: none;
+  height: 56px;
+  background-color: var(--paper);
+  border-bottom: 1px solid var(--rule);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px var(--space-8);
+  padding: 0 var(--space-24);
   z-index: 100;
-  transition: background-color var(--motion-base);
 }
 
-html[data-theme="dark"] .top-bar {
-  background-color: rgba(12, 14, 20, 0.90);
-}
-
-/* Brand Section */
 .brand-section {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  text-decoration: none;
+  gap: var(--space-8);
   cursor: pointer;
-  min-width: 180px;
-}
-
-.brand-logo-glyph {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--ink);
-  color: var(--plate);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-  transition: transform var(--motion-fast);
-}
-
-.brand-section:hover .brand-logo-glyph {
-  transform: rotate(45deg);
-}
-
-.brand-logo-glyph svg {
-  width: 18px;
-  height: 18px;
-  fill: currentColor;
+  text-decoration: none;
 }
 
 .brand-title {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ink);
   letter-spacing: -0.02em;
-  color: var(--ink);
 }
 
-/* Centered Pill Navigation */
-.nav-pill-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-}
-
-.nav-pill-bar {
-  background-color: var(--nav-pill-bg);
-  border: none;
-  border-radius: var(--radius-pill);
-  padding: 6px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.04);
-  list-style: none;
-  margin: 0;
-}
-
-.nav-pill-bar li {
-  margin: 0;
-  padding: 0;
-}
-
-.rail-item-btn {
-  background: transparent;
-  border: none;
-  color: var(--nav-pill-ink);
-  font-family: var(--font-ui);
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: var(--radius-pill);
-  padding: 9px 18px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  transition: all var(--motion-fast);
-  white-space: nowrap;
-}
-
-.rail-item-btn svg {
-  width: 16px;
-  height: 16px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: stroke var(--motion-fast);
-}
-
-.rail-item-btn:hover {
-  background-color: var(--nav-pill-hover-bg);
-  color: var(--ink);
-}
-
-.rail-item-btn.active {
-  background-color: var(--nav-pill-active-bg);
-  color: var(--nav-pill-active-ink);
-  font-weight: 500;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
-}
-
-.rail-item-btn.active svg {
-  stroke: var(--nav-pill-active-ink);
-}
-
-/* Top Bar Right Actions */
-.topbar-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  min-width: 200px;
-  justify-content: flex-end;
-}
-
-.badge-pro-pill {
-  background: #FEF3C7;
-  color: #92400E;
-  border: 1px solid rgba(245, 158, 11, 0.25);
-  border-radius: var(--radius-pill);
-  padding: 8px 18px;
+.topbar-telemetry {
   font-size: 13px;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  cursor: default;
-}
-
-html[data-theme="dark"] .badge-pro-pill {
-  background: rgba(245, 158, 11, 0.15);
-  color: #FBBF24;
-  border-color: rgba(245, 158, 11, 0.25);
-}
-
-.icon-circle-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--plate);
-  border: none;
   color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
   display: flex;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  transition: all var(--motion-fast);
-  position: relative;
+  gap: var(--space-12);
 }
 
-.icon-circle-btn:hover {
-  background: var(--plate-subtle);
-  color: var(--ink);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-}
-
-.bell-badge-dot {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #EF4444;
-  border: 1.5px solid var(--plate);
-}
-
-.avatar-chip {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #18181B, #3F3F46);
-  color: #FFFFFF;
-  font-weight: 600;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-  cursor: pointer;
-  position: relative;
-  transition: transform var(--motion-fast);
-}
-
-.avatar-chip:hover {
-  transform: scale(1.05);
-}
-
-.avatar-chip::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: var(--ok);
-  border: 2px solid var(--plate);
+.telemetry-divider {
+  color: var(--rule);
 }
 
 /* --------------------------------------------------------------------------
-   Main Content Area
+   Socket Strip (96px, signature element under top bar)
    -------------------------------------------------------------------------- */
-.main-wrapper {
-  flex: 1;
-  max-width: 1520px;
+.socket-strip {
+  min-height: 96px;
+  background-color: var(--sheet);
+  border-bottom: 1px solid var(--rule);
+  display: flex;
   width: 100%;
-  margin: 0 auto;
-  padding: 12px var(--space-8) var(--space-12);
+  overflow-x: auto;
 }
 
-/* Hero / Greeting Bar */
-.dashboard-hero-bar {
+.socket-item {
+  flex: 1;
+  min-width: 220px;
+  padding: var(--space-12) var(--space-16);
+  border-right: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: var(--sheet);
+}
+
+.socket-item:last-child {
+  border-right: none;
+}
+
+.socket-item.chosen {
+  background-color: var(--red) !important;
+  color: var(--white) !important;
+}
+
+.socket-item.chosen * {
+  color: var(--white) !important;
+}
+
+.socket-item.chosen .tag-verified,
+.socket-item.chosen .tag-unverified {
+  border-color: var(--white) !important;
+  color: var(--white) !important;
+}
+
+.socket-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 28px;
-  flex-wrap: wrap;
-  gap: var(--space-4);
+  margin-bottom: var(--space-4);
 }
 
-.hero-greeting-title {
-  font-size: 42px;
-  font-weight: 400;
-  letter-spacing: -0.03em;
-  color: var(--ink);
-  margin: 0;
-  line-height: 1.15;
-}
-
-.hero-controls {
+.socket-name-group {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  flex-wrap: wrap;
-}
-
-.hero-search-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--plate);
-  border: none;
-  color: var(--ink-2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  transition: all var(--motion-fast);
-}
-
-.hero-search-btn:hover {
-  background: var(--plate-subtle);
-  color: var(--ink);
-  transform: translateY(-1px);
-}
-
-.hero-filter-pill {
-  background: var(--plate);
-  border: none;
-  border-radius: var(--radius-pill);
-  padding: 11px 22px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13.5px;
-  font-weight: 500;
-  color: #3F3F46;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-html[data-theme="dark"] .hero-filter-pill {
-  color: var(--ink);
-}
-
-.hero-action-btn {
-  background: var(--ink);
-  color: var(--ink-inverse);
-  border: none;
-  border-radius: var(--radius-pill);
-  padding: 11px 24px;
-  font-family: var(--font-ui);
+  gap: var(--space-8);
+  font-weight: 700;
   font-size: 14px;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
-  transition: transform var(--motion-fast), opacity var(--motion-fast);
 }
 
-.hero-action-btn:hover {
-  opacity: 0.92;
-  transform: translateY(-1px);
+.socket-mark {
+  display: inline-block;
+  font-size: 12px;
 }
 
-.hero-action-btn:active {
-  transform: translateY(0);
+.socket-mark.cpu { color: var(--chip-cpu); }
+.socket-mark.igpu { color: var(--chip-igpu); }
+.socket-mark.dgpu { color: var(--chip-dgpu); }
+.socket-mark.npu { color: var(--chip-npu); }
+
+.socket-live-metrics {
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+.socket-prediction {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-2);
+  margin-top: var(--space-4);
 }
 
 /* --------------------------------------------------------------------------
-   Screen Containers & Animation
+   App Body (Rail + Content)
    -------------------------------------------------------------------------- */
+.app-body {
+  display: flex;
+  flex: 1;
+  min-height: calc(100vh - 152px);
+}
+
+.left-rail {
+  width: 200px;
+  flex-shrink: 0;
+  background-color: var(--paper);
+  border-right: 1px solid var(--rule);
+  padding: var(--space-16) 0;
+}
+
+.rail-nav {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+}
+
+.rail-item-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: var(--space-8) var(--space-24);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.rail-item-btn:hover {
+  color: var(--red);
+}
+
+.rail-item-btn.active {
+  color: var(--ink);
+}
+
+.rail-item-btn.active .rail-label {
+  border-bottom: 4px solid var(--red);
+  padding-bottom: 2px;
+}
+
+.content-area {
+  flex: 1;
+  padding: var(--space-32);
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+}
+
 .screen-container {
   display: none;
 }
 
 .screen-container.active {
   display: block;
-  animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* --------------------------------------------------------------------------
-   Grid Layouts for Screens
+   Responsive adjustments
    -------------------------------------------------------------------------- */
-/* 4 Metric Tiles Row */
-.metric-tiles-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-  margin-bottom: 28px;
-}
-
-@media (max-width: 1200px) {
-  .metric-tiles-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 640px) {
-  .metric-tiles-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Middle 3-Column Dashboard Layout */
-.dashboard-triplet-grid {
-  display: grid;
-  grid-template-columns: 1.15fr 1.7fr 1.15fr;
-  gap: 24px;
-  margin-bottom: 28px;
-}
-
-@media (max-width: 1300px) {
-  .dashboard-triplet-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Bottom 2-Column Grid */
-.dashboard-bottom-grid {
-  display: grid;
-  grid-template-columns: 1fr 1.5fr;
-  gap: 24px;
-}
-
 @media (max-width: 1100px) {
-  .dashboard-bottom-grid {
-    grid-template-columns: 1fr;
+  .app-body {
+    flex-direction: column;
   }
-}
-
-/* Responsive Top Bar */
-@media (max-width: 960px) {
-  .top-bar {
-    padding: 12px var(--space-4);
+  .left-rail {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: var(--space-8) var(--space-16);
   }
-  .rail-item-btn span {
-    display: none;
+  .rail-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: var(--space-12);
   }
   .rail-item-btn {
-    padding: 8px 12px;
+    padding: var(--space-4) var(--space-8);
   }
 }

@@ -1,12 +1,8 @@
 /**
- * SiliconRoute Design Spec v2 — Elevated SaaS Design Tokens
- * Matched precisely to the high-end dashboard mockups in E:\THE SNAP X HP\ui ux data.
- * Features pill navigation, floating card depth, and fluid motion.
+ * SiliconRoute Design Spec v3: "Red Bench" Tokens
+ * Single light theme. Sharp rectangles (radius 0). No shadows, gradients, or glass.
  */
 
-/* --------------------------------------------------------------------------
-   Fonts
-   -------------------------------------------------------------------------- */
 @font-face {
   font-family: 'Archivo';
   src: url('../fonts/archivo-variable.woff2') format('woff2-variations');
@@ -24,144 +20,41 @@
   font-display: swap;
 }
 
-/* --------------------------------------------------------------------------
-   Default / Light Theme (Mockup Default)
-   -------------------------------------------------------------------------- */
-:root,
-html[data-theme="light"] {
-  /* Canvas & Cards */
-  --bench: #F4F5F7;
-  --plate: #FFFFFF;
-  --plate-raised: #FFFFFF;
-  --plate-subtle: #F8F9FA;
-  --line: rgba(0, 0, 0, 0.04);
-  --line-strong: rgba(0, 0, 0, 0.08);
-  --line-border: #E5E7EB;
+:root {
+  /* Color Palette (Section 3.1) */
+  --paper: #F2F2F0;
+  --sheet: #FAFAF8;
+  --ink: #141414;
+  --ink-2: #4A4A4A;
+  --ink-3: #757575;
+  --rule: #D6D6D2;
+  --red: #E1461E;
+  --red-deep: #B8330F;
+  --red-wash: #F7E4DD;
+  --grey-chip: #8A8A8A;
+  --white: #FFFFFF;
 
-  /* Typography */
-  --ink: #18181B;
-  --ink-2: #71717A;
-  --ink-3: #A1A1AA;
-  --ink-inverse: #FFFFFF;
+  /* Chip Series Encoding */
+  --chip-cpu: #141414;
+  --chip-igpu: #8A8A8A;
+  --chip-dgpu: #E1461E;
+  --chip-npu: #B8330F;
 
-  /* Pill Navigation */
-  --nav-pill-bg: #FFFFFF;
-  --nav-pill-active-bg: #18181B;
-  --nav-pill-active-ink: #FFFFFF;
-  --nav-pill-hover-bg: #F4F5F7;
-  --nav-pill-ink: #52525B;
+  /* Typography (Section 3.2) */
+  --font-sans: 'Archivo', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 
-  /* Chip Identities (Fixed Across Product) */
-  --chip-cpu: #FB923C;
-  --chip-igpu: #0D9488;
-  --chip-dgpu: #06B6D4;
-  --chip-npu: #8B5CF6;
+  /* Spacing Scale (Section 3.3) */
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-48: 48px;
+  --space-64: 64px;
+  --space-96: 96px;
 
-  /* Semantic States */
-  --ok: #10B981;
-  --ok-bg: #ECFDF5;
-  --ok-text: #059669;
-  --warn: #F59E0B;
-  --warn-bg: #FFFBEB;
-  --warn-text: #D97706;
-  --bad: #F43F5E;
-  --bad-bg: #FFF1F2;
-  --bad-text: #E11D48;
-  --na: #71717A;
-  --na-bg: #F4F5F7;
-
-  /* Shadows (Multi-layered, ultra-soft) */
-  --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.03), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
-  --shadow-card-hover: 0 16px 36px -6px rgba(0, 0, 0, 0.07), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
-  --shadow-pill: 0 4px 14px rgba(24, 25, 29, 0.15);
-  --shadow-raised: 0 16px 36px rgba(0, 0, 0, 0.06);
-  --shadow-popover: 0 20px 48px rgba(0, 0, 0, 0.12);
-
-  /* Focus Ring */
-  --focus-ring: 2px solid #06B6D4;
-  --focus-offset: 2px;
-
-  /* Modern Font Stack with Round Geometry */
-  --font-ui: -apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", "Inter", "Outfit", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-  --font-display: -apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", "Inter", "Outfit", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-  --font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
-
-  /* Spacing */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-12: 48px;
-  --space-16: 64px;
-
-  /* Radii (Modern Soft Rounded Curves Matching Mockup) */
-  --radius-control: 9999px;
-  --radius-tile: 24px;
-  --radius-panel: 28px;
-  --radius-pill: 9999px;
-  --radius-inner: 16px;
-
-  /* Motion */
-  --motion-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
-  --motion-base: 250ms cubic-bezier(0.16, 1, 0.3, 1);
-  --motion-slow: 400ms cubic-bezier(0.16, 1, 0.3, 1);
-  --motion-trace: 700ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* --------------------------------------------------------------------------
-   Dark Theme (Sleek Obsidian SaaS)
-   -------------------------------------------------------------------------- */
-html[data-theme="dark"] {
-  --bench: #0C0E14;
-  --plate: #141822;
-  --plate-raised: #1A202E;
-  --plate-subtle: #171C28;
-  --line: rgba(255, 255, 255, 0.05);
-  --line-strong: rgba(255, 255, 255, 0.10);
-  --line-border: #232B3B;
-
-  --ink: #F3F4F6;
-  --ink-2: #9CA3AF;
-  --ink-3: #6B7280;
-  --ink-inverse: #111827;
-
-  --nav-pill-bg: #141822;
-  --nav-pill-active-bg: #F3F4F6;
-  --nav-pill-active-ink: #111827;
-  --nav-pill-hover-bg: #1F2636;
-  --nav-pill-ink: #9CA3AF;
-
-  --chip-cpu: #F59E0B;
-  --chip-igpu: #14B8A6;
-  --chip-dgpu: #38BDF8;
-  --chip-npu: #A78BFA;
-
-  --ok: #34D399;
-  --ok-bg: rgba(16, 185, 129, 0.15);
-  --ok-text: #34D399;
-  --warn: #FBBF24;
-  --warn-bg: rgba(245, 158, 11, 0.15);
-  --warn-text: #FBBF24;
-  --bad: #FB7185;
-  --bad-bg: rgba(244, 63, 94, 0.15);
-  --bad-text: #FB7185;
-  --na: #9CA3AF;
-  --na-bg: rgba(156, 163, 175, 0.15);
-
-  --shadow-card: 0 10px 30px -5px rgba(0, 0, 0, 0.35), 0 2px 6px -1px rgba(0, 0, 0, 0.20);
-  --shadow-card-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.50);
-  --shadow-pill: 0 4px 14px rgba(0, 0, 0, 0.40);
-  --shadow-raised: 0 16px 36px rgba(0, 0, 0, 0.60);
-  --shadow-popover: 0 20px 48px rgba(0, 0, 0, 0.75);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    --motion-fast: 0ms;
-    --motion-base: 0ms;
-    --motion-slow: 0ms;
-    --motion-trace: 0ms;
-  }
+  /* Border Radius: 0 everywhere (Section 3.3) */
+  --radius: 0px;
 }

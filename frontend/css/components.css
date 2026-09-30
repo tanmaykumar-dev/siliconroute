@@ -1,846 +1,376 @@
 /**
- * SiliconRoute Design Spec v2 — Elevated SaaS Components
- * Directly modeled after the reference mockups in E:\THE SNAP X HP\ui ux data.
- * Features floating SaaS cards, wave sparklines, donut charts, and micro-interactions.
+ * SiliconRoute Design Spec v3: "Red Bench" Components (Section 7)
+ * Sharp rectangles (radius 0). No shadows or gradients. Red & ink palette.
  */
 
 /* --------------------------------------------------------------------------
-   1. SaaS Floating Cards
-   -------------------------------------------------------------------------- */
-.saas-card {
-  background-color: var(--plate);
-  border: none;
-  border-radius: var(--radius-tile);
-  box-shadow: var(--shadow-card);
-  padding: 26px;
-  position: relative;
-  transition: transform var(--motion-base), box-shadow var(--motion-base);
-  overflow: hidden;
-}
-
-.saas-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-card-hover);
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-.card-title-group {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.card-title {
-  font-size: 19px;
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  color: var(--ink);
-  margin: 0;
-}
-
-.card-subtitle {
-  font-size: 13.5px;
-  color: var(--ink-2);
-  margin: 0;
-}
-
-.card-actions-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.card-filter-pill {
-  background: var(--bench);
-  border: none;
-  border-radius: var(--radius-pill);
-  padding: 7px 16px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--ink);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  transition: background var(--motion-fast);
-}
-
-.card-filter-pill:hover {
-  background: rgba(0, 0, 0, 0.08);
-}
-
-html[data-theme="dark"] .card-filter-pill {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.card-arrow-btn {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: var(--bench);
-  border: none;
-  color: var(--ink-2);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all var(--motion-fast);
-  text-decoration: none;
-}
-
-html[data-theme="dark"] .card-arrow-btn {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--ink);
-}
-
-.card-arrow-btn svg {
-  width: 17px;
-  height: 17px;
-  stroke: currentColor;
-  stroke-width: 2;
-  fill: none;
-}
-
-.card-arrow-btn:hover {
-  background: var(--ink);
-  color: var(--ink-inverse);
-  transform: scale(1.05);
-}
-
-/* --------------------------------------------------------------------------
-   2. Metric Tiles (Top 4 Row Cards with Wave Sparklines)
-   -------------------------------------------------------------------------- */
-.metric-tile {
-  background-color: var(--plate);
-  border: none;
-  border-radius: var(--radius-tile);
-  box-shadow: var(--shadow-card);
-  padding: 26px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 170px;
-  position: relative;
-  overflow: hidden;
-  transition: transform var(--motion-base), box-shadow var(--motion-base);
-}
-
-.metric-tile:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-card-hover);
-}
-
-.metric-tile-label {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--ink-2);
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.metric-tile-val {
-  font-size: 40px;
-  font-weight: 450;
-  letter-spacing: -0.03em;
-  color: var(--ink);
-  line-height: 1.1;
-  margin-bottom: 16px;
-  font-variant-numeric: tabular-nums lining-nums;
-}
-
-.metric-tile-bottom {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-/* Trend Badges Matching Mockup (Clean text with arrow) */
-.trend {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 13.5px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.trend-up {
-  color: var(--ok);
-}
-
-.trend-warn {
-  color: var(--warn);
-}
-
-.trend-bad {
-  color: var(--bad);
-}
-
-.trend-neutral {
-  color: var(--ink-2);
-}
-
-/* Wave Sparkline SVG with Sinusoidal Flow */
-.sparkline-wave-wrap {
-  width: 120px;
-  height: 48px;
-  flex-shrink: 0;
-}
-
-.sparkline-wave-svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.sparkline-wave-svg path.wave-line {
-  stroke-dasharray: 250;
-  stroke-dashoffset: 250;
-  animation: drawWave 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes drawWave {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-/* --------------------------------------------------------------------------
-   3. Middle Cards (Insight, Spline Chart, Donut)
-   -------------------------------------------------------------------------- */
-/* Insight Card Elements */
-.insight-item {
-  padding: 16px 0;
-  border-bottom: 1px solid var(--line);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.insight-item:last-of-type {
-  border-bottom: none;
-}
-
-.insight-item-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--ink);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.insight-item-desc {
-  font-size: 13.5px;
-  color: var(--ink-2);
-  line-height: 1.5;
-}
-
-/* Quick Route Widget */
-.quick-route-box {
-  background: var(--bench);
-  border: none;
-  border-radius: var(--radius-inner);
-  padding: 18px;
-  margin-top: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-html[data-theme="dark"] .quick-route-box {
-  background: var(--plate-subtle);
-}
-
-/* Donut Chart Elements */
-.donut-chart-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 0 6px;
-  position: relative;
-}
-
-.donut-graphic-wrapper {
-  position: relative;
-  width: 240px;
-  height: 240px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.donut-svg {
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-  overflow: visible;
-}
-
-.donut-segment {
-  fill: none;
-  stroke-width: 18;
-  stroke-linecap: round;
-  transition: stroke-dasharray 1.2s cubic-bezier(0.16, 1, 0.3, 1), stroke-dashoffset 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.donut-center-info {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  pointer-events: none;
-}
-
-.donut-center-val {
-  font-size: 30px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-  line-height: 1.1;
-}
-
-.donut-center-label {
-  font-size: 13px;
-  color: var(--ink-2);
-  margin-top: 3px;
-}
-
-/* Floating Percentage Badges with Frosted Glassmorphism */
-.donut-pill-badge {
-  position: absolute;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius: var(--radius-pill);
-  padding: 5px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  pointer-events: none;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  animation: floatBubble 3.5s ease-in-out infinite;
-}
-
-.donut-badge-dgpu {
-  background: rgba(6, 182, 212, 0.12);
-  border: 1px solid rgba(6, 182, 212, 0.35);
-  color: #0891B2;
-  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.18);
-  top: 18px;
-  right: 6px;
-}
-
-.donut-badge-cpu {
-  background: rgba(251, 146, 60, 0.12);
-  border: 1px solid rgba(251, 146, 60, 0.35);
-  color: #EA580C;
-  box-shadow: 0 4px 14px rgba(251, 146, 60, 0.18);
-  bottom: 22px;
-  left: 10px;
-  animation-delay: -1.2s;
-}
-
-.donut-badge-igpu {
-  background: rgba(139, 92, 246, 0.12);
-  border: 1px solid rgba(139, 92, 246, 0.35);
-  color: #7C3AED;
-  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.18);
-  bottom: 18px;
-  right: 12px;
-  animation-delay: -2.4s;
-}
-
-@keyframes floatBubble {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
-
-.donut-legend {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  margin-top: 20px;
-  flex-wrap: wrap;
-}
-
-.donut-legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--ink-2);
-}
-
-.donut-legend-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-}
-
-/* Spline Chart Big Metric Banner */
-.chart-metric-banner {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 18px;
-}
-
-.chart-big-number {
-  font-size: 34px;
-  font-weight: 600;
-  color: var(--ink);
-  letter-spacing: -0.025em;
-  line-height: 1.1;
-}
-
-.chart-legend-pills {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 6px;
-}
-
-.chart-legend-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
-  font-weight: 500;
-  color: var(--ink-2);
-}
-
-.chart-canvas-wrapper {
-  position: relative;
-  width: 100%;
-  height: 240px;
-}
-
-/* --------------------------------------------------------------------------
-   4. Buttons, Controls & Inputs
+   1. Buttons
    -------------------------------------------------------------------------- */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
-  height: 40px;
-  padding: 0 var(--space-6);
-  font-family: var(--font-ui);
+  font-family: var(--font-sans);
   font-size: 14px;
-  font-weight: 500;
-  border-radius: var(--radius-pill);
-  transition: all var(--motion-fast);
-  white-space: nowrap;
+  font-weight: 600;
+  height: 36px;
+  padding: 0 var(--space-16);
   cursor: pointer;
-  border: none;
   text-decoration: none;
+  border: 1px solid transparent;
+  line-height: 1;
+}
+
+.btn-lg {
+  height: 44px;
+  font-size: 15px;
+  padding: 0 var(--space-24);
+}
+
+.btn-sm {
+  height: 28px;
+  font-size: 13px;
+  padding: 0 var(--space-12);
 }
 
 .btn-primary {
-  background-color: var(--ink);
-  color: var(--ink-inverse);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  background-color: var(--red);
+  color: var(--white);
+  border-color: var(--red);
 }
 
-.btn-primary:hover {
-  opacity: 0.92;
-  transform: translateY(-1px);
+.btn-primary:active {
+  background-color: var(--red-deep);
+  border-color: var(--red-deep);
 }
 
 .btn-secondary {
-  background-color: var(--bench);
+  background-color: transparent;
   color: var(--ink);
-  border: none;
+  border-color: var(--ink);
 }
 
 .btn-secondary:hover {
-  background-color: rgba(0, 0, 0, 0.08);
-  color: var(--ink);
+  background-color: var(--sheet);
 }
 
-html[data-theme="dark"] .btn-secondary {
-  background-color: var(--plate-subtle);
+.btn-secondary:active {
+  background-color: var(--rule);
 }
 
-.btn-quiet {
-  background-color: transparent;
-  color: var(--ink-2);
-}
-
-.btn-quiet:hover {
-  color: var(--ink);
-  background-color: var(--bench);
-}
-
-.select {
-  height: 40px;
-  background-color: var(--plate);
-  color: var(--ink);
-  border: 1px solid var(--line-border);
-  border-radius: var(--radius-pill);
-  padding: 0 var(--space-4);
-  font-family: var(--font-ui);
-  font-size: 13.5px;
-  font-weight: 500;
-  outline: none;
-  cursor: pointer;
-  transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
-}
-
-.select:focus {
-  border-color: var(--chip-dgpu);
-  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.18);
-}
-
-/* Segmented Control */
-.segmented-control {
-  display: inline-flex;
-  background-color: var(--bench);
+.btn-text {
+  background: none;
   border: none;
-  border-radius: var(--radius-pill);
-  padding: 4px;
-  gap: 2px;
-}
-
-html[data-theme="dark"] .segmented-control {
-  background-color: var(--plate-subtle);
-}
-
-.segment-btn {
-  height: 34px;
-  padding: 0 var(--space-4);
-  font-family: var(--font-ui);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--ink-2);
-  border-radius: var(--radius-pill);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: all var(--motion-fast);
-}
-
-.segment-btn:hover {
   color: var(--ink);
+  text-decoration: underline;
+  padding: 0;
+  height: auto;
 }
 
-.segment-btn.active {
-  background-color: var(--plate);
-  color: var(--ink);
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+.btn-text:hover {
+  color: var(--red);
+}
+
+.btn:disabled, .btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: var(--rule);
 }
 
 /* --------------------------------------------------------------------------
-   5. Tables (Clean SaaS Style)
+   2. Selects & Segmented Controls
    -------------------------------------------------------------------------- */
-.saas-table-container {
+select, input[type="text"], input[type="number"] {
+  height: 36px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--ink);
+  background-color: var(--sheet);
+  border: 1px solid var(--ink);
+  padding: 0 var(--space-12);
+}
+
+.segmented-control {
+  display: inline-flex;
+  border: 1px solid var(--ink);
+}
+
+.segmented-control-btn {
+  height: 32px;
+  padding: 0 var(--space-12);
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--ink);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.segmented-control-btn:last-child {
+  border-right: none;
+}
+
+.segmented-control-btn.active {
+  background-color: var(--ink);
+  color: var(--white);
+}
+
+/* --------------------------------------------------------------------------
+   3. Tables (Main layout device, Section 7.3)
+   -------------------------------------------------------------------------- */
+.table-wrap {
   width: 100%;
   overflow-x: auto;
+  border: 1px solid var(--rule);
+  background-color: var(--sheet);
+  margin-bottom: var(--space-24);
 }
 
 table.bench-table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  font-size: 13.5px;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums lining-nums;
   text-align: left;
 }
 
 table.bench-table th {
-  background-color: var(--bench);
-  color: var(--ink-2);
-  font-weight: 600;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--line);
+  background-color: var(--paper);
+  color: var(--ink);
+  font-weight: 700;
+  padding: var(--space-8) var(--space-12);
+  border-bottom: 1px solid var(--ink);
   white-space: nowrap;
-  font-size: 12.5px;
-  letter-spacing: 0.02em;
 }
 
-html[data-theme="dark"] table.bench-table th {
-  background-color: var(--plate-subtle);
-}
-
-table.bench-table th:first-child {
-  border-top-left-radius: var(--radius-inner);
-}
-
-table.bench-table th:last-child {
-  border-top-right-radius: var(--radius-inner);
+table.bench-table th.num,
+table.bench-table td.num {
+  text-align: right;
 }
 
 table.bench-table td {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--line);
+  padding: var(--space-8) var(--space-12);
+  border-bottom: 1px solid var(--rule);
   color: var(--ink);
-  transition: background-color var(--motion-fast);
-  vertical-align: middle;
 }
 
-table.bench-table tbody tr:hover td {
-  background-color: var(--bench);
+table.bench-table tr:last-child td {
+  border-bottom: none;
 }
 
-html[data-theme="dark"] table.bench-table tbody tr:hover td {
-  background-color: var(--plate-subtle);
-}
-
-table.bench-table tbody tr:last-child td:first-child {
-  border-bottom-left-radius: var(--radius-inner);
-}
-
-table.bench-table tbody tr:last-child td:last-child {
-  border-bottom-right-radius: var(--radius-inner);
+table.bench-table tr.chosen-row,
+table.bench-table tr.best-row {
+  background-color: var(--red-wash) !important;
 }
 
 /* --------------------------------------------------------------------------
-   6. Pills, Badges & Glyphs
+   4. Tags (Rectangular, 1px border, 12px text, Section 7.4)
    -------------------------------------------------------------------------- */
-.pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
+.tag {
+  display: inline-block;
+  padding: 2px 6px;
   font-size: 12px;
   font-weight: 600;
-  border-radius: var(--radius-pill);
-  line-height: 1;
-}
-
-.pill-ok {
-  background: var(--ok-bg);
-  color: var(--ok-text);
-}
-
-.pill-warn {
-  background: var(--warn-bg);
-  color: var(--warn-text);
-}
-
-.pill-bad {
-  background: var(--bad-bg);
-  color: var(--bad-text);
-}
-
-.pill-info {
-  background: var(--bench);
+  line-height: 1.2;
+  border: 1px solid var(--rule);
   color: var(--ink-2);
+  background-color: var(--sheet);
+  text-transform: none;
 }
 
-.pill-na {
-  background: var(--na-bg);
-  color: var(--na);
-}
-
-/* Chip Identification Glyphs */
-.chip-glyph {
-  display: inline-block;
-  vertical-align: middle;
-  width: 10px;
-  height: 10px;
-}
-
-.glyph-square {
-  border-radius: 2px;
-}
-
-.glyph-circle {
-  border-radius: 50%;
-}
-
-.glyph-triangle {
-  width: 0;
-  height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-bottom: 9px solid currentColor;
-}
-
-.glyph-diamond {
-  width: 8px;
-  height: 8px;
-  transform: rotate(45deg);
-}
-
-.chip-cpu {
-  background-color: var(--chip-cpu);
-}
-
-.chip-igpu {
-  background-color: var(--chip-igpu);
-}
-
-.chip-dgpu {
-  background-color: var(--chip-dgpu);
-}
-
-.chip-npu {
-  background-color: var(--chip-npu);
-}
-
-/* --------------------------------------------------------------------------
-   7. Hardware Socket Cards (Overview & Live)
-   -------------------------------------------------------------------------- */
-.socket-strip-container {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-  margin-bottom: 24px;
-}
-
-@media (max-width: 900px) {
-  .socket-strip-container {
-    grid-template-columns: 1fr;
-  }
-}
-
-.socket-tile {
-  background-color: var(--plate);
-  border: none;
-  border-radius: var(--radius-tile);
-  box-shadow: var(--shadow-card);
-  padding: 20px 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  position: relative;
-  transition: all var(--motion-base);
-}
-
-.socket-tile.chosen {
-  box-shadow: 0 0 0 2px var(--chip-dgpu), var(--shadow-card-hover);
-  background-color: var(--plate);
-}
-
-.socket-tile.dimmed {
-  opacity: 0.55;
-}
-
-.socket-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.socket-name {
-  font-size: 14.5px;
-  font-weight: 600;
+.tag-verified {
+  border-color: var(--ink);
   color: var(--ink);
-  flex: 1;
 }
 
-.socket-metrics-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
+.tag-hypothesis {
+  border-color: var(--ink-3);
+  color: var(--ink-3);
+  font-style: italic;
+}
+
+.tag-fitted {
+  border-color: var(--grey-chip);
   color: var(--ink-2);
 }
 
-.socket-sparkline-canvas {
-  width: 100%;
-  height: 38px;
-  display: block;
+.tag-volatile {
+  border-color: var(--red);
+  color: var(--red);
 }
 
-.socket-predicted-latency {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--chip-dgpu);
+.tag-unavailable {
+  border-color: var(--rule);
+  color: var(--ink-3);
 }
 
 /* --------------------------------------------------------------------------
-   8. Modals & Overlays
+   5. Figures & Metrics (Section 7.5 & 9)
+   -------------------------------------------------------------------------- */
+.figure-block {
+  margin-bottom: var(--space-16);
+}
+
+.figure-label {
+  font-size: 13px;
+  color: var(--ink-2);
+  margin-top: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.evidence-btn {
+  background: none;
+  border: none;
+  color: var(--ink-2);
+  text-decoration: underline;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.evidence-btn:hover {
+  color: var(--red);
+}
+
+/* --------------------------------------------------------------------------
+   6. Raw-samples Modal (Section 7.6)
    -------------------------------------------------------------------------- */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(17, 24, 39, 0.45);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  display: none;
+  background-color: rgba(20, 20, 20, 0.45);
+  display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  opacity: 0;
-  transition: opacity var(--motion-base);
 }
 
-.modal-overlay.active {
-  display: flex;
-  opacity: 1;
-}
-
-.modal-card {
-  background-color: var(--plate);
-  border-radius: var(--radius-panel);
-  box-shadow: var(--shadow-popover);
-  border: none;
-  max-width: 760px;
+.modal-sheet {
+  background-color: var(--sheet);
+  border: 1px solid var(--ink);
   width: 90%;
+  max-width: 720px;
   max-height: 85vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes modalPop {
-  from {
-    transform: scale(0.95) translateY(10px);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1) translateY(0);
-    opacity: 1;
-  }
+  padding: var(--space-24);
 }
 
 .modal-header {
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: var(--space-12);
+  margin-bottom: var(--space-16);
 }
 
-.modal-title {
-  font-size: 18px;
-  font-weight: 700;
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
   color: var(--ink);
-  margin: 0;
+  padding: 0 4px;
 }
 
-.modal-body {
-  padding: 24px;
+.modal-content {
   overflow-y: auto;
   flex: 1;
 }
 
-.modal-footer {
-  padding: 16px 24px;
-  border-top: 1px solid var(--line);
+/* --------------------------------------------------------------------------
+   7. Evidence Popover (Section 7.7)
+   -------------------------------------------------------------------------- */
+.popover-card {
+  background-color: var(--sheet);
+  border: 1px solid var(--ink);
+  padding: var(--space-16);
+  max-width: 400px;
+  font-size: 13px;
+  line-height: 1.5;
+  box-shadow: none;
+}
+
+.popover-row {
+  margin-bottom: var(--space-8);
+}
+
+.popover-label {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* --------------------------------------------------------------------------
+   8. Toasts (Bottom-left, ink block, white text, Section 7.8)
+   -------------------------------------------------------------------------- */
+.toast-container {
+  position: fixed;
+  bottom: var(--space-24);
+  left: var(--space-24);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.toast {
+  background-color: var(--ink);
+  color: var(--white);
+  padding: var(--space-12) var(--space-16);
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
+  justify-content: space-between;
+  gap: var(--space-16);
+  min-width: 240px;
+}
+
+/* --------------------------------------------------------------------------
+   9. Skeletons (Static --rule blocks, no shimmer, Section 7.9)
+   -------------------------------------------------------------------------- */
+.skeleton {
+  background-color: var(--rule);
+  height: 20px;
+  width: 100%;
+}
+
+.skeleton-text {
+  height: 16px;
+  margin-bottom: var(--space-8);
+}
+
+.skeleton-figure {
+  height: 64px;
+  width: 120px;
+  margin-bottom: var(--space-8);
+}
+
+/* --------------------------------------------------------------------------
+   10. Empty & Error States (Section 7.10)
+   -------------------------------------------------------------------------- */
+.state-box {
+  border: 1px solid var(--rule);
+  padding: var(--space-32);
+  text-align: center;
+  background-color: var(--sheet);
+  margin-bottom: var(--space-24);
+}
+
+.state-box p {
+  margin: 0 auto var(--space-16);
+}
+
+.state-box.error {
+  border-color: var(--red-deep);
+}
+
+.state-box.error p {
+  color: var(--red-deep);
 }

@@ -1,526 +1,455 @@
-# SiliconRoute Design Spec v2 — "Bench"
+# SiliconRoute Design Spec v3: "Red Bench"
 
-Place this file at `docs/DESIGN_SPEC.md`. It is the single source of truth for the look,
-layout, behaviour and copy of both SiliconRoute surfaces:
+Save this file as `docs/DESIGN_SPEC.md` (it replaces v2 completely). It is the single source of
+truth for the look, layout, behaviour and copy of both surfaces:
 
-1. **The app** — the local dashboard served by FastAPI at `http://127.0.0.1:8000` (`frontend/`).
-2. **The website** — a static, public landing page (`site/`) that can be hosted on GitHub Pages.
+1. **The app**: the local dashboard served by FastAPI at `http://127.0.0.1:8000` (`frontend/`).
+2. **The website**: the static public site in `site/` (GitHub Pages ready).
 
-Read sections 0–4 before touching any file. Build in the phase order of section 15.
+The visual language matches the SiliconRoute pitch deck: signal red, near-black ink, off-white
+paper, sharp rectangles, bold type. Read sections 0, 3, 16 and 17 before touching any file.
 
 ---
 
-## 0. Non-negotiable rules (read first)
+## 0. Non-negotiable rules
 
-- **Data integrity beats design.** Never type a measured number into HTML, CSS, JS or copy.
-  Every number shown comes from the API or from `results/final/manifest.json`. If a value is
-  missing, show the "not available" pill (section 7.9). This applies to the website too.
-- **Do not change backend logic, the database, the frozen database, or any measurement code.**
-  This is a presentation-layer project. The frozen DB SHA256 must stay
-  `98542cffb7264eee537d218e1863ccbbc174495e0bf13eb244ee22cd6f034cf5`.
-- **Local-first, offline-capable.** No runtime CDNs. Vendor Chart.js and fonts into the repo.
-- **Plain HTML + CSS + JS modules.** No npm build step, no framework, no second server.
-- **Original design.** Do not copy layouts, illustrations or branding from other products.
-- Follow AGENTS.md and every rule in `.agents/rules/` (logs only, no pushing, no history rewrite).
+1. **Data integrity beats design.** Never type a measured number into HTML, CSS, JS or copy.
+   Every number comes from the API or `results/final/manifest.json` (and later the v2 manifest).
+   Missing values show the "not available" tag. Example or placeholder numbers are forbidden.
+2. **Presentation layer only.** Do not change measurement code, routing logic, fits, databases
+   or README wording. The frozen v1.0 DB SHA256 must stay
+   `98542cffb7264eee537d218e1863ccbbc174495e0bf13eb244ee22cd6f034cf5`.
+3. **Every control works.** No decorative buttons, no dead links, no `href="#"`, no controls for
+   features that do not exist (no "upgrade", no notifications, no avatar, no fake search). If a
+   control has no real function, remove it. Enforced by section 17.
+4. **Anti-generic checklist is mandatory.** Section 16, enforced by `scripts/ui_lint.py`.
+5. **Light theme only**, red and white like the deck. Remove any theme toggle and dark styles.
+6. **Local-first.** No runtime CDNs or external requests. Vendor Chart.js and fonts.
+7. **Plain HTML + CSS + JS modules.** No framework, no build step, no second server.
+8. **Original design.** Do not copy layouts, illustrations or branding from other products.
 
 ---
 
 ## 1. Brief
 
 **Product.** SiliconRoute measures every AI-capable chip in a Windows laptop (CPU, integrated
-GPU, discrete GPU), learns each chip's behaviour, routes each AI task to the best chip for the
-user's goal, explains why, and verifies the choice by measuring.
+GPU, discrete GPU, NPU), learns each chip's behaviour, routes each AI task to the best chip for
+the user's goal, explains why, and verifies the choice by measuring.
 
-**Audience.** Hardware and ML engineers (e.g. at chip companies), professors, recruiters, and
-technically curious students. They are sceptical and read numbers carefully.
+**Audience.** Hardware and ML engineers (for example at chip companies), competition judges,
+professors and recruiters. Sceptical, technical, short on time.
 
-**Primary jobs.**
-- App: see live chip state, understand each chip's measured behaviour, ask "which chip should
-  run this?", and trust the answer because the evidence is one click away.
-- Website: understand the problem and the result in 30 seconds, then verify it in 3 minutes.
+**Jobs.** App: see chip state, understand measured behaviour, ask "which chip should run this?"
+and check the evidence. Website: understand the result in 30 seconds, verify it in 3 minutes.
 
-**Personality.** A precise lab instrument, not a marketing dashboard. Calm, exact, honest,
-quietly confident. The evidence is the hero.
+**Personality.** Swiss engineering poster meets lab instrument. Confident, exact, plain-spoken.
 
 ---
 
-## 2. Design principles
+## 2. Principles
 
-1. **Evidence is one click away.** Every number can reveal where it came from (section 9).
-2. **Chips have identities.** Each chip keeps one colour and one glyph everywhere (charts,
-   tables, pills, the socket strip). Colour is never the only signal: always add the label.
-3. **Hierarchy through layout, not decoration.** Primary content sits directly on the page
-   with hairline structure; only secondary facts live in tiles. Avoid a wall of identical cards.
-4. **One memorable moment per surface.** The routing trace (section 4). Everything else stays
-   quiet and disciplined.
-5. **Honest states.** Loading, empty, "not available", "hypothesis", and "fitted estimate" are
-   first-class visual states, not afterthoughts.
-6. **Readable numbers.** Tabular figures, units always shown, right-aligned in tables, consistent
-   precision per metric type (section 3.2).
+1. **Evidence one click away.** Every number can show where it came from (section 9).
+2. **Chips are told apart by shape and label, not colour.** Colour is almost only red and ink.
+3. **Type and rules create hierarchy.** Big numbers, bold headings, 1px rules, solid blocks of
+   red or ink. No cards floating on shadows, no soft boxes.
+4. **Real product, real data.** Screenshots and recordings of the real app, never mock-ups.
+5. **Honest states.** Loading, empty, "not available", "hypothesis", "fitted estimate", "not
+   measured" are designed states.
+6. **Quiet interface.** No decorative motion. Things change state instantly and clearly.
 
 ---
 
-## 3. Design tokens
+## 3. Tokens (`frontend/css/tokens.css`, reused by `site/`)
 
-Implement all tokens as CSS custom properties in `frontend/css/tokens.css` and reuse the same
-file in `site/`. Two themes: `light` (default for the website) and `dark` (default for the app),
-switched with `data-theme` on `<html>`; respect `prefers-color-scheme` on first visit and
-remember the user's choice in `localStorage` (key `sr-theme`).
+### 3.1 Colour (single light theme)
 
-### 3.1 Colour
+| Token | Hex | Use |
+|---|---|---|
+| `--paper` | `#F2F2F0` | page background (neutral off-white, never pure white) |
+| `--sheet` | `#FAFAF8` | panels, tables, modal |
+| `--ink` | `#141414` | text, rules, solid ink blocks |
+| `--ink-2` | `#4A4A4A` | secondary text |
+| `--ink-3` | `#757575` | tertiary text, axis labels |
+| `--rule` | `#D6D6D2` | hairlines |
+| `--red` | `#E1461E` | brand, primary buttons, chosen chip, key figures |
+| `--red-deep` | `#B8330F` | pressed state, red text on paper when contrast needs it |
+| `--red-wash` | `#F7E4DD` | background of the chosen row only (functional highlight) |
+| `--grey-chip` | `#8A8A8A` | the second accelerator's series |
 
-Neutrals — the "bench" (cool, slightly blue-grey, like anodised aluminium and a scope screen):
+No other colours. No green, purple, blue, pastel or neon. Success is shown with words
+("verified", "best") in ink; errors in `--red-deep` with a clear message.
 
-| Token | Light | Dark | Use |
-|---|---|---|---|
-| `--bench` | `#E9EDF0` | `#0E1317` | page background |
-| `--plate` | `#F7F9FA` | `#141A1F` | primary panels |
-| `--plate-raised` | `#FFFFFF` | `#1A2229` | tiles, popovers, drawers |
-| `--line` | `#D3DAE0` | `#27323B` | hairlines, table rules |
-| `--line-strong` | `#B7C1CA` | `#3A4752` | focus-adjacent borders, dividers |
-| `--ink` | `#172026` | `#E6ECEF` | primary text |
-| `--ink-2` | `#4E5A64` | `#A3AFB8` | secondary text |
-| `--ink-3` | `#76828C` | `#77848E` | tertiary text, axis labels |
+**Chip encoding (fixed everywhere: tables, charts, sockets, legends):**
 
-Chip identities (fixed across the whole product; never reuse these for anything else):
+| Chip | Mark | Colour |
+|---|---|---|
+| CPU | filled square | `--ink` |
+| Integrated GPU (Radeon 610M / Adreno) | filled triangle | `--grey-chip` |
+| Discrete GPU (RTX 5070 Laptop) | filled circle | `--red` |
+| NPU (Hexagon) | filled diamond | `--red-deep` |
 
-| Token | Light | Dark | Chip | Glyph |
-|---|---|---|---|---|
-| `--chip-cpu` | `#B86E12` | `#E59A3A` | CPU | square |
-| `--chip-igpu` | `#138472` | `#3CC4AC` | integrated GPU (Radeon) | triangle |
-| `--chip-dgpu` | `#2A5FD0` | `#6E9CFF` | discrete GPU (RTX) | circle |
-| `--chip-npu` | `#7A4BD6` | `#A988F0` | NPU (future) | diamond |
+The mark always appears with the chip's name. Charts also differ by line style (solid/dashed).
 
-State colours:
+Contrast: body text >= 4.5:1, large text and chart lines >= 3:1. Log computed ratios.
 
-| Token | Light | Dark | Use |
-|---|---|---|---|
-| `--ok` | `#1E8A4C` | `#4CC787` | verified, best choice, tests pass |
-| `--warn` | `#A86E00` | `#E3B341` | volatile, hypothesis, fitted estimate |
-| `--bad` | `#C23B32` | `#F07167` | error, wrong choice, regression |
-| `--na` | `#8A949C` | `#6B7780` | "not available" |
+### 3.2 Type
 
-Contrast: body text ≥ 4.5:1 on its background in both themes; large text and chart strokes
-≥ 3:1. Verify with a script and log the ratios.
+- **Archivo** (variable, OFL, vendored woff2) for everything. Width axis: 100 body, 112 display,
+  94 dense tables. Weights 400, 600, 800.
+- **JetBrains Mono** (OFL, vendored) only for commands, hashes and IDs.
+- Banned: Inter, Geist, Space Grotesk, Poppins, Montserrat, Roboto, system-ui as the main face.
+- All numbers: `font-variant-numeric: tabular-nums lining-nums`.
 
-### 3.2 Typography
+| Role | px / line-height / weight |
+|---|---|
+| Display (website hero) | 72 / 0.98 / 800, `wdth 112` (mobile 44) |
+| Figure (big numbers) | 64 / 1.0 / 800 |
+| H1 | 36 / 1.1 / 800 |
+| H2 | 24 / 1.2 / 700 |
+| H3 | 18 / 1.3 / 700 |
+| Body | 16 / 1.55 / 400, max 70ch |
+| Small | 13 / 1.45 / 400 |
+| Table | 14 / 1.4 / 400, `wdth 94` |
 
-- **Archivo** (variable, OFL) for all UI and headlines. Use its width axis: `wdth 100` for body,
-  `wdth 112` for display headlines on the website, `wdth 94` for dense tables.
-- **JetBrains Mono** (OFL) only for code, commands, hashes and IDs (run 839, SHA256). Never for
-  labels or regular numbers.
-- Vendor both as `woff2` in `frontend/fonts/` (and copy to `site/fonts/`), with a
-  `system-ui, "Segoe UI", sans-serif` fallback.
-- All numbers use `font-variant-numeric: tabular-nums lining-nums`.
-
-Type scale (px / line-height / weight):
-
-| Role | Size | LH | Weight | Notes |
-|---|---|---|---|---|
-| Display (website hero) | 56 (mobile 38) | 1.05 | 650 | `wdth 112`, tight tracking −1% |
-| H1 | 32 | 1.15 | 620 | sentence case |
-| H2 | 24 | 1.2 | 600 | |
-| H3 | 18 | 1.3 | 600 | |
-| Body | 15 | 1.55 | 420 | max line length 72ch |
-| Small | 13 | 1.45 | 450 | secondary info |
-| Metric (large) | 40 | 1.0 | 600 | tabular |
-| Metric (medium) | 24 | 1.1 | 600 | tabular |
-| Table | 13.5 | 1.4 | 450 | `wdth 94`, tabular |
-
-Number precision: milliseconds < 1 → 3 decimals; 1–100 ms → 2 decimals; > 100 ms → 1 decimal;
-percentages → 1 decimal except regret (2 decimals, as published); ratios → 1 decimal + "×".
-
-Copy rules for type: sentence case everywhere, no all-caps labels, no letter-spaced eyebrow text
-above headings, no single highlighted word inside headlines.
+Precision: ms < 1 → 3 decimals; 1 to 100 ms → 2; > 100 ms → 1; percentages as published;
+ratios 1 decimal + "×".
 
 ### 3.3 Space, shape, depth, motion
 
-- Spacing: 4-pt scale — `4, 8, 12, 16, 24, 32, 48, 64, 96`.
-- Radius is hierarchical: controls `6px`, tiles `10px`, panels `14px`, pills `999px`. Tables
-  and charts inside panels have no radius of their own.
-- Depth: prefer hairlines (`--line`) over shadows. Only popovers, drawers and the modal get a
-  shadow: light `0 12px 32px rgba(23,32,38,.14)`, dark `0 12px 32px rgba(0,0,0,.45)`.
-- Motion: durations `120ms` (hover/focus), `200ms` (open/close), `600ms` (the routing trace
-  only). Easing `cubic-bezier(.2,.7,.2,1)`. With `prefers-reduced-motion: reduce`, disable the
-  trace animation and use instant state changes.
-- Icons: inline SVG, 20px, 1.5px stroke, `currentColor`. No icon fonts.
+- Spacing scale: 4, 8, 12, 16, 24, 32, 48, 64, 96, 128.
+- **Corner radius: 0 everywhere.** Sharp rectangles like the deck. (Exception: none.)
+- **No shadows anywhere.** Separation comes from 1px rules, solid fills and spacing.
+- **No gradients, glass, blur, orbs, dot grids or textures.**
+- **No hover animations.** Hover may change colour or underline instantly (no transition).
+- No decorative motion at all. State changes are instant. The only timed element is the
+  progress indicator while a real benchmark runs.
+- **Skeleton loaders** for every async region: static blocks in `--rule`, no shimmer.
+- Icons: none from icon libraries (no Lucide, Heroicons, Font Awesome). Use words. The only
+  graphic marks are the four chip marks and a small set of hand-drawn SVG glyphs where a word
+  cannot work (close, copy, external link), 1.5px stroke, square caps.
 
 ---
 
-## 4. Signature element: the socket strip and the routing trace
+## 4. Signature element: the socket strip
 
-This is the one memorable thing. Everything else stays quiet.
+A full-width strip under the top bar with one "socket" per available chip, laid out as columns
+separated by 1px rules (not cards). Each socket shows: chip mark + name, identity status
+("verified" / "unverified"), and live values from `/api/telemetry/stream` (load %, power W,
+temperature °C, clock MHz, sleep state), each "not available" when missing.
 
-**Socket strip (app).** A slim horizontal strip at the top of the app, below the top bar, showing
-one "socket" per available chip, left to right: CPU, integrated GPU, discrete GPU (NPU when one
-exists). Each socket is a 10px-radius tile with a 3px left edge in the chip colour, containing:
-
-- chip glyph + short name ("CPU", "Radeon 610M", "RTX 5070 Laptop") from the device API;
-- identity status: "verified" (vendor ID + LUID) or "unverified", as a small pill;
-- live values from `/api/telemetry/stream`: load %, power W, temperature °C, clock MHz,
-  P-state, each as "not available" when missing;
-- a thin sparkline of the last 60 seconds of load.
-
-**Routing trace.** When the router makes a decision (Router screen or Overview "ask" box), draw
-an SVG path from the task card to the chosen socket over `600ms`; the chosen socket's edge
-brightens and shows "chosen" plus the predicted time; other sockets show their predicted times
-dimmed. The trace stays until the next decision. Reduced motion: no animation, just the final
-state.
-
-**Website hero version.** A static-first SVG diagram: two task cards ("small model, batch 1" and
-"large model, batch 1") routed to different chips, labelled with the measured times from the
-manifest (section 10.2). Animate the traces once on load (the page's only non-user motion).
-
-```
- ┌ task: mlp-256, batch 1 ┐                ┌─ CPU ────────── 0.017 ms ─ chosen ┐
- │  small model           │━━━━━━━━━━━━━━━▶│ ■ load 12%  28 W?  not available   │
- └────────────────────────┘                └────────────────────────────────────┘
-                                           ┌─ Radeon 610M ───── 0.138 ms ──────┐
-                                           └────────────────────────────────────┘
-                                           ┌─ RTX 5070 ──────── 0.142 ms ──────┐
-                                           └────────────────────────────────────┘
-(values above are examples of layout only; real values come from the API/manifest)
-```
+When a routing decision is made, the chosen socket becomes a solid `--red` block with white text
+showing "chosen" and the predicted time; the others show their predicted times in `--ink-2`.
+Instant change, no animation, no arrows. It stays until the next decision.
 
 ---
 
-## 5. App shell and layout
+## 5. App shell
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│ SiliconRoute   [plugged in] [battery 100%] [live]              [theme] [help]  │ top bar 56px
+│ SiliconRoute                        plugged in | battery 100% | live          │ top bar 56px, ink text on paper
+├──────────────────────────────────────────────────────────────────────────────┤
+│ ■ CPU          │ ▲ Radeon 610M        │ ● RTX 5070 Laptop                     │ socket strip 96px
 ├───────────┬──────────────────────────────────────────────────────────────────┤
-│ Overview  │ [socket: CPU ] [socket: Radeon 610M ] [socket: RTX 5070 ]         │ socket strip 88px
-│ Live      ├──────────────────────────────────────────────────────────────────┤
-│ Analysis  │                                                                    │
-│ Router    │   page content: 12-column grid, 24px gutters, max width 1440px     │
-│ Results   │                                                                    │
-│ Evidence  │                                                                    │
-│ About     │                                                                    │
-│           │                                                                    │
-│ v1.0      │                                                                    │
+│ Overview  │ H1 + one sentence                                                │
+│ Live      │                                                                  │
+│ Analysis  │ content on a 12-column grid, 24px gutters, max width 1440px     │
+│ Router    │                                                                  │
+│ Results   │                                                                  │
+│ Evidence  │                                                                  │
+│ About     │                                                                  │
 └───────────┴──────────────────────────────────────────────────────────────────┘
- rail 224px (collapses to 64px icon rail below 1180px; labels become tooltips)
+ left rail 200px, text only; active item = red 4px underline under the label (not a left stripe)
 ```
 
-- Left-aligned content everywhere. Page title (H1) + one-sentence description at the top of
-  every screen, then content.
-- Breakpoints: ≥1440 (full), 1180–1439 (full, tighter), 960–1179 (icon rail, socket strip
-  scrolls horizontally), <960 (show a notice: "SiliconRoute's dashboard is designed for laptop
-  screens. Widen the window for the full view." but keep it usable).
-- Keyboard: rail items reachable by Tab, arrow keys move within the rail, `g` then a letter
-  jumps to a screen (g o, g l, g a, g r, g s, g e), `?` opens the shortcuts sheet.
+- Left-aligned everything. Rail collapses to a top menu button under 1100px.
+- Keyboard: Tab order follows reading order; `g` + letter jumps to screens; `?` opens shortcuts.
 
 ---
 
 ## 6. App screens
 
-Each screen lists purpose, layout, data sources (existing API — do not change its logic; you may
-add read-only endpoints that call existing functions or read the manifest), and states.
+Each screen: H1, one plain sentence, then content. Data only from existing API endpoints or new
+read-only endpoints that read existing functions or manifests.
 
-### 6.1 Overview (new, default screen)
-
-Purpose: the 20-second answer to "is this working and what has it found?"
-
-```
-H1 Overview
-"SiliconRoute measures every chip in this laptop and routes each AI task to the best one."
-
-[ Ask SiliconRoute: model ▾  batch ▾  workload ▾  goal ▾   (Route task) ]  ← routing trace
-
-Final evaluation (decisions 117–140, previously profiled configurations)
-┌──────────────┬──────────────┬──────────────┬──────────────┐
-│ Best chip     │ Avg slowdown │ Always CPU    │ Always RTX    │  metric tiles (4)
-│ 22 of 24      │ 1.75%        │ 113.06%       │ 304.93%       │  (values from manifest)
-└──────────────┴──────────────┴──────────────┴──────────────┘
-Key findings  (4 short rows, each with its evidence link)
-Recent decisions (last 8, from /api/decisions): time, model, batch, workload, chosen chip, result
-```
-The four tiles are the only tiles on the page; findings and decisions are plain rows.
+### 6.1 Overview (default)
+- A statement block, not tiles: "22 of 24 decisions picked the fastest chip" style sentence built
+  from `.metric` values, with "Show evidence". Under it, a compact comparison table of strategies
+  (SiliconRoute, always CPU, always GPU, always NPU when measured, fit only): wins, accuracy, mean
+  regret, p90 regret.
+- "Route a task" form (model, batch, workload, goal) with a primary "Route task" button that
+  calls the real router and updates the socket strip.
+- Recent decisions table (from `/api/decisions`), empty state when none.
+- Findings as a numbered list (they are a real ordered set from the README), each with evidence.
 
 ### 6.2 Live
-
-Purpose: watch each chip right now.
-Layout: one full-width chart per chip family (utilisation %, power W, temperature °C, clock/P-state
-for the RTX; battery discharge W), sharing a 120-second time axis, stacked vertically so time
-aligns. Each chart has a "data table" toggle for accessibility. Unavailable series show the
-"not available" pill with the reason (e.g. "Windows does not expose CPU frequency").
+Stacked full-width charts sharing one time axis: utilisation, power, temperature, clock and
+sleep state, battery discharge. Each chart: "Show data table" toggle. Unavailable series show
+the "not available" tag with the API's reason.
 
 ### 6.3 Analysis
-
-Purpose: understand each chip's behaviour.
-- Scaling chart: latency vs model size (log-log), family and batch selectors, measured points
-  (chip glyphs) + fitted curves (dashed). Clicking a point opens the raw-samples modal (7.7).
-- Crossover: shown as a labelled vertical marker per chip pair, tagged "fitted estimate" (warn
-  colour), with the measured neighbours listed underneath ("measured: CPU faster at width X,
-  RTX faster at width Y" from the database).
-- Chip models table: form, overhead, compute (effective), DRAM, cache/VRAM, LOO MAPE. Show
-  "n/a" where the form has no such term; label compute as "effective".
-- Session variability table and wake/cold-start ratios (median, range, n).
-- Physics notes (Winograd hypothesis) as "hypothesis" callouts.
+Scaling chart (log-log) with family/batch selectors; measured points use chip marks, fitted
+curves dashed. Clicking a point opens the raw-samples modal. Crossover markers labelled "fitted
+estimate" with the measured neighbours listed. Chip model table ("effective" compute, "n/a"
+where a form has no term). Variability and wake/cold ratios with median, range and n.
 
 ### 6.4 Router
-
-Purpose: ask which chip should run a task and see why.
-```
-[model ▾] [batch ▾] [workload: sustained | idle_loaded | cold_start] [goal ▾] [power budget W]
-[ ] Exploration (off by default)            (Route task)   (Route and verify on hardware)
-
-Decision ───────────────────────────────────────────────  (routing trace into socket strip)
- Chosen: RTX 5070 Laptop    Predicted 0.673 ms (measured)     ← example layout only
- Reason: plain-English sentence from the API
- Rules applied: list
-Candidates table: chip, predicted ms, source (measured / fitted / measured cold start),
-                  wake or cold penalty, score, eligibility (with reason)
-```
-"Route and verify on hardware" asks for confirmation first: "This runs a short benchmark on all
-chips (about 10–30 seconds). Continue?" Show progress, then actual vs predicted and regret.
+Form + "Route task" + "Route and verify on hardware" (confirmation dialog first: "This runs a
+short benchmark on every chip, about 10 to 30 seconds. Continue?"). Result: chosen chip,
+predicted time with source, plain-English reason, rules applied, candidates table (chip,
+predicted, source, penalty, score, eligibility with reason). Exploration checkbox off by default.
 
 ### 6.5 Results
+Published evaluation exactly as `results/final/` (overall + per workload), cold-start rule check,
+regret bar chart (log scale; SiliconRoute bar red, others ink/grey), collapsed earlier evaluation.
+A "Snapdragon X2 Elite" section that shows the v2 results when they exist, otherwise the empty
+state "Snapdragon results not yet recorded".
 
-Purpose: the published evaluation, exactly as in `results/final/`.
-- Final evaluation 117–140: overall table (wins k/n, accuracy, mean regret, p90 regret) and the
-  per-workload breakdown; note "evaluated on previously profiled configurations".
-- Cold-start rule check 141–148 with the note that SiliconRoute matched always-CPU exactly.
-- A bar chart of mean regret per strategy (log scale, strategy colours neutral grey except
-  SiliconRoute in `--ok`).
-- Collapsed "Earlier evaluation (decisions 93–116)".
-All values from the manifest via an endpoint; the page must pass the DOM-vs-manifest check.
-
-### 6.6 Evidence (new)
-
-Purpose: let a sceptic verify.
-- Frozen database: path, size, SHA256 (JetBrains Mono), manifest date and git commit.
-- Metric browser: searchable list of every manifest metric (key, value, unit, description,
-  method, SQL where present).
-- Raw samples browser: pick model, chip, batch → list of runs → raw samples plot.
-- Identity audit: the flagged swapped runs with their evidence.
-- "Reproduce on your laptop": the commands from the README with copy buttons.
+### 6.6 Evidence
+Frozen DB path, size, SHA256; manifest date and commit; searchable metric browser (key, value,
+unit, description, method); raw samples browser; identity audit (flagged runs); reproduction
+commands in plain code blocks with a working "Copy" button each.
 
 ### 6.7 About
-
-What SiliconRoute is, limitations (from the README), how it was built (AI assistance disclosure),
-licence, version.
-
----
-
-## 7. Component library
-
-Build these once in `frontend/js/components/` and `frontend/css/components.css`.
-
-1. **Button**: primary (filled ink), secondary (outline), quiet (text). Heights 32/40. Labels
-   say exactly what happens ("Route task", "Copy command"). No trailing arrows.
-2. **Select / segmented control**: segmented for ≤4 options (workload), select otherwise.
-3. **Metric tile** (Overview only): label (small, ink-2), value (metric large), comparison line,
-   evidence icon. Loading skeleton, "not available" state.
-4. **Table**: sticky header, hairline rows, numeric columns right-aligned with tabular figures,
-   sortable headers with `aria-sort`, chip cells show glyph + name.
-5. **Chip label**: glyph + short name in chip colour; never colour alone.
-6. **Pill**: states `ok`, `warn`, `bad`, `na`, `info`; text always present ("verified",
-   "hypothesis", "fitted estimate", "volatile", "not available").
-7. **Raw-samples modal**: title (model, batch, chip, run ID), stats row (median, p10/p90,
-   min–max spread, CV, inner_loop_k), scatter of every sample in sequence, and a text list toggle.
-   Focus trap, Esc closes, returns focus.
-8. **Evidence popover**: see section 9. Opens on click/Enter, not hover-only.
-9. **Not available pill**: grey `--na`, text "not available", tooltip with the reason from the API.
-10. **Drawer** (decision details on narrow screens) and **toast** (verbs match the action: "Route
-    task" → "Task routed", "Copy command" → "Copied").
-11. **Empty state**: says what to do ("No decisions yet. Route a task to see it here." + button).
-12. **Error state**: says what happened and how to fix it ("The server stopped responding. Check
-    that start.bat is still running, then reload.") — no apologies, no vague text.
-13. **Skeletons**: neutral blocks matching the final layout; no shimmer animation.
+What it is, limitations (read from README at build or via API), how it was built (disclosure),
+licence, version, links to Privacy and Terms.
 
 ---
 
-## 8. Charts (Chart.js, vendored)
+## 7. Components
 
-- Vendor a pinned Chart.js UMD build at `frontend/vendor/chart.umd.min.js` (record the version
-  and SHA256 in `docs/DECISIONS.md`). Remove any CDN script tags.
-- One shared `frontend/js/charts/theme.js` reading colours from CSS tokens, re-applied on theme
-  change.
-- Series colours = chip tokens; point styles = chip glyphs (rect, triangle, circle, rectRot).
-- Gridlines `--line` at 60% opacity, axis labels `--ink-3`, titles in sentence case with units
-  ("Median latency (ms, log scale)").
-- Log axes wherever values span more than 1.5 decades; tick labels in plain numbers (no 1e3).
-- Tooltips: chip name, value with unit and correct precision, source ("measured, run 839" or
-  "fitted"), and "Show raw samples" when applicable.
-- Fitted curves dashed; measured points solid. Annotations (crossover marker) via a small local
-  plugin, not an external package.
-- Every chart has a "Show data table" toggle rendering the same data as an accessible table.
+1. **Buttons**: primary = solid `--red`, white text; secondary = 1px ink border, ink text;
+   text button = underlined ink. Heights 36/44. Pressed = `--red-deep`. Disabled = grey with a
+   visible reason next to it. Labels say exactly what happens.
+2. **Selects and segmented controls**: sharp, 1px ink border; selected segment = ink fill.
+3. **Tables**: the main layout device. Sticky header, 1px rules, numeric columns right-aligned,
+   sortable headers with `aria-sort`, chosen/best row uses `--red-wash`.
+4. **Tags**: rectangular, 1px border, 12px text: "verified", "hypothesis", "fitted estimate",
+   "volatile", "not available", "not measured". No pills, no dots.
+5. **Figures**: big number (Figure style) + one-line label under it + evidence link.
+6. **Raw-samples modal**: sharp sheet with 1px ink border, stats row, sample plot, text list
+   toggle, focus trap, Esc closes, focus returns.
+7. **Evidence popover**: opens on click/Enter; shows value, unit, description, method, SQL,
+   run/decision IDs.
+8. **Toasts**: bottom-left, ink block, white text, verb matches the action ("Copied",
+   "Task routed"), 4 seconds, dismissible.
+9. **Skeletons**: static `--rule` blocks with the final layout's size.
+10. **Empty and error states**: say what happened and what to do, with a working action.
 
 ---
 
-## 9. Evidence pattern (the honesty UI)
+## 8. Charts (Chart.js, vendored and pinned)
 
-Every published or computed number is rendered through one component:
+- Colours only from tokens; series by chip encoding; fitted lines dashed.
+- Gridlines `--rule`, axis text `--ink-3`, titles in sentence case with units.
+- Log axes when values span more than 1.5 decades; plain tick labels.
+- Tooltips: chip name, value with unit, source ("measured, run 839" / "fitted").
+- No area fills, no gradients, no animation (`animation: false`).
+- Every chart has a working "Show data table" toggle.
 
-```html
-<span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct"></span>
-```
+---
 
-`frontend/js/metrics.js` fetches `/api/published-metrics` (a new read-only endpoint that returns
-`results/final/manifest.json` metrics) and fills each `.metric` with the formatted value + unit.
-A small evidence icon next to key numbers opens a popover showing: value, unit, description,
-method (`scripts.metrics.<fn>`), SQL if present, and run/decision IDs when the metric has them.
-Live values (telemetry, router predictions) show their source label instead ("live", "measured",
-"fitted estimate"). A number without a source is a bug.
+## 9. Evidence pattern
 
-The website uses the same component, reading `site/data/manifest.json` copied at build time.
+Every published number renders through
+`<span class="metric" data-metric="<manifest key>"></span>`, filled by `frontend/js/metrics.js`
+from `/api/published-metrics` (read-only endpoint returning the manifest metrics). Key numbers
+carry "Show evidence", which opens the popover. Live values show their source ("live",
+"measured", "fitted estimate"). The website uses the same component with
+`site/data/manifest.json` generated at build time. A number without a source is a bug.
 
 ---
 
 ## 10. Website (`site/`)
 
-A single static page, light theme by default, responsive from 360px to 1600px, left-aligned text
-columns (max 72ch) with the hero diagram on the right on wide screens.
+Pages: `index.html`, `privacy.html`, `terms.html`. Light theme, responsive from 360px.
 
-### 10.1 Sections (in order)
+### 10.1 Home, in order
+1. **Hero**: left, display headline "Every AI task, on the right chip." and one sentence:
+   "SiliconRoute measures the processors in your laptop, sends each AI task to the fastest one
+   and shows the evidence." Buttons: "View the code" (GitHub) and "Run it on your laptop"
+   (jumps to the reproduce section). Right: a **real screenshot of the app** (Router screen with
+   a real decision) from `results/screenshots/`, with a caption naming the date and hardware.
+2. **Real demo**: the recorded walkthrough video from `results/demo/` (with captions track),
+   poster frame = real screenshot, working play/pause controls (native `<video controls>`).
+3. **The problem**: a numbered list of three measured facts, each as one row: big figure on the
+   left (via `.metric`), one sentence on the right. Rows separated by 1px rules. Not cards.
+4. **How it works**: a numbered sequence (Measure, Learn, Decide, Verify) as rows with one
+   sentence each.
+5. **Results**: the evaluation table and the regret chart, with the note "evaluated on previously
+   profiled configurations"; link to the results folder on GitHub.
+6. **Findings**: numbered list with evidence links; hypotheses tagged "hypothesis".
+7. **Snapdragon X2 Elite**: what is being measured next; results appear only when recorded;
+   otherwise "Snapdragon results not yet recorded".
+8. **Limitations**: copied from README section 5 at build time.
+9. **Reproduce it**: commands in plain code blocks (no fake terminal window), each with "Copy".
+10. **How it was built**: README section 6 copied at build time.
+11. **Footer**: GitHub, Privacy, Terms, MIT licence, version, "Built by Tanmay".
 
-1. **Hero.** Headline (display, one line on desktop): "Every AI task, on the right chip."
-   Sub-line: "SiliconRoute measures the CPU and GPUs in your laptop, routes each AI task to the
-   best one, and shows the evidence." Buttons: "View on GitHub", "Run it locally". Right side:
-   the routing-trace diagram (section 4) with real manifest values.
-2. **The problem.** Three short rows, each a misconception and what the measurements showed:
-   "Always use the GPU" (small-model result), "Always use the CPU" (large-model result),
-   "The fastest chip is fixed" (cold starts and wake-up change the answer). Values via `.metric`.
-3. **How it works.** A true four-step sequence (numbering allowed here): Measure → Learn →
-   Decide → Verify, each with one sentence and a tiny inline SVG.
-4. **Results.** The final evaluation table (117–140) and the regret bar chart; the note
-   "evaluated on previously profiled configurations"; link to the full results file.
-5. **Findings.** Four findings from the README, each with its evidence link (run or decision IDs
-   rendered via metrics where available). Label hypotheses as hypotheses.
-6. **Limitations.** Plainly listed, copied from README section 5 at build time (not retyped).
-7. **Reproduce it.** The commands (JetBrains Mono, copy buttons) and the frozen database SHA256.
-8. **How it was built.** The disclosure from README section 6 (author, AI assistance, integrity
-   protocol), copied at build time.
-9. **Footer.** GitHub link, MIT licence, version, "Built by Tanmay".
+### 10.2 Privacy and Terms (real, short)
+- `privacy.html`: the app runs locally and sends no data anywhere; the website has no analytics,
+  cookies or trackers and makes no external requests; contact via GitHub issues.
+- `terms.html`: MIT licence summary, provided "as is" without warranty, benchmark results are
+  specific to the listed hardware and conditions, links to LICENSE.
 
-### 10.2 Build and data
-
-- `scripts/build_site.py`: copies `results/final/manifest.json` to `site/data/manifest.json`,
-  copies selected screenshots from `results/screenshots/v1_0/` to `site/img/`, extracts the
-  README limitations and "How this was built" sections into `site/data/content.json`, and
-  writes `site/data/build.json` (git commit, date, DB SHA256). Deterministic output.
-- `site/index.html`, `site/css/` (reusing `tokens.css`), `site/js/` (metrics.js shared logic).
-- Meta: title "SiliconRoute — every AI task, on the right chip", description, Open Graph image
-  generated as a PNG from the hero diagram (no text-heavy stock images), favicon from the chip
-  glyphs.
-- No trackers, no analytics, no external requests at runtime (fonts and scripts local).
+### 10.3 Build
+`scripts/build_site.py` copies the manifest(s), selected real screenshots, the demo video and
+README sections into `site/data`, `site/img`, `site/media`; writes `site/data/build.json` (commit,
+date, DB SHA256); deterministic. Meta title "SiliconRoute: every AI task on the right chip",
+description, Open Graph image = a real app screenshot crop.
 
 ---
 
 ## 11. Voice and microcopy
 
-Plain verbs, sentence case, no filler, no hype words ("revolutionary", "blazing"). Describe what
-something does. Numbers only via `.metric`.
+- Plain verbs, sentence case, short sentences.
+- **No em dashes** in any UI or website copy. Use commas, colons or full stops.
+- No "it's not X, it's Y" or "not just X, but Y" constructions.
+- No hype ("revolutionary", "blazing", "seamless", "supercharge", "unlock", "effortless").
+- No emojis, no sparkles, no exclamation marks.
 
 | Situation | Copy |
 |---|---|
 | Route button | Route task |
 | Verify button | Route and verify on hardware |
-| Verify confirm | This runs a short benchmark on all chips (about 10–30 seconds). Continue? |
+| Verify confirm | This runs a short benchmark on every chip, about 10 to 30 seconds. Continue? |
 | After routing | Task routed to {chip}. |
-| Missing sensor | not available — Windows does not expose {metric} for this chip |
-| Fitted value | fitted estimate — not a direct measurement |
-| Hypothesis | hypothesis — not yet confirmed by a dedicated test |
+| Missing sensor | not available: Windows does not expose {metric} for this chip |
+| Fitted value | fitted estimate, not a direct measurement |
+| Hypothesis | hypothesis, not yet confirmed by a dedicated test |
+| Not measured | not measured on this device |
 | Empty decisions | No decisions yet. Route a task to see it here. |
-| Server down | The server stopped responding. Check that start.bat is still running, then reload. |
+| Server down | The server stopped responding. Check that start.bat is running, then reload. |
 | Evidence link | Show evidence |
 
 ---
 
-## 12. Accessibility and quality floor
+## 12. Accessibility
 
-- WCAG 2.2 AA contrast (log computed ratios for every text/background token pair).
-- Visible focus ring: 2px `--chip-dgpu` outline + 2px offset, on every interactive element.
-- All charts have data-table alternatives; all icons have labels or `aria-hidden`.
-- Modal and popover: focus trap, Esc to close, focus returns to the trigger.
-- `prefers-reduced-motion` respected; `prefers-color-scheme` respected on first load.
-- No layout shift when data loads (reserve space with skeletons).
-- Website Lighthouse-style targets checked with a local script where possible: no console
-  errors, images sized, text readable at 200% zoom.
+WCAG 2.2 AA contrast; visible focus (2px ink outline, 2px offset) on every control; data-table
+alternative for every chart; labelled form controls; modal focus trap; keyboard access to every
+function; text readable at 200% zoom; `prefers-reduced-motion` irrelevant because there is no
+decorative motion, but keep it respected.
 
 ---
 
-## 13. Implementation constraints and file layout
+## 13. File layout
 
 ```
-frontend/
-  index.html
-  css/ tokens.css  base.css  layout.css  components.css  screens.css
-  js/  app.js  router.js (client routing)  api.js  metrics.js  telemetry.js  theme.js
-       components/ *.js    charts/ theme.js  scaling.js  live.js  results.js
-       screens/ overview.js live.js analysis.js router.js results.js evidence.js about.js
-  vendor/ chart.umd.min.js
-  fonts/  archivo-variable.woff2  jetbrains-mono.woff2
-site/
-  index.html  css/  js/  data/ (generated)  img/ (generated)  fonts/
-scripts/build_site.py
+frontend/  index.html  css/{tokens,base,layout,components,screens}.css
+           js/{app,nav,api,metrics,telemetry}.js  js/components/*  js/charts/*  js/screens/*
+           vendor/chart.umd.min.js   fonts/{archivo,jetbrains-mono}.woff2
+site/      index.html  privacy.html  terms.html  css/  js/  data/  img/  media/  fonts/
+scripts/   build_site.py  ui_lint.py  control_audit.py
 ```
 
-- Keep existing API routes working; add only read-only endpoints (e.g. `/api/published-metrics`).
-- The dashboard must keep passing the existing DOM-vs-manifest verification.
+---
+
+## 14. Tests (never touch `data/siliconroute.db`)
+
+- `test_ui_lint`: runs `scripts/ui_lint.py` over `frontend/` and `site/`; zero violations.
+- `test_control_audit`: runs `scripts/control_audit.py` (Playwright) against the app and the
+  built site; every control passes (section 17).
+- `test_no_hardcoded_numbers_frontend_site`: no numeric literals with units in HTML/JS copy.
+- `test_no_external_requests`: no external script/style/font/image URLs (links to GitHub allowed).
+- `test_published_metrics_endpoint`: endpoint equals manifest.
+- DOM-vs-manifest check on Overview, Results and the website.
 
 ---
 
-## 14. Tests and verification
+## 15. Build phases (each: pytest logged, lint + audit logged, screenshots, NEW commit)
 
-Extend the test suite (tests must never touch `data/siliconroute.db`):
-- `test_no_hardcoded_numbers_frontend_site`: no numeric literals with units in `frontend/**/*.html|js`
-  or `site/**/*.html|js` outside the tokens/format helpers.
-- `test_site_build_deterministic`: running `build_site.py` twice gives identical output.
-- `test_published_metrics_endpoint`: `/api/published-metrics` equals the manifest.
-- `test_no_external_requests`: no `http(s)://` script/link/font URLs in `frontend/` or `site/`
-  except links (`<a href>`) to GitHub.
-- Browser verification script: open every app screen in both themes and the website at 1440×900
-  and 390×844; read displayed metric values from the DOM and compare to the manifest; check the
-  console for errors; save screenshots.
+- **R1 Tokens, fonts, shell, socket strip** (remove dark theme and old styles).
+- **R2 Components + evidence system + ui_lint.py + control_audit.py.**
+- **R3 App screens** (all seven).
+- **R4 Website + Privacy + Terms + build_site.py.**
+- **R5 Proof**: screenshots of every app screen (1440×900) and the website (1440×900 and
+  390×844) into `results/screenshots/v3_design/`; lint log; control audit log; contrast log;
+  DOM-vs-manifest log; rebuild release folder; recreate review_package.zip; final report.
 
 ---
 
-## 15. Build phases (each ends with pytest + logged verification + a NEW commit)
+## 16. Anti-generic checklist (enforced by `scripts/ui_lint.py`)
 
-- **D1 Tokens and shell**: tokens.css (both themes), fonts and Chart.js vendored, app shell
-  (top bar, rail, socket strip with live data), theme toggle, keyboard navigation.
-- **D2 Components**: the full library of section 7, the evidence popover, the `.metric` system
-  and `/api/published-metrics`.
-- **D3 Screens**: Overview, Live, Analysis, Router (with routing trace), Results, Evidence, About.
-- **D4 Website**: `site/` + `scripts/build_site.py` + hero diagram + OG image.
-- **D5 Quality**: accessibility checks, contrast log, reduced motion, responsive checks, tests of
-  section 14.
-- **D6 Proof**: screenshots of every app screen (light and dark, 1440×900) and the website
-  (1440×900 and 390×844) into `results/screenshots/v2_design/`; DOM-vs-manifest log; update
-  README screenshots only by file (no wording changes to README); rebuild the release folder;
-  recreate review_package.zip; final report.
+Each rule below must be checked automatically where possible (pattern in brackets) and
+manually confirmed in the final report.
+
+1. No gradients of any kind [`linear-gradient`, `radial-gradient`, `conic-gradient`].
+2. No icon libraries [`lucide`, `heroicons`, `feather`, `font-awesome`, `material-icons`].
+3. No pure white page background [`#fff`, `#ffffff`, `white` as body/page background].
+4. No rainbow or multi-hue palettes: only the tokens in 3.1 [any hex not in tokens.css].
+5. No drop shadows [`box-shadow` other than `none`; `drop-shadow(`; `text-shadow`].
+6. No rows of three identical feature cards; use lists and tables.
+7. No emojis [Unicode emoji ranges, including in alt text and titles].
+8. No glass effects [`backdrop-filter`, translucent panels over content].
+9. No em dashes in visible copy [`—` in HTML text, JS strings, generated content].
+10. No Inter, Geist, Space Grotesk (or Poppins, Montserrat, Roboto) [font-family values].
+11. No colored left stripes on boxes [`border-left` wider than 1px or coloured].
+12. No testimonials or quotes from people.
+13. No bento grids (mosaics of mixed-size cards).
+14. No fake terminal windows (window chrome, traffic-light dots) around code.
+15. No "it's not X, it's Y" / "not just X, but Y" copy [regex on text].
+16. No checkmark bullets [`✓`, `✔`, `✅`, check SVGs used as list markers].
+17. No pricing tiers or pricing sections.
+18. Real product demo required: real screenshots and the real recording (checked by build).
+19. No soft corner radius [`border-radius` other than `0`].
+20. No purple, and no purple-and-black scheme [hues 250 to 320 degrees].
+21. Skeleton loaders present for every async region (checked by control audit).
+22. No radial orbs, glows or blurred blobs [`filter: blur`, large circular decorative elements].
+23. No dot-grid or grid-paper backgrounds [`background-image` patterns].
+24. No sparkle or "AI magic" icons [`✨`, sparkle SVGs, the word "magic"].
+25. No animated arrows; no arrows appended to button or link text [`→`, `↗`, `➜` in labels].
+26. Terms page exists and is linked in the footer.
+27. Privacy page exists and is linked in the footer.
+28. No hover animations [`transition` or `animation` inside `:hover` rules; no transforms on hover].
+29. No neon colours [high-saturation, high-lightness hex values outside the tokens].
+30. No pastel palettes [light, low-saturation hues outside `--red-wash`].
 
 ---
 
-## Appendix A — replacement text for `.agents/rules/02-design.md`
+## 17. Every control works (enforced by `scripts/control_audit.py`)
+
+The audit opens every app screen and every website page in a real browser and, for every
+button, link, select, checkbox, segmented control, tab and chart toggle:
+
+- **Links**: target exists (internal route or file resolves with HTTP 200; external links only
+  to github.com). No `href="#"`, no `javascript:void(0)`, no empty `href`.
+- **Buttons and toggles**: activating them produces an observable result: navigation, a DOM
+  change, a dialog, a copied value (clipboard read back), a download, or a request to a real API
+  endpoint that returns 2xx. The audit records which.
+- **Forms**: submitting with valid values calls the real endpoint; invalid values show a message.
+- **Exception**: "Route and verify on hardware" is audited only up to its confirmation dialog
+  (Cancel must close it); it is never confirmed during audits.
+- Any control that cannot pass is **removed**, not hidden. The audit writes a table (screen,
+  control label, type, result, evidence) to `results/logs/design_v3/control_audit.txt`.
+
+---
+
+## Appendix A: replacement text for `.agents/rules/02-design.md`
 
 ```
 # Design (always on)
-- docs/DESIGN_SPEC.md is the single source of truth for UI and website design. Follow it exactly.
-- Use only the tokens in frontend/css/tokens.css. No new colours, fonts, radii or shadows.
-- Every displayed number comes from the API or results/final/manifest.json via the .metric
-  component or a labelled live source. Never type measured numbers into HTML/JS/CSS or copy.
-- Chip colours and glyphs are fixed: CPU amber square, integrated GPU teal triangle, discrete GPU
-  blue circle, NPU violet diamond. Never use colour alone; always show the label.
-- Sentence case, no all-caps labels, no eyebrow labels, no trailing arrows on buttons.
-- Only one non-user-triggered animation per surface (the routing trace). Respect reduced motion.
-- No runtime CDNs or external requests; vendor all assets.
-- Visible focus, AA contrast, data-table alternatives for every chart.
+- docs/DESIGN_SPEC.md (v3, "Red Bench") is the single source of truth for app and website design.
+- Only tokens from frontend/css/tokens.css. Light theme only. Radius 0. No shadows, gradients,
+  glass, orbs, dot grids, emojis, icon libraries, hover animations or decorative motion.
+- Chips are identified by mark + name: CPU ink square, integrated GPU grey triangle, discrete GPU
+  red circle, NPU deep-red diamond.
+- Every number comes from the API or a manifest via .metric; never type measured numbers.
+- Every control must work; remove anything without a real function.
+- Copy: sentence case, no em dashes, no "it's not X, it's Y", no hype, no emojis.
+- scripts/ui_lint.py and scripts/control_audit.py must pass before any commit.
 ```
 
-## Appendix B — manifest metrics used on Overview and the website
+## Appendix B: manifest metrics used on Overview and the website
 
-Verify each key exists in `results/final/manifest.json`. If a needed value is missing, add a
-computed function to `scripts/metrics.py` and regenerate — never type the number.
+Verify each key exists in `results/final/manifest.json`; if a needed value is missing, add a
+computed function to `scripts/metrics.py` and regenerate. Never type the number.
 
-- Final evaluation: `decisions_117_140_sr_wins`, `decisions_117_140_total`,
+- Evaluation: `decisions_117_140_sr_wins`, `decisions_117_140_total`,
   `decisions_117_140_sr_accuracy_pct`, `decisions_117_140_sr_mean_regret_pct`,
   `decisions_117_140_sr_p90_regret_pct`, `decisions_117_140_always_cpu_mean_regret_pct`,
-  `decisions_117_140_always_rtx_mean_regret_pct`, `decisions_117_140_fit_only_mean_regret_pct`
-  (plus the matching wins/accuracy keys for each strategy).
+  `decisions_117_140_always_rtx_mean_regret_pct`, `decisions_117_140_fit_only_mean_regret_pct`,
+  and the matching wins/accuracy keys for each strategy.
 - Findings: `mlp_256_b1_cpu_latency_ms`, `mlp_256_b1_rtx_latency_ms`,
   `speedup_cpu_over_rtx_mlp_256_b1`, `mlp_3072_b1_sustained_cpu_ms`,
   `mlp_3072_b1_sustained_rtx_ms`, `speedup_rtx_over_cpu_mlp_3072_b1_sustained`,
