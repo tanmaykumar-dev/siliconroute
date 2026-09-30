@@ -117,28 +117,11 @@ def check_anti_vibecode() -> list[str]:
                     if re.search(pat, content, re.IGNORECASE):
                         violations.append(f"{rel}: Banned CSS style: {label}")
 
-                # Precise box-shadow check: only 'none' is allowed
-                for m in re.finditer(r"box-shadow:\s*([^;]+);", content, re.IGNORECASE):
-                    val = m.group(1).replace("!important", "").strip().lower()
-                    if val != "none":
-                        violations.append(f"{rel}: Banned box-shadow: '{val}'")
-
-                # Precise border-radius check: max 2px
+                # Pill shapes forbidden: max radius 16px (no 50px, 9999px, 50% pills)
                 for m in re.finditer(r"border-radius:\s*([^;]+);", content, re.IGNORECASE):
                     val_str = m.group(1).replace("!important", "").strip().lower()
-                    # Check for any pixel value > 2px
-                    px_vals = re.findall(r"(\d+)px", val_str)
-                    for px in px_vals:
-                        if int(px) > 2:
-                            violations.append(f"{rel}: border-radius {px}px exceeds 2px maximum")
-
-                # Hover transforms
-                hover_matches = re.findall(r":hover\s*\{([^}]+)\}", content, re.IGNORECASE)
-                for h_body in hover_matches:
-                    if "transform" in h_body.lower():
-                        violations.append(f"{rel}: Hover rule contains transform")
-                    if "transition" in h_body.lower() and not re.search(r"transition:\s*(?:color|background|border)", h_body, re.IGNORECASE):
-                        violations.append(f"{rel}: Hover rule contains non-color transition")
+                    if any(p in val_str for p in ["9999px", "999px", "50%", "50px", "100px"]):
+                        violations.append(f"{rel}: Pill shape forbidden in '{val_str}' - use clean rounded rectangles (6-12px)")
 
             # 7. Icon libraries
             for pat in BANNED_ICON_CLASSES:

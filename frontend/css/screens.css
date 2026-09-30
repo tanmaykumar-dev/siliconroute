@@ -1,74 +1,105 @@
 /**
- * SiliconRoute Design Spec v3: "Red Bench" Screens CSS
- * Sections 6.1 through 6.7. Clean tables, sharp panels, zero radius, no shadows.
+ * SiliconRoute Modern SaaS Screens CSS
+ * Styling for Overview, Live Telemetry, Analysis, Router, Results, Evidence, About.
  */
 
 .screen-header {
-  margin-bottom: var(--space-24);
+  margin-bottom: var(--space-20);
   border-bottom: 1px solid var(--rule);
-  padding-bottom: var(--space-16);
+  padding-bottom: var(--space-12);
+}
+
+.screen-header h1 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  margin: 0 0 var(--space-4);
+}
+
+.screen-intro {
+  font-size: 13px;
+  color: var(--ink-2);
+  margin: 0;
 }
 
 /* --------------------------------------------------------------------------
-   6.1 Overview Screen
+   Overview Screen
    -------------------------------------------------------------------------- */
+.chart-canvas-wrap {
+  position: relative;
+  height: 240px;
+  width: 100%;
+}
+
+.overview-findings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-16);
+  margin-top: var(--space-16);
+}
+
+.finding-tile {
+  background-color: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-control);
+  padding: var(--space-16);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  transition: all 0.15s ease;
+}
+
+.finding-tile:hover {
+  background-color: var(--sheet);
+  border-color: var(--rule-strong);
+  transform: translateY(-1px);
+}
+
+.finding-tile strong {
+  color: var(--ink);
+  display: block;
+  margin-bottom: var(--space-4);
+  font-size: 13px;
+}
+
+/* Statement Box Banner */
 .statement-box {
   background-color: var(--sheet);
   border: 1px solid var(--rule);
-  padding: var(--space-24);
-  margin-bottom: var(--space-24);
-  font-size: 22px;
-  line-height: 1.35;
-  font-weight: 700;
+  border-radius: var(--radius-card);
+  padding: var(--space-16) var(--space-20);
+  margin-bottom: var(--space-20);
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: 600;
   color: var(--ink);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-12);
 }
 
 .statement-box .metric {
-  color: var(--red);
-}
-
-.form-row {
-  display: flex;
-  gap: var(--space-16);
-  align-items: flex-end;
-  flex-wrap: wrap;
-  background-color: var(--sheet);
-  border: 1px solid var(--rule);
-  padding: var(--space-16);
-  margin-bottom: var(--space-24);
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.form-label {
-  font-size: 12px;
+  color: var(--primary);
   font-weight: 700;
-  color: var(--ink-2);
-}
-
-.findings-list {
-  padding-left: var(--space-24);
-  margin-bottom: var(--space-24);
-  color: var(--ink);
-  line-height: 1.6;
-}
-
-.findings-list li {
-  margin-bottom: var(--space-12);
 }
 
 /* --------------------------------------------------------------------------
-   6.2 Live Screen
+   Live Telemetry Screen
    -------------------------------------------------------------------------- */
-.chart-panel {
-  background-color: var(--sheet);
-  border: 1px solid var(--rule);
-  padding: var(--space-16);
-  margin-bottom: var(--space-24);
+.live-charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-20);
+}
+
+@media (max-width: 900px) {
+  .live-charts-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .chart-header {
@@ -81,7 +112,7 @@
 }
 
 .chart-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--ink);
 }
@@ -89,13 +120,7 @@
 .chart-actions {
   display: flex;
   align-items: center;
-  gap: var(--space-12);
-}
-
-.chart-canvas-wrap {
-  position: relative;
-  height: 200px;
-  width: 100%;
+  gap: var(--space-8);
 }
 
 .chart-table-wrap {
@@ -108,23 +133,29 @@
 }
 
 /* --------------------------------------------------------------------------
-   6.3 Analysis Screen
+   Analysis Screen
    -------------------------------------------------------------------------- */
 .analysis-filters {
   display: flex;
   gap: var(--space-16);
   align-items: center;
   margin-bottom: var(--space-16);
+  background-color: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-card);
+  padding: var(--space-12) var(--space-16);
 }
 
 /* --------------------------------------------------------------------------
-   6.4 Router Screen
+   Router Screen
    -------------------------------------------------------------------------- */
 .decision-result-card {
   background-color: var(--sheet);
-  border: 1px solid var(--ink);
-  padding: var(--space-24);
-  margin-bottom: var(--space-24);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-card);
+  padding: var(--space-20);
+  margin-top: var(--space-20);
+  box-shadow: 0 0 0 3px var(--primary-wash);
 }
 
 .decision-hero {
@@ -135,33 +166,30 @@
 }
 
 .decision-chip-title {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 800;
-  color: var(--red);
+  color: var(--primary);
 }
 
 .decision-time {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 800;
   color: var(--ink);
 }
 
 .decision-reason {
-  font-size: 15px;
-  color: var(--ink);
+  font-size: 14px;
+  color: var(--ink-2);
   line-height: 1.5;
   margin-bottom: var(--space-16);
+  background-color: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-control);
+  padding: var(--space-12);
 }
 
 /* --------------------------------------------------------------------------
-   6.5 Results Screen
-   -------------------------------------------------------------------------- */
-.results-section {
-  margin-bottom: var(--space-32);
-}
-
-/* --------------------------------------------------------------------------
-   6.6 Evidence Screen
+   Evidence Screen
    -------------------------------------------------------------------------- */
 .evidence-meta-grid {
   display: grid;
@@ -173,19 +201,23 @@
 .meta-tile {
   background-color: var(--sheet);
   border: 1px solid var(--rule);
+  border-radius: var(--radius-control);
   padding: var(--space-16);
+  box-shadow: var(--shadow-card);
 }
 
 .meta-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  color: var(--ink-2);
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   margin-bottom: var(--space-4);
 }
 
 .meta-val {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 12px;
   color: var(--ink);
   word-break: break-all;
 }
@@ -194,20 +226,49 @@
   margin-bottom: var(--space-16);
 }
 
+pre {
+  background-color: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-control);
+  padding: var(--space-12) var(--space-16);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--ink);
+  overflow-x: auto;
+  margin: var(--space-4) 0 0;
+}
+
 /* --------------------------------------------------------------------------
-   6.7 About Screen
+   About Screen
    -------------------------------------------------------------------------- */
+.about-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-20);
+}
+
 .about-block {
   background-color: var(--sheet);
   border: 1px solid var(--rule);
-  padding: var(--space-24);
-  margin-bottom: var(--space-24);
+  border-radius: var(--radius-card);
+  padding: var(--space-20);
+  box-shadow: var(--shadow-card);
 }
 
 .about-block h3 {
-  margin-bottom: var(--space-12);
+  margin: 0 0 var(--space-8);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
 }
 
 .about-block p {
-  margin-bottom: var(--space-12);
+  margin: 0 0 var(--space-8);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.about-block p:last-child {
+  margin-bottom: 0;
 }

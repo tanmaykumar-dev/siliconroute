@@ -1,147 +1,202 @@
 /**
- * SiliconRoute Design Spec v3: "Red Bench" Components (Section 7)
- * Sharp rectangles (radius 0). No shadows or gradients. Red & ink palette.
+ * SiliconRoute Modern SaaS Components
+ * Clean rounded rectangular cards (8-12px), subtle shadows, smooth transitions,
+ * zero pill shapes, refined typography, and high contrast.
  */
 
 /* --------------------------------------------------------------------------
-   1. Buttons
+   1. Buttons (Clean rounded rectangles, NO PILLS)
    -------------------------------------------------------------------------- */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   height: 36px;
   padding: 0 var(--space-16);
   cursor: pointer;
   text-decoration: none;
+  border-radius: var(--radius-control);
   border: 1px solid transparent;
   line-height: 1;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: scale(0.98);
 }
 
 .btn-lg {
-  height: 44px;
-  font-size: 15px;
-  padding: 0 var(--space-24);
+  height: 42px;
+  font-size: 14px;
+  padding: 0 var(--space-20);
+  border-radius: var(--radius-control);
 }
 
 .btn-sm {
   height: 28px;
-  font-size: 13px;
+  font-size: 12px;
   padding: 0 var(--space-12);
+  border-radius: var(--radius-control);
 }
 
 .btn-primary {
-  background-color: var(--red);
-  color: var(--white);
-  border-color: var(--red);
+  background-color: var(--primary);
+  color: #FFFFFF;
+  border-color: var(--primary);
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);
 }
 
-.btn-primary:active {
-  background-color: var(--red-deep);
-  border-color: var(--red-deep);
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+  transform: translateY(-1px);
 }
 
 .btn-secondary {
-  background-color: transparent;
+  background-color: var(--sheet);
   color: var(--ink);
-  border-color: var(--ink);
+  border-color: var(--rule);
 }
 
 .btn-secondary:hover {
-  background-color: var(--sheet);
-}
-
-.btn-secondary:active {
-  background-color: var(--rule);
+  background-color: var(--sheet-hover);
+  border-color: var(--rule-strong);
+  color: var(--ink);
+  transform: translateY(-1px);
 }
 
 .btn-text {
   background: none;
   border: none;
-  color: var(--ink);
-  text-decoration: underline;
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
   padding: 0;
   height: auto;
 }
 
 .btn-text:hover {
-  color: var(--red);
+  color: var(--primary-hover);
+  text-decoration: underline;
 }
 
 .btn:disabled, .btn[disabled] {
   opacity: 0.5;
   cursor: not-allowed;
-  border-color: var(--rule);
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 /* --------------------------------------------------------------------------
-   2. Selects & Segmented Controls
+   2. Selects & Inputs
    -------------------------------------------------------------------------- */
 select, input[type="text"], input[type="number"] {
   height: 36px;
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 500;
   color: var(--ink);
   background-color: var(--sheet);
-  border: 1px solid var(--ink);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-control);
   padding: 0 var(--space-12);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.segmented-control {
-  display: inline-flex;
-  border: 1px solid var(--ink);
-}
-
-.segmented-control-btn {
-  height: 32px;
-  padding: 0 var(--space-12);
-  background: transparent;
-  border: none;
-  border-right: 1px solid var(--ink);
-  font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--ink);
-  cursor: pointer;
-}
-
-.segmented-control-btn:last-child {
-  border-right: none;
-}
-
-.segmented-control-btn.active {
-  background-color: var(--ink);
-  color: var(--white);
+select:focus, input[type="text"]:focus, input[type="number"]:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--primary-wash);
 }
 
 /* --------------------------------------------------------------------------
-   3. Tables (Main layout device, Section 7.3)
+   3. Cards & Panels (The primary visual container)
+   -------------------------------------------------------------------------- */
+.dashboard-card, .chart-panel {
+  background-color: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-card);
+  padding: var(--space-20);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-card:hover, .chart-panel:hover {
+  box-shadow: var(--shadow-hover);
+  border-color: var(--rule-strong);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-16);
+  padding-bottom: var(--space-12);
+  border-bottom: 1px solid var(--rule);
+}
+
+.card-title-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.card-subtitle {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+/* --------------------------------------------------------------------------
+   4. Tables (Clean modern SaaS data tables)
    -------------------------------------------------------------------------- */
 .table-wrap {
   width: 100%;
   overflow-x: auto;
   border: 1px solid var(--rule);
+  border-radius: var(--radius-control);
   background-color: var(--sheet);
-  margin-bottom: var(--space-24);
+  margin-bottom: var(--space-16);
 }
 
 table.bench-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 13px;
   font-variant-numeric: tabular-nums lining-nums;
   text-align: left;
 }
 
 table.bench-table th {
   background-color: var(--paper);
-  color: var(--ink);
+  color: var(--ink-2);
   font-weight: 700;
-  padding: var(--space-8) var(--space-12);
-  border-bottom: 1px solid var(--ink);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: var(--space-10, 10px) var(--space-14, 14px);
+  border-bottom: 1px solid var(--rule);
   white-space: nowrap;
 }
 
@@ -151,9 +206,14 @@ table.bench-table td.num {
 }
 
 table.bench-table td {
-  padding: var(--space-8) var(--space-12);
+  padding: var(--space-10, 10px) var(--space-14, 14px);
   border-bottom: 1px solid var(--rule);
   color: var(--ink);
+  transition: background-color 0.15s ease;
+}
+
+table.bench-table tr:hover td {
+  background-color: var(--sheet-hover);
 }
 
 table.bench-table tr:last-child td {
@@ -162,43 +222,53 @@ table.bench-table tr:last-child td {
 
 table.bench-table tr.chosen-row,
 table.bench-table tr.best-row {
-  background-color: var(--red-wash) !important;
+  background-color: var(--primary-wash) !important;
+}
+
+table.bench-table tr.chosen-row td {
+  color: var(--ink);
+  font-weight: 600;
 }
 
 /* --------------------------------------------------------------------------
-   4. Tags (Rectangular, 1px border, 12px text, Section 7.4)
+   5. Tags & Badges (Clean rounded rectangles, NO PILLS)
    -------------------------------------------------------------------------- */
-.tag {
-  display: inline-block;
-  padding: 2px 6px;
-  font-size: 12px;
+.tag, .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  font-size: 11px;
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.3;
+  border-radius: var(--radius-badge);
   border: 1px solid var(--rule);
   color: var(--ink-2);
-  background-color: var(--sheet);
-  text-transform: none;
+  background-color: var(--paper);
 }
 
 .tag-verified {
-  border-color: var(--ink);
-  color: var(--ink);
+  border-color: var(--green-border);
+  color: var(--green-tag);
+  background-color: var(--green-bg);
 }
 
 .tag-hypothesis {
-  border-color: var(--ink-3);
+  border-color: var(--rule);
   color: var(--ink-3);
   font-style: italic;
 }
 
-.tag-fitted {
-  border-color: var(--grey-chip);
-  color: var(--ink-2);
+.tag-optimal {
+  border-color: var(--green-border);
+  color: var(--green-tag);
+  background-color: var(--green-bg);
 }
 
-.tag-volatile {
-  border-color: var(--red);
-  color: var(--red);
+.tag-loss {
+  border-color: #FECACA;
+  color: #DC2626;
+  background-color: #FEF2F2;
 }
 
 .tag-unavailable {
@@ -207,57 +277,228 @@ table.bench-table tr.best-row {
 }
 
 /* --------------------------------------------------------------------------
-   5. Figures & Metrics (Section 7.5 & 9)
+   6. Silicon Allocation & Socket Cards Component
    -------------------------------------------------------------------------- */
-.figure-block {
-  margin-bottom: var(--space-16);
+.allocation-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
 }
 
-.figure-label {
-  font-size: 13px;
+.allocation-summary-bar {
+  height: 10px;
+  width: 100%;
+  border-radius: var(--radius-control);
+  display: flex;
+  overflow: hidden;
+  background-color: var(--rule);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.allocation-seg {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.allocation-seg.cpu { background-color: var(--chip-cpu); }
+.allocation-seg.igpu { background-color: var(--chip-igpu); }
+.allocation-seg.dgpu { background-color: var(--chip-dgpu); }
+
+.allocation-legend {
+  display: flex;
+  gap: var(--space-12);
+  margin-bottom: var(--space-8);
+  font-size: 12px;
   color: var(--ink-2);
-  margin-top: var(--space-4);
+}
+
+.allocation-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.legend-dot.cpu { background-color: var(--chip-cpu); }
+.legend-dot.igpu { background-color: var(--chip-igpu); }
+.legend-dot.dgpu { background-color: var(--chip-dgpu); }
+
+/* Socket List Container */
+.socket-strip-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  width: 100%;
+}
+
+.socket-card {
+  background-color: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-control);
+  padding: var(--space-12) var(--space-14, 14px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6, 6px);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.socket-card:hover {
+  background-color: var(--sheet);
+  border-color: var(--rule-strong);
+  transform: translateX(2px);
+}
+
+.socket-card.chosen {
+  background-color: var(--primary-wash) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.socket-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.socket-card-name {
   display: flex;
   align-items: center;
   gap: var(--space-8);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--ink);
 }
 
-.evidence-btn {
-  background: none;
-  border: none;
-  color: var(--ink-2);
-  text-decoration: underline;
+.socket-card-telemetry {
   font-size: 12px;
-  cursor: pointer;
-  padding: 0;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
 }
 
-.evidence-btn:hover {
-  color: var(--red);
+.socket-card-prediction {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 /* --------------------------------------------------------------------------
-   6. Raw-samples Modal (Section 7.6)
+   7. Hardware Routing Copilot Component
+   -------------------------------------------------------------------------- */
+.copilot-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.copilot-header-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-control);
+  background-color: var(--primary-wash);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.copilot-insight-box {
+  background-color: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-control);
+  padding: var(--space-12);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  margin-bottom: var(--space-16);
+}
+
+.copilot-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.copilot-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-8);
+}
+
+.copilot-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.copilot-form-group label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-2);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.copilot-cta-btn {
+  width: 100%;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: var(--space-8);
+}
+
+.copilot-secondary-actions {
+  display: flex;
+  gap: var(--space-8);
+  margin-top: var(--space-8);
+}
+
+/* --------------------------------------------------------------------------
+   8. Modals & Dialogs (Rounded rectangular sheets, NO PILLS)
    -------------------------------------------------------------------------- */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(20, 20, 20, 0.45);
+  background-color: rgba(15, 17, 23, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  animation: fadeInOverlay 0.2s ease;
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .modal-sheet {
   background-color: var(--sheet);
-  border: 1px solid var(--ink);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-modal);
   width: 90%;
-  max-width: 720px;
+  max-width: 680px;
   max-height: 85vh;
   display: flex;
   flex-direction: column;
   padding: var(--space-24);
+  animation: scaleInSheet 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes scaleInSheet {
+  from { opacity: 0; transform: scale(0.96) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .modal-header {
@@ -270,12 +511,20 @@ table.bench-table tr.best-row {
 }
 
 .modal-close-btn {
-  background: none;
+  background: transparent;
   border: none;
-  font-size: 20px;
+  border-radius: var(--radius-control);
+  font-size: 18px;
   cursor: pointer;
+  color: var(--ink-2);
+  padding: 4px 8px;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
+
+.modal-close-btn:hover {
+  background-color: var(--paper);
   color: var(--ink);
-  padding: 0 4px;
 }
 
 .modal-content {
@@ -284,29 +533,7 @@ table.bench-table tr.best-row {
 }
 
 /* --------------------------------------------------------------------------
-   7. Evidence Popover (Section 7.7)
-   -------------------------------------------------------------------------- */
-.popover-card {
-  background-color: var(--sheet);
-  border: 1px solid var(--ink);
-  padding: var(--space-16);
-  max-width: 400px;
-  font-size: 13px;
-  line-height: 1.5;
-  box-shadow: none;
-}
-
-.popover-row {
-  margin-bottom: var(--space-8);
-}
-
-.popover-label {
-  font-weight: 700;
-  color: var(--ink);
-}
-
-/* --------------------------------------------------------------------------
-   8. Toasts (Bottom-left, ink block, white text, Section 7.8)
+   9. Toasts
    -------------------------------------------------------------------------- */
 .toast-container {
   position: fixed;
@@ -320,57 +547,21 @@ table.bench-table tr.best-row {
 
 .toast {
   background-color: var(--ink);
-  color: var(--white);
+  color: #FFFFFF;
   padding: var(--space-12) var(--space-16);
   font-size: 13px;
   font-weight: 600;
-  border: none;
+  border-radius: var(--radius-control);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-16);
-  min-width: 240px;
+  min-width: 260px;
+  animation: slideInToast 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* --------------------------------------------------------------------------
-   9. Skeletons (Static --rule blocks, no shimmer, Section 7.9)
-   -------------------------------------------------------------------------- */
-.skeleton {
-  background-color: var(--rule);
-  height: 20px;
-  width: 100%;
-}
-
-.skeleton-text {
-  height: 16px;
-  margin-bottom: var(--space-8);
-}
-
-.skeleton-figure {
-  height: 64px;
-  width: 120px;
-  margin-bottom: var(--space-8);
-}
-
-/* --------------------------------------------------------------------------
-   10. Empty & Error States (Section 7.10)
-   -------------------------------------------------------------------------- */
-.state-box {
-  border: 1px solid var(--rule);
-  padding: var(--space-32);
-  text-align: center;
-  background-color: var(--sheet);
-  margin-bottom: var(--space-24);
-}
-
-.state-box p {
-  margin: 0 auto var(--space-16);
-}
-
-.state-box.error {
-  border-color: var(--red-deep);
-}
-
-.state-box.error p {
-  color: var(--red-deep);
+@keyframes slideInToast {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

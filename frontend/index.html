@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SiliconRoute: Hardware AI Load Balancer</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' fill='%23E1461E'/></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='4' fill='%232563EB'/></svg>">
   
-  <!-- Design Tokens, Base, Layout, Components, and Screens -->
+  <!-- Modern Design Tokens, Base, Layout, Components, and Screens -->
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
@@ -24,270 +24,356 @@
   <div class="app-root">
 
     <!-- =====================================================================
-         1. TOP BAR (56px, ink on paper)
+         1. TOP NAVIGATION BAR (Header with centered segmented controls)
          ===================================================================== -->
     <header class="top-bar" role="banner">
       <div class="brand-section" onclick="window.location.hash='#/overview'">
-        <span class="brand-title">SiliconRoute</span>
+        <div class="brand-icon">SR</div>
+        <div class="brand-text-group">
+          <span class="brand-title">SiliconRoute</span>
+          <span class="brand-subtitle">Hardware AI Balancer</span>
+        </div>
       </div>
 
-      <div class="topbar-telemetry" id="topbar-telemetry">
-        <span>plugged in</span>
-        <span class="telemetry-divider">|</span>
-        <span>battery 100%</span>
-        <span class="telemetry-divider">|</span>
-        <span>live</span>
+      <!-- Centered Segmented Navigation Bar -->
+      <nav class="topbar-nav" role="navigation" aria-label="Screen Navigation">
+        <button class="rail-item-btn nav-tab-btn active" data-screen="overview" data-test="nav-overview">Overview</button>
+        <button class="rail-item-btn nav-tab-btn" data-screen="live" data-test="nav-live">Live telemetry</button>
+        <button class="rail-item-btn nav-tab-btn" data-screen="analysis" data-test="nav-analysis">Analysis</button>
+        <button class="rail-item-btn nav-tab-btn" data-screen="router" data-test="nav-router">Router</button>
+        <button class="rail-item-btn nav-tab-btn" data-screen="results" data-test="nav-results">Results</button>
+        <button class="rail-item-btn nav-tab-btn" data-screen="evidence" data-test="nav-evidence">Evidence</button>
+        <button class="rail-item-btn nav-tab-btn" data-screen="about" data-test="nav-about">About</button>
+      </nav>
+
+      <!-- Right Utility Controls -->
+      <div class="topbar-right-group">
+        <div class="topbar-telemetry-badge" id="topbar-telemetry">
+          <span class="live-pulse-dot"></span>
+          <span>plugged in</span>
+          <span class="telemetry-divider">|</span>
+          <span>battery 100%</span>
+          <span class="telemetry-divider">|</span>
+          <span>live</span>
+        </div>
+        <button id="theme-toggle-btn" class="btn btn-secondary btn-sm" data-test="theme-toggle">Light / Dark</button>
+        <button id="btn-shortcuts-help" class="btn btn-secondary btn-sm" data-test="btn-shortcuts-help">Shortcuts (?)</button>
+        <a href="/" class="btn btn-secondary btn-sm rail-item-link" data-test="nav-back-to-website">Back to website</a>
       </div>
     </header>
 
     <!-- =====================================================================
-         2. SIGNATURE ELEMENT: SOCKET STRIP (96px, under top bar)
-         ===================================================================== -->
-    <div class="socket-strip" id="socket-strip" role="region" aria-label="Chip Sockets">
-      <!-- Populated dynamically by SocketStrip component -->
-      <div class="socket-item">
-        <div class="socket-header">
-          <div class="socket-name-group">
-            <span class="socket-mark cpu">■</span>
-            <span class="socket-label">CPU</span>
-          </div>
-          <span class="tag tag-verified">verified</span>
-        </div>
-        <div class="socket-live-metrics">load: --%, power: not available, temp: not available</div>
-        <div class="socket-prediction">ready</div>
-      </div>
-
-      <div class="socket-item">
-        <div class="socket-header">
-          <div class="socket-name-group">
-            <span class="socket-mark igpu">▲</span>
-            <span class="socket-label">Radeon 610M</span>
-          </div>
-          <span class="tag tag-verified">verified</span>
-        </div>
-        <div class="socket-live-metrics">load: --%, power: not available, temp: not available</div>
-        <div class="socket-prediction">ready</div>
-      </div>
-
-      <div class="socket-item">
-        <div class="socket-header">
-          <div class="socket-name-group">
-            <span class="socket-mark dgpu">●</span>
-            <span class="socket-label">RTX 5070 Laptop</span>
-          </div>
-          <span class="tag tag-verified">verified</span>
-        </div>
-        <div class="socket-live-metrics">load: --%, power: -- W, temp: -- °C</div>
-        <div class="socket-prediction">ready</div>
-      </div>
-    </div>
-
-    <!-- =====================================================================
-         3. APP BODY (Left Rail + Content Area)
+         2. MAIN APPLICATION CONTENT
          ===================================================================== -->
     <div class="app-body">
-      
-      <!-- Left Rail (200px, text only, red 4px underline under active label) -->
-      <aside class="left-rail" role="navigation" aria-label="Screen Navigation">
-        <nav class="rail-nav">
-          <button class="rail-item-btn active" data-screen="overview" data-test="nav-overview">
-            <span class="rail-label">Overview</span>
-          </button>
-          <button class="rail-item-btn" data-screen="live" data-test="nav-live">
-            <span class="rail-label">Live telemetry</span>
-          </button>
-          <button class="rail-item-btn" data-screen="analysis" data-test="nav-analysis">
-            <span class="rail-label">Analysis</span>
-          </button>
-          <button class="rail-item-btn" data-screen="router" data-test="nav-router">
-            <span class="rail-label">Router</span>
-          </button>
-          <button class="rail-item-btn" data-screen="results" data-test="nav-results">
-            <span class="rail-label">Results</span>
-          </button>
-          <button class="rail-item-btn" data-screen="evidence" data-test="nav-evidence">
-            <span class="rail-label">Evidence</span>
-          </button>
-          <button class="rail-item-btn" data-screen="about" data-test="nav-about">
-            <span class="rail-label">About</span>
-          </button>
-          <a href="/" class="rail-item-link" data-test="nav-back-to-website">
-            <span class="rail-label">Back to website</span>
-          </a>
-        </nav>
-
-        <div style="padding: var(--space-24) var(--space-24) 0; display: flex; flex-direction: column; gap: var(--space-8);">
-          <button id="theme-toggle-btn" class="btn btn-secondary btn-sm" style="width: 100%;" data-test="theme-toggle">Light / Dark</button>
-          <button id="btn-shortcuts-help" class="btn btn-secondary btn-sm" style="width: 100%;" data-test="btn-shortcuts-help">Keyboard (?)</button>
-        </div>
-      </aside>
-
-      <!-- Main Content Area -->
       <main class="content-area" role="main">
 
         <!-- =================================================================
-             SCREEN 1: OVERVIEW (Section 6.1)
+             SCREEN 1: OVERVIEW (Master Executive Dashboard)
              ================================================================= -->
         <section class="screen-container active" id="screen-overview">
-          <div class="screen-header">
-            <h1>Overview</h1>
-            <p class="screen-intro">Measured behaviour and routing across all available laptop silicon.</p>
+          
+          <!-- Row 1: Header Greeting + 3 Top KPI Cards -->
+          <div class="overview-top-row">
+            <div class="overview-greeting">
+              <div class="greeting-headline">SiliconRoute Load Balancer</div>
+              <p class="greeting-subtext">Autonomous hardware AI routing across CPU, integrated GPU, and discrete GPU</p>
+            </div>
+            
+            <div class="overview-kpis-grid">
+              <!-- KPI Card 1: Decision Accuracy -->
+              <div class="kpi-card">
+                <div class="kpi-card-header">
+                  <span class="kpi-badge badge-success">
+                    <span class="metric" data-metric="decisions_117_140_sr_accuracy_pct"></span>
+                  </span>
+                  <div class="kpi-micro-visual">
+                    <div class="kpi-micro-bar" style="height: 10px;"></div>
+                    <div class="kpi-micro-bar" style="height: 14px;"></div>
+                    <div class="kpi-micro-bar" style="height: 12px;"></div>
+                    <div class="kpi-micro-bar highlight" style="height: 20px;"></div>
+                    <div class="kpi-micro-bar highlight" style="height: 22px;"></div>
+                  </div>
+                </div>
+                <div class="kpi-card-value">
+                  <span class="metric" data-metric="decisions_117_140_sr_wins"></span> of <span class="metric" data-metric="decisions_117_140_total"></span>
+                </div>
+                <div class="kpi-card-caption">Decisions Won (Fastest Chip)</div>
+              </div>
+
+              <!-- KPI Card 2: Mean Regret -->
+              <div class="kpi-card">
+                <div class="kpi-card-header">
+                  <span class="kpi-badge badge-success">Optimal</span>
+                  <div class="kpi-micro-visual">
+                    <div class="kpi-micro-bar highlight" style="height: 6px;"></div>
+                    <div class="kpi-micro-bar highlight" style="height: 8px;"></div>
+                    <div class="kpi-micro-bar highlight" style="height: 7px;"></div>
+                    <div class="kpi-micro-bar" style="height: 16px;"></div>
+                    <div class="kpi-micro-bar" style="height: 22px;"></div>
+                  </div>
+                </div>
+                <div class="kpi-card-value">
+                  <span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct"></span>
+                </div>
+                <div class="kpi-card-caption">Mean Regret vs Fastest</div>
+              </div>
+
+              <!-- KPI Card 3: Profiled Hardware & Runs -->
+              <div class="kpi-card">
+                <div class="kpi-card-header">
+                  <span class="kpi-badge badge-neutral">SHA256 Verified</span>
+                  <div class="kpi-micro-visual">
+                    <div class="kpi-micro-bar highlight" style="height: 14px;"></div>
+                    <div class="kpi-micro-bar highlight" style="height: 16px;"></div>
+                    <div class="kpi-micro-bar highlight" style="height: 18px;"></div>
+                    <div class="kpi-micro-bar highlight" style="height: 20px;"></div>
+                    <div class="kpi-micro-bar highlight" style="height: 22px;"></div>
+                  </div>
+                </div>
+                <div class="kpi-card-value">
+                  3 Chips · 148 Runs
+                </div>
+                <div class="kpi-card-caption">Cryptographic SQLite DB</div>
+              </div>
+            </div>
           </div>
 
-          <!-- Statement Block -->
-          <div class="statement-box">
-            <span>SiliconRoute picked the fastest chip in </span>
-            <span class="metric" data-metric="decisions_117_140_sr_wins"></span>
-            <span> of </span>
-            <span class="metric" data-metric="decisions_117_140_total"></span>
-            <span> verified hardware decisions (</span>
-            <span class="metric" data-metric="decisions_117_140_sr_accuracy_pct"></span>
-            <span> accuracy), reducing average slowdown to </span>
-            <span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct"></span>
-            <span>.</span>
-            <button class="btn btn-text" id="overview-evidence-btn" data-test="overview-evidence-btn" style="margin-left: 8px;">Show evidence</button>
+          <!-- Row 2: Middle Grid (65% Chart / 35% Allocation) -->
+          <div class="overview-middle-grid">
+            <!-- Left Card: Performance & Scaling Analysis -->
+            <div class="dashboard-card">
+              <div class="card-header">
+                <div class="card-title-group">
+                  <span class="card-title">Performance &amp; Scaling Analysis</span>
+                </div>
+                <div class="card-actions">
+                  <select id="overview-chart-family-select" class="btn-sm" style="font-size: 12px; height: 30px;">
+                    <option value="mlp">Architecture: MLP</option>
+                    <option value="conv">Architecture: Conv</option>
+                  </select>
+                  <select id="overview-chart-batch-select" class="btn-sm" style="font-size: 12px; height: 30px;">
+                    <option value="1">Batch 1</option>
+                    <option value="8">Batch 8</option>
+                    <option value="32">Batch 32</option>
+                  </select>
+                  <button class="btn btn-secondary btn-sm" id="btn-toggle-overview-chart-table" data-test="toggle-overview-chart-table">Show data</button>
+                </div>
+              </div>
+              <div class="chart-canvas-wrap" style="height: 270px;">
+                <canvas id="chart-overview-scaling"></canvas>
+              </div>
+              <div class="chart-table-wrap" id="table-wrap-overview-scaling" style="display: none; margin-top: 12px;">
+                <table class="bench-table">
+                  <thead>
+                    <tr><th>Model</th><th>Params</th><th class="num">CPU (ms)</th><th class="num">Radeon 610M (ms)</th><th class="num">RTX 5070 (ms)</th></tr>
+                  </thead>
+                  <tbody id="tbody-overview-scaling"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Right Card: Silicon Allocation & Socket Strip -->
+            <div class="dashboard-card">
+              <div class="card-header">
+                <div class="card-title-group">
+                  <span class="card-title">Silicon Allocation</span>
+                </div>
+                <span class="tag tag-verified">3 Active Sockets</span>
+              </div>
+              <div class="allocation-container">
+                <div class="allocation-legend">
+                  <span class="allocation-legend-item"><span class="legend-dot cpu"></span> CPU Host</span>
+                  <span class="allocation-legend-item"><span class="legend-dot igpu"></span> Radeon 610M</span>
+                  <span class="allocation-legend-item"><span class="legend-dot dgpu"></span> RTX 5070</span>
+                </div>
+                <div class="allocation-summary-bar">
+                  <div class="allocation-seg cpu" style="width: 33%;"></div>
+                  <div class="allocation-seg igpu" style="width: 33%;"></div>
+                  <div class="allocation-seg dgpu" style="width: 34%;"></div>
+                </div>
+                <div class="socket-strip-list" id="socket-strip" role="region" aria-label="Chip Sockets">
+                  <!-- Populated dynamically by SocketStrip component -->
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Comparison Table of Strategies -->
-          <h2>Strategy Comparison</h2>
-          <p>Evaluated on physical hardware across 24 tasks (8 sustained, 8 idle-loaded, 8 cold-start):</p>
-          <div class="table-wrap">
-            <table class="bench-table">
-              <thead>
-                <tr>
-                  <th>Strategy</th>
-                  <th class="num">Decisions Won</th>
-                  <th class="num">Total</th>
-                  <th class="num">Accuracy</th>
-                  <th class="num">Mean Regret</th>
-                  <th class="num">P90 Regret</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="chosen-row">
-                  <td><strong>SiliconRoute</strong></td>
-                  <td class="num"><span class="metric" data-metric="decisions_117_140_sr_wins"></span></td>
-                  <td class="num"><span class="metric" data-metric="decisions_117_140_total"></span></td>
-                  <td class="num"><span class="metric" data-metric="decisions_117_140_sr_accuracy_pct"></span></td>
-                  <td class="num"><span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct"></span></td>
-                  <td class="num"><span class="metric" data-metric="decisions_117_140_sr_p90_regret_pct"></span></td>
-                </tr>
-                <tr>
-                  <td>Always-CPU</td>
-                  <td class="num"><span class="metric" data-metric="decisions_117_140_always_cpu_wins"></span></td>
-                  <td class="num"><span class="metric" data-metric="decisions_117_140_total"></span></td>
-                  <td class="num"><span class="metric" data-metric="decisions_117_140_always_cpu_accuracy_pct"></span></td>
-                  <td class="num"><span class="metric" data-metric="decisions_117_140_always_cpu_mean_regret_pct"></span></td>
-                  <td class="num"><span class="metric" data-metric="decisions_117_140_always_cpu_p90_regret_pct"></span></td>
-                </tr>
-                <tr>
-                  <td>Always-RTX</td>
-                  <td class="num"><span class="metric" data-metric="decisions_117_140_always_rtx_wins"></span></td>
-                  <td class="num"><span class="metric" data-metric="decisions_117_140_total"></span></td>
-                  <td class="num"><span class="metric" data-metric="decisions_117_140_always_rtx_accuracy_pct"></span></td>
-                  <td class="num"><span class="metric" data-metric="decisions_117_140_always_rtx_mean_regret_pct"></span></td>
-                  <td class="num"><span class="metric" data-metric="decisions_117_140_always_rtx_p90_regret_pct"></span></td>
-                </tr>
-                <tr>
-                  <td>Fit-Only Router</td>
-                  <td class="num"><span class="metric" data-metric="decisions_117_140_fit_only_wins"></span></td>
-                  <td class="num"><span class="metric" data-metric="decisions_117_140_total"></span></td>
-                  <td class="num"><span class="metric" data-metric="decisions_117_140_fit_only_accuracy_pct"></span></td>
-                  <td class="num"><span class="metric" data-metric="decisions_117_140_fit_only_mean_regret_pct"></span></td>
-                  <td class="num"><span class="metric" data-metric="decisions_117_140_fit_only_p90_regret_pct"></span></td>
-                </tr>
-              </tbody>
-            </table>
+          <!-- Row 3: Bottom Grid (35% Strategy / 35% Recent / 30% Copilot) -->
+          <div class="overview-bottom-grid">
+            <!-- Left Column: Strategy Comparison Card -->
+            <div class="dashboard-card">
+              <div class="card-header">
+                <div class="card-title-group">
+                  <span class="card-title">Strategy Comparison</span>
+                </div>
+                <span class="tag tag-neutral">24 Tasks</span>
+              </div>
+              <div class="table-wrap" style="margin-bottom: 0;">
+                <table class="bench-table">
+                  <thead>
+                    <tr>
+                      <th>Strategy</th>
+                      <th class="num">Won</th>
+                      <th class="num">Accuracy</th>
+                      <th class="num">Regret</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="chosen-row">
+                      <td><strong>SiliconRoute</strong></td>
+                      <td class="num"><span class="metric" data-metric="decisions_117_140_sr_wins"></span> / <span class="metric" data-metric="decisions_117_140_total"></span></td>
+                      <td class="num"><span class="tag tag-optimal"><span class="metric" data-metric="decisions_117_140_sr_accuracy_pct"></span></span></td>
+                      <td class="num"><span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct"></span></td>
+                    </tr>
+                    <tr>
+                      <td>Always-CPU</td>
+                      <td class="num"><span class="metric" data-metric="decisions_117_140_always_cpu_wins"></span> / <span class="metric" data-metric="decisions_117_140_total"></span></td>
+                      <td class="num"><span class="metric" data-metric="decisions_117_140_always_cpu_accuracy_pct"></span></td>
+                      <td class="num"><span class="metric" data-metric="decisions_117_140_always_cpu_mean_regret_pct"></span></td>
+                    </tr>
+                    <tr>
+                      <td>Always-RTX</td>
+                      <td class="num"><span class="metric" data-metric="decisions_117_140_always_rtx_wins"></span> / <span class="metric" data-metric="decisions_117_140_total"></span></td>
+                      <td class="num"><span class="metric" data-metric="decisions_117_140_always_rtx_accuracy_pct"></span></td>
+                      <td class="num"><span class="metric" data-metric="decisions_117_140_always_rtx_mean_regret_pct"></span></td>
+                    </tr>
+                    <tr>
+                      <td>Fit-Only Router</td>
+                      <td class="num"><span class="metric" data-metric="decisions_117_140_fit_only_wins"></span> / <span class="metric" data-metric="decisions_117_140_total"></span></td>
+                      <td class="num"><span class="metric" data-metric="decisions_117_140_fit_only_accuracy_pct"></span></td>
+                      <td class="num"><span class="metric" data-metric="decisions_117_140_fit_only_mean_regret_pct"></span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Middle Column: Recent Decisions Card -->
+            <div class="dashboard-card">
+              <div class="card-header">
+                <div class="card-title-group">
+                  <span class="card-title">Recent Decisions</span>
+                </div>
+                <button class="btn btn-text btn-sm" id="overview-view-all-decisions-btn" data-test="view-all-decisions-btn">View all</button>
+              </div>
+              <div class="table-wrap" style="margin-bottom: 0;">
+                <table class="bench-table" id="table-overview-recent-decisions">
+                  <thead>
+                    <tr>
+                      <th>Model</th>
+                      <th>Workload</th>
+                      <th>Chosen</th>
+                      <th class="num">Time</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody-overview-recent-decisions">
+                    <tr>
+                      <td colspan="4" style="text-align: center; color: var(--ink-3); padding: 16px;">No decisions yet. Route a task to see it here.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Right Column: Hardware Routing Copilot Card -->
+            <div class="dashboard-card copilot-card">
+              <div>
+                <div class="card-header">
+                  <div class="card-title-group">
+                    <div class="copilot-header-icon">&#x2699;</div>
+                    <div>
+                      <span class="card-title">Routing Copilot</span>
+                      <div class="card-subtitle">Local Heterogeneous AI Balancer</div>
+                    </div>
+                  </div>
+                  <span class="tag tag-verified">Ready</span>
+                </div>
+                <div class="copilot-insight-box">
+                  SiliconRoute dynamically matches AI tasks to CPU, iGPU, or dGPU using measured execution history and hardware roofline models.
+                </div>
+                <form class="copilot-form" id="overview-route-form">
+                  <div class="copilot-form-row">
+                    <div class="copilot-form-group">
+                      <label for="overview-model-select">Model</label>
+                      <select id="overview-model-select">
+                        <option value="mlp_256w_4l">mlp-256w-4l</option>
+                        <option value="mlp_512w_4l">mlp-512w-4l</option>
+                        <option value="mlp_1024w_4l">mlp-1024w-4l</option>
+                        <option value="mlp_2048w_4l">mlp-2048w-4l</option>
+                        <option value="mlp_3072w_4l">mlp-3072w-4l</option>
+                        <option value="conv_16c_4l">conv-16c-4l</option>
+                        <option value="conv_32c_4l">conv-32c-4l</option>
+                        <option value="conv_64c_4l">conv-64c-4l</option>
+                        <option value="conv_96c_4l">conv-96c-4l</option>
+                      </select>
+                    </div>
+                    <div class="copilot-form-group">
+                      <label for="overview-batch-select">Batch</label>
+                      <select id="overview-batch-select">
+                        <option value="1">1</option>
+                        <option value="8">8</option>
+                        <option value="32">32</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="copilot-form-row">
+                    <div class="copilot-form-group">
+                      <label for="overview-workload-select">Workload</label>
+                      <select id="overview-workload-select">
+                        <option value="sustained">sustained</option>
+                        <option value="idle_loaded">idle_loaded</option>
+                        <option value="cold_start">cold_start</option>
+                      </select>
+                    </div>
+                    <div class="copilot-form-group">
+                      <label for="overview-goal-select">Goal</label>
+                      <select id="overview-goal-select">
+                        <option value="fastest">fastest</option>
+                        <option value="battery">battery</option>
+                        <option value="balanced">balanced</option>
+                        <option value="cool">cool</option>
+                      </select>
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary copilot-cta-btn" id="btn-overview-route" data-test="btn-overview-route">Route task</button>
+                </form>
+              </div>
+              <div class="copilot-secondary-actions">
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-overview-verify" data-test="route-verify" style="flex: 1;">Route &amp; verify</button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-overview-export-csv" data-test="export-decisions-csv" style="flex: 1;">Export CSV</button>
+              </div>
+            </div>
           </div>
 
-          <!-- Route a Task Quick Form -->
-          <h2>Route a Task</h2>
-          <form class="form-row" id="overview-route-form">
-            <div class="form-group">
-              <label class="form-label" for="overview-model-select">Model</label>
-              <select id="overview-model-select">
-                <option value="mlp_256w_4l">mlp-256w-4l</option>
-                <option value="mlp_512w_4l">mlp-512w-4l</option>
-                <option value="mlp_1024w_4l">mlp-1024w-4l</option>
-                <option value="mlp_2048w_4l">mlp-2048w-4l</option>
-                <option value="mlp_3072w_4l">mlp-3072w-4l</option>
-                <option value="conv_16c_4l">conv-16c-4l</option>
-                <option value="conv_32c_4l">conv-32c-4l</option>
-                <option value="conv_64c_4l">conv-64c-4l</option>
-                <option value="conv_96c_4l">conv-96c-4l</option>
-              </select>
+          <!-- Row 4: Core Physical Findings Section -->
+          <div class="dashboard-card overview-findings-section">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-title">Core Physical Findings</span>
+              </div>
+              <button class="btn btn-text btn-sm" id="overview-evidence-btn" data-test="overview-evidence-btn">Show evidence</button>
             </div>
-
-            <div class="form-group">
-              <label class="form-label" for="overview-batch-select">Batch</label>
-              <select id="overview-batch-select">
-                <option value="1">1</option>
-                <option value="8">8</option>
-                <option value="32">32</option>
-              </select>
+            <div class="overview-findings-grid">
+              <div class="finding-tile">
+                <strong>1. CPU beats discrete GPU on small tasks</strong>
+                For small models (mlp-256w-4l, batch 1), CPU runs in <span class="metric" data-metric="mlp_256_b1_cpu_latency_ms"></span> vs <span class="metric" data-metric="mlp_256_b1_rtx_latency_ms"></span> on RTX 5070 (<span class="metric" data-metric="speedup_cpu_over_rtx_mlp_256_b1"></span> faster) due to DirectML command overhead dominating compute.
+              </div>
+              <div class="finding-tile">
+                <strong>2. GPU identity swaps on hybrid laptops</strong>
+                In <span class="metric" data-metric="identity_suspect_runs"></span> runs, DirectML adapter numbering swapped indices between discrete and integrated GPUs. Verified in-process via DXGI PCI vendor IDs and NVML fingerprinting.
+              </div>
+              <div class="finding-tile">
+                <strong>3. Batch-8 DirectML convolution anomaly</strong>
+                Convolution kernels on DirectML exhibit non-linear latency jumps around batch 8 (<span class="metric" data-metric="directml_anomaly_conv96_slowdown"></span> slowdown), captured by empirical lookup.
+              </div>
+              <div class="finding-tile">
+                <strong>4. Loading time dominates cold starts</strong>
+                On large models, RTX sustained inference is <span class="metric" data-metric="mlp_3072_b1_sustained_rtx_ms"></span> vs CPU <span class="metric" data-metric="mlp_3072_b1_sustained_cpu_ms"></span>, but cold start session creation takes <span class="metric" data-metric="mlp_3072_cold_rtx_rounded_ms"></span> (<span class="metric" data-metric="overhead_rtx_cold_start_vs_sustained_mlp_3072"></span> overhead).
+              </div>
             </div>
-
-            <div class="form-group">
-              <label class="form-label" for="overview-workload-select">Workload</label>
-              <select id="overview-workload-select">
-                <option value="sustained">sustained</option>
-                <option value="idle_loaded">idle_loaded</option>
-                <option value="cold_start">cold_start</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="overview-goal-select">Goal</label>
-              <select id="overview-goal-select">
-                <option value="fastest">fastest</option>
-                <option value="battery">battery</option>
-                <option value="balanced">balanced</option>
-                <option value="cool">cool</option>
-              </select>
-            </div>
-
-            <button type="submit" class="btn btn-primary" id="btn-overview-route" data-test="btn-overview-route">Route task</button>
-          </form>
-
-          <!-- Recent Decisions -->
-          <h2>Recent Decisions</h2>
-          <div class="table-wrap">
-            <table class="bench-table" id="table-overview-recent-decisions">
-              <thead>
-                <tr>
-                  <th>Decision</th>
-                  <th>Model</th>
-                  <th class="num">Batch</th>
-                  <th>Workload</th>
-                  <th>Chosen Chip</th>
-                  <th class="num">Predicted</th>
-                  <th>Reason</th>
-                </tr>
-              </thead>
-              <tbody id="tbody-overview-recent-decisions">
-                <tr>
-                  <td colspan="7" style="text-align: center; color: var(--ink-3);">No decisions yet. Route a task to see it here.</td>
-                </tr>
-              </tbody>
-            </table>
           </div>
 
-          <!-- Measured Findings -->
-          <h2>Core Physical Findings</h2>
-          <ol class="findings-list">
-            <li>
-              <strong>CPU beats discrete GPU on small tasks:</strong> For small models (mlp-256w-4l, batch 1), the CPU runs in <span class="metric" data-metric="mlp_256_b1_cpu_latency_ms"></span> vs <span class="metric" data-metric="mlp_256_b1_rtx_latency_ms"></span> on RTX 5070 (<span class="metric" data-metric="speedup_cpu_over_rtx_mlp_256_b1"></span> faster) due to DirectML command overhead dominating compute.
-            </li>
-            <li>
-              <strong>Discrete GPU identity swaps on hybrid laptops:</strong> In <span class="metric" data-metric="identity_suspect_runs"></span> runs, DirectML adapter numbering swapped indices between the discrete and integrated GPUs. Verified in-process via DXGI PCI vendor IDs and NVML load fingerprinting.
-            </li>
-            <li>
-              <strong>Batch-8 DirectML anomaly:</strong> Convolution kernels on DirectML exhibit non-linear latency jumps around batch 8 (<span class="metric" data-metric="directml_anomaly_conv96_slowdown"></span> slowdown), captured by empirical lookup.
-            </li>
-            <li>
-              <strong>Loading time dominates cold starts:</strong> On large models, RTX sustained inference is <span class="metric" data-metric="mlp_3072_b1_sustained_rtx_ms"></span> vs CPU <span class="metric" data-metric="mlp_3072_b1_sustained_cpu_ms"></span>, but cold start session creation takes <span class="metric" data-metric="mlp_3072_cold_rtx_rounded_ms"></span> (<span class="metric" data-metric="overhead_rtx_cold_start_vs_sustained_mlp_3072"></span> overhead).
-            </li>
-          </ol>
         </section>
 
         <!-- =================================================================
@@ -299,88 +385,90 @@
             <p class="screen-intro">Real-time 1 Hz telemetry stream from system hardware sensors.</p>
           </div>
 
-          <!-- 1. Utilisation Chart -->
-          <div class="chart-panel">
-            <div class="chart-header">
-              <span class="chart-title">Processor Utilisation (%)</span>
-              <div class="chart-actions">
-                <button class="btn btn-text chart-table-toggle" data-target="table-live-util" data-test="toggle-table-live-util">Show data table</button>
+          <div class="live-charts-grid">
+            <!-- 1. Utilisation Chart -->
+            <div class="chart-panel">
+              <div class="chart-header">
+                <span class="chart-title">Processor Utilisation (%)</span>
+                <div class="chart-actions">
+                  <button class="btn btn-secondary btn-sm chart-table-toggle" data-target="table-live-util" data-test="toggle-table-live-util">Show data table</button>
+                </div>
+              </div>
+              <div class="chart-canvas-wrap">
+                <canvas id="chart-live-util"></canvas>
+              </div>
+              <div class="chart-table-wrap" id="table-live-util">
+                <table class="bench-table">
+                  <thead>
+                    <tr><th>Timestamp</th><th class="num">CPU (%)</th><th class="num">RTX 5070 (%)</th></tr>
+                  </thead>
+                  <tbody id="tbody-live-util"></tbody>
+                </table>
               </div>
             </div>
-            <div class="chart-canvas-wrap">
-              <canvas id="chart-live-util"></canvas>
-            </div>
-            <div class="chart-table-wrap" id="table-live-util">
-              <table class="bench-table">
-                <thead>
-                  <tr><th>Timestamp</th><th class="num">CPU (%)</th><th class="num">RTX 5070 (%)</th></tr>
-                </thead>
-                <tbody id="tbody-live-util"></tbody>
-              </table>
-            </div>
-          </div>
 
-          <!-- 2. Power Chart -->
-          <div class="chart-panel">
-            <div class="chart-header">
-              <span class="chart-title">Power Draw (W)</span>
-              <div class="chart-actions">
-                <span class="tag tag-unavailable" title="Windows does not expose unprivileged CPU/iGPU power">CPU/iGPU: not available</span>
-                <button class="btn btn-text chart-table-toggle" data-target="table-live-power" data-test="toggle-table-live-power">Show data table</button>
+            <!-- 2. Power Chart -->
+            <div class="chart-panel">
+              <div class="chart-header">
+                <span class="chart-title">Power Draw (W)</span>
+                <div class="chart-actions">
+                  <span class="tag tag-unavailable" title="Windows does not expose unprivileged CPU/iGPU power">CPU/iGPU: not available</span>
+                  <button class="btn btn-secondary btn-sm chart-table-toggle" data-target="table-live-power" data-test="toggle-table-live-power">Show data table</button>
+                </div>
+              </div>
+              <div class="chart-canvas-wrap">
+                <canvas id="chart-live-power"></canvas>
+              </div>
+              <div class="chart-table-wrap" id="table-live-power">
+                <table class="bench-table">
+                  <thead>
+                    <tr><th>Timestamp</th><th class="num">RTX 5070 (W)</th><th>Status</th></tr>
+                  </thead>
+                  <tbody id="tbody-live-power"></tbody>
+                </table>
               </div>
             </div>
-            <div class="chart-canvas-wrap">
-              <canvas id="chart-live-power"></canvas>
-            </div>
-            <div class="chart-table-wrap" id="table-live-power">
-              <table class="bench-table">
-                <thead>
-                  <tr><th>Timestamp</th><th class="num">RTX 5070 (W)</th><th>Status</th></tr>
-                </thead>
-                <tbody id="tbody-live-power"></tbody>
-              </table>
-            </div>
-          </div>
 
-          <!-- 3. Temperature Chart -->
-          <div class="chart-panel">
-            <div class="chart-header">
-              <span class="chart-title">GPU Temperature (°C)</span>
-              <div class="chart-actions">
-                <button class="btn btn-text chart-table-toggle" data-target="table-live-temp" data-test="toggle-table-live-temp">Show data table</button>
+            <!-- 3. Temperature Chart -->
+            <div class="chart-panel">
+              <div class="chart-header">
+                <span class="chart-title">GPU Temperature (°C)</span>
+                <div class="chart-actions">
+                  <button class="btn btn-secondary btn-sm chart-table-toggle" data-target="table-live-temp" data-test="toggle-table-live-temp">Show data table</button>
+                </div>
+              </div>
+              <div class="chart-canvas-wrap">
+                <canvas id="chart-live-temp"></canvas>
+              </div>
+              <div class="chart-table-wrap" id="table-live-temp">
+                <table class="bench-table">
+                  <thead>
+                    <tr><th>Timestamp</th><th class="num">RTX 5070 (°C)</th></tr>
+                  </thead>
+                  <tbody id="tbody-live-temp"></tbody>
+                </table>
               </div>
             </div>
-            <div class="chart-canvas-wrap">
-              <canvas id="chart-live-temp"></canvas>
-            </div>
-            <div class="chart-table-wrap" id="table-live-temp">
-              <table class="bench-table">
-                <thead>
-                  <tr><th>Timestamp</th><th class="num">RTX 5070 (°C)</th></tr>
-                </thead>
-                <tbody id="tbody-live-temp"></tbody>
-              </table>
-            </div>
-          </div>
 
-          <!-- 4. Clock and State Chart -->
-          <div class="chart-panel">
-            <div class="chart-header">
-              <span class="chart-title">Clock (MHz) &amp; P-State</span>
-              <div class="chart-actions">
-                <button class="btn btn-text chart-table-toggle" data-target="table-live-clock" data-test="toggle-table-live-clock">Show data table</button>
+            <!-- 4. Clock and State Chart -->
+            <div class="chart-panel">
+              <div class="chart-header">
+                <span class="chart-title">Clock (MHz) &amp; P-State</span>
+                <div class="chart-actions">
+                  <button class="btn btn-secondary btn-sm chart-table-toggle" data-target="table-live-clock" data-test="toggle-table-live-clock">Show data table</button>
+                </div>
               </div>
-            </div>
-            <div class="chart-canvas-wrap">
-              <canvas id="chart-live-clock"></canvas>
-            </div>
-            <div class="chart-table-wrap" id="table-live-clock">
-              <table class="bench-table">
-                <thead>
-                  <tr><th>Timestamp</th><th class="num">SM Clock (MHz)</th><th class="num">P-State</th></tr>
-                </thead>
-                <tbody id="tbody-live-clock"></tbody>
-              </table>
+              <div class="chart-canvas-wrap">
+                <canvas id="chart-live-clock"></canvas>
+              </div>
+              <div class="chart-table-wrap" id="table-live-clock">
+                <table class="bench-table">
+                  <thead>
+                    <tr><th>Timestamp</th><th class="num">SM Clock (MHz)</th><th class="num">P-State</th></tr>
+                  </thead>
+                  <tbody id="tbody-live-clock"></tbody>
+                </table>
+              </div>
             </div>
           </div>
         </section>
@@ -419,7 +507,7 @@
             <div class="chart-header">
               <span class="chart-title">Model Scaling Curve (Log-Log)</span>
               <div class="chart-actions">
-                <button class="btn btn-text chart-table-toggle" data-target="table-analysis-scaling" data-test="toggle-table-analysis-scaling">Show data table</button>
+                <button class="btn btn-secondary btn-sm chart-table-toggle" data-target="table-analysis-scaling" data-test="toggle-table-analysis-scaling">Show data table</button>
               </div>
             </div>
             <div class="chart-canvas-wrap" style="height: 320px;">
@@ -436,39 +524,47 @@
           </div>
 
           <!-- Crossover Table -->
-          <h2>Crossover Points</h2>
-          <p>Model size where discrete GPU overtakes CPU latency:</p>
-          <div class="table-wrap">
-            <table class="bench-table" id="table-analysis-crossovers">
-              <thead>
-                <tr>
-                  <th>Family</th>
-                  <th class="num">Batch</th>
-                  <th>Crossover Point</th>
-                  <th>Classification</th>
-                  <th>Measured Neighbours</th>
-                </tr>
-              </thead>
-              <tbody id="tbody-analysis-crossovers"></tbody>
-            </table>
+          <div class="dashboard-card" style="margin-top: var(--space-20);">
+            <div class="card-header">
+              <span class="card-title">Crossover Points</span>
+              <span class="card-subtitle">Model size where discrete GPU overtakes CPU latency</span>
+            </div>
+            <div class="table-wrap" style="margin-bottom: 0;">
+              <table class="bench-table" id="table-analysis-crossovers">
+                <thead>
+                  <tr>
+                    <th>Family</th>
+                    <th class="num">Batch</th>
+                    <th>Crossover Point</th>
+                    <th>Classification</th>
+                    <th>Measured Neighbours</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-analysis-crossovers"></tbody>
+              </table>
+            </div>
           </div>
 
           <!-- Hardware Model Fits -->
-          <h2>Physical Roofline Model Fits</h2>
-          <div class="table-wrap">
-            <table class="bench-table" id="table-analysis-fits">
-              <thead>
-                <tr>
-                  <th>Device</th>
-                  <th>Optimal Formula</th>
-                  <th class="num">Overhead (ms)</th>
-                  <th class="num">Compute (GFLOP/s)</th>
-                  <th class="num">Bandwidth (GB/s)</th>
-                  <th class="num">LOO MAPE</th>
-                </tr>
-              </thead>
-              <tbody id="tbody-analysis-fits"></tbody>
-            </table>
+          <div class="dashboard-card" style="margin-top: var(--space-20);">
+            <div class="card-header">
+              <span class="card-title">Physical Roofline Model Fits</span>
+            </div>
+            <div class="table-wrap" style="margin-bottom: 0;">
+              <table class="bench-table" id="table-analysis-fits">
+                <thead>
+                  <tr>
+                    <th>Device</th>
+                    <th>Optimal Formula</th>
+                    <th class="num">Overhead (ms)</th>
+                    <th class="num">Compute (GFLOP/s)</th>
+                    <th class="num">Bandwidth (GB/s)</th>
+                    <th class="num">LOO MAPE</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-analysis-fits"></tbody>
+              </table>
+            </div>
           </div>
         </section>
 
@@ -482,71 +578,73 @@
           </div>
 
           <!-- Router Form -->
-          <form class="form-row" id="router-execution-form">
-            <div class="form-group">
-              <label class="form-label" for="router-model-select">Model</label>
-              <select id="router-model-select" data-test="router-model-select">
-                <option value="mlp_256w_4l">mlp-256w-4l</option>
-                <option value="mlp_512w_4l">mlp-512w-4l</option>
-                <option value="mlp_1024w_4l">mlp-1024w-4l</option>
-                <option value="mlp_2048w_4l">mlp-2048w-4l</option>
-                <option value="mlp_3072w_4l">mlp-3072w-4l</option>
-                <option value="conv_16c_4l">conv-16c-4l</option>
-                <option value="conv_32c_4l">conv-32c-4l</option>
-                <option value="conv_64c_4l">conv-64c-4l</option>
-                <option value="conv_96c_4l">conv-96c-4l</option>
-              </select>
-            </div>
+          <div class="dashboard-card">
+            <form class="form-row" id="router-execution-form" style="display: flex; gap: var(--space-16); align-items: flex-end; flex-wrap: wrap;">
+              <div class="form-group">
+                <label class="form-label" for="router-model-select">Model</label>
+                <select id="router-model-select" data-test="router-model-select">
+                  <option value="mlp_256w_4l">mlp-256w-4l</option>
+                  <option value="mlp_512w_4l">mlp-512w-4l</option>
+                  <option value="mlp_1024w_4l">mlp-1024w-4l</option>
+                  <option value="mlp_2048w_4l">mlp-2048w-4l</option>
+                  <option value="mlp_3072w_4l">mlp-3072w-4l</option>
+                  <option value="conv_16c_4l">conv-16c-4l</option>
+                  <option value="conv_32c_4l">conv-32c-4l</option>
+                  <option value="conv_64c_4l">conv-64c-4l</option>
+                  <option value="conv_96c_4l">conv-96c-4l</option>
+                </select>
+              </div>
 
-            <div class="form-group">
-              <label class="form-label" for="router-batch-select">Batch</label>
-              <select id="router-batch-select" data-test="router-batch-select">
-                <option value="1">1</option>
-                <option value="8">8</option>
-                <option value="32">32</option>
-              </select>
-            </div>
+              <div class="form-group">
+                <label class="form-label" for="router-batch-select">Batch</label>
+                <select id="router-batch-select" data-test="router-batch-select">
+                  <option value="1">1</option>
+                  <option value="8">8</option>
+                  <option value="32">32</option>
+                </select>
+              </div>
 
-            <div class="form-group">
-              <label class="form-label" for="router-workload-select">Workload</label>
-              <select id="router-workload-select" data-test="router-workload-select">
-                <option value="sustained">sustained</option>
-                <option value="idle_loaded">idle_loaded</option>
-                <option value="cold_start">cold_start</option>
-              </select>
-            </div>
+              <div class="form-group">
+                <label class="form-label" for="router-workload-select">Workload</label>
+                <select id="router-workload-select" data-test="router-workload-select">
+                  <option value="sustained">sustained</option>
+                  <option value="idle_loaded">idle_loaded</option>
+                  <option value="cold_start">cold_start</option>
+                </select>
+              </div>
 
-            <div class="form-group">
-              <label class="form-label" for="router-goal-select">Goal</label>
-              <select id="router-goal-select" data-test="router-goal-select">
-                <option value="fastest">fastest</option>
-                <option value="battery">battery</option>
-                <option value="balanced">balanced</option>
-                <option value="cool">cool</option>
-              </select>
-            </div>
+              <div class="form-group">
+                <label class="form-label" for="router-goal-select">Goal</label>
+                <select id="router-goal-select" data-test="router-goal-select">
+                  <option value="fastest">fastest</option>
+                  <option value="battery">battery</option>
+                  <option value="balanced">balanced</option>
+                  <option value="cool">cool</option>
+                </select>
+              </div>
 
-            <div class="form-group" style="flex-direction: row; align-items: center; padding-bottom: 8px;">
-              <input type="checkbox" id="router-explore-check" data-test="router-explore-check" style="height: 18px; width: 18px;">
-              <label class="form-label" for="router-explore-check" style="margin-left: 6px;">Epsilon Exploration (10%)</label>
-            </div>
+              <div class="form-group" style="flex-direction: row; align-items: center; padding-bottom: 8px;">
+                <input type="checkbox" id="router-explore-check" data-test="router-explore-check" style="height: 18px; width: 18px;">
+                <label class="form-label" for="router-explore-check" style="margin-left: 6px;">Epsilon Exploration (10%)</label>
+              </div>
 
-            <div style="display: flex; gap: var(--space-8);">
-              <button type="submit" class="btn btn-primary" id="btn-router-submit" data-test="route-task">Route task</button>
-              <button type="button" class="btn btn-secondary" id="btn-router-verify" data-test="route-verify">Route and verify on hardware</button>
-              <button type="button" class="btn btn-secondary" id="btn-export-decisions-csv" data-test="export-decisions-csv">Export decisions CSV</button>
-            </div>
-          </form>
+              <div style="display: flex; gap: var(--space-8);">
+                <button type="submit" class="btn btn-primary" id="btn-router-submit" data-test="route-task">Route task</button>
+                <button type="button" class="btn btn-secondary" id="btn-router-verify" data-test="route-verify">Route and verify on hardware</button>
+                <button type="button" class="btn btn-secondary" id="btn-export-decisions-csv" data-test="export-decisions-csv">Export decisions CSV</button>
+              </div>
+            </form>
+          </div>
 
           <!-- Decision Outcome Card -->
           <div class="decision-result-card" id="router-decision-card" style="display: none;">
             <div class="decision-hero">
               <div>
-                <span style="font-size: 13px; font-weight: 700; color: var(--ink-2); text-transform: uppercase;">Selected Processor</span>
+                <span style="font-size: 12px; font-weight: 700; color: var(--ink-2); text-transform: uppercase;">Selected Processor</span>
                 <div class="decision-chip-title" id="decision-chip-name">CPU</div>
               </div>
               <div style="text-align: right;">
-                <span style="font-size: 13px; font-weight: 700; color: var(--ink-2); text-transform: uppercase;">Predicted Duration</span>
+                <span style="font-size: 12px; font-weight: 700; color: var(--ink-2); text-transform: uppercase;">Predicted Duration</span>
                 <div class="decision-time" id="decision-pred-time">0.020 ms</div>
               </div>
             </div>
@@ -589,9 +687,11 @@
           </div>
 
           <!-- Overall 24-Decision Table -->
-          <div class="results-section">
-            <h2>24-Decision Hardware Evaluation (Decisions 117–140)</h2>
-            <div class="table-wrap">
+          <div class="dashboard-card" style="margin-bottom: var(--space-24);">
+            <div class="card-header">
+              <span class="card-title">24-Decision Hardware Evaluation (Decisions 117-140)</span>
+            </div>
+            <div class="table-wrap" style="margin-bottom: 0;">
               <table class="bench-table">
                 <thead>
                   <tr>
@@ -642,9 +742,11 @@
           </div>
 
           <!-- Workload Breakdown Table -->
-          <div class="results-section">
-            <h2>Workload Accuracy Breakdown</h2>
-            <div class="table-wrap">
+          <div class="dashboard-card" style="margin-bottom: var(--space-24);">
+            <div class="card-header">
+              <span class="card-title">Workload Accuracy Breakdown</span>
+            </div>
+            <div class="table-wrap" style="margin-bottom: 0;">
               <table class="bench-table">
                 <thead>
                   <tr>
@@ -683,11 +785,11 @@
           </div>
 
           <!-- Snapdragon Section -->
-          <div class="results-section">
-            <h2>Snapdragon X2 Elite</h2>
-            <div class="state-box">
-              <p>Snapdragon results not yet recorded. Hardware benchmarking and NPU characterization actively underway.</p>
+          <div class="dashboard-card">
+            <div class="card-header">
+              <span class="card-title">Snapdragon X2 Elite</span>
             </div>
+            <p style="margin: 0; font-size: 13px; color: var(--ink-2);">Snapdragon results not yet recorded. Hardware benchmarking and NPU characterization actively underway.</p>
           </div>
         </section>
 
@@ -717,40 +819,48 @@
           </div>
 
           <!-- Reproduction Code Blocks -->
-          <h2>Reproduction Commands</h2>
-          <div style="margin-bottom: var(--space-24);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
-              <span style="font-size: 13px; font-weight: 700;">One-Click Start (Windows):</span>
-              <button class="btn btn-secondary btn-sm code-copy-btn" data-code="start.bat" data-test="btn-copy-start">Copy</button>
+          <div class="dashboard-card" style="margin-bottom: var(--space-20);">
+            <div class="card-header">
+              <span class="card-title">Reproduction Commands</span>
             </div>
-            <pre>start.bat</pre>
-          </div>
+            <div style="margin-bottom: var(--space-16);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+                <span style="font-size: 13px; font-weight: 700;">One-Click Start (Windows):</span>
+                <button class="btn btn-secondary btn-sm code-copy-btn" data-code="start.bat" data-test="btn-copy-start">Copy</button>
+              </div>
+              <pre>start.bat</pre>
+            </div>
 
-          <div style="margin-bottom: var(--space-24);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
-              <span style="font-size: 13px; font-weight: 700;">15-Minute Hardware Reproduction Script:</span>
-              <button class="btn btn-secondary btn-sm code-copy-btn" data-code="python scripts/reproduce.py" data-test="btn-copy-reproduce">Copy</button>
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+                <span style="font-size: 13px; font-weight: 700;">15-Minute Hardware Reproduction Script:</span>
+                <button class="btn btn-secondary btn-sm code-copy-btn" data-code="python scripts/reproduce.py" data-test="btn-copy-reproduce">Copy</button>
+              </div>
+              <pre>python scripts/reproduce.py</pre>
             </div>
-            <pre>python scripts/reproduce.py</pre>
           </div>
 
           <!-- Metric Browser Table -->
-          <h2>Manifest Metric Browser</h2>
-          <div class="search-box">
-            <input type="text" id="evidence-search-input" placeholder="Search metric key, unit, or method..." style="width: 100%; max-width: 480px;">
-          </div>
-          <div class="table-wrap">
-            <table class="bench-table" id="table-evidence-metrics">
-              <thead>
-                <tr>
-                  <th>Metric Key</th>
-                  <th class="num">Value</th>
-                  <th>Unit</th>
-                  <th>Description</th>
-                </tr>
-              </thead>
-              <tbody id="tbody-evidence-metrics"></tbody>
-            </table>
+          <div class="dashboard-card">
+            <div class="card-header">
+              <span class="card-title">Manifest Metric Browser</span>
+            </div>
+            <div class="search-box">
+              <input type="text" id="evidence-search-input" placeholder="Search metric key, unit, or method..." style="width: 100%; max-width: 480px;">
+            </div>
+            <div class="table-wrap" style="margin-bottom: 0;">
+              <table class="bench-table" id="table-evidence-metrics">
+                <thead>
+                  <tr>
+                    <th>Metric Key</th>
+                    <th class="num">Value</th>
+                    <th>Unit</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-evidence-metrics"></tbody>
+              </table>
+            </div>
           </div>
         </section>
 
@@ -763,30 +873,32 @@
             <p class="screen-intro">Local-first heterogeneous AI load balancer for laptop processors.</p>
           </div>
 
-          <div class="about-block">
-            <h3>What It Is</h3>
-            <p>SiliconRoute is a self-learning load balancer that measures real inference latency, fits physical hardware performance models, and routes each neural network execution to the optimal silicon (CPU, integrated GPU, discrete GPU, or NPU).</p>
-          </div>
+          <div class="about-grid">
+            <div class="about-block">
+              <h3>What It Is</h3>
+              <p>SiliconRoute is a self-learning load balancer that measures real inference latency, fits physical hardware performance models, and routes each neural network execution to the optimal silicon (CPU, integrated GPU, discrete GPU, or NPU).</p>
+            </div>
 
-          <div class="about-block">
-            <h3>Limitations</h3>
-            <p>1. FP32 Precision: Profiled synthetic models currently use float32 precision.</p>
-            <p>2. DirectML execution provider on Windows; CUDA/TensorRT not evaluated.</p>
-            <p>3. Telemetry: Unprivileged Windows APIs do not expose CPU package power or AMD iGPU package power.</p>
-            <p>4. Reference Hardware: Published benchmarks evaluated on AMD Ryzen 9 8940HX, AMD Radeon 610M, and NVIDIA GeForce RTX 5070 Laptop GPU.</p>
-          </div>
+            <div class="about-block">
+              <h3>Limitations</h3>
+              <p>1. FP32 Precision: Profiled synthetic models currently use float32 precision.</p>
+              <p>2. DirectML execution provider on Windows; CUDA/TensorRT not evaluated.</p>
+              <p>3. Telemetry: Unprivileged Windows APIs do not expose CPU package power or AMD iGPU package power.</p>
+              <p>4. Reference Hardware: Published benchmarks evaluated on AMD Ryzen 9 8940HX, AMD Radeon 610M, and NVIDIA GeForce RTX 5070 Laptop GPU.</p>
+            </div>
 
-          <div class="about-block">
-            <h3>Disclosure &amp; Integrity</h3>
-            <p>Built by Tanmay. Most code was written with Google Antigravity. Planning and specifications audited with Anthropic's Claude. Every published number is verified by automated test against the frozen SQLite database.</p>
-          </div>
+            <div class="about-block">
+              <h3>Disclosure &amp; Integrity</h3>
+              <p>Built by Tanmay. Most code was written with Google Antigravity. Planning and specifications audited with Anthropic's Claude. Every published number is verified by automated test against the frozen SQLite database.</p>
+            </div>
 
-          <div class="about-block">
-            <h3>License &amp; Legal</h3>
-            <p>SiliconRoute is released under the MIT License.</p>
-            <div style="display: flex; gap: var(--space-16); margin-top: var(--space-12);">
-              <a href="/privacy.html" class="btn btn-secondary btn-sm" target="_blank" data-test="link-privacy">Privacy Policy</a>
-              <a href="/terms.html" class="btn btn-secondary btn-sm" target="_blank" data-test="link-terms">Terms of Use</a>
+            <div class="about-block">
+              <h3>License &amp; Legal</h3>
+              <p>SiliconRoute is released under the MIT License.</p>
+              <div style="display: flex; gap: var(--space-12); margin-top: var(--space-12);">
+                <a href="/privacy.html" class="btn btn-secondary btn-sm" target="_blank" data-test="link-privacy">Privacy Policy</a>
+                <a href="/terms.html" class="btn btn-secondary btn-sm" target="_blank" data-test="link-terms">Terms of Use</a>
+              </div>
             </div>
           </div>
         </section>
@@ -797,14 +909,14 @@
   </div>
 
   <!-- =====================================================================
-       4. MODALS & OVERLAYS
+       3. MODALS & OVERLAYS
        ===================================================================== -->
 
   <!-- Raw Samples Modal (Section 7.6) -->
   <div class="modal-overlay" id="raw-samples-modal" style="display: none;" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="raw-modal-title">
     <div class="modal-sheet">
       <div class="modal-header">
-        <h2 id="raw-modal-title" style="font-size: 18px; margin: 0;">Raw Timing Samples</h2>
+        <h2 id="raw-modal-title" style="font-size: 16px; margin: 0; font-weight: 700;">Raw Timing Samples</h2>
         <button class="modal-close-btn" id="btn-close-raw-modal" aria-label="Close dialog" data-test="btn-close-raw-modal">&times;</button>
       </div>
       <div class="modal-content" id="raw-modal-body">
@@ -817,11 +929,11 @@
   <div class="modal-overlay" id="confirm-verify-modal" style="display: none;" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="verify-modal-title">
     <div class="modal-sheet" style="max-width: 480px;">
       <div class="modal-header">
-        <h2 id="verify-modal-title" style="font-size: 18px; margin: 0;">Confirm Hardware Benchmark</h2>
+        <h2 id="verify-modal-title" style="font-size: 16px; margin: 0; font-weight: 700;">Confirm Hardware Benchmark</h2>
         <button class="modal-close-btn" id="btn-close-verify-modal" aria-label="Close dialog" data-test="btn-close-verify-modal">&times;</button>
       </div>
       <div class="modal-content">
-        <p style="margin-bottom: var(--space-24);">This runs a short benchmark on every chip, about 10 to 30 seconds. Continue?</p>
+        <p style="margin-bottom: var(--space-20); font-size: 13px; color: var(--ink-2); line-height: 1.5;">This runs a short benchmark on every chip, about 10 to 30 seconds. Continue?</p>
         <div style="display: flex; justify-content: flex-end; gap: var(--space-12);">
           <button class="btn btn-secondary" id="btn-verify-cancel" data-test="btn-verify-cancel">Cancel</button>
           <button class="btn btn-primary" id="btn-verify-confirm" data-test="btn-verify-confirm">Continue</button>
@@ -834,7 +946,7 @@
   <div class="modal-overlay" id="modal-shortcuts" style="display: none;" aria-hidden="true" role="dialog" aria-modal="true">
     <div class="modal-sheet" style="max-width: 440px;">
       <div class="modal-header">
-        <h2 style="font-size: 18px; margin: 0;">Keyboard Shortcuts</h2>
+        <h2 style="font-size: 16px; margin: 0; font-weight: 700;">Keyboard Shortcuts</h2>
         <button class="modal-close-btn" aria-label="Close" data-test="btn-close-shortcuts-modal">&times;</button>
       </div>
       <div class="modal-content">
@@ -855,7 +967,7 @@
     </div>
   </div>
 
-  <!-- Toast Container (Section 7.8) -->
+  <!-- Toast Container -->
   <div class="toast-container" id="toast-container" aria-live="polite"></div>
 
 </body>

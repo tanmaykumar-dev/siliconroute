@@ -62,10 +62,18 @@
   --chip-igpu: var(--igpu);
   --chip-dgpu: var(--dgpu);
   --chip-npu: var(--npu);
-  --sheet: var(--paper-2);
+  --sheet: #FFFFFF;
+  --sheet-hover: #F8F9FA;
   --red: var(--signal);
   --red-deep: var(--signal);
   --red-wash: #F5EAEB;
+  --primary: #2563EB;
+  --primary-hover: #1D4ED8;
+  --primary-wash: #EFF6FF;
+  --green: #10B981;
+  --green-tag: #059669;
+  --green-bg: #ECFDF5;
+  --green-border: #A7F3D0;
 
   /* Typography */
   --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -76,6 +84,7 @@
   --space-8: 8px;
   --space-12: 12px;
   --space-16: 16px;
+  --space-20: 20px;
   --space-24: 24px;
   --space-32: 32px;
   --space-48: 48px;
@@ -83,26 +92,44 @@
   --space-96: 96px;
   --space-160: 160px;
 
-  /* Border Radius: 0 everywhere, 2px on inputs and buttons only */
-  --radius: 0px;
-  --radius-sm: 2px;
+  /* Border Radius: Clean rounded rectangular geometry (NO PILLS) */
+  --radius-card: 10px;
+  --radius-control: 6px;
+  --radius-badge: 4px;
+  --radius: 10px;
+  --radius-sm: 6px;
+
+  /* Elevation Shadows */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.08);
+  --shadow-modal: 0 16px 32px rgba(0, 0, 0, 0.15);
 }
 
 :root[data-theme="dark"],
 body[data-theme="dark"] {
-  --paper: #141413;
-  --paper-2: #1C1C1A;
+  --paper: #0F1117;
+  --paper-2: #181B24;
   --ink: #EDEDE8;
   --ink-2: #B4B4AC;
   --ink-3: #8C8C84;
-  --rule: #2E2E2B;
+  --rule: #262B36;
   --signal: #E0707F;
   --cpu: #D99A45;
   --igpu: #4FB3A4;
   --dgpu: #7F9CF0;
   --npu: #A9BC4C;
-  --sheet: var(--paper-2);
+  --sheet: #181B24;
+  --sheet-hover: #222632;
   --red: var(--signal);
   --red-deep: var(--signal);
   --red-wash: #2A1A1D;
+  --primary: #3B82F6;
+  --primary-hover: #60A5FA;
+  --primary-wash: #1E293B;
+  --green: #34D399;
+  --green-tag: #34D399;
+  --green-bg: #064E3B;
+  --green-border: #047857;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.4);
 }

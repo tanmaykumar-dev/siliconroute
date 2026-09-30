@@ -8,20 +8,22 @@ export function getComputedToken(tokenName) {
 }
 
 export function getChartTheme() {
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark" ||
+                 document.body.getAttribute("data-theme") === "dark";
   return {
-    paper: getComputedToken("--paper") || "#F2F2F0",
-    sheet: getComputedToken("--sheet") || "#FAFAF8",
-    rule: getComputedToken("--rule") || "#D6D6D2",
-    ink: getComputedToken("--ink") || "#141414",
-    ink2: getComputedToken("--ink-2") || "#4A4A4A",
-    ink3: getComputedToken("--ink-3") || "#757575",
-    red: getComputedToken("--red") || "#E1461E",
-    redDeep: getComputedToken("--red-deep") || "#B8330F",
-    redWash: getComputedToken("--red-wash") || "#F7E4DD",
-    cpu: getComputedToken("--chip-cpu") || "#141414",
-    igpu: getComputedToken("--chip-igpu") || "#8A8A8A",
-    dgpu: getComputedToken("--chip-dgpu") || "#E1461E",
-    npu: getComputedToken("--chip-npu") || "#B8330F",
+    paper: getComputedToken("--paper") || (isDark ? "#0F1117" : "#F3F4F6"),
+    sheet: getComputedToken("--sheet") || (isDark ? "#181B24" : "#FFFFFF"),
+    rule: getComputedToken("--rule") || (isDark ? "#262B36" : "#E5E7EB"),
+    ink: isDark ? "#EDEDE8" : (getComputedToken("--ink") || "#111827"),
+    ink2: isDark ? "#B4B4AC" : (getComputedToken("--ink-2") || "#4B5563"),
+    ink3: isDark ? "#8C8C84" : (getComputedToken("--ink-3") || "#9CA3AF"),
+    red: getComputedToken("--red") || "#9B2A3C",
+    redDeep: getComputedToken("--red-deep") || "#9B2A3C",
+    redWash: getComputedToken("--red-wash") || (isDark ? "#2A1A1D" : "#F5EAEB"),
+    cpu: getComputedToken("--chip-cpu") || (isDark ? "#D99A45" : "#D97706"),
+    igpu: getComputedToken("--chip-igpu") || (isDark ? "#4FB3A4" : "#0D9488"),
+    dgpu: getComputedToken("--chip-dgpu") || (isDark ? "#7F9CF0" : "#2563EB"),
+    npu: getComputedToken("--chip-npu") || (isDark ? "#A9BC4C" : "#7C3AED"),
   };
 }
 
@@ -29,29 +31,32 @@ export function applyChartDefaults() {
   if (!window.Chart) return;
   const t = getChartTheme();
 
-  Chart.defaults.animation = false;
+  Chart.defaults.animation = {
+    duration: 350,
+    easing: "easeOutQuart",
+  };
   Chart.defaults.color = t.ink2;
   Chart.defaults.borderColor = t.rule;
-  Chart.defaults.font.family = "'Archivo', sans-serif";
-  Chart.defaults.font.size = 12;
+  Chart.defaults.font.family = "'IBM Plex Sans', -apple-system, sans-serif";
+  Chart.defaults.font.size = 11;
 
-  // Grid styling (Section 8: gridlines --rule)
+  // Grid styling
   Chart.defaults.scale.grid = {
     color: t.rule,
-    borderColor: t.ink,
+    borderColor: t.rule,
     tickColor: t.rule,
   };
 
-  // Tooltip styling (Section 8: chip name, value with unit, source; sharp 0 radius)
+  // Tooltip styling
   Chart.defaults.plugins.tooltip.backgroundColor = t.sheet;
   Chart.defaults.plugins.tooltip.titleColor = t.ink;
   Chart.defaults.plugins.tooltip.bodyColor = t.ink2;
-  Chart.defaults.plugins.tooltip.borderColor = t.ink;
+  Chart.defaults.plugins.tooltip.borderColor = t.rule;
   Chart.defaults.plugins.tooltip.borderWidth = 1;
-  Chart.defaults.plugins.tooltip.padding = 8;
-  Chart.defaults.plugins.tooltip.cornerRadius = 0;
-  Chart.defaults.plugins.tooltip.titleFont = { family: "'Archivo', sans-serif", weight: "600", size: 12 };
-  Chart.defaults.plugins.tooltip.bodyFont = { family: "'JetBrains Mono', monospace", size: 11 };
+  Chart.defaults.plugins.tooltip.padding = 10;
+  Chart.defaults.plugins.tooltip.cornerRadius = 6;
+  Chart.defaults.plugins.tooltip.titleFont = { family: "'IBM Plex Sans', sans-serif", weight: "600", size: 12 };
+  Chart.defaults.plugins.tooltip.bodyFont = { family: "'IBM Plex Mono', monospace", size: 11 };
 }
 
 export function getDeviceChartProps(devKey) {

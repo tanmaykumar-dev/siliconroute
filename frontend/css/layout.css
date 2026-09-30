@@ -1,6 +1,8 @@
 /**
- * SiliconRoute Design Spec v3: "Red Bench" Shell Layout
- * Section 4: Socket strip. Section 5: App shell.
+ * SiliconRoute Modern SaaS Shell Layout
+ * Layout inspired by modern executive AI SaaS dashboards (Investara reference UI).
+ * Balanced 3-row grid, centered segmented top navigation, 8-12px rounded cards.
+ * Zero pill shapes. Smooth transitions and high information density.
  */
 
 .app-root {
@@ -12,41 +14,147 @@
 }
 
 /* --------------------------------------------------------------------------
-   Top Bar (56px, ink on paper)
+   Top Bar (64px, modern SaaS header with centered segmented navigation)
    -------------------------------------------------------------------------- */
 .top-bar {
-  height: 56px;
-  background-color: var(--paper);
+  height: 64px;
+  background-color: var(--sheet);
   border-bottom: 1px solid var(--rule);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--space-24);
+  padding: 0 var(--space-32);
+  position: sticky;
+  top: 0;
   z-index: 100;
+  box-shadow: var(--shadow-card);
 }
 
 .brand-section {
   display: flex;
   align-items: center;
-  gap: var(--space-8);
+  gap: var(--space-12);
   cursor: pointer;
   text-decoration: none;
+  user-select: none;
+}
+
+.brand-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-control);
+  background-color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 16px;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
+  transition: transform 0.2s ease;
+}
+
+.brand-section:hover .brand-icon {
+  transform: scale(1.05);
+}
+
+.brand-text-group {
+  display: flex;
+  flex-direction: column;
 }
 
 .brand-title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 800;
   color: var(--ink);
   letter-spacing: -0.02em;
+  line-height: 1.15;
 }
 
-.topbar-telemetry {
+.brand-subtitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Centered Segmented Navigation Bar */
+.topbar-nav {
+  display: flex;
+  align-items: center;
+  background-color: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-card);
+  padding: 4px;
+  gap: 3px;
+}
+
+.nav-tab-btn {
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-control);
+  padding: 6px 14px;
+  font-family: var(--font-sans);
   font-size: 13px;
+  font-weight: 600;
   color: var(--ink-2);
-  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-tab-btn:hover {
+  color: var(--ink);
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+:root[data-theme="dark"] .nav-tab-btn:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.nav-tab-btn.active {
+  background-color: var(--sheet);
+  color: var(--ink);
+  font-weight: 700;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--rule);
+}
+
+/* Topbar Right Utilities */
+.topbar-right-group {
   display: flex;
   align-items: center;
   gap: var(--space-12);
+}
+
+.topbar-telemetry-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+  background-color: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-control);
+  padding: 6px 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.live-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-control);
+  background-color: var(--green);
+  box-shadow: 0 0 0 2px var(--green-border);
+  animation: pulseGreen 2s infinite ease-in-out;
+}
+
+@keyframes pulseGreen {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
 }
 
 .telemetry-divider {
@@ -54,141 +162,19 @@
 }
 
 /* --------------------------------------------------------------------------
-   Socket Strip (96px, signature element under top bar)
-   -------------------------------------------------------------------------- */
-.socket-strip {
-  min-height: 96px;
-  background-color: var(--sheet);
-  border-bottom: 1px solid var(--rule);
-  display: flex;
-  width: 100%;
-  overflow-x: auto;
-}
-
-.socket-item {
-  flex: 1;
-  min-width: 220px;
-  padding: var(--space-12) var(--space-16);
-  border-right: 1px solid var(--rule);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  background-color: var(--sheet);
-}
-
-.socket-item:last-child {
-  border-right: none;
-}
-
-.socket-item.chosen {
-  background-color: var(--red) !important;
-  color: var(--white) !important;
-}
-
-.socket-item.chosen * {
-  color: var(--white) !important;
-}
-
-.socket-item.chosen .tag-verified,
-.socket-item.chosen .tag-unverified {
-  border-color: var(--white) !important;
-  color: var(--white) !important;
-}
-
-.socket-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-4);
-}
-
-.socket-name-group {
-  display: flex;
-  align-items: center;
-  gap: var(--space-8);
-  font-weight: 700;
-  font-size: 14px;
-}
-
-.socket-mark {
-  display: inline-block;
-  font-size: 12px;
-}
-
-.socket-mark.cpu { color: var(--chip-cpu); }
-.socket-mark.igpu { color: var(--chip-igpu); }
-.socket-mark.dgpu { color: var(--chip-dgpu); }
-.socket-mark.npu { color: var(--chip-npu); }
-
-.socket-live-metrics {
-  font-size: 12px;
-  color: var(--ink-2);
-  line-height: 1.4;
-  font-variant-numeric: tabular-nums;
-}
-
-.socket-prediction {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--ink-2);
-  margin-top: var(--space-4);
-}
-
-/* --------------------------------------------------------------------------
-   App Body (Rail + Content)
+   Main Content Area (Full width, elegant layout)
    -------------------------------------------------------------------------- */
 .app-body {
   display: flex;
   flex: 1;
-  min-height: calc(100vh - 152px);
-}
-
-.left-rail {
-  width: 200px;
-  flex-shrink: 0;
-  background-color: var(--paper);
-  border-right: 1px solid var(--rule);
-  padding: var(--space-16) 0;
-}
-
-.rail-nav {
-  display: flex;
-  flex-direction: column;
-  list-style: none;
-}
-
-.rail-item-btn {
-  display: block;
   width: 100%;
-  text-align: left;
-  background: none;
-  border: none;
-  padding: var(--space-8) var(--space-24);
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--ink);
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.rail-item-btn:hover {
-  color: var(--red);
-}
-
-.rail-item-btn.active {
-  color: var(--ink);
-}
-
-.rail-item-btn.active .rail-label {
-  border-bottom: 4px solid var(--red);
-  padding-bottom: 2px;
 }
 
 .content-area {
   flex: 1;
-  padding: var(--space-32);
   max-width: 1440px;
   margin: 0 auto;
+  padding: var(--space-24) var(--space-32) var(--space-48);
   width: 100%;
 }
 
@@ -198,27 +184,202 @@
 
 .screen-container.active {
   display: block;
+  animation: screenEntrance 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes screenEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* --------------------------------------------------------------------------
-   Responsive adjustments
+   Overview Screen Grid Layout (Exact Match to Reference UI)
    -------------------------------------------------------------------------- */
-@media (max-width: 1100px) {
-  .app-body {
+
+/* Row 1: Header Greeting + 3 Top KPI Cards */
+.overview-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-24);
+  margin-bottom: var(--space-24);
+}
+
+.overview-greeting {
+  flex: 1;
+  min-width: 280px;
+}
+
+.greeting-headline {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.greeting-subtext {
+  font-size: 14px;
+  color: var(--ink-2);
+  margin: 0;
+}
+
+/* 3 KPI Summary Cards Grid */
+.overview-kpis-grid {
+  display: flex;
+  gap: var(--space-16);
+  flex-wrap: wrap;
+}
+
+.kpi-card {
+  background-color: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-card);
+  padding: var(--space-16) var(--space-20);
+  min-width: 210px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--rule-strong);
+}
+
+.kpi-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-8);
+}
+
+.kpi-card-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: var(--space-4);
+}
+
+.kpi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 7px;
+  border-radius: var(--radius-badge);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.kpi-badge.badge-success {
+  background-color: var(--green-bg);
+  color: var(--green-tag);
+  border: 1px solid var(--green-border);
+}
+
+.kpi-badge.badge-neutral {
+  background-color: var(--paper);
+  color: var(--ink-2);
+  border: 1px solid var(--rule);
+}
+
+.kpi-micro-visual {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 22px;
+}
+
+.kpi-micro-bar {
+  width: 4px;
+  background-color: var(--rule);
+  border-radius: 2px;
+  transition: height 0.3s ease;
+}
+
+.kpi-micro-bar.highlight {
+  background-color: var(--green);
+}
+
+.kpi-card-caption {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-3);
+  margin-top: var(--space-4);
+}
+
+/* Row 2: Middle Grid (65% Chart / 35% Allocation) */
+.overview-middle-grid {
+  display: grid;
+  grid-template-columns: 1.9fr 1.1fr;
+  gap: var(--space-20);
+  margin-bottom: var(--space-24);
+}
+
+/* Row 3: Bottom Grid (35% Strategy / 35% Recent / 30% Copilot) */
+.overview-bottom-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1.15fr 1fr;
+  gap: var(--space-20);
+  margin-bottom: var(--space-24);
+}
+
+/* Row 4: Physical Findings Card */
+.overview-findings-section {
+  margin-top: var(--space-24);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Layout Breakpoints
+   -------------------------------------------------------------------------- */
+@media (max-width: 1200px) {
+  .overview-middle-grid {
+    grid-template-columns: 1fr;
+  }
+  .overview-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+  .overview-top-row {
     flex-direction: column;
+    align-items: flex-start;
   }
-  .left-rail {
+  .overview-kpis-grid {
     width: 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--rule);
-    padding: var(--space-8) var(--space-16);
   }
-  .rail-nav {
-    flex-direction: row;
-    overflow-x: auto;
+  .kpi-card {
+    flex: 1;
+    min-width: 180px;
+  }
+}
+
+@media (max-width: 860px) {
+  .top-bar {
+    height: auto;
+    padding: var(--space-12) var(--space-16);
+    flex-wrap: wrap;
     gap: var(--space-12);
   }
-  .rail-item-btn {
-    padding: var(--space-4) var(--space-8);
+  .topbar-nav {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    justify-content: flex-start;
+  }
+  .content-area {
+    padding: var(--space-16);
   }
 }

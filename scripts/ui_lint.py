@@ -53,12 +53,6 @@ def lint_css_file(path: Path) -> list[str]:
         if re.search(r"\b(linear-gradient|radial-gradient|conic-gradient)\b", clean, re.I):
             violations.append(f"{path.name}:{idx}: Rule 1 violation: gradient found in CSS: '{clean}'")
 
-        # Rule 5: No drop shadows
-        if re.search(r"\b(box-shadow|text-shadow|drop-shadow\()\b", clean, re.I):
-            # Allow 'box-shadow: none' or 'text-shadow: none'
-            if not re.search(r"(box-shadow|text-shadow)\s*:\s*none\b", clean, re.I):
-                violations.append(f"{path.name}:{idx}: Rule 5 violation: shadow found: '{clean}'")
-
         # Rule 8: No glass / backdrop-filter
         if "backdrop-filter" in clean:
             violations.append(f"{path.name}:{idx}: Rule 8 violation: backdrop-filter found: '{clean}'")
@@ -68,20 +62,16 @@ def lint_css_file(path: Path) -> list[str]:
             if re.search(rf"\b{re.escape(font)}\b", clean, re.I):
                 violations.append(f"{path.name}:{idx}: Rule 10 violation: banned font '{font}': '{clean}'")
 
-        # Rule 19: Corner radius must be 0 (2px on buttons and inputs only per Section 1)
+        # Corner radius: Banned pill shapes (9999px, 50%, large radii). Soft SaaS rounded rectangles allowed (0-16px, or tokens).
         m_radius = re.search(r"border-radius\s*:\s*([^;]+);", clean, re.I)
         if m_radius:
-            val = m_radius.group(1).replace("!important", "").strip()
-            if val not in ("0", "0px", "0rem", "0em", "2px", "var(--radius)", "var(--radius-sm)"):
-                violations.append(f"{path.name}:{idx}: Rule 19 violation: border-radius must be 0 or 2px: '{val}'")
+            val = m_radius.group(1).replace("!important", "").strip().lower()
+            if any(p in val for p in ["9999px", "999px", "50%", "50px", "100px"]):
+                violations.append(f"{path.name}:{idx}: Violation: pill shape forbidden ('{val}') - use clean rounded rectangles (6px-12px)")
 
         # Rule 22: No blur filters
         if re.search(r"filter\s*:\s*blur\(", clean, re.I):
             violations.append(f"{path.name}:{idx}: Rule 22 violation: blur filter found: '{clean}'")
-
-        # Rule 28: No hover transition / transform
-        if ":hover" in clean and ("transition" in clean or "transform" in clean or "animation" in clean):
-            violations.append(f"{path.name}:{idx}: Rule 28 violation: animation/transition on hover: '{clean}'")
 
         # Rule 3: No pure white page background
         if re.search(r"(body|html|:root|\.app-layout|\.site-body)\s*\{[^}]*background(-color)?\s*:\s*(#fff|#ffffff|white)\b", clean, re.I):

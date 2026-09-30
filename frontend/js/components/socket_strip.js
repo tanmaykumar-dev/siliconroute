@@ -62,7 +62,7 @@ export class SocketStrip {
       const isVerified = dev.vendor_id || dev.key === "cpu";
 
       const socketEl = document.createElement("div");
-      socketEl.className = "socket-item";
+      socketEl.className = "socket-item socket-card";
       socketEl.dataset.deviceId = dev.id;
       socketEl.dataset.deviceKey = dev.key;
 
