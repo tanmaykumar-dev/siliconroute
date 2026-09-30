@@ -41,23 +41,23 @@ export class OverviewScreen {
       this.splineChart = null;
     }
 
-    // Gradient fills
-    const gradCpu = ctx.createLinearGradient(0, 0, 0, 240);
-    gradCpu.addColorStop(0, "rgba(217, 119, 6, 0.18)");
-    gradCpu.addColorStop(1, "rgba(217, 119, 6, 0.0)");
-
+    // Gradient fills matching mockup (cyan and coral curves)
     const gradRtx = ctx.createLinearGradient(0, 0, 0, 240);
-    gradRtx.addColorStop(0, "rgba(37, 99, 235, 0.22)");
-    gradRtx.addColorStop(1, "rgba(37, 99, 235, 0.0)");
+    gradRtx.addColorStop(0, "rgba(6, 182, 212, 0.24)");
+    gradRtx.addColorStop(1, "rgba(6, 182, 212, 0.0)");
+
+    const gradCpu = ctx.createLinearGradient(0, 0, 0, 240);
+    gradCpu.addColorStop(0, "rgba(251, 146, 60, 0.20)");
+    gradCpu.addColorStop(1, "rgba(251, 146, 60, 0.0)");
 
     const gradRadeon = ctx.createLinearGradient(0, 0, 0, 240);
-    gradRadeon.addColorStop(0, "rgba(13, 148, 136, 0.15)");
-    gradRadeon.addColorStop(1, "rgba(13, 148, 136, 0.0)");
+    gradRadeon.addColorStop(0, "rgba(139, 92, 246, 0.16)");
+    gradRadeon.addColorStop(1, "rgba(139, 92, 246, 0.0)");
 
     // Measured scaling points from manifest (MLP family scaling across batches)
     const labels = ["B=1", "B=2", "B=4", "B=8", "B=16", "B=32"];
-    const cpuData = [2.4, 4.1, 7.8, 15.2, 29.8, 58.4];
     const rtxData = [6.2, 6.8, 7.5, 8.9, 12.1, 18.5]; // RTX starts slower due to dispatch, crushes at high batch
+    const cpuData = [2.4, 4.1, 7.8, 15.2, 29.8, 58.4];
     const radData = [5.1, 8.2, 14.5, 26.8, 51.2, 98.6];
 
     this.splineChart = new window.Chart(ctx, {
@@ -66,28 +66,28 @@ export class OverviewScreen {
         labels,
         datasets: [
           {
-            label: "CPU (Ryzen 9)",
-            data: cpuData,
-            borderColor: "#D97706",
-            backgroundColor: gradCpu,
+            label: "RTX 5070 Laptop",
+            data: rtxData,
+            borderColor: "#06B6D4",
+            backgroundColor: gradRtx,
             borderWidth: 2.5,
             tension: 0.45,
             fill: true,
-            pointBackgroundColor: "#D97706",
+            pointBackgroundColor: "#06B6D4",
             pointBorderColor: "#FFFFFF",
             pointBorderWidth: 2,
             pointRadius: 4,
             pointHoverRadius: 6,
           },
           {
-            label: "RTX 5070 Laptop",
-            data: rtxData,
-            borderColor: "#2563EB",
-            backgroundColor: gradRtx,
+            label: "CPU (Ryzen 9)",
+            data: cpuData,
+            borderColor: "#FB923C",
+            backgroundColor: gradCpu,
             borderWidth: 2.5,
             tension: 0.45,
             fill: true,
-            pointBackgroundColor: "#2563EB",
+            pointBackgroundColor: "#FB923C",
             pointBorderColor: "#FFFFFF",
             pointBorderWidth: 2,
             pointRadius: 4,
@@ -96,13 +96,13 @@ export class OverviewScreen {
           {
             label: "Radeon 610M",
             data: radData,
-            borderColor: "#0D9488",
+            borderColor: "#8B5CF6",
             backgroundColor: gradRadeon,
             borderWidth: 2,
             borderDash: [4, 4],
             tension: 0.45,
             fill: false,
-            pointBackgroundColor: "#0D9488",
+            pointBackgroundColor: "#8B5CF6",
             pointBorderColor: "#FFFFFF",
             pointBorderWidth: 1.5,
             pointRadius: 3,

@@ -9,17 +9,17 @@
    -------------------------------------------------------------------------- */
 .saas-card {
   background-color: var(--plate);
-  border: 1px solid var(--line);
+  border: none;
   border-radius: var(--radius-tile);
   box-shadow: var(--shadow-card);
-  padding: 24px;
+  padding: 26px;
   position: relative;
   transition: transform var(--motion-base), box-shadow var(--motion-base);
   overflow: hidden;
 }
 
 .saas-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px);
   box-shadow: var(--shadow-card-hover);
 }
 
@@ -33,19 +33,19 @@
 .card-title-group {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .card-title {
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 19px;
+  font-weight: 600;
   letter-spacing: -0.015em;
   color: var(--ink);
   margin: 0;
 }
 
 .card-subtitle {
-  font-size: 13px;
+  font-size: 13.5px;
   color: var(--ink-2);
   margin: 0;
 }
@@ -53,15 +53,15 @@
 .card-actions-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .card-filter-pill {
-  background: var(--plate-subtle);
-  border: 1px solid var(--line);
+  background: var(--bench);
+  border: none;
   border-radius: var(--radius-pill);
-  padding: 6px 14px;
-  font-size: 12.5px;
+  padding: 7px 16px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--ink);
   display: inline-flex;
@@ -72,16 +72,20 @@
 }
 
 .card-filter-pill:hover {
-  background: var(--line);
+  background: rgba(0, 0, 0, 0.08);
+}
+
+html[data-theme="dark"] .card-filter-pill {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .card-arrow-btn {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: var(--plate-subtle);
-  border: 1px solid var(--line);
-  color: var(--ink);
+  background: var(--bench);
+  border: none;
+  color: var(--ink-2);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -90,9 +94,14 @@
   text-decoration: none;
 }
 
+html[data-theme="dark"] .card-arrow-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ink);
+}
+
 .card-arrow-btn svg {
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
   stroke: currentColor;
   stroke-width: 2;
   fill: none;
@@ -109,14 +118,14 @@
    -------------------------------------------------------------------------- */
 .metric-tile {
   background-color: var(--plate);
-  border: 1px solid var(--line);
+  border: none;
   border-radius: var(--radius-tile);
   box-shadow: var(--shadow-card);
-  padding: 24px;
+  padding: 26px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 160px;
+  min-height: 170px;
   position: relative;
   overflow: hidden;
   transition: transform var(--motion-base), box-shadow var(--motion-base);
@@ -128,19 +137,19 @@
 }
 
 .metric-tile-label {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   color: var(--ink-2);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
 .metric-tile-val {
-  font-size: 36px;
-  font-weight: 700;
-  letter-spacing: -0.025em;
+  font-size: 40px;
+  font-weight: 450;
+  letter-spacing: -0.03em;
   color: var(--ink);
   line-height: 1.1;
   margin-bottom: 16px;
@@ -154,13 +163,13 @@
   gap: 12px;
 }
 
-/* Trend Badges */
+/* Trend Badges Matching Mockup (Clean text with arrow) */
 .trend {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   font-size: 13.5px;
-  font-weight: 600;
+  font-weight: 500;
   white-space: nowrap;
 }
 
@@ -180,10 +189,10 @@
   color: var(--ink-2);
 }
 
-/* Wave Sparkline SVG */
+/* Wave Sparkline SVG with Sinusoidal Flow */
 .sparkline-wave-wrap {
-  width: 110px;
-  height: 44px;
+  width: 120px;
+  height: 48px;
   flex-shrink: 0;
 }
 
@@ -194,8 +203,8 @@
 }
 
 .sparkline-wave-svg path.wave-line {
-  stroke-dasharray: 200;
-  stroke-dashoffset: 200;
+  stroke-dasharray: 250;
+  stroke-dashoffset: 250;
   animation: drawWave 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -222,7 +231,7 @@
 }
 
 .insight-item-title {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--ink);
   display: flex;
@@ -231,21 +240,25 @@
 }
 
 .insight-item-desc {
-  font-size: 13px;
+  font-size: 13.5px;
   color: var(--ink-2);
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 /* Quick Route Widget */
 .quick-route-box {
-  background: var(--plate-subtle);
-  border: 1px solid var(--line);
+  background: var(--bench);
+  border: none;
   border-radius: var(--radius-inner);
-  padding: 16px;
-  margin-top: 16px;
+  padding: 18px;
+  margin-top: 18px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+html[data-theme="dark"] .quick-route-box {
+  background: var(--plate-subtle);
 }
 
 /* Donut Chart Elements */
@@ -254,14 +267,14 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 12px 0 6px;
+  padding: 10px 0 6px;
   position: relative;
 }
 
 .donut-graphic-wrapper {
   position: relative;
-  width: 220px;
-  height: 220px;
+  width: 240px;
+  height: 240px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -276,9 +289,9 @@
 
 .donut-segment {
   fill: none;
-  stroke-width: 24;
+  stroke-width: 18;
   stroke-linecap: round;
-  transition: stroke-dasharray 1s cubic-bezier(0.16, 1, 0.3, 1), stroke-dashoffset 1s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: stroke-dasharray 1.2s cubic-bezier(0.16, 1, 0.3, 1), stroke-dashoffset 1.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .donut-center-info {
@@ -291,49 +304,79 @@
 }
 
 .donut-center-val {
-  font-size: 26px;
-  font-weight: 700;
+  font-size: 30px;
+  font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--ink);
   line-height: 1.1;
 }
 
 .donut-center-label {
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--ink-2);
-  margin-top: 2px;
+  margin-top: 3px;
 }
 
-/* Floating Percentage Badges on Donut */
+/* Floating Percentage Badges with Frosted Glassmorphism */
 .donut-pill-badge {
   position: absolute;
-  background: rgba(255, 255, 255, 0.90);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-radius: var(--radius-pill);
-  padding: 4px 10px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--ink);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 600;
   pointer-events: none;
   display: flex;
   align-items: center;
   gap: 4px;
+  animation: floatBubble 3.5s ease-in-out infinite;
 }
 
-html[data-theme="dark"] .donut-pill-badge {
-  background: rgba(26, 32, 42, 0.90);
-  border-color: rgba(255, 255, 255, 0.1);
+.donut-badge-dgpu {
+  background: rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(6, 182, 212, 0.35);
+  color: #0891B2;
+  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.18);
+  top: 18px;
+  right: 6px;
+}
+
+.donut-badge-cpu {
+  background: rgba(251, 146, 60, 0.12);
+  border: 1px solid rgba(251, 146, 60, 0.35);
+  color: #EA580C;
+  box-shadow: 0 4px 14px rgba(251, 146, 60, 0.18);
+  bottom: 22px;
+  left: 10px;
+  animation-delay: -1.2s;
+}
+
+.donut-badge-igpu {
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  color: #7C3AED;
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.18);
+  bottom: 18px;
+  right: 12px;
+  animation-delay: -2.4s;
+}
+
+@keyframes floatBubble {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
 }
 
 .donut-legend {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  margin-top: 18px;
+  gap: 18px;
+  margin-top: 20px;
   flex-wrap: wrap;
 }
 
@@ -341,14 +384,14 @@ html[data-theme="dark"] .donut-pill-badge {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--ink-2);
 }
 
 .donut-legend-dot {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
 }
 
@@ -357,21 +400,21 @@ html[data-theme="dark"] .donut-pill-badge {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .chart-big-number {
-  font-size: 32px;
-  font-weight: 700;
+  font-size: 34px;
+  font-weight: 600;
   color: var(--ink);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   line-height: 1.1;
 }
 
 .chart-legend-pills {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-top: 6px;
 }
 
@@ -379,7 +422,7 @@ html[data-theme="dark"] .donut-pill-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 500;
   color: var(--ink-2);
 }
@@ -398,11 +441,11 @@ html[data-theme="dark"] .donut-pill-badge {
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  height: 38px;
-  padding: 0 var(--space-4);
+  height: 40px;
+  padding: 0 var(--space-6);
   font-family: var(--font-ui);
-  font-size: 13.5px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   border-radius: var(--radius-pill);
   transition: all var(--motion-fast);
   white-space: nowrap;
@@ -414,7 +457,7 @@ html[data-theme="dark"] .donut-pill-badge {
 .btn-primary {
   background-color: var(--ink);
   color: var(--ink-inverse);
-  box-shadow: var(--shadow-pill);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
 }
 
 .btn-primary:hover {
@@ -423,14 +466,18 @@ html[data-theme="dark"] .donut-pill-badge {
 }
 
 .btn-secondary {
-  background-color: var(--plate-subtle);
+  background-color: var(--bench);
   color: var(--ink);
-  border: 1px solid var(--line);
+  border: none;
 }
 
 .btn-secondary:hover {
-  background-color: var(--line);
+  background-color: rgba(0, 0, 0, 0.08);
   color: var(--ink);
+}
+
+html[data-theme="dark"] .btn-secondary {
+  background-color: var(--plate-subtle);
 }
 
 .btn-quiet {
@@ -440,11 +487,11 @@ html[data-theme="dark"] .donut-pill-badge {
 
 .btn-quiet:hover {
   color: var(--ink);
-  background-color: var(--plate-subtle);
+  background-color: var(--bench);
 }
 
 .select {
-  height: 38px;
+  height: 40px;
   background-color: var(--plate);
   color: var(--ink);
   border: 1px solid var(--line-border);
@@ -460,21 +507,25 @@ html[data-theme="dark"] .donut-pill-badge {
 
 .select:focus {
   border-color: var(--chip-dgpu);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.18);
 }
 
 /* Segmented Control */
 .segmented-control {
   display: inline-flex;
-  background-color: var(--plate-subtle);
-  border: 1px solid var(--line);
+  background-color: var(--bench);
+  border: none;
   border-radius: var(--radius-pill);
-  padding: 3px;
+  padding: 4px;
   gap: 2px;
 }
 
+html[data-theme="dark"] .segmented-control {
+  background-color: var(--plate-subtle);
+}
+
 .segment-btn {
-  height: 32px;
+  height: 34px;
   padding: 0 var(--space-4);
   font-family: var(--font-ui);
   font-size: 13px;
@@ -495,7 +546,7 @@ html[data-theme="dark"] .donut-pill-badge {
   background-color: var(--plate);
   color: var(--ink);
   font-weight: 600;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 /* --------------------------------------------------------------------------
@@ -515,7 +566,7 @@ table.bench-table {
 }
 
 table.bench-table th {
-  background-color: var(--plate-subtle);
+  background-color: var(--bench);
   color: var(--ink-2);
   font-weight: 600;
   padding: 12px 16px;
@@ -523,6 +574,10 @@ table.bench-table th {
   white-space: nowrap;
   font-size: 12.5px;
   letter-spacing: 0.02em;
+}
+
+html[data-theme="dark"] table.bench-table th {
+  background-color: var(--plate-subtle);
 }
 
 table.bench-table th:first-child {
@@ -542,6 +597,10 @@ table.bench-table td {
 }
 
 table.bench-table tbody tr:hover td {
+  background-color: var(--bench);
+}
+
+html[data-theme="dark"] table.bench-table tbody tr:hover td {
   background-color: var(--plate-subtle);
 }
 
@@ -583,7 +642,7 @@ table.bench-table tbody tr:last-child td:last-child {
 }
 
 .pill-info {
-  background: var(--plate-subtle);
+  background: var(--bench);
   color: var(--ink-2);
 }
 
@@ -644,7 +703,7 @@ table.bench-table tbody tr:last-child td:last-child {
 .socket-strip-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  gap: 18px;
   margin-bottom: 24px;
 }
 
@@ -656,10 +715,10 @@ table.bench-table tbody tr:last-child td:last-child {
 
 .socket-tile {
   background-color: var(--plate);
-  border: 1px solid var(--line);
+  border: none;
   border-radius: var(--radius-tile);
   box-shadow: var(--shadow-card);
-  padding: 18px 20px;
+  padding: 20px 22px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -668,7 +727,6 @@ table.bench-table tbody tr:last-child td:last-child {
 }
 
 .socket-tile.chosen {
-  border-color: var(--chip-dgpu);
   box-shadow: 0 0 0 2px var(--chip-dgpu), var(--shadow-card-hover);
   background-color: var(--plate);
 }
@@ -684,7 +742,7 @@ table.bench-table tbody tr:last-child td:last-child {
 }
 
 .socket-name {
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 600;
   color: var(--ink);
   flex: 1;
@@ -705,7 +763,7 @@ table.bench-table tbody tr:last-child td:last-child {
 }
 
 .socket-predicted-latency {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--chip-dgpu);
 }
@@ -736,7 +794,7 @@ table.bench-table tbody tr:last-child td:last-child {
   background-color: var(--plate);
   border-radius: var(--radius-panel);
   box-shadow: var(--shadow-popover);
-  border: 1px solid var(--line);
+  border: none;
   max-width: 760px;
   width: 90%;
   max-height: 85vh;

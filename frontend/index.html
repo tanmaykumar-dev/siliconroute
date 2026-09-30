@@ -151,41 +151,39 @@
            ===================================================================== -->
       <section class="screen-container active" id="screen-overview">
 
-        <!-- 4 Metric Cards Row with Wave Sparklines -->
+        <!-- 4 Metric Cards Row with Fluid Wave Sparklines (Exact Match to Mockup) -->
         <div class="metric-tiles-grid">
-          <!-- Metric Card 1 -->
+          <!-- Metric Card 1: Avg Slowdown (Optimal) -->
           <div class="metric-tile">
             <div class="metric-tile-label">
               <span>Avg Slowdown</span>
-              <span class="pill pill-ok">Optimal</span>
             </div>
             <div class="metric-tile-val">
-              <span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct" data-evidence="true"></span>
+              <span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct"></span>
             </div>
             <div class="metric-tile-bottom">
               <span class="trend trend-up">
                 ↗ <span class="metric" data-metric="decisions_117_140_sr_wins"></span>/<span class="metric" data-metric="decisions_117_140_total"></span> Best Chip
               </span>
               <div class="sparkline-wave-wrap">
-                <svg class="sparkline-wave-svg" viewBox="0 0 110 44">
+                <svg class="sparkline-wave-svg" viewBox="0 0 120 48">
                   <defs>
                     <linearGradient id="grad-green-1" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#10B981" stop-opacity="0.28"/>
+                      <stop offset="0%" stop-color="#10B981" stop-opacity="0.32"/>
                       <stop offset="100%" stop-color="#10B981" stop-opacity="0.0"/>
                     </linearGradient>
                   </defs>
-                  <path d="M 0 35 Q 25 15 50 28 T 110 10 L 110 44 L 0 44 Z" fill="url(#grad-green-1)"/>
-                  <path class="wave-line" d="M 0 35 Q 25 15 50 28 T 110 10" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M 0 34 C 20 34, 35 16, 55 26 C 75 36, 95 12, 120 16 L 120 48 L 0 48 Z" fill="url(#grad-green-1)"/>
+                  <path class="wave-line" d="M 0 34 C 20 34, 35 16, 55 26 C 75 36, 95 12, 120 16" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linecap="round"/>
                 </svg>
               </div>
             </div>
           </div>
 
-          <!-- Metric Card 2 -->
+          <!-- Metric Card 2: Verified Tasks -->
           <div class="metric-tile">
             <div class="metric-tile-label">
               <span>Verified Tasks</span>
-              <span class="pill pill-info">Measured</span>
             </div>
             <div class="metric-tile-val">
               <span class="metric" data-metric="decisions_117_140_total"></span>
@@ -195,71 +193,69 @@
                 ↗ <span class="metric" data-metric="decisions_117_140_sr_accuracy_pct"></span> Accuracy
               </span>
               <div class="sparkline-wave-wrap">
-                <svg class="sparkline-wave-svg" viewBox="0 0 110 44">
+                <svg class="sparkline-wave-svg" viewBox="0 0 120 48">
                   <defs>
                     <linearGradient id="grad-green-2" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#10B981" stop-opacity="0.28"/>
+                      <stop offset="0%" stop-color="#10B981" stop-opacity="0.32"/>
                       <stop offset="100%" stop-color="#10B981" stop-opacity="0.0"/>
                     </linearGradient>
                   </defs>
-                  <path d="M 0 38 Q 30 25 60 18 T 110 8 L 110 44 L 0 44 Z" fill="url(#grad-green-2)"/>
-                  <path class="wave-line" d="M 0 38 Q 30 25 60 18 T 110 8" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M 0 38 C 25 38, 45 22, 65 28 C 85 34, 100 10, 120 12 L 120 48 L 0 48 Z" fill="url(#grad-green-2)"/>
+                  <path class="wave-line" d="M 0 38 C 25 38, 45 22, 65 28 C 85 34, 100 10, 120 12" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linecap="round"/>
                 </svg>
               </div>
             </div>
           </div>
 
-          <!-- Metric Card 3 -->
+          <!-- Metric Card 3: Always-CPU Penalty -->
           <div class="metric-tile">
             <div class="metric-tile-label">
               <span>Always-CPU Penalty</span>
-              <span class="pill pill-warn">Baseline</span>
             </div>
             <div class="metric-tile-val">
-              <span class="metric" data-metric="decisions_117_140_always_cpu_mean_regret_pct" data-evidence="true"></span>
+              <span class="metric" data-metric="decisions_117_140_always_cpu_mean_regret_pct"></span>
             </div>
             <div class="metric-tile-bottom">
               <span class="trend trend-warn">
                 ↗ Slow on Large Models
               </span>
               <div class="sparkline-wave-wrap">
-                <svg class="sparkline-wave-svg" viewBox="0 0 110 44">
+                <svg class="sparkline-wave-svg" viewBox="0 0 120 48">
                   <defs>
                     <linearGradient id="grad-amber" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.28"/>
+                      <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.32"/>
                       <stop offset="100%" stop-color="#F59E0B" stop-opacity="0.0"/>
                     </linearGradient>
                   </defs>
-                  <path d="M 0 12 Q 35 32 70 20 T 110 38 L 110 44 L 0 44 Z" fill="url(#grad-amber)"/>
-                  <path class="wave-line" d="M 0 12 Q 35 32 70 20 T 110 38" fill="none" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M 0 16 C 25 16, 45 34, 65 24 C 85 14, 105 38, 120 32 L 120 48 L 0 48 Z" fill="url(#grad-amber)"/>
+                  <path class="wave-line" d="M 0 16 C 25 16, 45 34, 65 24 C 85 14, 105 38, 120 32" fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round"/>
                 </svg>
               </div>
             </div>
           </div>
 
-          <!-- Metric Card 4 -->
+          <!-- Metric Card 4: Always-RTX Penalty -->
           <div class="metric-tile">
             <div class="metric-tile-label">
               <span>Always-RTX Penalty</span>
-              <span class="pill pill-bad">Wake Risk</span>
             </div>
             <div class="metric-tile-val">
-              <span class="metric" data-metric="decisions_117_140_always_rtx_mean_regret_pct" data-evidence="true"></span>
+              <span class="metric" data-metric="decisions_117_140_always_rtx_mean_regret_pct"></span>
             </div>
             <div class="metric-tile-bottom">
               <span class="trend trend-bad">
                 ↗ 4× Slower on Cold Starts
               </span>
               <div class="sparkline-wave-wrap">
-                <svg class="sparkline-wave-svg" viewBox="0 0 110 44">
+                <svg class="sparkline-wave-svg" viewBox="0 0 120 48">
                   <defs>
                     <linearGradient id="grad-coral" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#F43F5E" stop-opacity="0.28"/>
+                      <stop offset="0%" stop-color="#F43F5E" stop-opacity="0.32"/>
                       <stop offset="100%" stop-color="#F43F5E" stop-opacity="0.0"/>
                     </linearGradient>
                   </defs>
-                  <path d="M 0 8 Q 30 18 65 30 T 110 40 L 110 44 L 0 44 Z" fill="url(#grad-coral)"/>
-                  <path class="wave-line" d="M 0 8 Q 30 18 65 30 T 110 40" fill="none" stroke="#F43F5E" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M 0 14 C 25 14, 45 32, 65 22 C 85 12, 105 38, 120 36 L 120 48 L 0 48 Z" fill="url(#grad-coral)"/>
+                  <path class="wave-line" d="M 0 14 C 25 14, 45 32, 65 22 C 85 12, 105 38, 120 36" fill="none" stroke="#F43F5E" stroke-width="2.2" stroke-linecap="round"/>
                 </svg>
               </div>
             </div>
@@ -383,13 +379,13 @@
               <div class="donut-graphic-wrapper">
                 <svg class="donut-svg" viewBox="0 0 200 200">
                   <!-- Background Track -->
-                  <circle cx="100" cy="100" r="75" fill="none" stroke="var(--line)" stroke-width="22"/>
+                  <circle cx="100" cy="100" r="75" fill="none" stroke="var(--bench)" stroke-width="18"/>
                   <!-- Segment 1: RTX 5070 (51% = 240 / 471) -->
-                  <circle class="donut-segment" cx="100" cy="100" r="75" stroke="#2563EB" stroke-dasharray="240 471" stroke-dashoffset="0"/>
+                  <circle class="donut-segment" cx="100" cy="100" r="75" stroke="#06B6D4" stroke-dasharray="240 471" stroke-dashoffset="0"/>
                   <!-- Segment 2: CPU (32% = 150 / 471) -->
-                  <circle class="donut-segment" cx="100" cy="100" r="75" stroke="#D97706" stroke-dasharray="150 471" stroke-dashoffset="-240"/>
+                  <circle class="donut-segment" cx="100" cy="100" r="75" stroke="#FB923C" stroke-dasharray="150 471" stroke-dashoffset="-240"/>
                   <!-- Segment 3: Radeon 610M (17% = 81 / 471) -->
-                  <circle class="donut-segment" cx="100" cy="100" r="75" stroke="#0D9488" stroke-dasharray="81 471" stroke-dashoffset="-390"/>
+                  <circle class="donut-segment" cx="100" cy="100" r="75" stroke="#8B5CF6" stroke-dasharray="81 471" stroke-dashoffset="-390"/>
                 </svg>
 
                 <div class="donut-center-info">
@@ -397,22 +393,16 @@
                   <div class="donut-center-label">Total Routed</div>
                 </div>
 
-                <!-- Floating Percentage Badges Matching Mockup -->
-                <div class="donut-pill-badge" style="top: 10px; right: 10px;">
-                  <span style="color:#2563EB;">●</span> 51% RTX
-                </div>
-                <div class="donut-pill-badge" style="bottom: 25px; left: 10px;">
-                  <span style="color:#D97706;">●</span> 32% CPU
-                </div>
-                <div class="donut-pill-badge" style="bottom: 15px; right: 20px;">
-                  <span style="color:#0D9488;">●</span> 17% Radeon
-                </div>
+                <!-- Floating Glassmorphism Percentage Badges Matching Mockup -->
+                <div class="donut-pill-badge donut-badge-dgpu">51%</div>
+                <div class="donut-pill-badge donut-badge-cpu">32%</div>
+                <div class="donut-pill-badge donut-badge-igpu">17%</div>
               </div>
 
               <div class="donut-legend">
-                <span class="donut-legend-item"><span class="donut-legend-dot" style="background:#2563EB;"></span> RTX 5070</span>
-                <span class="donut-legend-item"><span class="donut-legend-dot" style="background:#D97706;"></span> CPU</span>
-                <span class="donut-legend-item"><span class="donut-legend-dot" style="background:#0D9488;"></span> Radeon 610M</span>
+                <span class="donut-legend-item"><span class="donut-legend-dot" style="background:#06B6D4;"></span> RTX 5070</span>
+                <span class="donut-legend-item"><span class="donut-legend-dot" style="background:#FB923C;"></span> CPU</span>
+                <span class="donut-legend-item"><span class="donut-legend-dot" style="background:#8B5CF6;"></span> Radeon 610M</span>
               </div>
             </div>
           </div>

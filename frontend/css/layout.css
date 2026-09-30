@@ -22,21 +22,20 @@
 .top-bar {
   position: sticky;
   top: 0;
-  height: 72px;
-  background-color: rgba(239, 241, 245, 0.85);
+  background-color: rgba(244, 245, 247, 0.90);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--line);
+  border-bottom: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--space-8);
+  padding: 16px var(--space-8);
   z-index: 100;
-  transition: background-color var(--motion-base), border-color var(--motion-base);
+  transition: background-color var(--motion-base);
 }
 
 html[data-theme="dark"] .top-bar {
-  background-color: rgba(11, 14, 19, 0.85);
+  background-color: rgba(12, 14, 20, 0.90);
 }
 
 /* Brand Section */
@@ -50,26 +49,31 @@ html[data-theme="dark"] .top-bar {
 }
 
 .brand-logo-glyph {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: var(--ink);
-  color: var(--bench);
+  color: var(--plate);
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: transform var(--motion-fast);
+}
+
+.brand-section:hover .brand-logo-glyph {
+  transform: rotate(45deg);
 }
 
 .brand-logo-glyph svg {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   fill: currentColor;
 }
 
 .brand-title {
-  font-size: 19px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--ink);
 }
@@ -84,13 +88,13 @@ html[data-theme="dark"] .top-bar {
 
 .nav-pill-bar {
   background-color: var(--nav-pill-bg);
-  border: 1px solid var(--line);
+  border: none;
   border-radius: var(--radius-pill);
-  padding: 5px;
+  padding: 6px;
   display: flex;
   align-items: center;
   gap: 4px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.04);
   list-style: none;
   margin: 0;
 }
@@ -105,10 +109,10 @@ html[data-theme="dark"] .top-bar {
   border: none;
   color: var(--nav-pill-ink);
   font-family: var(--font-ui);
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 500;
   border-radius: var(--radius-pill);
-  padding: 8px 16px;
+  padding: 9px 18px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -118,11 +122,11 @@ html[data-theme="dark"] .top-bar {
 }
 
 .rail-item-btn svg {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
   stroke: currentColor;
   fill: none;
-  stroke-width: 2;
+  stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
   transition: stroke var(--motion-fast);
@@ -136,8 +140,8 @@ html[data-theme="dark"] .top-bar {
 .rail-item-btn.active {
   background-color: var(--nav-pill-active-bg);
   color: var(--nav-pill-active-ink);
-  font-weight: 600;
-  box-shadow: var(--shadow-pill);
+  font-weight: 500;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
 }
 
 .rail-item-btn.active svg {
@@ -154,31 +158,37 @@ html[data-theme="dark"] .top-bar {
 }
 
 .badge-pro-pill {
-  background: var(--warn-bg);
-  color: var(--warn-text);
-  border: 1px solid rgba(245, 158, 11, 0.2);
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid rgba(245, 158, 11, 0.25);
   border-radius: var(--radius-pill);
-  padding: 6px 14px;
-  font-size: 12.5px;
+  padding: 8px 18px;
+  font-size: 13px;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   cursor: default;
 }
 
+html[data-theme="dark"] .badge-pro-pill {
+  background: rgba(245, 158, 11, 0.15);
+  color: #FBBF24;
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
 .icon-circle-btn {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: var(--plate);
-  border: 1px solid var(--line);
+  border: none;
   color: var(--ink-2);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: all var(--motion-fast);
   position: relative;
 }
@@ -187,22 +197,39 @@ html[data-theme="dark"] .top-bar {
   background: var(--plate-subtle);
   color: var(--ink);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.bell-badge-dot {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #EF4444;
+  border: 1.5px solid var(--plate);
 }
 
 .avatar-chip {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--chip-dgpu), var(--chip-npu));
+  background: linear-gradient(135deg, #18181B, #3F3F46);
   color: #FFFFFF;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   cursor: pointer;
   position: relative;
+  transition: transform var(--motion-fast);
+}
+
+.avatar-chip:hover {
+  transform: scale(1.05);
 }
 
 .avatar-chip::after {
@@ -210,8 +237,8 @@ html[data-theme="dark"] .top-bar {
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 10px;
-  height: 10px;
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
   background: var(--ok);
   border: 2px solid var(--plate);
@@ -225,7 +252,7 @@ html[data-theme="dark"] .top-bar {
   max-width: 1520px;
   width: 100%;
   margin: 0 auto;
-  padding: var(--space-6) var(--space-8) var(--space-12);
+  padding: 12px var(--space-8) var(--space-12);
 }
 
 /* Hero / Greeting Bar */
@@ -233,15 +260,15 @@ html[data-theme="dark"] .top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--space-6);
+  margin-bottom: 28px;
   flex-wrap: wrap;
   gap: var(--space-4);
 }
 
 .hero-greeting-title {
-  font-size: 32px;
-  font-weight: 700;
-  letter-spacing: -0.025em;
+  font-size: 42px;
+  font-weight: 400;
+  letter-spacing: -0.03em;
   color: var(--ink);
   margin: 0;
   line-height: 1.15;
@@ -259,33 +286,38 @@ html[data-theme="dark"] .top-bar {
   height: 44px;
   border-radius: 50%;
   background: var(--plate);
-  border: 1px solid var(--line);
+  border: none;
   color: var(--ink-2);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: all var(--motion-fast);
 }
 
 .hero-search-btn:hover {
   background: var(--plate-subtle);
   color: var(--ink);
+  transform: translateY(-1px);
 }
 
 .hero-filter-pill {
   background: var(--plate);
-  border: 1px solid var(--line);
+  border: none;
   border-radius: var(--radius-pill);
-  padding: 10px 18px;
+  padding: 11px 22px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   font-size: 13.5px;
   font-weight: 500;
+  color: #3F3F46;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+html[data-theme="dark"] .hero-filter-pill {
   color: var(--ink);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
 .hero-action-btn {
@@ -293,15 +325,15 @@ html[data-theme="dark"] .top-bar {
   color: var(--ink-inverse);
   border: none;
   border-radius: var(--radius-pill);
-  padding: 10px 22px;
+  padding: 11px 24px;
   font-family: var(--font-ui);
-  font-size: 13.5px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  box-shadow: var(--shadow-pill);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
   transition: transform var(--motion-fast), opacity var(--motion-fast);
 }
 
@@ -329,7 +361,7 @@ html[data-theme="dark"] .top-bar {
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
@@ -344,8 +376,8 @@ html[data-theme="dark"] .top-bar {
 .metric-tiles-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  margin-bottom: 24px;
+  gap: 24px;
+  margin-bottom: 28px;
 }
 
 @media (max-width: 1200px) {
@@ -363,9 +395,9 @@ html[data-theme="dark"] .top-bar {
 /* Middle 3-Column Dashboard Layout */
 .dashboard-triplet-grid {
   display: grid;
-  grid-template-columns: 1.15fr 1.65fr 1.2fr;
-  gap: 20px;
-  margin-bottom: 24px;
+  grid-template-columns: 1.15fr 1.7fr 1.15fr;
+  gap: 24px;
+  margin-bottom: 28px;
 }
 
 @media (max-width: 1300px) {
@@ -378,7 +410,7 @@ html[data-theme="dark"] .top-bar {
 .dashboard-bottom-grid {
   display: grid;
   grid-template-columns: 1fr 1.5fr;
-  gap: 20px;
+  gap: 24px;
 }
 
 @media (max-width: 1100px) {
@@ -390,7 +422,7 @@ html[data-theme="dark"] .top-bar {
 /* Responsive Top Bar */
 @media (max-width: 960px) {
   .top-bar {
-    padding: 0 var(--space-4);
+    padding: 12px var(--space-4);
   }
   .rail-item-btn span {
     display: none;

@@ -30,32 +30,32 @@
 :root,
 html[data-theme="light"] {
   /* Canvas & Cards */
-  --bench: #EFF1F5;
+  --bench: #F4F5F7;
   --plate: #FFFFFF;
   --plate-raised: #FFFFFF;
-  --plate-subtle: #F6F8FA;
-  --line: rgba(0, 0, 0, 0.05);
-  --line-strong: rgba(0, 0, 0, 0.10);
+  --plate-subtle: #F8F9FA;
+  --line: rgba(0, 0, 0, 0.04);
+  --line-strong: rgba(0, 0, 0, 0.08);
   --line-border: #E5E7EB;
 
   /* Typography */
-  --ink: #111827;
-  --ink-2: #6B7280;
-  --ink-3: #9CA3AF;
+  --ink: #18181B;
+  --ink-2: #71717A;
+  --ink-3: #A1A1AA;
   --ink-inverse: #FFFFFF;
 
   /* Pill Navigation */
   --nav-pill-bg: #FFFFFF;
-  --nav-pill-active-bg: #18191D;
+  --nav-pill-active-bg: #18181B;
   --nav-pill-active-ink: #FFFFFF;
-  --nav-pill-hover-bg: #F3F4F6;
-  --nav-pill-ink: #4B5563;
+  --nav-pill-hover-bg: #F4F5F7;
+  --nav-pill-ink: #52525B;
 
   /* Chip Identities (Fixed Across Product) */
-  --chip-cpu: #D97706;
+  --chip-cpu: #FB923C;
   --chip-igpu: #0D9488;
-  --chip-dgpu: #2563EB;
-  --chip-npu: #7C3AED;
+  --chip-dgpu: #06B6D4;
+  --chip-npu: #8B5CF6;
 
   /* Semantic States */
   --ok: #10B981;
@@ -67,22 +67,23 @@ html[data-theme="light"] {
   --bad: #F43F5E;
   --bad-bg: #FFF1F2;
   --bad-text: #E11D48;
-  --na: #6B7280;
-  --na-bg: #F3F4F6;
+  --na: #71717A;
+  --na-bg: #F4F5F7;
 
   /* Shadows (Multi-layered, ultra-soft) */
-  --shadow-card: 0 10px 30px -5px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
-  --shadow-card-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
-  --shadow-pill: 0 4px 14px rgba(24, 25, 29, 0.12);
-  --shadow-raised: 0 16px 36px rgba(0, 0, 0, 0.08);
-  --shadow-popover: 0 20px 48px rgba(0, 0, 0, 0.14);
+  --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.03), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+  --shadow-card-hover: 0 16px 36px -6px rgba(0, 0, 0, 0.07), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+  --shadow-pill: 0 4px 14px rgba(24, 25, 29, 0.15);
+  --shadow-raised: 0 16px 36px rgba(0, 0, 0, 0.06);
+  --shadow-popover: 0 20px 48px rgba(0, 0, 0, 0.12);
 
   /* Focus Ring */
-  --focus-ring: 2px solid var(--chip-dgpu);
+  --focus-ring: 2px solid #06B6D4;
   --focus-offset: 2px;
 
-  /* Common Scale & System Values */
-  --font-ui: 'Archivo', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* Modern Font Stack with Round Geometry */
+  --font-ui: -apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", "Inter", "Outfit", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", "Inter", "Outfit", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   --font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
 
   /* Spacing */
@@ -95,7 +96,7 @@ html[data-theme="light"] {
   --space-12: 48px;
   --space-16: 64px;
 
-  /* Radii (Modern Soft Rounded Curves) */
+  /* Radii (Modern Soft Rounded Curves Matching Mockup) */
   --radius-control: 9999px;
   --radius-tile: 24px;
   --radius-panel: 28px;
@@ -113,28 +114,28 @@ html[data-theme="light"] {
    Dark Theme (Sleek Obsidian SaaS)
    -------------------------------------------------------------------------- */
 html[data-theme="dark"] {
-  --bench: #0B0E13;
-  --plate: #141820;
-  --plate-raised: #1A202A;
-  --plate-subtle: #181D26;
-  --line: rgba(255, 255, 255, 0.06);
-  --line-strong: rgba(255, 255, 255, 0.12);
-  --line-border: #262E3B;
+  --bench: #0C0E14;
+  --plate: #141822;
+  --plate-raised: #1A202E;
+  --plate-subtle: #171C28;
+  --line: rgba(255, 255, 255, 0.05);
+  --line-strong: rgba(255, 255, 255, 0.10);
+  --line-border: #232B3B;
 
   --ink: #F3F4F6;
   --ink-2: #9CA3AF;
   --ink-3: #6B7280;
   --ink-inverse: #111827;
 
-  --nav-pill-bg: #141820;
+  --nav-pill-bg: #141822;
   --nav-pill-active-bg: #F3F4F6;
   --nav-pill-active-ink: #111827;
-  --nav-pill-hover-bg: #1F2633;
+  --nav-pill-hover-bg: #1F2636;
   --nav-pill-ink: #9CA3AF;
 
   --chip-cpu: #F59E0B;
   --chip-igpu: #14B8A6;
-  --chip-dgpu: #3B82F6;
+  --chip-dgpu: #38BDF8;
   --chip-npu: #A78BFA;
 
   --ok: #34D399;

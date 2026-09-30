@@ -41,6 +41,13 @@ SITE_DIR: Path = BASE_DIR / "site"
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan: initialize DB, detect hardware, start job worker and telemetry."""
+    # Seed working database from frozen benchmark database on fresh clone
+    frozen_db = DATA_DIR / "final" / "siliconroute_final.db"
+    if not DB_PATH.exists() and frozen_db.exists():
+        import shutil
+        logger.info("Seeding working database from frozen benchmark database (%s)...", frozen_db)
+        shutil.copy2(frozen_db, DB_PATH)
+
     logger.info("Initializing SiliconRoute database schema (WAL mode)...")
     init_db()
 
