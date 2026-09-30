@@ -1,6 +1,6 @@
-Copying 64 files to E:\THE SNAP X HP\review_package...
-Wrote 64 entries to E:\THE SNAP X HP\review_package\FILES.txt
+Copying 66 files to E:\THE SNAP X HP\review_package...
+Wrote 66 entries to E:\THE SNAP X HP\review_package\FILES.txt
 Creating E:\THE SNAP X HP\review_package.zip...
 REVIEW_PACKAGE_ZIP_PATH: E:\THE SNAP X HP\review_package.zip
-REVIEW_PACKAGE_ZIP_SIZE: 3339623 bytes
+REVIEW_PACKAGE_ZIP_SIZE: 3340832 bytes
 
