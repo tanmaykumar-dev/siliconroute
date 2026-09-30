@@ -1,0 +1,543 @@
+/**
+ * SiliconRoute Static Website Stylesheet
+ * Responsive layout (360px to 1600px), max 72ch prose columns,
+ * light theme default with dark theme support, lab-instrument aesthetic.
+ */
+
+@import "tokens.css";
+
+/* Reset & Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--font-sans);
+  background-color: var(--bench);
+  color: var(--ink);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: var(--chip-dgpu);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  color: var(--ink);
+}
+
+button, input, select {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--chip-dgpu);
+  outline-offset: 2px;
+}
+
+/* Container */
+.site-container {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+.prose-col {
+  max-width: 72ch;
+}
+
+/* Navigation Header */
+.site-header {
+  border-bottom: 1px solid var(--line);
+  background-color: var(--plate);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.site-nav {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.site-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.site-brand-logo {
+  width: 22px;
+  height: 22px;
+}
+
+.site-brand-name {
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.site-nav-links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  list-style: none;
+}
+
+.site-nav-links a {
+  font-size: 13.5px;
+  color: var(--ink-2);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.site-nav-links a:hover {
+  color: var(--ink);
+}
+
+/* Sections */
+.site-section {
+  padding: var(--space-8) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.section-label {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-2);
+}
+
+.section-title {
+  font-size: 26px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: var(--space-4);
+}
+
+.section-desc {
+  font-size: 15px;
+  color: var(--ink-2);
+  margin-bottom: var(--space-6);
+  line-height: 1.6;
+}
+
+/* 1. Hero Section */
+.hero-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: var(--space-8);
+  align-items: center;
+  padding: 64px 0 48px 0;
+}
+
+.hero-headline {
+  font-size: 44px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: var(--space-4);
+}
+
+.hero-subline {
+  font-size: 17px;
+  color: var(--ink-2);
+  line-height: 1.55;
+  margin-bottom: var(--space-6);
+}
+
+.hero-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 40px;
+  padding: 0 var(--space-4);
+  font-size: 13.5px;
+  font-weight: 600;
+  border-radius: var(--radius-control);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--motion-fast), border-color var(--motion-fast);
+}
+
+.btn-primary {
+  background-color: var(--ink);
+  color: var(--bench);
+  border: 1px solid var(--ink);
+}
+
+.btn-primary:hover {
+  background-color: var(--ink-2);
+  color: var(--bench);
+}
+
+.btn-secondary {
+  background-color: var(--plate);
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+}
+
+.btn-secondary:hover {
+  background-color: var(--plate-raised);
+}
+
+.btn-sm {
+  height: 30px;
+  padding: 0 var(--space-3);
+  font-size: 12px;
+}
+
+/* Hero Routing Diagram */
+.hero-diagram-card {
+  background-color: var(--plate);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-surface);
+}
+
+.hero-diagram-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--line);
+}
+
+.hero-trace-wrap {
+  position: relative;
+  height: 160px;
+  background-color: var(--plate-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-6);
+  margin-bottom: var(--space-4);
+}
+
+.hero-trace-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.hero-box {
+  background-color: var(--plate);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  padding: var(--space-3);
+  z-index: 10;
+}
+
+.hero-box-label {
+  font-size: 10.5px;
+  color: var(--ink-3);
+  display: block;
+}
+
+.hero-box-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.hero-sockets-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+
+.hero-socket-item {
+  background-color: var(--plate-raised);
+  border: 1px solid var(--line);
+  border-left-width: 3px;
+  border-radius: var(--radius-control);
+  padding: var(--space-2) var(--space-3);
+}
+
+.hero-socket-item.socket-cpu { border-left-color: var(--chip-cpu); }
+.hero-socket-item.socket-igpu { border-left-color: var(--chip-igpu); }
+.hero-socket-item.socket-dgpu { border-left-color: var(--chip-dgpu); }
+
+.hero-socket-title {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.hero-socket-val {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--ink-2);
+}
+
+/* 2. The Problem Rows */
+.problem-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.problem-row {
+  background-color: var(--plate);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-tile);
+  padding: var(--space-4) var(--space-6);
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: var(--space-6);
+  align-items: center;
+}
+
+.problem-misconception {
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.problem-truth {
+  font-size: 14px;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+/* 3. Four-Step Sequence */
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+
+.step-card {
+  background-color: var(--plate);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  padding: var(--space-5);
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.step-number {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  background-color: var(--plate-raised);
+  border: 1px solid var(--line);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.step-name {
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.step-text {
+  font-size: 13.5px;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+/* 4. Results & Tables */
+.bench-table-wrap {
+  background-color: var(--plate);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  overflow-x: auto;
+}
+
+.bench-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  text-align: left;
+}
+
+.bench-table th {
+  padding: var(--space-3) var(--space-4);
+  font-size: 12px;
+  color: var(--ink-3);
+  font-weight: 600;
+  border-bottom: 1px solid var(--line);
+  background-color: var(--plate-raised);
+}
+
+.bench-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.bench-table tr:last-child td {
+  border-bottom: none;
+}
+
+.td-mono {
+  font-family: var(--font-mono);
+}
+
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+
+/* 5. Findings List */
+.findings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+}
+
+.finding-card {
+  background-color: var(--plate);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  padding: var(--space-5);
+}
+
+.finding-title {
+  font-size: 14.5px;
+  font-weight: 650;
+  margin-bottom: var(--space-2);
+  color: var(--ink);
+}
+
+.finding-body {
+  font-size: 13.5px;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+/* 6. Limitations List */
+.limitations-list {
+  background-color: var(--plate);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  padding: var(--space-6);
+  list-style: square inside;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  font-size: 13.5px;
+  color: var(--ink-2);
+  line-height: 1.6;
+}
+
+/* 7. Code Box */
+.code-box {
+  background-color: var(--plate);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  padding: var(--space-4);
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  overflow-x: auto;
+}
+
+.code-copy-btn {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+}
+
+/* Pills & Semantic Tags */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: var(--radius-pill);
+}
+
+.pill-ok {
+  background-color: rgba(76, 199, 135, 0.14);
+  color: var(--ok);
+  border: 1px solid rgba(76, 199, 135, 0.35);
+}
+
+.pill-info {
+  background-color: rgba(110, 156, 255, 0.14);
+  color: var(--chip-dgpu);
+  border: 1px solid rgba(110, 156, 255, 0.30);
+}
+
+.pill-na {
+  background-color: rgba(138, 148, 156, 0.14);
+  color: var(--na);
+  border: 1px solid rgba(138, 148, 156, 0.30);
+}
+
+/* Footer */
+.site-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--line);
+  background-color: var(--plate);
+  padding: var(--space-6) 0;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+  .hero-layout {
+    grid-template-columns: 1fr;
+    padding: 36px 0;
+  }
+  .steps-grid, .findings-grid {
+    grid-template-columns: 1fr;
+  }
+  .problem-row {
+    grid-template-columns: 1fr;
+  }
+}

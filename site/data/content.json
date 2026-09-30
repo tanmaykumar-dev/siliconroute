@@ -1,0 +1,18 @@
+{
+  "limitations": [
+    "**FP32 Only**: All synthetic and profiled models currently use float32 precision. FP16 and INT8 tensor core acceleration are not yet profiled.",
+    "**DirectML Only on Windows**: GPU execution uses `DmlExecutionProvider` across both AMD and NVIDIA GPUs; native CUDA or TensorRT execution providers are not used.",
+    "**Synthetic Model Families**: Benchmarks utilize parameterized MLP and Convolution architectures; real-world Transformer and LLM attention topologies are planned.",
+    "**Profiled Configurations**: The evaluation used only previously profiled configurations; for new models or batch sizes the router relies on the fitted models, whose average LOO MAPE is ~22.3% .",
+    "**Session Variability**: The same configuration can differ between sessions by up to 139.9%  (RTX); the cause has not been established.",
+    "**Energy Telemetry**: Whole-system energy is available via WMI battery discharge rate when unplugged, and GPU package energy is available via NVML on NVIDIA. CPU package power (RAPL) and AMD iGPU power are not accessible via standard unprivileged Windows APIs.",
+    "**Energy Goals Not Evaluated**: Only one GPU energy measurement exists, so the Battery and Balanced goals currently fall back to latency, and the Cool goal (GPU temperature penalty) is untested. CPU and Radeon 610M energy require battery-drain measurements (planned).",
+    "**Single Laptop**: All results come from one laptop (AMD Ryzen 9 8940HX, AMD Radeon 610M, NVIDIA GeForce RTX 5070 Laptop GPU).",
+    "**Real AI Models**: MobileNet, ResNet and a small transformer are planned for v1.1."
+  ],
+  "how_this_was_built": [
+    "**Author**: Tanmay \u2014 defined the problem, the measurement method and the project rules, and reviewed every development phase.",
+    "**AI Assistance**: Most code was written with Google Antigravity (an AI coding agent). Planning, specifications and independent audits of the database were done with Anthropic's Claude.",
+    "**Integrity Protocol**: Early in development, an AI-generated report contained fabricated benchmark numbers; a physics sanity check caught it. Since then, every published number is computed from the frozen database by `scripts/metrics.py` and checked by `tests/test_published_numbers.py`, agent reports are printed from logs only, and the database has been audited independently (raw samples vs. stored statistics, recomputed results, provenance of every headline number). Thresholds such as the cold-start rule are configuration settings, not measurements."
+  ]
+}

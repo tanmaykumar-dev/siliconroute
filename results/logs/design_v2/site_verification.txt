@@ -1,0 +1,17 @@
+Local static server started on http://127.0.0.1:8088
+Launching Microsoft Edge via Playwright...
+
+[1/2] Verifying Desktop Layout (1440x900)...
+  SR wins in DOM: '22'
+  DB SHA256 in DOM: '98542cffb7264eee537d218e1863ccbbc174495e0bf13eb244ee22cd6f034cf5'
+  Limitations list items: 9
+  Saved screenshot: results/screenshots/v2_design/site_desktop_1440x900.png
+
+[2/2] Verifying Mobile Layout (390x844)...
+  Saved screenshot: results/screenshots/v2_design/site_mobile_390x844.png
+
+Checking console and page errors...
+Console errors: 0
+Page errors: 0
+Server shutdown cleanly.
+Verification status: SUCCESS
