@@ -97,6 +97,12 @@ app.include_router(decisions_router)
 
 # Mount static site at / and dashboard at /app (Section 6)
 if FRONTEND_DIR.exists():
+    from starlette.responses import RedirectResponse
+
+    @app.get("/app", include_in_schema=False)
+    def redirect_dashboard():
+        return RedirectResponse(url="/app/")
+
     app.mount("/app", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="dashboard")
 if SITE_DIR.exists():
     app.mount("/site", StaticFiles(directory=str(SITE_DIR), html=True), name="site_legacy")

@@ -1,0 +1,185 @@
+INFO:     Started server process [57680]
+INFO:     Waiting for application startup.
+2026-10-01 02:28:16,850 [INFO] siliconroute: Initializing SiliconRoute database schema (WAL mode)...
+2026-10-01 02:28:16,854 [INFO] siliconroute: Detecting hardware devices (CPU & DirectML adapters)...
+2026-10-01 02:28:17,177 [INFO] siliconroute: Detected 3 hardware device(s): cpu (CPU), dml:1 (NVIDIA GeForce RTX 5070 Laptop GPU), dml:0 (AMD Radeon(TM) 610M)
+2026-10-01 02:28:17,177 [INFO] siliconroute: Starting background single-job worker...
+2026-10-01 02:28:17,177 [INFO] app.jobs: SiliconRoute job worker thread started.
+2026-10-01 02:28:17,177 [INFO] siliconroute: Starting background 1 Hz telemetry sampler...
+2026-10-01 02:28:17,178 [INFO] app.telemetry: SiliconRoute telemetry sampler thread started.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:58711 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62763 - "GET /css/tokens.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62882 - "GET /css/style.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60728 - "GET /media/01_hero_red_pcb_2000.avif HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58318 - "GET /img/01_overview_1440x900.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55587 - "GET /js/site.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56615 - "GET /media/01_hero_red_pcb_1280.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60728 - "GET /media/siliconroute_demo.webm HTTP/1.1" 206 Partial Content
+INFO:     127.0.0.1:56615 - "GET /data/manifest.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55587 - "GET /data/build.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62882 - "GET /data/snapdragon_status.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62763 - "GET /data/contact.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58318 - "GET /data/content.json HTTP/1.1" 200 OK
+2026-10-01 02:28:19,048 [ERROR] asyncio: Exception in callback _ProactorBasePipeTransport._call_connection_lost()
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost()>
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+INFO:     127.0.0.1:62763 - "GET /fonts/ibm-plex-sans-400.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62882 - "GET /fonts/ibm-plex-sans-500.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55587 - "GET /fonts/ibm-plex-sans-600.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56615 - "GET /fonts/ibm-plex-mono-400.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58318 - "GET /fonts/ibm-plex-mono-500.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58318 - "GET /media/02_vision_wafer_die_2000.avif HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56615 - "GET /media/06_chip_on_board_2000.avif HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56615 - "GET /favicon.ico HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56615 - "GET /media/03_method_wafer_grid_2000.avif HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50294 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50294 - "GET /css/tokens.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64713 - "GET /css/style.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56294 - "GET /media/01_hero_red_pcb_1280.avif HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64570 - "GET /js/site.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52608 - "GET /img/01_overview_1440x900.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50887 - "GET /media/01_hero_red_pcb_1280.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50294 - "GET /media/siliconroute_demo.webm HTTP/1.1" 206 Partial Content
+INFO:     127.0.0.1:56294 - "GET /media/02_vision_wafer_die_1280.avif HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64570 - "GET /fonts/ibm-plex-mono-400.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52608 - "GET /fonts/ibm-plex-mono-500.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56294 - "GET /fonts/ibm-plex-sans-400.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50294 - "GET /fonts/ibm-plex-sans-600.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50887 - "GET /fonts/ibm-plex-sans-500.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50294 - "GET /data/manifest.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52608 - "GET /data/snapdragon_status.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56294 - "GET /data/content.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64570 - "GET /data/contact.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50887 - "GET /data/build.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50887 - "GET /favicon.ico HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63656 - "GET /api/telemetry/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52392 - "GET /privacy.html HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52392 - "GET /css/tokens.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58576 - "GET /css/style.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58576 - "GET /terms.html HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58576 - "GET /fonts/ibm-plex-sans-400.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55986 - "GET /fonts/ibm-plex-sans-400.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54121 - "GET /fonts/ibm-plex-sans-600.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59565 - "GET /fonts/ibm-plex-sans-500.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59565 - "GET /credits.html HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59565 - "GET /dashboard.html HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54121 - "GET /img/04_router_1440x900.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59565 - "GET /img/01_overview_1440x900.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59565 - "GET /fonts/ibm-plex-mono-400.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59565 - "GET /404.html HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56023 - "GET /app/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56023 - "GET /app/css/tokens.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64786 - "GET /app/css/layout.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62818 - "GET /app/css/base.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54803 - "GET /app/vendor/chart.umd.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63014 - "GET /app/css/screens.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63147 - "GET /app/css/components.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56023 - "GET /app/js/app.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54803 - "GET /app/js/router.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56023 - "GET /app/js/api.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63147 - "GET /app/js/components/socket_strip.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63014 - "GET /app/js/metrics.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64786 - "GET /app/js/components/modal.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62818 - "GET /app/js/telemetry.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54803 - "GET /app/js/theme.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56023 - "GET /app/js/export_csv.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64786 - "GET /app/js/screens/live.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63147 - "GET /app/js/screens/router.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62818 - "GET /app/js/screens/overview.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63014 - "GET /app/js/screens/analysis.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54803 - "GET /app/js/screens/results.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56023 - "GET /app/js/screens/evidence.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63147 - "GET /app/js/screens/about.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56023 - "GET /app/fonts/ibm-plex-sans-600.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63147 - "GET /app/fonts/ibm-plex-sans-400.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54803 - "GET /app/js/charts/theme.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63014 - "GET /app/js/components/toast.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63014 - "GET /api/devices HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63014 - "GET /api/decisions?limit=10&offset=0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54803 - "GET /api/published-metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63014 - "GET /api/decisions?limit=10&offset=0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63014 - "GET /api/telemetry/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54803 - "GET /api/analysis/chart-data?family=mlp&batch=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63147 - "GET /api/devices HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54803 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54803 - "POST /api/route HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54803 - "GET /api/decisions/evaluation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54803 - "GET /api/published-metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54803 - "GET /app/fonts/ibm-plex-mono-400.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63147 - "GET /api/devices HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54803 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63251 - "GET /app HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:63251 - "GET /app/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63251 - "GET /app/css/tokens.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58280 - "GET /app/css/base.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53381 - "GET /app/css/layout.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62711 - "GET /app/css/screens.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63392 - "GET /app/css/components.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58706 - "GET /app/vendor/chart.umd.min.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63251 - "GET /app/js/app.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58706 - "GET /app/js/router.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53381 - "GET /app/js/components/modal.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63251 - "GET /app/js/api.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58280 - "GET /app/js/components/socket_strip.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63392 - "GET /app/js/metrics.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62711 - "GET /app/js/telemetry.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58706 - "GET /app/js/theme.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63251 - "GET /app/js/screens/live.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58280 - "GET /app/js/screens/analysis.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53381 - "GET /app/js/screens/overview.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63392 - "GET /app/js/export_csv.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62711 - "GET /app/js/screens/router.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58706 - "GET /app/js/screens/results.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53381 - "GET /app/js/screens/about.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63251 - "GET /app/js/screens/evidence.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53381 - "GET /app/fonts/ibm-plex-sans-600.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63251 - "GET /app/fonts/ibm-plex-sans-400.woff2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58706 - "GET /app/js/charts/theme.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62711 - "GET /app/js/components/toast.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58706 - "GET /api/devices HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58706 - "GET /api/decisions?limit=10&offset=0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62711 - "GET /api/published-metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58706 - "GET /api/decisions?limit=10&offset=0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58706 - "GET /api/telemetry/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62711 - "GET /app HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:62711 - "GET /app/js/api.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62711 - "GET /api/devices HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62711 - "GET /api/decisions?limit=10&offset=0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63251 - "GET /api/published-metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53381 - "GET /api/devices HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53381 - "GET /api/telemetry/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62711 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62711 - "POST /api/route HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62711 - "GET /app HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:62711 - "GET /app/js/api.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62711 - "GET /api/devices HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62711 - "GET /api/decisions?limit=10&offset=0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63251 - "GET /api/published-metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63251 - "GET /api/telemetry/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62711 - "GET /api/decisions/evaluation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51157 - "GET /api/decisions?limit=10&offset=0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51157 - "GET /app/ HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:51157 - "GET /app/js/app.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:51157 - "GET /app/js/api.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:61123 - "GET /app/js/screens/router.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:61123 - "GET /api/devices HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61123 - "GET /api/decisions?limit=10&offset=0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59263 - "GET /api/published-metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51157 - "GET /api/devices HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61123 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61123 - "GET /api/telemetry/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51157 - "POST /api/route HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51157 - "POST /api/route HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51157 - "GET /api/analysis/chart-data?family=mlp&batch=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51157 - "GET /api/published-metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59263 - "GET /api/devices HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51157 - "GET /api/models HTTP/1.1" 200 OK

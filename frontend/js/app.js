@@ -101,7 +101,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     downloadDecisionsCsv();
   });
 
-  // 9. Global Keyboard Shortcuts Sheet & Help Modal
+  // 9. Universal Chart Data Table Toggles (Section 4.4 & 10)
+  document.querySelectorAll(".chart-table-toggle").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const targetId = btn.getAttribute("data-target");
+      const target = document.getElementById(targetId);
+      if (target) {
+        const isHidden = window.getComputedStyle(target).display === "none";
+        target.style.display = isHidden ? "block" : "none";
+        btn.textContent = isHidden ? "Hide data table" : "Show data table";
+      }
+    });
+  });
+
+  // 10. Global Keyboard Shortcuts Sheet & Help Modal
   setupShortcutsSheet();
 });
 

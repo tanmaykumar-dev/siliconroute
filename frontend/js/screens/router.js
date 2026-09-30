@@ -53,8 +53,9 @@ export class RouterScreen {
   }
 
   setupControls() {
-    const btnRoute = document.getElementById("btn-router-execute");
+    const btnRoute = document.getElementById("btn-router-submit") || document.getElementById("btn-router-execute");
     const btnVerify = document.getElementById("btn-router-verify");
+    const form = document.getElementById("router-execution-form");
     const selModel = document.getElementById("router-model-select");
     const selBatch = document.getElementById("router-batch-select");
     const selWorkload = document.getElementById("router-workload-select");
@@ -68,8 +69,18 @@ export class RouterScreen {
       }
     });
 
+    if (form) {
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        this.handleRouteTask(false);
+      });
+    }
+
     if (btnRoute) {
-      btnRoute.addEventListener("click", () => this.handleRouteTask(false));
+      btnRoute.addEventListener("click", (e) => {
+        e.preventDefault();
+        this.handleRouteTask(false);
+      });
     }
 
     if (btnVerify) {
@@ -119,31 +130,39 @@ export class RouterScreen {
   }
 
   renderDecision(dec) {
-    const badgeEl = document.getElementById("router-chosen-badge");
-    const reasonEl = document.getElementById("router-reason-text");
-    const rulesList = document.getElementById("router-rules-list");
-    const tbody = document.getElementById("router-candidates-body");
+    const card = document.getElementById("router-decision-card");
+    if (card) {
+      card.style.display = "block";
+    }
+
+    const chipNameEl = document.getElementById("decision-chip-name");
+    const predTimeEl = document.getElementById("decision-pred-time");
+    const reasonEl = document.getElementById("decision-reason-text");
+    const rulesEl = document.getElementById("decision-rules-text");
+    const tbody = document.getElementById("tbody-router-candidates") || document.getElementById("router-candidates-body");
 
     const dev = this.devices.find(d => d.id === dec.chosen_device_id) || { label: dec.chosen_device_key, key: dec.chosen_device_key };
     const devKey = (dec.chosen_device_key || dev.key || "cpu").toUpperCase();
 
-    if (badgeEl) {
-      badgeEl.innerHTML = `
-        <span class="tag tag-verified" style="font-size:14px; padding:4px 8px;">
-          <strong>${devKey}</strong>: ${dev.label}
-        </span>
-      `;
+    if (chipNameEl) {
+      chipNameEl.textContent = `${devKey} (${dev.label || devKey})`;
+    }
+
+    const chosenCandidate = (dec.candidates || []).find(c => c.device_id === dec.chosen_device_id);
+    const chosenTime = chosenCandidate ? (chosenCandidate.effective_latency_ms || chosenCandidate.predicted_latency_ms || 0) : 0;
+    if (predTimeEl) {
+      predTimeEl.textContent = `${chosenTime.toFixed(3)} ms`;
     }
 
     if (reasonEl) {
-      reasonEl.textContent = dec.reason;
+      reasonEl.textContent = dec.reason || "Optimal device chosen based on measured models.";
     }
 
-    if (rulesList) {
+    if (rulesEl) {
       if (dec.context_rules && dec.context_rules.length) {
-        rulesList.innerHTML = dec.context_rules.map(r => `<li>${r}</li>`).join("");
+        rulesEl.textContent = dec.context_rules.join(", ");
       } else {
-        rulesList.innerHTML = "<li>Nominal hardware operating environment.</li>";
+        rulesEl.textContent = "None (nominal hardware operating conditions)";
       }
     }
 
@@ -156,7 +175,7 @@ export class RouterScreen {
         const statusText = c.is_excluded ? c.excluded_reason : "eligible";
 
         return `
-          <tr class="${isChosen ? 'highlight' : ''}">
+          <tr class="${isChosen ? 'chosen-row' : ''}">
             <td><strong>${c.device_key.toUpperCase()}</strong> ${isChosen ? '<span class="tag tag-verified" style="margin-left:4px;">CHOSEN</span>' : ''}</td>
             <td class="num">${predMs} ms</td>
             <td><span class="tag">${c.source}</span></td>

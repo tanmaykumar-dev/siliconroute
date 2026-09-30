@@ -38,8 +38,20 @@ export const api = {
     return this.get("/api/devices");
   },
 
+  getDevices() {
+    return this.fetchDevices();
+  },
+
   fetchModels() {
     return this.get("/api/models");
+  },
+
+  getModels() {
+    return this.fetchModels();
+  },
+
+  getSystemInfo() {
+    return this.fetchSystemInfo();
   },
 
   fetchScalingData(family = "mlp", batch = 1) {
@@ -72,6 +84,10 @@ export const api = {
 
   fetchDecisions(limit = 10, offset = 0) {
     return this.get(`/api/decisions?limit=${limit}&offset=${offset}`);
+  },
+
+  getDecisions(limit = 10, offset = 0) {
+    return this.fetchDecisions(limit, offset);
   },
 
   fetchRun(runId) {
