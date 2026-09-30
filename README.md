@@ -2,7 +2,11 @@
 
 **A local-first, self-learning AI load balancer for heterogeneous Windows laptops.**
 
-SiliconRoute benchmarks ONNX models on every compute chip in a Windows laptop (CPU, integrated GPU and discrete GPU), stores every measurement in SQLite, fits hardware performance models (command overhead, cache and DRAM bandwidth, compute throughput), and routes each inference task to the best chip for the user's goal. The **Fastest** goal is evaluated below across three workload types (sustained, idle, cold start); the **Battery**, **Balanced** and **Cool** goals are implemented but not yet evaluated.
+SiliconRoute benchmarks ONNX models on every compute chip in a Windows laptop (CPU, integrated GPU, discrete GPU, and NPU), stores every measurement in SQLite, fits hardware performance models (command overhead, cache and DRAM bandwidth, compute throughput), and routes each inference task to the best chip for the user's goal. The **Fastest** goal is evaluated below across three workload types (sustained, idle, cold start); the **Battery**, **Balanced** and **Cool** goals are implemented but not yet evaluated.
+
+> [!IMPORTANT]
+> ### Primary Strategic Goal: ARM Architecture & Snapdragon X2
+> While baseline evaluation was conducted on hybrid x86 hardware, SiliconRoute's **primary development focus is ARM-based Copilot+ systems**. Active hardware benchmarking and profiling is currently underway on the **Qualcomm Snapdragon X platform (including Snapdragon X Elite and upcoming Snapdragon X2 systems)**, evaluating heterogeneous execution across Qualcomm Oryon ARM CPU cores, DirectML GPU acceleration, and dedicated Qualcomm Hexagon NPU offload via ONNX Runtime's `QNNExecutionProvider`.
 
 ---
 
@@ -57,6 +61,9 @@ Evaluated across 8 sustained, 8 idle-loaded, and 8 cold-start tasks on real lapt
 - **Always-CPU suffered 113.06% <!-- metric: decisions_117_140_always_cpu_mean_regret_pct --> mean regret**, because it misses the RTX's large speedups on big sustained workloads.
 - The p90 regret of 0.00% <!-- metric: decisions_117_140_sr_p90_regret_pct --> reflects that 22 <!-- metric: decisions_117_140_sr_wins --> of 24 <!-- metric: decisions_117_140_total --> choices had zero regret; both misses were cold starts of the largest model, where all chips were close.
 
+<details>
+<summary><b>Detailed Workload Breakdown (Sustained, Idle-Loaded, Cold-Start)</b></summary>
+
 ### Workload Accuracy Breakdown (Decisions 117–140)
 - **Sustained (Warm Runs)**: SiliconRoute 8 <!-- metric: workload_sustained_sr_wins --> / 8 <!-- metric: workload_sustained_total --> (100.0% <!-- metric: workload_sustained_sr_accuracy_pct -->, 0.00% <!-- metric: workload_sustained_sr_mean_regret_pct --> regret), Always-CPU 4 <!-- metric: workload_sustained_always_cpu_wins --> / 8 <!-- metric: workload_sustained_total --> (50.0% <!-- metric: workload_sustained_always_cpu_accuracy_pct -->, 195.52% <!-- metric: workload_sustained_always_cpu_mean_regret_pct --> regret), Always-RTX 4 <!-- metric: workload_sustained_always_rtx_wins --> / 8 <!-- metric: workload_sustained_total --> (50.0% <!-- metric: workload_sustained_always_rtx_accuracy_pct -->, 177.37% <!-- metric: workload_sustained_always_rtx_mean_regret_pct --> regret), Fit-Only 8 <!-- metric: workload_sustained_fit_only_wins --> / 8 <!-- metric: workload_sustained_total --> (100.0% <!-- metric: workload_sustained_fit_only_accuracy_pct -->, 0.00% <!-- metric: workload_sustained_fit_only_mean_regret_pct --> regret).
 - **Idle-Loaded (Warm Session, 10s Idle Gap)**: SiliconRoute 8 <!-- metric: workload_idle_loaded_sr_wins --> / 8 <!-- metric: workload_idle_loaded_total --> (100.0% <!-- metric: workload_idle_loaded_sr_accuracy_pct -->, 0.00% <!-- metric: workload_idle_loaded_sr_mean_regret_pct --> regret), Always-CPU 3 <!-- metric: workload_idle_loaded_always_cpu_wins --> / 8 <!-- metric: workload_idle_loaded_total --> (37.5% <!-- metric: workload_idle_loaded_always_cpu_accuracy_pct -->, 143.65% <!-- metric: workload_idle_loaded_always_cpu_mean_regret_pct --> regret), Always-RTX 5 <!-- metric: workload_idle_loaded_always_rtx_wins --> / 8 <!-- metric: workload_idle_loaded_total --> (62.5% <!-- metric: workload_idle_loaded_always_rtx_accuracy_pct -->, 215.22% <!-- metric: workload_idle_loaded_always_rtx_mean_regret_pct --> regret), Fit-Only 7 <!-- metric: workload_idle_loaded_fit_only_wins --> / 8 <!-- metric: workload_idle_loaded_total --> (87.5% <!-- metric: workload_idle_loaded_fit_only_accuracy_pct -->, 1.86% <!-- metric: workload_idle_loaded_fit_only_mean_regret_pct --> regret).
@@ -69,6 +76,8 @@ Evaluated across 8 sustained, 8 idle-loaded, and 8 cold-start tasks on real lapt
 - **Always-RTX**: 0 <!-- metric: cold_start_141_148_always_rtx_wins --> / 8 <!-- metric: cold_start_141_148_total --> wins (0.0% <!-- metric: cold_start_141_148_always_rtx_accuracy_pct --> accuracy), 575.15% <!-- metric: cold_start_141_148_always_rtx_mean_regret_pct --> mean regret.
 - **Fit-Only Router**: 4 <!-- metric: cold_start_141_148_fit_only_wins --> / 8 <!-- metric: cold_start_141_148_total --> wins (50.0% <!-- metric: cold_start_141_148_fit_only_accuracy_pct --> accuracy), 109.26% <!-- metric: cold_start_141_148_fit_only_mean_regret_pct --> mean regret.
 - With the rule active, SiliconRoute chose the CPU in all 8 <!-- metric: cold_start_141_148_total --> decisions, so it matched the always-CPU baseline exactly. Both misses were cold starts of the largest model, where the Radeon 610M was narrowly fastest.
+
+</details>
 
 ---
 
