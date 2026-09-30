@@ -896,9 +896,6 @@ def get_mlp_3072_cold_decision_id(conn: sqlite3.Connection) -> int:
 
 
 # General System Specifications & Confidence Bounds
-def get_rtx_compute_tflops(conn: sqlite3.Connection) -> float:
-    return 11.0
-
 def get_bootstrap_ci_pct(conn: sqlite3.Connection) -> float:
     return float(BOOTSTRAP_CI_PCT)
 

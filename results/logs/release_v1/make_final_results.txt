@@ -1,4 +1,4 @@
-﻿Wrote results\final\manifest.json
+Wrote results\final\manifest.json
 Wrote results\final\decisions_117_140.csv
 Wrote results\final\cold_start_141_148.csv
 Wrote results\final\device_specs.csv
@@ -10,3 +10,4 @@ Wrote results\final\decisions_accuracy_comparison.png
 Wrote results\final\decisions_regret_comparison.png
 Wrote results\final\scaling_mlp_b1.png
 Wrote results\final\results.md
+

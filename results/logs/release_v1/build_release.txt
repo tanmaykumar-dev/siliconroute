@@ -1,10 +1,11 @@
-Total git-tracked files: 214
-Copied 213 files to E:\THE SNAP X HP\release\siliconroute-v1.0
+Cleaning existing E:\THE SNAP X HP\release\siliconroute-v1.0...
+Total git-tracked files: 226
+Copied 224 files to E:\THE SNAP X HP\release\siliconroute-v1.0
 Release frozen db SHA256: 98542cffb7264eee537d218e1863ccbbc174495e0bf13eb244ee22cd6f034cf5
-Logged 10 redactions to E:\THE SNAP X HP\results\logs\release_v1\redactions.txt
+Logged 19 redactions to E:\THE SNAP X HP\results\logs\release_v1\redactions.txt
 Release Folder: release/siliconroute-v1.0
-Total File Count: 215
-Total Size Bytes: 4223415 (4.03 MB)
+Total File Count: 226
+Total Size Bytes: 6506684 (6.21 MB)
 Max File Size Limit (50 MB): PASSED
 
 Running pytest inside E:\THE SNAP X HP\release\siliconroute-v1.0 using E:\THE SNAP X HP\venv\Scripts\python.exe...
@@ -15,7 +16,7 @@ Running pytest inside E:\THE SNAP X HP\release\siliconroute-v1.0 using E:\THE SN
     from starlette.testclient import TestClient as TestClient  # noqa
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-65 passed, 1 warning in 17.46s
+65 passed, 1 warning in 17.53s
 
 Pytest return code: 0
 Release folder built and verified successfully!

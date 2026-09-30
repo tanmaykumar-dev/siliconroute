@@ -386,7 +386,6 @@ def main():
     reg_metric("mlp_3072_cold_rtx_wm_id", sm.get_mlp_3072_cold_rtx_wm_id(conn), "WorkloadMeasurement ID for RTX mlp-3072w-4l B=1 cold start", "id", "RTX cold-start WorkloadMeasurement ID")
     reg_metric("mlp_3072_cold_decision_id", sm.get_mlp_3072_cold_decision_id(conn), "Decision ID for latest mlp-3072w-4l B=1 cold start comparison (Decision 144)", "id", "Decision ID for cold-start comparison")
 
-    reg_metric("rtx_compute_tflops", sm.get_rtx_compute_tflops(conn), "Peak compute throughput on NVIDIA RTX 5070 Laptop GPU", "TFLOP/s", "RTX 5070 peak compute throughput")
     reg_metric("bootstrap_ci_pct", sm.get_bootstrap_ci_pct(conn), "Statistical confidence interval confidence level", "%", "configuration setting (not a measurement)")
     reg_metric("cold_start_rule_threshold_pct", sm.get_cold_start_rule_threshold_pct(conn), "Cold-start CPU preference threshold percentage", "%", "configuration setting (not a measurement)")
 

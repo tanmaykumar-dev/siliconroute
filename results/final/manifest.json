@@ -1,13 +1,13 @@
 {
   "metadata": {
-    "date": "2026-09-30T09:34:38.816547+00:00",
+    "date": "2026-09-30T13:25:28.533877+00:00",
     "database_path": "data\\final\\siliconroute_final.db",
     "database_size_bytes": 1044480,
     "database_sha256": "98542cffb7264eee537d218e1863ccbbc174495e0bf13eb244ee22cd6f034cf5",
-    "git_commit": "0d041090201b2d4fa6342d1130d5b9f273d5a542",
+    "git_commit": "f952f6fdb0800289d1a2beac6638c4c06c511b95",
     "ort_version": "1.24.4",
     "nvidia_driver_version": "616.56",
-    "windows_power_scheme": "Power Scheme GUID: 64a64f24-65b9-4b56-befd-5ec1eaced9b3  (Silent)"
+    "windows_power_scheme": "Power Scheme GUID: 6fecc5ae-f350-48a5-b669-b472cb895ccf  (Turbo)"
   },
   "metrics": {
     "total_runs": {
@@ -926,13 +926,6 @@
       "sql": "Decision ID for latest mlp-3072w-4l B=1 cold start comparison (Decision 144)",
       "unit": "id",
       "description": "Decision ID for cold-start comparison"
-    },
-    "rtx_compute_tflops": {
-      "value": 11.0,
-      "method": "scripts.metrics.get_rtx_compute_tflops",
-      "sql": "Peak compute throughput on NVIDIA RTX 5070 Laptop GPU",
-      "unit": "TFLOP/s",
-      "description": "RTX 5070 peak compute throughput"
     },
     "bootstrap_ci_pct": {
       "value": 95.0,
