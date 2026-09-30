@@ -1,0 +1,126 @@
+/**
+ * SiliconRoute Design Spec v2 — Design Tokens
+ * Single source of truth for color, space, shape, typography, and depth.
+ * Reused identically in site/css/tokens.css.
+ */
+
+/* --------------------------------------------------------------------------
+   Fonts
+   -------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Archivo';
+  src: url('../fonts/archivo-variable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../fonts/jetbrains-mono.woff2') format('woff2-variations');
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --------------------------------------------------------------------------
+   Default / Dark Theme (App Default)
+   -------------------------------------------------------------------------- */
+:root,
+html[data-theme="dark"] {
+  /* Neutrals: The Bench */
+  --bench: #0E1317;
+  --plate: #141A1F;
+  --plate-raised: #1A2229;
+  --line: #27323B;
+  --line-strong: #3A4752;
+  --ink: #E6ECEF;
+  --ink-2: #A3AFB8;
+  --ink-3: #77848E;
+
+  /* Chip Identities (Fixed Across Product) */
+  --chip-cpu: #E59A3A;
+  --chip-igpu: #3CC4AC;
+  --chip-dgpu: #6E9CFF;
+  --chip-npu: #A988F0;
+
+  /* Semantic States */
+  --ok: #4CC787;
+  --warn: #E3B341;
+  --bad: #F07167;
+  --na: #6B7780;
+
+  /* Shadows */
+  --shadow-raised: 0 12px 32px rgba(0, 0, 0, 0.45);
+  --shadow-popover: 0 16px 40px rgba(0, 0, 0, 0.60);
+
+  /* Focus Ring */
+  --focus-ring: 2px solid var(--chip-dgpu);
+  --focus-offset: 2px;
+
+  /* Common Scale & System Values */
+  --font-ui: 'Archivo', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+
+  /* Radii (Hierarchical) */
+  --radius-control: 6px;
+  --radius-tile: 10px;
+  --radius-panel: 14px;
+  --radius-pill: 999px;
+
+  /* Motion */
+  --motion-fast: 120ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  --motion-base: 200ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  --motion-trace: 600ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* --------------------------------------------------------------------------
+   Light Theme (Website Default)
+   -------------------------------------------------------------------------- */
+html[data-theme="light"] {
+  /* Neutrals: The Bench */
+  --bench: #E9EDF0;
+  --plate: #F7F9FA;
+  --plate-raised: #FFFFFF;
+  --line: #D3DAE0;
+  --line-strong: #B7C1CA;
+  --ink: #172026;
+  --ink-2: #4E5A64;
+  --ink-3: #76828C;
+
+  /* Chip Identities */
+  --chip-cpu: #B86E12;
+  --chip-igpu: #138472;
+  --chip-dgpu: #2A5FD0;
+  --chip-npu: #7A4BD6;
+
+  /* Semantic States */
+  --ok: #1E8A4C;
+  --warn: #A86E00;
+  --bad: #C23B32;
+  --na: #8A949C;
+
+  /* Shadows */
+  --shadow-raised: 0 12px 32px rgba(23, 32, 38, 0.14);
+  --shadow-popover: 0 16px 40px rgba(23, 32, 38, 0.20);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-base: 0ms;
+    --motion-trace: 0ms;
+  }
+}

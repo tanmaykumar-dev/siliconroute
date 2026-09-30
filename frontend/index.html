@@ -1,673 +1,932 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SiliconRoute — Local-First AI Load Balancer</title>
-  <link rel="stylesheet" href="style.css">
-  <!-- Chart.js 4 (Pinned version, local fallback with cdnjs) -->
-  <script src="chart.umd.min.js"></script>
+  <title>SiliconRoute — Hardware AI Load Balancer</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='%236e9cff'/></svg>">
+  
+  <!-- Design Tokens, Resets, Components, and Screens -->
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/screens.css">
+
+  <!-- Vendored Pinned Chart.js (No CDNs) -->
+  <script src="vendor/chart.umd.min.js"></script>
+
+  <!-- ES Module Application Entrypoint -->
+  <script type="module" src="js/app.js"></script>
 </head>
 <body>
 
-  <!-- Top Bar -->
-  <header>
-    <div class="brand">
-      <div class="brand-title">SiliconRoute</div>
-      <div class="brand-badge">Hardware AI Load Balancer</div>
-    </div>
-    <div class="top-status-chips">
-      <div class="status-chip" id="chip-system">Hardware: Detecting...</div>
-      <div class="status-chip" id="chip-power">Power: AC / Battery</div>
-      <div class="status-chip">
-        <span class="status-dot online" id="sse-status-dot"></span>
-        <span id="sse-status-text">Live Telemetry: Connecting...</span>
+  <div class="app-root">
+
+    <!-- =====================================================================
+         1. TOP BAR (56px)
+         ===================================================================== -->
+    <header class="top-bar" role="banner">
+      <div class="brand-section">
+        <svg class="brand-logo-glyph" viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path d="M7 12h10M12 7v10" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+        </svg>
+        <span class="brand-title">SiliconRoute</span>
       </div>
-    </div>
-  </header>
 
-  <!-- App Layout -->
-  <div class="app-container">
-    <!-- Sidebar Navigation -->
-    <nav class="sidebar">
-      <button class="nav-tab active" data-tab="live">
-        <span>⚡</span> Live Telemetry
-      </button>
-      <button class="nav-tab" data-tab="analysis">
-        <span>📊</span> Analysis & Fits
-      </button>
-      <button class="nav-tab" data-tab="router">
-        <span>🧭</span> Router & Evaluation
-      </button>
+      <div class="system-status-strip" aria-label="System status">
+        <div class="status-chip" id="chip-live-status">
+          <span class="pill pill-ok">live</span>
+        </div>
+        <div class="status-chip" id="chip-power-status">
+          <span id="top-status-power-text">plugged in</span>
+        </div>
+        <div class="status-chip" id="chip-battery-status">
+          <span>battery 100%</span>
+        </div>
+      </div>
 
-      <div style="margin-top:auto; padding-top:1rem; border-top:1px solid var(--border); font-size:0.75rem; color:var(--muted); line-height:1.4;">
-        <div><strong>SiliconRoute v1.0</strong></div>
-        <div style="margin-top:0.25rem;">DirectML + DXGI</div>
-        <div>SQLite WAL | Local-First</div>
+      <div class="topbar-actions">
+        <button id="btn-theme-toggle" class="btn btn-quiet" aria-label="Toggle light or dark theme" title="Toggle theme">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+
+        <button id="btn-shortcuts-help" class="btn btn-quiet" aria-label="Keyboard shortcuts" title="Keyboard shortcuts (?)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- =====================================================================
+         2. LEFT RAIL NAVIGATION (224px -> 64px)
+         ===================================================================== -->
+    <nav class="nav-rail" aria-label="Main Navigation">
+      <ul class="rail-menu">
+        <li>
+          <button class="rail-item-btn active" data-screen="overview" aria-current="page">
+            <svg class="rail-icon" viewBox="0 0 24 24">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            <span class="rail-label">Overview</span>
+          </button>
+        </li>
+        <li>
+          <button class="rail-item-btn" data-screen="live" aria-current="false">
+            <svg class="rail-icon" viewBox="0 0 24 24">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+            <span class="rail-label">Live</span>
+          </button>
+        </li>
+        <li>
+          <button class="rail-item-btn" data-screen="analysis" aria-current="false">
+            <svg class="rail-icon" viewBox="0 0 24 24">
+              <line x1="18" y1="20" x2="18" y2="10"></line>
+              <line x1="12" y1="20" x2="12" y2="4"></line>
+              <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+            <span class="rail-label">Analysis</span>
+          </button>
+        </li>
+        <li>
+          <button class="rail-item-btn" data-screen="router" aria-current="false">
+            <svg class="rail-icon" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+            </svg>
+            <span class="rail-label">Router</span>
+          </button>
+        </li>
+        <li>
+          <button class="rail-item-btn" data-screen="results" aria-current="false">
+            <svg class="rail-icon" viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            <span class="rail-label">Results</span>
+          </button>
+        </li>
+        <li>
+          <button class="rail-item-btn" data-screen="evidence" aria-current="false">
+            <svg class="rail-icon" viewBox="0 0 24 24">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <span class="rail-label">Evidence</span>
+          </button>
+        </li>
+        <li>
+          <button class="rail-item-btn" data-screen="about" aria-current="false">
+            <svg class="rail-icon" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <span class="rail-label">About</span>
+          </button>
+        </li>
+      </ul>
+
+      <div class="rail-footer">
+        <span class="version-tag">v1.0</span>
       </div>
     </nav>
 
-    <!-- Content Area -->
-    <main class="content-area">
+    <!-- =====================================================================
+         3. SOCKET STRIP (88px)
+         ===================================================================== -->
+    <section class="socket-strip-container" id="socket-strip-container" aria-label="Physical compute sockets">
+      <!-- CPU Socket -->
+      <div class="socket-tile cpu-socket" id="socket-cpu" data-device-key="cpu">
+        <div class="socket-header">
+          <span class="chip-glyph glyph-square chip-cpu"></span>
+          <span class="socket-name">AMD Ryzen 9 8940HX</span>
+          <span class="pill pill-ok socket-status-pill">active</span>
+        </div>
+        <div class="socket-metrics-row" id="socket-cpu-metrics">
+          <span>load <strong>—</strong></span>
+          <span class="pill pill-na" title="Windows does not expose per-chip power for this CPU">pwr n/a</span>
+        </div>
+        <div class="socket-sparkline-col">
+          <canvas class="socket-sparkline-canvas" id="sparkline-cpu"></canvas>
+          <span class="socket-predicted-latency"></span>
+        </div>
+      </div>
 
-      <!-- ===================================================================
-           TAB 1: LIVE TELEMETRY
-           =================================================================== -->
-      <section class="tab-pane active" id="tab-live">
-        <!-- Live KPI Cards -->
-        <div class="grid-4">
-          <div class="kpi-card">
-            <span class="kpi-label">CPU Usage</span>
-            <div class="kpi-value-row">
-              <span class="kpi-value" id="kpi-cpu-pct">—</span>
-            </div>
-            <div class="kpi-subtext" style="display:flex; justify-content:space-between; align-items:center;">
-              <span>Clock:</span>
-              <span id="kpi-cpu-freq"></span>
+      <!-- Radeon 610M iGPU Socket -->
+      <div class="socket-tile igpu-socket" id="socket-dml0" data-device-key="dml:0">
+        <div class="socket-header">
+          <span class="chip-glyph glyph-triangle chip-igpu"></span>
+          <span class="socket-name">AMD Radeon 610M</span>
+          <span class="pill pill-info socket-status-pill">ready</span>
+        </div>
+        <div class="socket-metrics-row" id="socket-dml0-metrics">
+          <span class="pill pill-na" title="DirectML compute adapter sensors not exposed">sensors n/a</span>
+        </div>
+        <div class="socket-sparkline-col">
+          <canvas class="socket-sparkline-canvas" id="sparkline-dml0"></canvas>
+          <span class="socket-predicted-latency"></span>
+        </div>
+      </div>
+
+      <!-- RTX 5070 dGPU Socket -->
+      <div class="socket-tile dgpu-socket" id="socket-dml1" data-device-key="dml:1">
+        <div class="socket-header">
+          <span class="chip-glyph glyph-circle chip-dgpu"></span>
+          <span class="socket-name">NVIDIA RTX 5070 Laptop</span>
+          <span class="pill pill-ok socket-status-pill">active</span>
+        </div>
+        <div class="socket-metrics-row" id="socket-dml1-metrics">
+          <span>pwr <strong>—</strong></span>
+          <span>temp <strong>—</strong></span>
+        </div>
+        <div class="socket-sparkline-col">
+          <canvas class="socket-sparkline-canvas" id="sparkline-dml1"></canvas>
+          <span class="socket-predicted-latency"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         4. MAIN CONTENT AREA (Screens)
+         ===================================================================== -->
+    <main class="main-content" id="main-content" role="main">
+      <div class="mobile-notice-banner" role="alert">
+        SiliconRoute is designed for laptop screens. Widen the window for the full view.
+      </div>
+
+      <!-- SCREEN 1: OVERVIEW -->
+      <section class="screen-container active" id="screen-overview">
+        <header class="screen-header">
+          <h1 class="screen-title">Overview</h1>
+          <p class="screen-description">SiliconRoute measures every chip in this laptop and routes each AI task to the best one.</p>
+        </header>
+
+        <!-- Ask SiliconRoute Quick Query -->
+        <div class="ask-route-bar">
+          <div class="ask-form-group">
+            <label class="ask-form-label" for="ask-model-select">Model</label>
+            <select class="select" id="ask-model-select" style="min-width:180px;"></select>
+          </div>
+          <div class="ask-form-group">
+            <label class="ask-form-label" for="ask-batch-select">Batch</label>
+            <select class="select" id="ask-batch-select" style="min-width:80px;">
+              <option value="1">1</option>
+              <option value="4">4</option>
+              <option value="16">16</option>
+              <option value="32">32</option>
+            </select>
+          </div>
+          <div class="ask-form-group">
+            <label class="ask-form-label" for="ask-workload-select">Workload</label>
+            <select class="select" id="ask-workload-select" style="min-width:130px;">
+              <option value="sustained">Sustained</option>
+              <option value="single">Single cold start</option>
+            </select>
+          </div>
+          <div class="ask-form-group">
+            <label class="ask-form-label" for="ask-mode-select">Goal</label>
+            <select class="select" id="ask-mode-select" style="min-width:110px;">
+              <option value="fastest">Fastest</option>
+              <option value="battery">Battery</option>
+              <option value="balanced">Balanced</option>
+              <option value="cool">Cool</option>
+            </select>
+          </div>
+          <div class="ask-form-group" style="align-self: flex-end;">
+            <button class="btn btn-primary" id="btn-ask-route">Route task</button>
+          </div>
+        </div>
+
+        <div id="ask-result-display" style="display:none; margin-bottom:var(--space-6); padding:var(--space-3) var(--space-4); background-color:var(--plate-raised); border:1px solid var(--line); border-radius:var(--radius-control);"></div>
+
+        <!-- 4 Published Evaluation Tiles -->
+        <h2 style="font-size:14px; font-weight:600; color:var(--ink); margin-bottom:var(--space-3);">
+          Final evaluation (decisions 117–140, previously profiled configurations)
+        </h2>
+        <div class="grid-12" style="margin-bottom:var(--space-6);">
+          <div class="col-3">
+            <div class="metric-tile">
+              <span class="metric-tile-label">Best chip</span>
+              <div class="metric-tile-val">
+                <span class="metric" data-metric="decisions_117_140_sr_wins" data-evidence="true"></span> of <span class="metric" data-metric="decisions_117_140_total"></span>
+              </div>
+              <span class="metric-tile-comp">accuracy <span class="metric" data-metric="decisions_117_140_sr_accuracy_pct"></span></span>
             </div>
           </div>
-
-          <div class="kpi-card">
-            <span class="kpi-label">RAM Usage</span>
-            <div class="kpi-value-row">
-              <span class="kpi-value" id="kpi-ram-pct">—</span>
-            </div>
-            <div class="kpi-subtext">Unified Host Memory</div>
-          </div>
-
-          <div class="kpi-card">
-            <span class="kpi-label">RTX 5070 Power & Temp</span>
-            <div class="kpi-value-row">
-              <span class="kpi-value" id="kpi-gpu-power">—</span>
-            </div>
-            <div class="kpi-subtext" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.25rem;">
-              <span>Temp: <strong id="kpi-gpu-temp">—</strong></span>
-              <span>SM Clock: <strong id="kpi-gpu-clock" class="td-mono">—</strong></span>
-              <span>State: <strong id="kpi-gpu-pstate">—</strong></span>
+          <div class="col-3">
+            <div class="metric-tile">
+              <span class="metric-tile-label">Avg slowdown</span>
+              <div class="metric-tile-val">
+                <span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct" data-evidence="true"></span>
+              </div>
+              <span class="metric-tile-comp">p90 regret <span class="metric" data-metric="decisions_117_140_sr_p90_regret_pct"></span></span>
             </div>
           </div>
-
-          <div class="kpi-card">
-            <span class="kpi-label">AMD Radeon iGPU Power</span>
-            <div class="kpi-value-row">
-              <span id="kpi-igpu-power"></span>
+          <div class="col-3">
+            <div class="metric-tile">
+              <span class="metric-tile-label">Always CPU</span>
+              <div class="metric-tile-val">
+                <span class="metric" data-metric="decisions_117_140_always_cpu_mean_regret_pct" data-evidence="true"></span>
+              </div>
+              <span class="metric-tile-comp">accuracy <span class="metric" data-metric="decisions_117_140_always_cpu_accuracy_pct"></span></span>
             </div>
-            <div class="kpi-subtext" style="display:flex; justify-content:space-between; align-items:center;">
-              <span>DirectML Compute Adapter</span>
-              <span class="pill-na" style="font-size:0.75rem;">Sensor N/A</span>
+          </div>
+          <div class="col-3">
+            <div class="metric-tile">
+              <span class="metric-tile-label">Always RTX</span>
+              <div class="metric-tile-val">
+                <span class="metric" data-metric="decisions_117_140_always_rtx_mean_regret_pct" data-evidence="true"></span>
+              </div>
+              <span class="metric-tile-comp">accuracy <span class="metric" data-metric="decisions_117_140_always_rtx_accuracy_pct"></span></span>
             </div>
           </div>
         </div>
 
-        <!-- Real-Time Live Charts -->
-        <div class="grid-2">
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">CPU & System RAM Utilization</div>
-              <div class="card-subtitle">Real-Time (1 Hz)</div>
-            </div>
-            <div class="chart-wrapper">
-              <canvas id="chart-cpu-ram"></canvas>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">NVIDIA RTX Power & Temperature</div>
-              <div class="card-subtitle">NVML Hardware Sensors</div>
-            </div>
-            <div class="chart-wrapper">
-              <canvas id="chart-gpu-power-temp"></canvas>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">NVIDIA RTX SM Clock & P-State</div>
-              <div class="card-subtitle">P0 (Performance) to P8 (Sleep)</div>
-            </div>
-            <div class="chart-wrapper">
-              <canvas id="chart-gpu-clock"></canvas>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">Battery Discharge Rate</div>
-              <div class="card-subtitle">WMI BatteryStatus Sensor</div>
-            </div>
-            <div class="chart-wrapper">
-              <canvas id="chart-battery"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <!-- Device Identity Panel -->
-        <div class="card">
-          <div class="card-header">
+        <!-- Key Findings -->
+        <h2 style="font-size:14px; font-weight:600; color:var(--ink); margin-bottom:var(--space-3);">Key findings</h2>
+        <div class="findings-list" style="margin-bottom:var(--space-6);">
+          <div class="finding-row">
             <div>
-              <div class="card-title">Hardware Identity & DXGI Physical Adapter Mapping</div>
-              <div class="card-subtitle">Physical adapters verified via in-process DXGI enumeration and NVML clock/power fingerprinting</div>
+              <strong>Small MLP:</strong> CPU is <span class="metric" data-metric="speedup_cpu_over_rtx_mlp_256_b1" data-evidence="true"></span> faster than RTX at batch 1 (<span class="metric" data-metric="mlp_256_b1_cpu_latency_ms"></span> vs <span class="metric" data-metric="mlp_256_b1_rtx_latency_ms"></span>) due to kernel launch and driver overhead.
             </div>
+            <a href="#/analysis" class="btn btn-quiet btn-sm">Inspect scaling</a>
           </div>
-          <div class="grid-3" id="devices-panel-cards">
-            <!-- Populated dynamically by app.js -->
+          <div class="finding-row">
+            <div>
+              <strong>Large MLP:</strong> RTX is <span class="metric" data-metric="speedup_rtx_over_cpu_mlp_3072_b1_sustained" data-evidence="true"></span> faster than CPU under sustained execution (<span class="metric" data-metric="mlp_3072_b1_sustained_rtx_ms"></span> vs <span class="metric" data-metric="mlp_3072_b1_sustained_cpu_ms"></span>).
+            </div>
+            <a href="#/analysis" class="btn btn-quiet btn-sm">Inspect scaling</a>
           </div>
+          <div class="finding-row">
+            <div>
+              <strong>Cold start:</strong> RTX first inference incurs <span class="metric" data-metric="overhead_rtx_cold_start_vs_sustained_mlp_3072" data-evidence="true"></span> overhead vs sustained due to session creation and shader compilation.
+            </div>
+            <a href="#/results" class="btn btn-quiet btn-sm">Inspect decisions</a>
+          </div>
+          <div class="finding-row">
+            <div>
+              <strong>DirectML anomaly:</strong> conv-96 exhibits a <span class="metric" data-metric="directml_anomaly_conv96_slowdown" data-evidence="true"></span> slowdown on RTX compared to conv-64 (suspected un-tuned DirectML Winograd convolution algorithm).
+            </div>
+            <a href="#/analysis" class="btn btn-quiet btn-sm">Inspect notes</a>
+          </div>
+        </div>
+
+        <!-- Recent Decisions -->
+        <h2 style="font-size:14px; font-weight:600; color:var(--ink); margin-bottom:var(--space-3);">Recent decisions</h2>
+        <div style="background-color:var(--plate); border:1px solid var(--line); border-radius:var(--radius-panel); overflow:hidden;">
+          <table class="bench-table" style="width:100%;">
+            <thead>
+              <tr>
+                <th style="width:70px;">ID</th>
+                <th style="width:90px;">Time</th>
+                <th>Model</th>
+                <th class="text-center" style="width:80px;">Batch</th>
+                <th class="text-center" style="width:110px;">Workload</th>
+                <th>Target</th>
+                <th class="text-center" style="width:90px;">Result</th>
+                <th class="text-right" style="width:90px;">Regret</th>
+              </tr>
+            </thead>
+            <tbody id="overview-recent-decisions-body">
+              <tr><td colspan="8" style="text-align:center; padding:var(--space-6); color:var(--ink-3);">Loading decisions...</td></tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
-      <!-- ===================================================================
-           TAB 2: ANALYSIS & FITS
-           =================================================================== -->
-      <section class="tab-pane" id="tab-analysis">
-        <!-- Log-Log Scaling Chart -->
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Hardware Scaling: Latency vs Model Size (Log-Log)</div>
-              <div class="card-subtitle">Empirical benchmark scatter points with fitted physical curves per chip (click any point to inspect raw samples)</div>
+      <!-- SCREEN 2: LIVE TELEMETRY -->
+      <section class="screen-container" id="screen-live" hidden>
+        <header class="screen-header">
+          <h1 class="screen-title">Live telemetry</h1>
+          <p class="screen-description">Watch real-time sensor metrics across all laptop compute sockets.</p>
+        </header>
+
+        <!-- CPU & RAM Chart -->
+        <div class="chart-panel">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <span class="chart-title">CPU & RAM utilization</span>
+              <span class="chart-subtitle">120-second rolling window</span>
             </div>
-            <div class="form-row" style="align-items:center;">
-              <div style="display:flex; align-items:center; gap:0.5rem;">
-                <label for="analysis-family-select" style="margin:0;">Family:</label>
-                <select id="analysis-family-select" style="padding:0.35rem 0.65rem;">
-                  <option value="mlp" selected>MLP (Fully Connected)</option>
-                  <option value="conv">Convolution (Conv2D)</option>
-                </select>
-              </div>
-              <div style="display:flex; align-items:center; gap:0.5rem;">
-                <label for="analysis-batch-select" style="margin:0;">Batch:</label>
-                <select id="analysis-batch-select" style="padding:0.35rem 0.65rem;">
-                  <option value="1" selected>Batch 1</option>
-                  <option value="8">Batch 8</option>
-                  <option value="32">Batch 32</option>
-                </select>
-              </div>
-            </div>
+            <button class="chart-table-toggle-btn" id="toggle-table-live-cpu-ram">Show data table</button>
           </div>
-          <div class="chart-wrapper-tall">
-            <canvas id="chart-log-log"></canvas>
+          <div class="chart-canvas-wrap">
+            <canvas id="chart-live-cpu-ram"></canvas>
           </div>
+          <div id="table-live-cpu-ram" style="display:none; margin-top:var(--space-3);"></div>
         </div>
 
-        <!-- Physical Fits Parameters Table -->
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Active Physical Hardware Fits per Chip</div>
-              <div class="card-subtitle">Non-Negative Least Squares (NNLS) fits: Time = t₀ + a·FLOPs + b·Bytes</div>
+        <!-- RTX Power & Temp Chart -->
+        <div class="chart-panel">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <span class="chart-title">RTX 5070 power and temperature</span>
+              <span class="chart-subtitle">Direct NVML query</span>
             </div>
+            <button class="chart-table-toggle-btn" id="toggle-table-live-gpu-pwr-temp">Show data table</button>
           </div>
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Device</th>
-                  <th>Model Form</th>
-                  <th class="text-right">Overhead (t₀)</th>
-                  <th class="text-right">Compute Capacity</th>
-                  <th class="text-right">DRAM Bandwidth</th>
-                  <th class="text-right">VRAM / Cache Bandwidth</th>
-                  <th class="text-right">LOO MAPE</th>
-                </tr>
-              </thead>
-              <tbody id="table-fits-body">
-                <!-- Dynamically rendered -->
-              </tbody>
-            </table>
+          <div class="chart-canvas-wrap">
+            <canvas id="chart-live-gpu-pwr-temp"></canvas>
           </div>
+          <div id="table-live-gpu-pwr-temp" style="display:none; margin-top:var(--space-3);"></div>
         </div>
 
-        <!-- Crossovers & Multi-Session Variability Grid -->
-        <div class="grid-2">
-          <!-- Crossover Table -->
-          <div class="card">
-            <div class="card-header">
-              <div>
-                <div class="card-title">Pairwise Crossover Points</div>
-                <div class="card-subtitle">Model sizes where accelerator overtakes CPU or iGPU</div>
-              </div>
+        <!-- RTX SM Clock Chart -->
+        <div class="chart-panel">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <span class="chart-title">RTX 5070 streaming multiprocessor clock</span>
+              <span class="chart-subtitle">Dynamic frequency scaling</span>
             </div>
-            <div class="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Device Pair</th>
-                    <th>Family</th>
-                    <th class="text-center">Batch</th>
-                    <th class="text-right">Crossover Size</th>
-                    <th class="text-right">Width</th>
-                    <th>Result</th>
-                  </tr>
-                </thead>
-                <tbody id="table-crossover-body">
-                  <!-- Dynamically rendered -->
-                </tbody>
-              </table>
+            <button class="chart-table-toggle-btn" id="toggle-table-live-gpu-clock">Show data table</button>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="chart-live-gpu-clock"></canvas>
+          </div>
+          <div id="table-live-gpu-clock" style="display:none; margin-top:var(--space-3);"></div>
+        </div>
+
+        <!-- Battery Discharge Rate Chart -->
+        <div class="chart-panel">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <span class="chart-title">Battery discharge rate</span>
+              <span class="chart-subtitle">Whole-system WMI discharge sensor (mW / W)</span>
+            </div>
+            <button class="chart-table-toggle-btn" id="toggle-table-live-battery">Show data table</button>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="chart-live-battery"></canvas>
+          </div>
+          <div id="table-live-battery" style="display:none; margin-top:var(--space-3);"></div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: ANALYSIS -->
+      <section class="screen-container" id="screen-analysis" hidden>
+        <header class="screen-header">
+          <h1 class="screen-title">Analysis & fits</h1>
+          <p class="screen-description">Empirical scaling models, hardware crossover thresholds, and measurement stability.</p>
+        </header>
+
+        <!-- Scaling Curves -->
+        <div class="chart-panel">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <span class="chart-title">Hardware scaling curves (log-log)</span>
+              <span class="chart-subtitle">Measured points with fitted theoretical lines</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:var(--space-3);">
+              <label style="font-size:12px; color:var(--ink-2);" for="analysis-family-select">Family</label>
+              <select class="select" id="analysis-family-select" style="min-width:100px;">
+                <option value="mlp">MLP</option>
+                <option value="conv">Convolution</option>
+                <option value="attn">Attention</option>
+              </select>
+              <label style="font-size:12px; color:var(--ink-2);" for="analysis-batch-select">Batch</label>
+              <select class="select" id="analysis-batch-select" style="min-width:70px;">
+                <option value="1">1</option>
+                <option value="4">4</option>
+                <option value="16">16</option>
+              </select>
             </div>
           </div>
+          <div class="chart-canvas-wrap" style="height:320px;">
+            <canvas id="chart-analysis-scaling"></canvas>
+          </div>
+          <div id="crossover-summary-container" style="margin-top:var(--space-3);"></div>
+        </div>
 
-          <!-- Multi-Session Volatility Bands -->
-          <div class="card">
-            <div class="card-header">
-              <div>
-                <div class="card-title">Historical Volatility Bands per Device</div>
-                <div class="card-subtitle">Median session-to-session percentage difference (principled router tie-breaker)</div>
-              </div>
-            </div>
-            <div class="table-container">
-              <table>
+        <!-- Hardware Fit Models Table -->
+        <div class="evaluation-section-card">
+          <h2 style="font-size:15px; font-weight:600; margin-bottom:var(--space-3);">Physical hardware fits</h2>
+          <table class="bench-table" style="width:100%;">
+            <thead>
+              <tr>
+                <th>Device</th>
+                <th>Family</th>
+                <th>Overhead</th>
+                <th>Compute (effective)</th>
+                <th>Bandwidth term</th>
+                <th>LOO MAPE</th>
+              </tr>
+            </thead>
+            <tbody id="analysis-fits-table-body">
+              <tr><td colspan="6" style="text-align:center; padding:var(--space-4); color:var(--ink-3);">Loading fits...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Session Variability & Wake Tables Grid -->
+        <div class="grid-12" style="margin-bottom:var(--space-6);">
+          <div class="col-6">
+            <div class="evaluation-section-card" style="margin-bottom:0;">
+              <h2 style="font-size:14px; font-weight:600; margin-bottom:var(--space-2);">Session variability</h2>
+              <table class="bench-table" style="width:100%;">
                 <thead>
                   <tr>
                     <th>Device</th>
-                    <th>Label</th>
-                    <th class="text-right">Volatility Band</th>
-                    <th class="text-right">Multi-Session Samples</th>
-                    <th>Description</th>
+                    <th>Model</th>
+                    <th class="text-right">Max spread</th>
+                    <th class="text-right">Status</th>
                   </tr>
                 </thead>
-                <tbody id="table-variability-summary-body">
-                  <!-- Dynamically rendered -->
+                <tbody id="analysis-variability-table-body">
+                  <tr><td colspan="4" style="text-align:center; padding:var(--space-4); color:var(--ink-3);">Loading variability...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="evaluation-section-card" style="margin-bottom:0;">
+              <h2 style="font-size:14px; font-weight:600; margin-bottom:var(--space-2);">Wake & cold-start overhead</h2>
+              <table class="bench-table" style="width:100%;">
+                <thead>
+                  <tr>
+                    <th>Device</th>
+                    <th class="text-right">Overhead ratio</th>
+                    <th class="text-right">Samples (n)</th>
+                  </tr>
+                </thead>
+                <tbody id="analysis-wake-cold-table-body">
+                  <tr><td colspan="3" style="text-align:center; padding:var(--space-4); color:var(--ink-3);">Loading wake metrics...</td></tr>
                 </tbody>
               </table>
             </div>
           </div>
         </div>
 
-        <!-- Wake Penalties & Cold Starts -->
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Wake-Up Penalties & Cold-Start Latencies</div>
-              <div class="card-subtitle">Session initialization, first cold inference vs warm sustained inference, and NVIDIA P8 sleep overhead</div>
+        <!-- Physics Notes & Hypotheses -->
+        <div class="evaluation-section-card">
+          <h2 style="font-size:15px; font-weight:600; margin-bottom:var(--space-3);">Physics & algorithmic notes</h2>
+          <div id="analysis-physics-notes-container">
+            <div class="callout callout-hypothesis">
+              <strong>DirectML Winograd convolution hypothesis:</strong> conv-96 exhibits a marked latency increase on RTX compared to conv-64, despite smooth scaling on CPU and Radeon 610M. This points to an algorithmic selection boundary in DirectML's GEMM/Winograd conv implementation on NVIDIA Ada/Blackwell architecture.
             </div>
-          </div>
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Device</th>
-                  <th>Label</th>
-                  <th class="text-right">Measured Runs</th>
-                  <th class="text-right">Median Cold First Run</th>
-                  <th class="text-right">Median Wake Penalty</th>
-                  <th class="text-right">P8 Sleep Penalty</th>
-                </tr>
-              </thead>
-              <tbody id="table-wake-cold-body">
-                <!-- Dynamically rendered -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Multi-Session Configs Breakdown Table -->
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Multi-Session Variability Breakdown</div>
-              <div class="card-subtitle">Configurations tested across multiple independent benchmark sessions</div>
-            </div>
-          </div>
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Device</th>
-                  <th>Model</th>
-                  <th class="text-center">Batch</th>
-                  <th class="text-center">Sessions</th>
-                  <th class="text-right">Min Median</th>
-                  <th class="text-right">Max Median</th>
-                  <th class="text-right">Max Difference %</th>
-                  <th>Session Timings</th>
-                </tr>
-              </thead>
-              <tbody id="table-variability-details-body">
-                <!-- Dynamically rendered -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Physics Notes & Algorithmic Complexity Section -->
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Physics Sanity & Algorithmic Notes</div>
-              <div class="card-subtitle">Accounting for Winograd minimal filtering convolution speedups and physical datasheet limits</div>
-            </div>
-          </div>
-          <div class="callout">
-            <div class="callout-title">Winograd Minimal Filtering Hypothesis</div>
-            Direct 3x3 2D convolution via GEMM requires 2·C_in·C_out·K_h·K_w·H·W floating point operations. Under Winograd minimal filtering algorithms (F(2x2, 3x3) or F(4x4, 3x3)), multiplication complexity is reduced by 2.25x to 4x. In DirectML, small convolution tiles are transformed to the Winograd domain, causing implied computational throughput to exceed theoretical FP32 GEMM limits on AMD Radeon 610M. These numbers represent EFFECTIVE computational throughput, not raw silicon frequency. Hardware peaks are datasheet theoretical limits, not measured.
-          </div>
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Run ID</th>
-                  <th>Session</th>
-                  <th>Device</th>
-                  <th>Model</th>
-                  <th class="text-center">Batch</th>
-                  <th class="text-right">Measured Latency</th>
-                  <th class="text-right">Effective Throughput</th>
-                  <th class="text-right">Datasheet Peak</th>
-                  <th>Physics Note / Diagnosis</th>
-                </tr>
-              </thead>
-              <tbody id="table-physics-notes-body">
-                <!-- Dynamically rendered -->
-              </tbody>
-            </table>
           </div>
         </div>
       </section>
 
-      <!-- ===================================================================
-           TAB 3: ROUTER & EVALUATION
-           =================================================================== -->
-      <section class="tab-pane" id="tab-router">
-        <!-- Interactive Router Query Card -->
-        <div class="card">
-          <div class="card-header">
+      <!-- SCREEN 4: ROUTER -->
+      <section class="screen-container" id="screen-router" hidden>
+        <header class="screen-header">
+          <h1 class="screen-title">Router</h1>
+          <p class="screen-description">Evaluate execution targets and inspect routing rules for any workload.</p>
+        </header>
+
+        <div class="router-setup-card">
+          <div class="router-controls-grid">
             <div>
-              <div class="card-title">Intelligent Hardware Router</div>
-              <div class="card-subtitle">Select task parameters to compute multi-objective routing recommendation</div>
+              <label class="label" for="router-model-select">Target model</label>
+              <select class="select" id="router-model-select"></select>
+            </div>
+            <div>
+              <label class="label" for="router-batch-select">Batch size</label>
+              <select class="select" id="router-batch-select">
+                <option value="1">1</option>
+                <option value="4">4</option>
+                <option value="16">16</option>
+                <option value="32">32</option>
+              </select>
+            </div>
+            <div>
+              <label class="label" for="router-workload-select">Workload</label>
+              <select class="select" id="router-workload-select">
+                <option value="sustained">Sustained</option>
+                <option value="single">Single cold start</option>
+              </select>
+            </div>
+            <div>
+              <label class="label" for="router-goal-select">Optimization goal</label>
+              <select class="select" id="router-goal-select">
+                <option value="fastest">Fastest latency</option>
+                <option value="battery">Battery life</option>
+                <option value="balanced">Balanced</option>
+                <option value="cool">Cool (thermal)</option>
+              </select>
+            </div>
+            <div>
+              <label class="label" for="router-budget-input">Power budget (W)</label>
+              <input type="number" class="input" id="router-budget-input" placeholder="unlimited" min="5" max="150">
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group" style="flex:2;">
-              <label for="router-model-select">Target AI Model:</label>
-              <select id="router-model-select">
-                <!-- Populated dynamically -->
-              </select>
-            </div>
 
-            <div class="form-group">
-              <label for="router-batch-select">Batch Size:</label>
-              <select id="router-batch-select">
-                <option value="1" selected>1 (Single sample)</option>
-                <option value="8">8 (Small batch)</option>
-                <option value="16">16 (Medium batch)</option>
-                <option value="32">32 (Heavy batch)</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="router-workload-select">Workload Type:</label>
-              <select id="router-workload-select">
-                <option value="sustained" selected>Sustained (Warm session)</option>
-                <option value="idle_loaded">Idle-Loaded (Warm + 10s idle)</option>
-                <option value="cold_start">Cold-Start (Create + 1st inf)</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="router-mode-select">Optimization Goal:</label>
-              <select id="router-mode-select">
-                <option value="fastest" selected>Fastest Latency</option>
-                <option value="battery">Battery Conservation</option>
-                <option value="balanced">Balanced (Speed + Energy)</option>
-                <option value="cool">Cool (Thermal Management)</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="router-budget-input">Power Budget (W):</label>
-              <input type="number" id="router-budget-input" placeholder="e.g. 25" min="5" max="150" step="5">
-            </div>
-
-            <div style="display:flex; align-items:center; gap:0.5rem; padding-bottom:0.4rem;">
+          <div class="router-actions-row">
+            <label style="display:flex; align-items:center; gap:var(--space-2); font-size:13px; color:var(--ink-2); cursor:pointer;">
               <input type="checkbox" id="router-explore-check">
-              <label for="router-explore-check" style="margin:0; font-size:0.8rem; text-transform:none;">Epsilon Exploration (10%)</label>
-            </div>
-
-            <div>
-              <button class="btn btn-verify" id="btn-run-verify">
-                <span>▶</span> Run & Verify on Hardware
-              </button>
+              <span>Enable exploration (ε-greedy fallback)</span>
+            </label>
+            <div style="display:flex; gap:var(--space-3);">
+              <button class="btn btn-secondary" id="btn-router-verify">Route and verify on hardware</button>
+              <button class="btn btn-primary" id="btn-router-execute">Route task</button>
             </div>
           </div>
         </div>
 
-        <!-- Real-Time Recommendation Card -->
-        <div class="card">
-          <div class="card-header">
+        <!-- Routing Trace Signature Element -->
+        <div class="routing-trace-container" id="router-trace-container">
+          <svg class="trace-svg-canvas" id="routing-trace-svg"></svg>
+          <div class="trace-task-box" id="trace-task-source">
+            <span style="color:var(--ink-3); font-size:11px; display:block;">INCOMING TASK</span>
+            <strong id="router-trace-task-label">MLP-256 (B=1)</strong>
+          </div>
+          <div class="trace-dest-box" id="trace-task-dest">
+            <span style="color:var(--ink-3); font-size:11px; display:block;">ROUTED TARGET</span>
+            <strong id="router-trace-dest-label">AMD Ryzen 9 CPU</strong>
+          </div>
+        </div>
+
+        <!-- Decision Result Panel -->
+        <div class="decision-result-panel" id="router-decision-panel">
+          <div class="decision-headline-row">
             <div>
-              <div class="card-title">Routing Decision & Transparent Rationale</div>
-              <div class="card-subtitle">Transparent justification explaining why the chosen device was selected</div>
+              <span style="font-size:12px; color:var(--ink-3);">ROUTING DECISION</span>
+              <div style="font-size:18px; font-weight:600; color:var(--ink);" id="router-chosen-badge">—</div>
+            </div>
+            <div class="text-right">
+              <span style="font-size:12px; color:var(--ink-3);">PREDICTED LATENCY</span>
+              <div class="td-mono" style="font-size:18px; font-weight:600; color:var(--ink);" id="router-decision-latency">—</div>
             </div>
           </div>
+          <div class="decision-reason-text" id="router-reason-text">—</div>
+          <div>
+            <span style="font-size:12px; font-weight:600; color:var(--ink-3);">RULES APPLIED</span>
+            <ul class="decision-rules-list" id="router-rules-list"></ul>
+          </div>
+        </div>
 
-          <div style="display:flex; flex-direction:column; gap:1rem;">
-            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
-              <div>
-                <span class="kpi-label">Optimal Target Device:</span>
-                <div id="router-chosen-badge" style="margin-top:0.35rem;">
-                  <!-- Dynamically rendered badge -->
-                </div>
-              </div>
-              <div style="flex:1; min-width:280px;">
-                <span class="kpi-label">Plain-English Reason:</span>
-                <div id="router-reason-text" style="font-size:0.95rem; font-weight:500; color:var(--text); margin-top:0.35rem; line-height:1.4;">
-                  Evaluating candidates...
-                </div>
-              </div>
+        <!-- Candidates Table -->
+        <div class="evaluation-section-card">
+          <h2 style="font-size:15px; font-weight:600; margin-bottom:var(--space-3);">Candidate chips evaluation</h2>
+          <table class="bench-table" style="width:100%;">
+            <thead>
+              <tr>
+                <th>Chip</th>
+                <th class="text-right">Predicted</th>
+                <th>Source</th>
+                <th class="text-right">Wake penalty</th>
+                <th class="text-right">Routing score</th>
+                <th>Eligibility</th>
+              </tr>
+            </thead>
+            <tbody id="router-candidates-body">
+              <tr><td colspan="6" style="text-align:center; padding:var(--space-4); color:var(--ink-3);">Route a task to evaluate candidates.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: RESULTS -->
+      <section class="screen-container" id="screen-results" hidden>
+        <header class="screen-header">
+          <h1 class="screen-title">Evaluation results</h1>
+          <p class="screen-description">Verified router decisions, baseline comparisons, and cold-start benchmarks.</p>
+        </header>
+
+        <!-- Final Evaluation (117-140) -->
+        <div class="evaluation-section-card">
+          <div class="eval-card-header">
+            <h2 style="font-size:16px; font-weight:600;">Headline evaluation (decisions 117–140)</h2>
+            <p class="eval-note-callout">Evaluated on previously profiled configurations across all supported compute sockets.</p>
+          </div>
+          <table class="bench-table" style="width:100%; margin-bottom:var(--space-6);">
+            <thead>
+              <tr>
+                <th>Strategy</th>
+                <th class="text-center">Wins</th>
+                <th class="text-right">Accuracy</th>
+                <th class="text-right">Mean regret</th>
+                <th class="text-right">p90 regret</th>
+              </tr>
+            </thead>
+            <tbody id="results-headline-table-body">
+              <tr><td colspan="5" style="text-align:center; padding:var(--space-4); color:var(--ink-3);">Loading evaluation...</td></tr>
+            </tbody>
+          </table>
+
+          <!-- Strategy Regret Bar Chart -->
+          <div class="chart-panel" style="margin-bottom:0; background:transparent; border:1px solid var(--line);">
+            <div class="chart-header">
+              <span class="chart-title">Strategy mean regret (log scale)</span>
             </div>
-
-            <div>
-              <span class="kpi-label">Active Context Rules:</span>
-              <ul id="router-rules-list" style="margin-top:0.35rem; padding-left:1.25rem; font-size:0.85rem; color:var(--muted); line-height:1.5;">
-                <!-- Dynamically rendered -->
-              </ul>
-            </div>
-
-            <!-- Verification Outcome Box (shown when Run & Verify is clicked) -->
-            <div id="router-verify-result-box" class="card" style="display:none; background-color:rgba(0,0,0,0.3); border-color:var(--mint);">
-              <!-- Dynamically populated on verification complete -->
-            </div>
-
-            <!-- Candidates Breakdown Table -->
-            <div class="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Candidate Device</th>
-                    <th>Label</th>
-                    <th class="text-right">Predicted Latency</th>
-                    <th class="text-center">Prediction Source</th>
-                    <th class="text-right">Wake Penalty</th>
-                    <th class="text-right">Scoring Metric</th>
-                    <th>Eligibility Status</th>
-                  </tr>
-                </thead>
-                <tbody id="table-candidates-body">
-                  <!-- Dynamically rendered -->
-                </tbody>
-              </table>
+            <div class="chart-canvas-wrap" style="height:200px;">
+              <canvas id="chart-results-regret"></canvas>
             </div>
           </div>
         </div>
 
-        <!-- Final Published Hardware Evaluation -->
-        <div class="card">
-          <div class="card-header">
+        <!-- Per-Workload Breakdown -->
+        <div class="evaluation-section-card">
+          <div class="eval-card-header">
+            <h2 style="font-size:15px; font-weight:600;">Per-workload breakdown (decisions 117–140)</h2>
+          </div>
+          <table class="bench-table" style="width:100%;">
+            <thead>
+              <tr>
+                <th>Workload</th>
+                <th class="text-center">Count</th>
+                <th class="text-right">SiliconRoute wins</th>
+                <th class="text-right">Accuracy</th>
+                <th class="text-right">Mean regret</th>
+              </tr>
+            </thead>
+            <tbody id="results-workloads-table-body">
+              <tr><td colspan="5" style="text-align:center; padding:var(--space-4); color:var(--ink-3);">Loading workloads...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Cold-Start Rule Check (141-148) -->
+        <div class="evaluation-section-card">
+          <div class="eval-card-header">
+            <h2 style="font-size:15px; font-weight:600;">Cold-start rule verification (decisions 141–148)</h2>
+            <p class="eval-note-callout">SiliconRoute matched Always-CPU exactly, avoiding GPU session creation overhead.</p>
+          </div>
+          <table class="bench-table" style="width:100%;">
+            <thead>
+              <tr>
+                <th>Strategy</th>
+                <th class="text-center">Wins</th>
+                <th class="text-right">Accuracy</th>
+                <th class="text-right">Mean regret</th>
+                <th class="text-right">p90 regret</th>
+              </tr>
+            </thead>
+            <tbody id="results-coldstart-table-body">
+              <tr><td colspan="5" style="text-align:center; padding:var(--space-4); color:var(--ink-3);">Loading cold-start check...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Earlier Evaluation (93-116) Collapsible -->
+        <details class="evaluation-section-card" style="cursor:pointer;">
+          <summary style="font-size:14px; font-weight:600; color:var(--ink-2); outline:none;">
+            Earlier evaluation (decisions 93–116)
+          </summary>
+          <div style="margin-top:var(--space-4);">
+            <table class="bench-table" style="width:100%;">
+              <thead>
+                <tr>
+                  <th>Strategy</th>
+                  <th class="text-center">Wins</th>
+                  <th class="text-right">Accuracy</th>
+                  <th class="text-right">Mean regret</th>
+                  <th class="text-right">p90 regret</th>
+                </tr>
+              </thead>
+              <tbody id="results-earlier-table-body">
+                <tr><td colspan="5" style="text-align:center; padding:var(--space-4); color:var(--ink-3);">Loading earlier evaluation...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </details>
+      </section>
+
+      <!-- SCREEN 6: EVIDENCE -->
+      <section class="screen-container" id="screen-evidence" hidden>
+        <header class="screen-header">
+          <h1 class="screen-title">Evidence & reproduction</h1>
+          <p class="screen-description">Verify frozen database provenance, inspect published metrics, and run tests locally.</p>
+        </header>
+
+        <!-- Database Metadata Strip -->
+        <div class="evidence-meta-strip">
+          <div class="evidence-meta-item">
+            <span class="evidence-meta-label">Frozen database path</span>
+            <span class="evidence-meta-val">data/final/siliconroute_final.db</span>
+          </div>
+          <div class="evidence-meta-item">
+            <span class="evidence-meta-label">SHA256 checksum</span>
+            <span class="evidence-meta-val" id="evidence-db-sha256">98542cffb7264eee537d218e1863ccbbc174495e0bf13eb244ee22cd6f034cf5</span>
+          </div>
+          <div class="evidence-meta-item">
+            <span class="evidence-meta-label">Database size</span>
+            <span class="evidence-meta-val" id="evidence-db-size">—</span>
+          </div>
+          <div class="evidence-meta-item">
+            <span class="evidence-meta-label">Git commit</span>
+            <span class="evidence-meta-val" id="evidence-git-commit">—</span>
+          </div>
+        </div>
+
+        <!-- Metric Browser -->
+        <div class="evaluation-section-card">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--space-4);">
             <div>
-              <div class="card-title" id="eval-headline-title">Final Published Hardware Evaluation</div>
-              <div class="card-subtitle" style="color:var(--accent-copper); font-weight:600;">
-                ★ Evaluated on previously profiled configurations across all 3 workloads
-              </div>
+              <h2 style="font-size:15px; font-weight:600;">Published metrics browser</h2>
+              <p style="font-size:12px; color:var(--ink-3);">Every metric in results/final/manifest.json with provenance query</p>
             </div>
+            <input type="text" class="input" id="evidence-metric-search" placeholder="Search metric key or SQL..." style="max-width:300px;">
           </div>
-
-          <!-- Overall Comparison Table (Headline) -->
-          <div id="eval-overall-heading" style="font-weight:600; margin-bottom:0.25rem; font-size:0.9rem;">Overall Benchmark Accuracy &amp; Regret</div>
-          <div class="table-container" style="margin-bottom:1.5rem;">
-            <table>
+          <div style="max-height:400px; overflow-y:auto; border:1px solid var(--line); border-radius:var(--radius-control);">
+            <table class="bench-table" style="width:100%;">
               <thead>
                 <tr>
-                  <th>Routing Strategy</th>
-                  <th class="text-center">Winning Decisions (k/n)</th>
-                  <th class="text-right">Accuracy %</th>
-                  <th class="text-right">Mean Slowdown / Regret</th>
-                  <th class="text-right">P90 Regret</th>
+                  <th>Metric key</th>
+                  <th class="text-right">Value</th>
+                  <th>Unit</th>
+                  <th>Provenance method / SQL</th>
+                  <th>Description</th>
                 </tr>
               </thead>
-              <tbody id="table-eval-overall-body">
-                <!-- Dynamically populated -->
+              <tbody id="evidence-metrics-tbody">
+                <tr><td colspan="5" style="text-align:center; padding:var(--space-4); color:var(--ink-3);">Loading metrics...</td></tr>
               </tbody>
             </table>
           </div>
+        </div>
 
-          <!-- Per-Workload Comparison Table -->
-          <div id="eval-workloads-heading" style="font-weight:600; margin-bottom:0.25rem; font-size:0.9rem;">Per-Workload Breakdown</div>
-          <div class="table-container" style="margin-bottom:1.5rem;">
-            <table>
-              <thead>
-                <tr>
-                  <th>Workload</th>
-                  <th>Routing Strategy</th>
-                  <th class="text-center">Wins (k/n)</th>
-                  <th class="text-right">Accuracy %</th>
-                  <th class="text-right">Mean Regret</th>
-                  <th class="text-right">P90 Regret</th>
-                </tr>
-              </thead>
-              <tbody id="table-eval-workloads-body">
-                <!-- Dynamically populated -->
-              </tbody>
-            </table>
+        <!-- Raw Samples Browser -->
+        <div class="evaluation-section-card">
+          <h2 style="font-size:15px; font-weight:600; margin-bottom:var(--space-2);">Raw samples browser</h2>
+          <p style="font-size:12px; color:var(--ink-3); margin-bottom:var(--space-4);">Select a configuration to inspect individual inference timings and distributions.</p>
+          <div style="display:flex; align-items:flex-end; gap:var(--space-3); margin-bottom:var(--space-4); flex-wrap:wrap;">
+            <div>
+              <label class="label" for="evidence-filter-model">Model</label>
+              <select class="select" id="evidence-filter-model" style="min-width:180px;"></select>
+            </div>
+            <div>
+              <label class="label" for="evidence-filter-device">Device</label>
+              <select class="select" id="evidence-filter-device" style="min-width:180px;"></select>
+            </div>
+            <div>
+              <label class="label" for="evidence-filter-batch">Batch</label>
+              <select class="select" id="evidence-filter-batch" style="min-width:80px;">
+                <option value="">Any</option>
+                <option value="1">1</option>
+                <option value="4">4</option>
+                <option value="16">16</option>
+                <option value="32">32</option>
+              </select>
+            </div>
+            <button class="btn btn-secondary" id="evidence-search-runs-btn">Search runs</button>
           </div>
+          <table class="bench-table" style="width:100%;">
+            <thead>
+              <tr>
+                <th>Run</th>
+                <th>Device</th>
+                <th class="text-right">Batch</th>
+                <th class="text-right">Median</th>
+                <th class="text-right">Spread</th>
+                <th class="text-right">CV</th>
+                <th class="text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="evidence-runs-tbody">
+              <tr><td colspan="7" style="text-align:center; padding:var(--space-4); color:var(--ink-3);">Select filters and click Search runs.</td></tr>
+            </tbody>
+          </table>
+        </div>
 
-          <!-- Individual Decisions Log Table -->
-          <div id="eval-logs-heading" style="font-weight:600; margin-bottom:0.25rem; font-size:0.9rem;">Individual Verified Decision Logs</div>
-          <div class="table-container" style="margin-bottom:2rem;">
-            <table>
-              <thead>
-                <tr>
-                  <th>Decision ID</th>
-                  <th>Model</th>
-                  <th class="text-center">Batch</th>
-                  <th class="text-center">Workload</th>
-                  <th>Chosen Device</th>
-                  <th class="text-right">Actual Latency</th>
-                  <th>Best Device</th>
-                  <th class="text-center">Match</th>
-                  <th class="text-right">Regret %</th>
-                </tr>
-              </thead>
-              <tbody id="table-decisions-log-body">
-                <!-- Dynamically populated -->
-              </tbody>
-            </table>
-          </div>
+        <!-- Identity Audit -->
+        <div class="evaluation-section-card">
+          <h2 style="font-size:15px; font-weight:600; margin-bottom:var(--space-2);">Hardware identity audit</h2>
+          <p style="font-size:13px; line-height:1.6; color:var(--ink-2); margin-bottom:var(--space-3);">
+            During early benchmarking, Windows DirectX occasionally inverted adapter indexing between the AMD Radeon 610M integrated GPU and NVIDIA RTX 5070 discrete GPU. A strict identity audit based on DXGI LUID and NVML clock checks detected and flagged <strong><span class="metric" data-metric="identity_suspect_runs"></span></strong> suspect runs. All flagged runs were completely excluded from model fits and evaluation.
+          </p>
+        </div>
 
-          <!-- Cold-Start Rule Check Section -->
-          <div style="border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 1.5rem;">
-            <div class="card-title" id="eval-coldstart-title" style="font-size:1.1rem; margin-bottom:0.25rem;">
-              Cold-Start Rule Verification
+        <!-- Reproduce on Your Laptop -->
+        <div class="evaluation-section-card">
+          <h2 style="font-size:15px; font-weight:600; margin-bottom:var(--space-3);">Reproduce on your laptop</h2>
+          
+          <div style="margin-bottom:var(--space-4);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span style="font-size:12px; font-weight:600; color:var(--ink-2);">1. Setup environment</span>
             </div>
-            <div id="eval-coldstart-subtitle" style="font-size:0.85rem; color:var(--muted); margin-bottom:1rem;">
-              Rule check: for workload cold_start, choose CPU unless another chip's predicted latency is &gt;30% lower.
-            </div>
-
-            <!-- Cold-Start Summary Table -->
-            <div class="table-container" style="margin-bottom:1.5rem;">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Routing Strategy</th>
-                    <th class="text-center">Wins (k/n)</th>
-                    <th class="text-right">Accuracy %</th>
-                    <th class="text-right">Mean Regret</th>
-                    <th class="text-right">P90 Regret</th>
-                  </tr>
-                </thead>
-                <tbody id="table-eval-coldstart-body">
-                  <!-- Dynamically populated -->
-                </tbody>
-              </table>
-            </div>
-
-            <!-- Cold-Start Decisions Log -->
-            <div id="eval-coldstart-logs-heading" style="font-weight:600; margin-bottom:0.25rem; font-size:0.9rem;">
-              Cold-Start Verified Decision Logs
-            </div>
-            <div class="table-container" style="margin-bottom:1.5rem;">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Decision ID</th>
-                    <th>Model</th>
-                    <th class="text-center">Batch</th>
-                    <th class="text-center">Workload</th>
-                    <th>Chosen Device</th>
-                    <th class="text-right">Actual Latency</th>
-                    <th>Best Device</th>
-                    <th class="text-center">Match</th>
-                    <th class="text-right">Regret %</th>
-                  </tr>
-                </thead>
-                <tbody id="table-coldstart-log-body">
-                  <!-- Dynamically populated -->
-                </tbody>
-              </table>
+            <div class="code-box">
+              <button class="btn btn-quiet btn-sm code-copy-btn" data-code-target="code-setup">Copy</button>
+              <pre id="code-setup">py -3.12 -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt</pre>
             </div>
           </div>
 
-          <!-- Collapsed Earlier Evaluation Section -->
-          <details style="margin-top:1.5rem; border:1px solid var(--border); border-radius:6px; padding:0.75rem; background:rgba(255,255,255,0.02);">
-            <summary id="eval-earlier-summary" style="cursor:pointer; font-weight:600; color:var(--muted); font-size:0.9rem; user-select:none;">
-              Earlier Evaluation — Click to expand
-            </summary>
-            <div style="margin-top:1rem;">
-              <div id="eval-earlier-heading" style="font-weight:600; margin-bottom:0.5rem; font-size:0.85rem; color:var(--text);">
-                Overall Benchmark Accuracy &amp; Regret
-              </div>
-              <div class="table-container" style="margin-bottom:1rem;">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Routing Strategy</th>
-                      <th class="text-center">Winning Decisions (k/n)</th>
-                      <th class="text-right">Accuracy %</th>
-                      <th class="text-right">Mean Slowdown / Regret</th>
-                      <th class="text-right">P90 Regret</th>
-                    </tr>
-                  </thead>
-                  <tbody id="table-earlier-overall-body">
-                    <!-- Dynamically populated -->
-                  </tbody>
-                </table>
-              </div>
-
-              <div id="eval-earlier-logs-heading" style="font-weight:600; margin-bottom:0.5rem; font-size:0.85rem; color:var(--text);">
-                Decision Logs
-              </div>
-              <div class="table-container">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Decision ID</th>
-                      <th>Model</th>
-                      <th class="text-center">Batch</th>
-                      <th class="text-center">Workload</th>
-                      <th>Chosen Device</th>
-                      <th class="text-right">Actual Latency</th>
-                      <th>Best Device</th>
-                      <th class="text-center">Match</th>
-                      <th class="text-right">Regret %</th>
-                    </tr>
-                  </thead>
-                  <tbody id="table-earlier-log-body">
-                    <!-- Dynamically populated -->
-                  </tbody>
-                </table>
-              </div>
+          <div style="margin-bottom:var(--space-4);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span style="font-size:12px; font-weight:600; color:var(--ink-2);">2. Run all tests</span>
             </div>
-          </details>
+            <div class="code-box">
+              <button class="btn btn-quiet btn-sm code-copy-btn" data-code-target="code-tests">Copy</button>
+              <pre id="code-tests">python -m pytest -q</pre>
+            </div>
+          </div>
+
+          <div style="margin-bottom:var(--space-4);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span style="font-size:12px; font-weight:600; color:var(--ink-2);">3. Launch dashboard</span>
+            </div>
+            <div class="code-box">
+              <button class="btn btn-quiet btn-sm code-copy-btn" data-code-target="code-server">Copy</button>
+              <pre id="code-server">python -m uvicorn app.main:app --host 127.0.0.1 --port 8000</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 7: ABOUT -->
+      <section class="screen-container" id="screen-about" hidden>
+        <header class="screen-header">
+          <h1 class="screen-title">About SiliconRoute</h1>
+          <p class="screen-description">Mission, system architecture, honest limitations, and development methodology.</p>
+        </header>
+
+        <div class="about-card">
+          <h2>Mission</h2>
+          <p>
+            SiliconRoute is a local-first, self-learning AI load balancer for laptops. It measures how neural network models execute on every physical chip (CPU, iGPU, dGPU), stores every run in SQLite, fits empirical hardware performance models, and routes tasks to optimize for speed, battery life, or thermal limits.
+          </p>
+
+          <h2>Limitations</h2>
+          <p>SiliconRoute is committed to complete transparency regarding its current technical scope:</p>
+          <ul style="padding-left:var(--space-6); margin-bottom:var(--space-4); line-height:1.6; font-size:13.5px; color:var(--ink-2);">
+            <li><strong>FP32 precision only:</strong> All profiled models execute in single-precision float32. FP16 and INT8 tensor core acceleration are planned for future versions.</li>
+            <li><strong>DirectML on Windows:</strong> GPU acceleration uses Microsoft DirectML; native CUDA or TensorRT execution providers are not used.</li>
+            <li><strong>Synthetic model topologies:</strong> Benchmarks currently evaluate parameterized MLP, Convolution, and Attention architectures. Real-world LLM and vision topologies are planned.</li>
+            <li><strong>Evaluated on profiled configurations:</strong> The published evaluation tested previously profiled models. Unseen topologies rely on fitted hardware models with an average LOO MAPE of ~<span class="metric" data-metric="predictive_model_mape_pct"></span>.</li>
+            <li><strong>Session variability:</strong> The discrete GPU exhibits cross-session timing spread up to <span class="metric" data-metric="volatility_rtx_max_pct"></span> under identical configurations.</li>
+            <li><strong>Single laptop:</strong> All published data originates from a single reference laptop (AMD Ryzen 9 8940HX, AMD Radeon 610M, NVIDIA GeForce RTX 5070 Laptop GPU).</li>
+          </ul>
+
+          <h2>How this was built</h2>
+          <p>
+            Authored by Tanmay, who established the measurement methodology, router logic, and strict integrity rules. Code implementation and refactoring were executed collaboratively with AI coding agents (Google Antigravity and Anthropic Claude).
+          </p>
+          <p>
+            Under SiliconRoute's integrity protocol, no benchmark figures are ever generated or estimated by LLMs. Every published number is verified directly against the frozen SQLite database by automated test suites.
+          </p>
+
+          <h2>Architecture</h2>
+          <p>
+            Built on Windows 11 with Python 3.12, FastAPI, SQLite with WAL mode, and ONNX Runtime DirectML. The frontend uses vanilla JavaScript and Chart.js without runtime CDN dependencies or node build steps.
+          </p>
+
+          <h2>Licence</h2>
+          <p>
+            Released under the open-source MIT License.
+          </p>
         </div>
       </section>
 
@@ -675,55 +934,70 @@
   </div>
 
   <!-- =======================================================================
-       MODAL: RUN RAW TIMING SAMPLES INSPECTOR
-       Requirement: "Clicking any run shows all of its raw timing samples (from raw_ms_json) as dots, with inner_loop_k displayed."
+       5. MODALS & OVERLAYS
        ======================================================================= -->
-  <div class="modal-overlay" id="modal-run-inspector">
+
+  <!-- Raw Samples Inspector Modal (Section 7.7) -->
+  <div class="modal-dialog-backdrop" id="modal-raw-samples" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="modal-run-title">
     <div class="modal-card">
       <div class="modal-header">
-        <div>
-          <div style="display:flex; align-items:center; gap:0.5rem;">
-            <div style="font-size:1.15rem; font-weight:700;" id="modal-model-name">—</div>
-            <span id="modal-device-badge"></span>
-          </div>
-          <div style="font-size:0.8rem; color:var(--muted); margin-top:0.2rem;">
-            Benchmark Run <strong id="modal-run-id" class="td-mono" style="color:var(--accent-copper);">#—</strong> Raw Sample Inspection
-          </div>
-        </div>
-        <button class="modal-close" id="modal-close-btn">&times;</button>
+        <h2 class="modal-title" id="modal-run-title">Run inspector</h2>
+        <button class="btn btn-quiet btn-sm modal-close-btn" aria-label="Close modal">Close</button>
       </div>
-
-      <!-- KPI Summary Row -->
-      <div class="grid-4" style="background:rgba(0,0,0,0.25); padding:0.75rem; border-radius:6px; border:1px solid var(--border);">
-        <div>
-          <span class="kpi-label">Inner Loop Multiplier:</span>
-          <div class="td-mono" id="modal-inner-loop-k" style="font-weight:700; color:var(--accent-copper); font-size:1.1rem;">inner_loop_k = —</div>
+      <div class="modal-stats-strip">
+        <div class="modal-stat-col">
+          <span class="modal-stat-label">Median</span>
+          <span class="modal-stat-val td-mono" id="modal-stat-median">—</span>
         </div>
-        <div>
-          <span class="kpi-label">Median Latency:</span>
-          <div class="td-mono" id="modal-median-ms" style="font-weight:700; color:var(--text); font-size:1.1rem;">—</div>
+        <div class="modal-stat-col">
+          <span class="modal-stat-label">p10 / p90</span>
+          <span class="modal-stat-val td-mono" id="modal-stat-p10p90">—</span>
         </div>
-        <div>
-          <span class="kpi-label">Spread (Max - Min):</span>
-          <div class="td-mono" id="modal-spread-ms" style="font-size:1rem; color:var(--muted);">—</div>
+        <div class="modal-stat-col">
+          <span class="modal-stat-label">Spread</span>
+          <span class="modal-stat-val td-mono" id="modal-stat-spread">—</span>
         </div>
-        <div>
-          <span class="kpi-label">P10 / P90:</span>
-          <div class="td-mono" style="font-size:0.85rem; color:var(--muted);"><span id="modal-p10-ms"></span> / <span id="modal-p90-ms"></span></div>
-          <div style="font-size:0.75rem; color:var(--muted);">CV: <strong id="modal-cv"></strong></div>
+        <div class="modal-stat-col">
+          <span class="modal-stat-label">CV</span>
+          <span class="modal-stat-val td-mono" id="modal-stat-cv">—</span>
+        </div>
+        <div class="modal-stat-col">
+          <span class="modal-stat-label">Inner loop k</span>
+          <span class="modal-stat-val td-mono" id="modal-stat-inner-k">—</span>
         </div>
       </div>
-
-      <!-- Dot Chart of All Raw Timing Samples -->
-      <div>
-        <div style="font-weight:600; margin-bottom:0.35rem; font-size:0.85rem;">Raw Inference Timing Samples (raw_ms_json dots across sequential runs):</div>
-        <div class="chart-wrapper">
-          <canvas id="chart-raw-samples"></canvas>
-        </div>
+      <div style="height:220px; position:relative; margin-bottom:var(--space-3);">
+        <canvas id="chart-modal-samples"></canvas>
       </div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <button class="btn btn-secondary btn-sm" id="modal-samples-toggle-list">Show sample list</button>
+        <span style="font-size:11px; color:var(--ink-3);">Press Esc to close</span>
+      </div>
+      <div id="modal-samples-list-view" style="display:none;"></div>
     </div>
   </div>
 
-  <script type="module" src="app.js"></script>
+  <!-- Keyboard Shortcuts Sheet Modal -->
+  <div class="modal-dialog-backdrop" id="modal-shortcuts" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="modal-shortcuts-title">
+    <div class="modal-card" style="max-width:440px;">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-shortcuts-title">Keyboard shortcuts</h2>
+        <button class="btn btn-quiet btn-sm modal-close-btn" aria-label="Close modal">Close</button>
+      </div>
+      <table class="bench-table" style="width:100%; margin-top:var(--space-3);">
+        <tbody>
+          <tr><td><kbd>g</kbd> then <kbd>o</kbd></td><td>Go to Overview</td></tr>
+          <tr><td><kbd>g</kbd> then <kbd>l</kbd></td><td>Go to Live telemetry</td></tr>
+          <tr><td><kbd>g</kbd> then <kbd>a</kbd></td><td>Go to Analysis & fits</td></tr>
+          <tr><td><kbd>g</kbd> then <kbd>r</kbd></td><td>Go to Router</td></tr>
+          <tr><td><kbd>g</kbd> then <kbd>s</kbd></td><td>Go to Evaluation results</td></tr>
+          <tr><td><kbd>g</kbd> then <kbd>e</kbd></td><td>Go to Evidence</td></tr>
+          <tr><td><kbd>?</kbd></td><td>Toggle shortcuts sheet</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Close open dialog or modal</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 </body>
 </html>

@@ -1,5 +1,5 @@
-"""System and health API endpoints for SiliconRoute."""
-
+import json
+from pathlib import Path
 import platform
 from typing import Any, Optional
 import winreg
@@ -7,6 +7,8 @@ import winreg
 from fastapi import APIRouter
 import onnxruntime as ort
 import psutil
+
+from app.config import BASE_DIR
 
 router = APIRouter(tags=["system"])
 
@@ -77,3 +79,16 @@ def get_system() -> dict[str, Any]:
         "battery": battery_pct,
         "plugged_in": plugged_in,
     }
+
+
+@router.get("/api/published-metrics")
+def get_published_metrics() -> dict[str, Any]:
+    """Return published manifest metadata and metrics from results/final/manifest.json."""
+    manifest_path = BASE_DIR / "results" / "final" / "manifest.json"
+    if manifest_path.exists():
+        try:
+            with open(manifest_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {"metadata": {}, "metrics": {}}

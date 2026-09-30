@@ -1,0 +1,284 @@
+/**
+ * SiliconRoute Design Spec v2 — Screen-Specific Layouts
+ * Overview, Live, Analysis, Router (with routing trace), Results, Evidence, About.
+ */
+
+/* --------------------------------------------------------------------------
+   Overview Screen
+   -------------------------------------------------------------------------- */
+.ask-route-bar {
+  background-color: var(--plate);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  padding: var(--space-4) var(--space-6);
+  margin-bottom: var(--space-6);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.ask-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.ask-form-label {
+  font-size: 11.5px;
+  color: var(--ink-3);
+  font-weight: 500;
+}
+
+.findings-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.finding-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+
+/* --------------------------------------------------------------------------
+   Live Screen
+   -------------------------------------------------------------------------- */
+.chart-panel {
+  background-color: var(--plate);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  padding: var(--space-4) var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.chart-title-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.chart-subtitle {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.chart-canvas-wrap {
+  position: relative;
+  width: 100%;
+  height: 220px;
+}
+
+.chart-table-toggle-btn {
+  font-size: 12px;
+  color: var(--ink-2);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* --------------------------------------------------------------------------
+   Router Screen & Routing Trace
+   -------------------------------------------------------------------------- */
+.router-setup-card {
+  background-color: var(--plate);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.router-controls-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1.5fr 1.5fr 1fr;
+  gap: var(--space-4);
+  align-items: flex-end;
+  margin-bottom: var(--space-4);
+}
+
+.router-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
+}
+
+/* Routing Trace Signature Element */
+.routing-trace-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: var(--space-6);
+  min-height: 120px;
+  background-color: var(--plate-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-tile);
+  padding: var(--space-4) var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.trace-svg-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.trace-task-box {
+  background-color: var(--plate);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  padding: var(--space-3) var(--space-4);
+  font-size: 13px;
+  z-index: 20;
+}
+
+.trace-dest-box {
+  background-color: var(--plate);
+  border: 1px solid var(--line-strong);
+  border-left-width: 3px;
+  border-radius: var(--radius-control);
+  padding: var(--space-3) var(--space-4);
+  font-size: 13px;
+  z-index: 20;
+}
+
+.decision-result-panel {
+  background-color: var(--plate);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.decision-headline-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.decision-reason-text {
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.5;
+  margin-bottom: var(--space-4);
+}
+
+.decision-rules-list {
+  padding-left: var(--space-4);
+  font-size: 12.5px;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+/* --------------------------------------------------------------------------
+   Results Screen
+   -------------------------------------------------------------------------- */
+.evaluation-section-card {
+  background-color: var(--plate);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.eval-card-header {
+  margin-bottom: var(--space-4);
+}
+
+.eval-note-callout {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  margin-top: var(--space-1);
+}
+
+/* --------------------------------------------------------------------------
+   Evidence Screen
+   -------------------------------------------------------------------------- */
+.evidence-meta-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+  background-color: var(--plate);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-tile);
+  padding: var(--space-4) var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.evidence-meta-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.evidence-meta-label {
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-bottom: 2px;
+}
+
+.evidence-meta-val {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--ink);
+  word-break: break-all;
+}
+
+.code-box {
+  background-color: var(--plate-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  padding: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--ink);
+  overflow-x: auto;
+  position: relative;
+}
+
+.code-copy-btn {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+}
+
+/* --------------------------------------------------------------------------
+   About Screen
+   -------------------------------------------------------------------------- */
+.about-card {
+  background-color: var(--plate);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  padding: var(--space-8);
+  max-width: 800px;
+}
+
+.about-card h2 {
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-2);
+}
+
+.about-card p {
+  margin-bottom: var(--space-4);
+  line-height: 1.6;
+}

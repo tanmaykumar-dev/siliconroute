@@ -1,0 +1,44 @@
+Starting Uvicorn server on http://127.0.0.1:8000...
+Server is ready.
+Launching browser (msedge channel)...
+Loading SiliconRoute App...
+
+[1/7] Verifying Overview Screen...
+  Best chip wins: DOM '22' vs Manifest '22'
+  SR mean regret: DOM '1.75%'
+  Saved screenshot: results/screenshots/v2_design/app_dark_overview.png
+  Saved screenshot: results/screenshots/v2_design/app_light_overview.png
+
+[2/7] Verifying Live Telemetry Screen...
+  Saved screenshot: results/screenshots/v2_design/app_dark_live.png
+
+[3/7] Verifying Analysis Screen...
+  Analysis fits rows: 3
+  Saved screenshot: results/screenshots/v2_design/app_dark_analysis.png
+
+[4/7] Verifying Router Screen...
+  Saved screenshot: results/screenshots/v2_design/app_dark_router.png
+
+[5/7] Verifying Results Screen...
+  Headline table rows: 5
+  Saved screenshot: results/screenshots/v2_design/app_dark_results.png
+
+[6/7] Verifying Evidence Screen...
+  DB SHA256: DOM '98542cffb7264eee537d218e1863ccbbc174495e0bf13eb244ee22cd6f034cf5' vs Expected '98542cffb7264eee537d218e1863ccbbc174495e0bf13eb244ee22cd6f034cf5'
+  Metric browser rows: 100
+  Saved screenshot: results/screenshots/v2_design/app_dark_evidence.png
+
+[7/7] Verifying About Screen...
+  Saved screenshot: results/screenshots/v2_design/app_dark_about.png
+
+[8] Verifying Modals...
+  Saved screenshot: results/screenshots/v2_design/modal_shortcuts.png
+  Saved screenshot: results/screenshots/v2_design/modal_raw_samples.png
+
+Checking console and page errors...
+Console errors: 0
+Page errors: 0
+
+Shutting down Uvicorn...
+Server stopped cleanly.
+Verification status: SUCCESS
