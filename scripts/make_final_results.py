@@ -387,8 +387,8 @@ def main():
     reg_metric("mlp_3072_cold_decision_id", sm.get_mlp_3072_cold_decision_id(conn), "Decision ID for latest mlp-3072w-4l B=1 cold start comparison (Decision 144)", "id", "Decision ID for cold-start comparison")
 
     reg_metric("rtx_compute_tflops", sm.get_rtx_compute_tflops(conn), "Peak compute throughput on NVIDIA RTX 5070 Laptop GPU", "TFLOP/s", "RTX 5070 peak compute throughput")
-    reg_metric("bootstrap_ci_pct", sm.get_bootstrap_ci_pct(conn), "Statistical confidence interval confidence level", "%", "Bootstrap confidence interval percentage")
-    reg_metric("cold_start_rule_threshold_pct", sm.get_cold_start_rule_threshold_pct(conn), "Cold-start CPU preference threshold percentage", "%", "Cold start threshold percentage")
+    reg_metric("bootstrap_ci_pct", sm.get_bootstrap_ci_pct(conn), "Statistical confidence interval confidence level", "%", "configuration setting (not a measurement)")
+    reg_metric("cold_start_rule_threshold_pct", sm.get_cold_start_rule_threshold_pct(conn), "Cold-start CPU preference threshold percentage", "%", "configuration setting (not a measurement)")
 
     # 8. Empirical Workload Slowdown Ratios
     reg_metric("workload_idle_loaded_cpu_ratio_median", sm.get_workload_idle_loaded_cpu_ratio_median(conn), "Median slowdown ratio for CPU on idle_loaded workloads", "x", "CPU idle_loaded slowdown ratio median")
@@ -441,9 +441,9 @@ def main():
     reg_metric("workload_cold_start_fit_only_wins", sm.get_workload_cold_start_fit_only_wins(conn), "Fit-Only cold_start wins in 117-140", "wins", "Fit-Only cold_start wins")
 
     # 10. System, Config, Provenance & Comparison Metrics
-    reg_metric("volatility_tiebreak_band_pct", sm.get_volatility_tiebreak_band_pct(conn), "Router session volatility tie-breaking band", "%", "Volatility tie-break band")
-    reg_metric("low_battery_threshold_pct", sm.get_low_battery_threshold_pct(conn), "Low battery threshold for battery saver mode", "%", "Low battery threshold")
-    reg_metric("fingerprint_test_duration_ms", sm.get_fingerprint_test_duration_ms(conn), "Duration of NVML GPU load fingerprint identification test", "ms", "Fingerprint test duration")
+    reg_metric("volatility_tiebreak_band_pct", sm.get_volatility_tiebreak_band_pct(conn), "Router session volatility tie-breaking band", "%", "configuration setting (not a measurement)")
+    reg_metric("low_battery_threshold_pct", sm.get_low_battery_threshold_pct(conn), "Low battery threshold for battery saver mode", "%", "configuration setting (not a measurement)")
+    reg_metric("fingerprint_test_duration_ms", sm.get_fingerprint_test_duration_ms(conn), "Duration of NVML GPU load fingerprint identification test", "ms", "configuration setting (not a measurement)")
     reg_metric("database_size_bytes", sm.get_database_size_bytes(conn), "SELECT pragma_page_count * pragma_page_size", "bytes", "Database file size in bytes")
     reg_metric("predictive_model_mape_pct", sm.get_predictive_model_mape_pct(conn), "Average LOO MAPE across active predictor models", "%", "Average LOO MAPE")
 

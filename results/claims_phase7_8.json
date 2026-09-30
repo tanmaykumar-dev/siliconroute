@@ -24,31 +24,31 @@
     "how": "SELECT count(*) FROM workloadmeasurement"
   },
   {
-    "id": "c05_sustained_eval_decisions",
-    "claim": "Total verified sustained evaluation decisions (headline benchmark 117-140)",
+    "id": "c05_eval_117_140_decisions",
+    "claim": "Total verified evaluation decisions (headline benchmark 117-140)",
     "value": 24,
     "how": "SELECT count(*) FROM decision WHERE id BETWEEN 117 AND 140"
   },
   {
-    "id": "c06_sustained_eval_sr_accuracy",
-    "claim": "SiliconRoute winning routing decisions out of 24 (headline benchmark)",
+    "id": "c06_eval_117_140_sr_accuracy",
+    "claim": "SiliconRoute winning routing decisions out of 24 on decisions 117-140",
     "value": 22,
     "how": "SELECT count(*) FROM decision WHERE id BETWEEN 117 AND 140 AND was_best = 1"
   },
   {
-    "id": "c07_sustained_eval_sr_mean_regret",
+    "id": "c07_eval_117_140_sr_mean_regret",
     "claim": "SiliconRoute average regret percentage vs best chip on decisions 117-140",
     "value": 1.75,
     "how": "SELECT round(avg(regret_pct), 2) FROM decision WHERE id BETWEEN 117 AND 140"
   },
   {
-    "id": "c08_sustained_eval_cpu_accuracy",
+    "id": "c08_eval_117_140_cpu_accuracy",
     "claim": "Always-CPU winning routing decisions out of 24 on decisions 117-140",
     "value": 15,
     "how": "SELECT count(*) FROM decision WHERE id BETWEEN 117 AND 140 AND best_device_id_actual = 1"
   },
   {
-    "id": "c09_sustained_eval_rtx_accuracy",
+    "id": "c09_eval_117_140_rtx_accuracy",
     "claim": "Always-RTX winning routing decisions out of 24 on decisions 117-140",
     "value": 9,
     "how": "SELECT count(*) FROM decision WHERE id BETWEEN 117 AND 140 AND best_device_id_actual = 3"

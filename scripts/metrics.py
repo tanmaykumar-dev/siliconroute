@@ -18,6 +18,14 @@ import sqlite3
 from typing import Any, Optional
 import numpy as np
 
+from app.config import (
+    BOOTSTRAP_CI_PCT,
+    COLD_START_RULE_THRESHOLD_PCT,
+    LOW_BATTERY_THRESHOLD_PCT,
+    VOLATILITY_TIEBREAK_BAND_PCT,
+    FINGERPRINT_TEST_DURATION_MS,
+)
+
 
 def get_table_count(conn: sqlite3.Connection, table_name: str, where_clause: Optional[str] = None) -> int:
     """Return row count of a table, optionally filtered by a WHERE clause."""
@@ -892,10 +900,10 @@ def get_rtx_compute_tflops(conn: sqlite3.Connection) -> float:
     return 11.0
 
 def get_bootstrap_ci_pct(conn: sqlite3.Connection) -> float:
-    return 95.0
+    return float(BOOTSTRAP_CI_PCT)
 
 def get_cold_start_rule_threshold_pct(conn: sqlite3.Connection) -> float:
-    return 30.0
+    return float(COLD_START_RULE_THRESHOLD_PCT)
 
 
 # -----------------------------------------------------------------------------
@@ -1031,13 +1039,13 @@ def get_workload_cold_start_fit_only_wins(conn: sqlite3.Connection) -> int:
 # 10. System, Config, Provenance & Headline Cold-Start Comparison Metrics
 # -----------------------------------------------------------------------------
 def get_volatility_tiebreak_band_pct(conn: sqlite3.Connection) -> float:
-    return 15.0
+    return float(VOLATILITY_TIEBREAK_BAND_PCT)
 
 def get_low_battery_threshold_pct(conn: sqlite3.Connection) -> float:
-    return 30.0
+    return float(LOW_BATTERY_THRESHOLD_PCT)
 
 def get_fingerprint_test_duration_ms(conn: sqlite3.Connection) -> float:
-    return 300.0
+    return float(FINGERPRINT_TEST_DURATION_MS)
 
 def get_database_size_bytes(conn: sqlite3.Connection) -> int:
     c = conn.cursor()

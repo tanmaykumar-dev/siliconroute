@@ -57,8 +57,15 @@ EXPLORE_MARGIN: float = 0.20
 
 # Battery and temperature thresholds
 LOW_BATTERY_PCT: int = 30
+LOW_BATTERY_THRESHOLD_PCT: float = float(LOW_BATTERY_PCT)
 HOT_GPU_C: int = 75
 MAX_GPU_C: int = 87
+
+# Published configuration setting constants (not measurements)
+BOOTSTRAP_CI_PCT: float = 95.0
+COLD_START_RULE_THRESHOLD_PCT: float = 30.0
+VOLATILITY_TIEBREAK_BAND_PCT: float = 15.0
+FINGERPRINT_TEST_DURATION_MS: float = float(WARMUP_SUSTAINED_MS)
 
 # Telemetry sampling and database persistence intervals
 TELEMETRY_HZ: int = 1

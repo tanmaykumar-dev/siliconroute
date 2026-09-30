@@ -1,0 +1,9 @@
+﻿
+
+Algorithm : SHA256
+Hash      : 98542CFFB7264EEE537D218E1863CCBBC174495E0BF13EB244EE22CD6F034CF5
+Path      : E:\THE SNAP X HP\data\final\siliconroute_final.db
+
+
+
+

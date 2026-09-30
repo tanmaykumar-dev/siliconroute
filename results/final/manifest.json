@@ -1,13 +1,13 @@
 {
   "metadata": {
-    "date": "2026-09-30T07:46:38.211057+00:00",
+    "date": "2026-09-30T09:34:38.816547+00:00",
     "database_path": "data\\final\\siliconroute_final.db",
     "database_size_bytes": 1044480,
     "database_sha256": "98542cffb7264eee537d218e1863ccbbc174495e0bf13eb244ee22cd6f034cf5",
-    "git_commit": "c19c6111345951dc5817d48e19da042ad7e96bd0",
+    "git_commit": "0d041090201b2d4fa6342d1130d5b9f273d5a542",
     "ort_version": "1.24.4",
     "nvidia_driver_version": "616.56",
-    "windows_power_scheme": "Power Scheme GUID: 6fecc5ae-f350-48a5-b669-b472cb895ccf  (Turbo)"
+    "windows_power_scheme": "Power Scheme GUID: 64a64f24-65b9-4b56-befd-5ec1eaced9b3  (Silent)"
   },
   "metrics": {
     "total_runs": {
@@ -939,14 +939,14 @@
       "method": "scripts.metrics.get_bootstrap_ci_pct",
       "sql": "Statistical confidence interval confidence level",
       "unit": "%",
-      "description": "Bootstrap confidence interval percentage"
+      "description": "configuration setting (not a measurement)"
     },
     "cold_start_rule_threshold_pct": {
       "value": 30.0,
       "method": "scripts.metrics.get_cold_start_rule_threshold_pct",
       "sql": "Cold-start CPU preference threshold percentage",
       "unit": "%",
-      "description": "Cold start threshold percentage"
+      "description": "configuration setting (not a measurement)"
     },
     "workload_idle_loaded_cpu_ratio_median": {
       "value": 1.76,
@@ -1226,21 +1226,21 @@
       "method": "scripts.metrics.get_volatility_tiebreak_band_pct",
       "sql": "Router session volatility tie-breaking band",
       "unit": "%",
-      "description": "Volatility tie-break band"
+      "description": "configuration setting (not a measurement)"
     },
     "low_battery_threshold_pct": {
       "value": 30.0,
       "method": "scripts.metrics.get_low_battery_threshold_pct",
       "sql": "Low battery threshold for battery saver mode",
       "unit": "%",
-      "description": "Low battery threshold"
+      "description": "configuration setting (not a measurement)"
     },
     "fingerprint_test_duration_ms": {
       "value": 300.0,
       "method": "scripts.metrics.get_fingerprint_test_duration_ms",
       "sql": "Duration of NVML GPU load fingerprint identification test",
       "unit": "ms",
-      "description": "Fingerprint test duration"
+      "description": "configuration setting (not a measurement)"
     },
     "database_size_bytes": {
       "value": 1044480,
