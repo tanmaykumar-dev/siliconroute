@@ -1,7 +1,7 @@
-"""SiliconRoute Design Spec v2 — Static Website Builder (Section 10.2).
+"""SiliconRoute Design Spec v3: Static Website Builder (Section 10.3).
 
-Extracts data from README and manifest, vendors fonts and tokens, generates OG image,
-and prepares site/ for standalone static serving without any runtime dependencies.
+Extracts data from README and manifest, vendors fonts and tokens, copies demo media,
+generates Open Graph image, and prepares site/ for standalone static serving without any runtime dependencies.
 Produces byte-for-byte deterministic output.
 """
 
@@ -12,12 +12,13 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 SITE_DIR = ROOT_DIR / "site"
 DATA_DIR = SITE_DIR / "data"
 IMG_DIR = SITE_DIR / "img"
+MEDIA_DIR = SITE_DIR / "media"
 FONTS_DIR = SITE_DIR / "fonts"
 CSS_DIR = SITE_DIR / "css"
 JS_DIR = SITE_DIR / "js"
@@ -25,6 +26,7 @@ JS_DIR = SITE_DIR / "js"
 MANIFEST_SRC = ROOT_DIR / "results" / "final" / "manifest.json"
 README_SRC = ROOT_DIR / "README.md"
 DB_SRC = ROOT_DIR / "data" / "final" / "siliconroute_final.db"
+DEMO_SRC = ROOT_DIR / "results" / "demo" / "siliconroute_demo.webm"
 
 
 def compute_sha256(path: Path) -> str:
@@ -48,7 +50,6 @@ def extract_readme_sections(readme_text: str) -> dict:
     for line in lim_text.splitlines():
         line = line.strip()
         if line.startswith("- **"):
-            # strip markdown comments <!-- ... -->
             clean = re.sub(r"<!--.*?-->", "", line).strip()
             limitations.append(clean.lstrip("- ").strip())
 
@@ -67,53 +68,57 @@ def extract_readme_sections(readme_text: str) -> dict:
 
 
 def generate_og_image(out_path: Path):
-    """Generate deterministic 1200x630 Open Graph card."""
+    """Generate deterministic 1200x630 Open Graph card using Red Bench light palette."""
     width, height = 1200, 630
-    img = Image.new("RGB", (width, height), color=(14, 19, 23)) # dark bench palette
+    # Red Bench light background #F2F2F0
+    img = Image.new("RGB", (width, height), color=(242, 242, 240))
     draw = ImageDraw.Draw(img)
 
-    # Frame & accent lines
-    draw.rectangle([20, 20, width - 20, height - 20], outline=(40, 50, 60), width=2)
-    draw.line([60, 150, width - 60, 150], fill=(40, 50, 60), width=1)
+    # Frame line #D6D6D2
+    draw.rectangle([24, 24, width - 24, height - 24], outline=(214, 214, 210), width=2)
+    draw.line([64, 140, width - 64, 140], fill=(214, 214, 210), width=1)
 
-    # Title
-    draw.text((60, 60), "SILICONROUTE", fill=(230, 236, 239))
-    draw.text((60, 95), "Hardware AI Load Balancer for Laptops", fill=(138, 148, 156))
+    # Top brand bar with solid red chip #E1461E
+    draw.rectangle([64, 64, 88, 88], fill=(225, 70, 30))
+    draw.text((104, 62), "SILICONROUTE", fill=(20, 20, 20))
+    draw.text((104, 92), "Hardware AI Load Balancer for Laptops", fill=(117, 117, 117))
 
-    # Hero statement
-    draw.text((60, 200), "Every AI task, on the right chip.", fill=(255, 255, 255))
+    # Hero headline
+    draw.text((64, 180), "Every AI task, on the right chip.", fill=(20, 20, 20))
     draw.text(
-        (60, 260),
-        "Empirical measurement, hardware modeling, and physics-informed routing.",
-        fill=(180, 190, 200)
+        (64, 230),
+        "Empirical measurement, hardware performance models, and verified execution.",
+        fill=(74, 74, 74)
     )
 
-    # Chips visual row
+    # Chips row with Red Bench marks (square, triangle, circle)
     chips = [
-        ("CPU", "AMD Ryzen 9", (227, 179, 65)),     # Amber
-        ("iGPU", "Radeon 610M", (56, 189, 178)),    # Teal
-        ("dGPU", "RTX 5070", (110, 156, 255)),     # Blue
+        ("CPU", "Host AMD Processor", (20, 20, 20)),
+        ("iGPU", "AMD Radeon 610M", (138, 138, 138)),
+        ("dGPU", "NVIDIA RTX 5070", (225, 70, 30)),
     ]
 
-    x_start = 60
+    x_start = 64
     for i, (label, name, col) in enumerate(chips):
         box_x = x_start + i * 360
-        draw.rectangle([box_x, 340, box_x + 320, 480], fill=(23, 32, 38), outline=col, width=2)
-        draw.rectangle([box_x, 340, box_x + 8, 480], fill=col)
-        draw.text((box_x + 24, 365), label, fill=col)
-        draw.text((box_x + 24, 400), name, fill=(230, 236, 239))
-        draw.text((box_x + 24, 435), "Empirical Envelope", fill=(138, 148, 156))
+        # Sheet background #FAFAF8 with 1px border #D6D6D2
+        draw.rectangle([box_x, 320, box_x + 320, 460], fill=(250, 250, 248), outline=(214, 214, 210), width=1)
+        # Top 4px color accent
+        draw.rectangle([box_x, 320, box_x + 320, 324], fill=col)
+        draw.text((box_x + 20, 345), label, fill=col)
+        draw.text((box_x + 20, 380), name, fill=(20, 20, 20))
+        draw.text((box_x + 20, 415), "Empirical Measurements", fill=(117, 117, 117))
 
     # Footer note
-    draw.text((60, 560), "Local-First • SQLite WAL • Zero Cloud Dependency • MIT License", fill=(100, 110, 120))
+    draw.text((64, 550), "Local-First: SQLite WAL: Zero Cloud Dependency: MIT License", fill=(117, 117, 117))
 
     img.save(str(out_path), "PNG")
 
 
 def build_site():
-    print("Building SiliconRoute website (Phase D4)...")
+    print("Building SiliconRoute website (Red Bench)...")
 
-    for d in [DATA_DIR, IMG_DIR, FONTS_DIR, CSS_DIR, JS_DIR]:
+    for d in [DATA_DIR, IMG_DIR, MEDIA_DIR, FONTS_DIR, CSS_DIR, JS_DIR]:
         d.mkdir(parents=True, exist_ok=True)
 
     # 1. Copy Manifest
@@ -152,12 +157,23 @@ def build_site():
     shutil.copyfile(ROOT_DIR / "frontend" / "css" / "tokens.css", CSS_DIR / "tokens.css")
     print("  Copied tokens.css -> site/css/")
 
-    # 6. Copy Screenshots
-    screens_src = ROOT_DIR / "results" / "screenshots" / "v2_design"
+    # 6. Copy Screenshots & Media
+    screens_src = ROOT_DIR / "results" / "screenshots" / "v3_design"
+    if not screens_src.exists() or not list(screens_src.glob("*.png")):
+        screens_src = ROOT_DIR / "results" / "screenshots" / "v2_design"
     if screens_src.exists():
         for s in screens_src.glob("*.png"):
             shutil.copyfile(s, IMG_DIR / s.name)
         print("  Copied screenshots to site/img/")
+
+    # Hero screenshot
+    overview_shot = ROOT_DIR / "results" / "screenshots" / "v3_design" / "01_overview_1440x900.png"
+    if overview_shot.exists():
+        shutil.copyfile(overview_shot, IMG_DIR / "hero_screenshot.png")
+
+    if DEMO_SRC.exists():
+        shutil.copyfile(DEMO_SRC, MEDIA_DIR / "siliconroute_demo.webm")
+        print("  Copied demo video -> site/media/")
 
     # 7. Generate OG Image
     og_path = IMG_DIR / "og_image.png"

@@ -1,3 +1,5 @@
+Control audit completed: 37 controls audited. Wrote E:\THE SNAP X HP\results\logs\design_v3\control_audit.txt
+
 Screen / Page             | Control Label                       | Type         | Result | Evidence
 --------------------------------------------------------------------------------------------------------------
 App (overview)            | Nav to overview                     | Navigation   | PASS   | Switched to screen overview

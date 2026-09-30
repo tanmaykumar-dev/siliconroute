@@ -1,49 +1,44 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SiliconRoute: Every AI task, on the right chip</title>
-  <meta name="description" content="Local-first hardware AI load balancer. Measures laptop CPU and GPUs, learns empirical scaling models, and routes each AI task to the best chip.">
+  <meta name="description" content="SiliconRoute measures the processors in your laptop, sends each AI task to the fastest one and shows the evidence.">
 
   <!-- Open Graph -->
   <meta property="og:title" content="SiliconRoute: Every AI task, on the right chip">
-  <meta property="og:description" content="SiliconRoute measures the CPU and GPUs in your laptop, routes each AI task to the best one, and shows the evidence.">
+  <meta property="og:description" content="SiliconRoute measures the processors in your laptop, sends each AI task to the fastest one and shows the evidence.">
   <meta property="og:image" content="img/og_image.png">
   <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary_large_image">
 
   <!-- Favicon -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='%232563eb'/></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' fill='%23E1461E'/></svg>">
 
   <!-- Stylesheets -->
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/style.css">
 
-  <!-- Client Script -->
+  <!-- Pinned Script -->
   <script src="js/site.js" defer></script>
 </head>
 <body>
 
-  <!-- Site Header with Centered Pill Navigation -->
+  <!-- Top Navigation Header -->
   <header class="site-header">
     <div class="site-container site-nav">
       <a href="index.html" class="site-brand">
-        <div class="site-brand-logo" aria-hidden="true">
-          <svg viewBox="0 0 24 24">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-          </svg>
-        </div>
+        <div class="site-brand-logo" aria-hidden="true"></div>
         <span class="site-brand-name">SiliconRoute</span>
       </a>
 
-      <nav class="nav-pill-wrapper" aria-label="Site Navigation">
+      <nav aria-label="Site Navigation">
         <ul class="site-nav-pills">
+          <li><a href="#problem" class="site-nav-pill-link">The problem</a></li>
           <li><a href="#how-it-works" class="site-nav-pill-link">How it works</a></li>
           <li><a href="#results" class="site-nav-pill-link">Results</a></li>
           <li><a href="#findings" class="site-nav-pill-link">Findings</a></li>
-          <li><a href="#limitations" class="site-nav-pill-link">Limitations</a></li>
-          <li><a href="#evidence" class="site-nav-pill-link">Evidence</a></li>
+          <li><a href="#reproduce" class="site-nav-pill-link">Reproduce</a></li>
         </ul>
       </nav>
 
@@ -54,438 +49,262 @@
     </div>
   </header>
 
-  <main class="site-container" style="padding-top:20px; padding-bottom:60px;">
+  <main class="site-container">
 
     <!-- =====================================================================
-         1. HERO SECTION
+         1. HERO SECTION (Section 10.1.1)
          ===================================================================== -->
     <section class="site-hero">
-      <h1 class="hero-headline">Every AI task, on the right chip.</h1>
-      <p class="hero-subline">
-        SiliconRoute measures the CPU and GPUs in your laptop, routes each AI task to the best one, and shows the cryptographic evidence.
-      </p>
-      <div class="hero-actions">
-        <a href="/" class="btn btn-primary">Open App Dashboard</a>
-        <a href="https://github.com/tanmaykumar-dev/siliconroute" class="btn btn-secondary" target="_blank" rel="noopener">View on GitHub</a>
-      </div>
-    </section>
-
-    <!-- =====================================================================
-         2. TOP 4 METRIC TILES ROW WITH ANIMATED WAVE SPARKLINES
-         ===================================================================== -->
-    <section class="metric-tiles-grid">
-      <!-- Metric Card 1 -->
-      <div class="metric-tile">
-        <div class="metric-tile-label">
-          <span>Avg Slowdown</span>
-        </div>
-        <div class="metric-tile-val">
-          <span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct"></span>
-        </div>
-        <div class="metric-tile-bottom">
-          <span class="trend trend-up">
-            ↗ <span class="metric" data-metric="decisions_117_140_sr_wins"></span>/<span class="metric" data-metric="decisions_117_140_total"></span> Best Chip
-          </span>
-          <div class="sparkline-wave-wrap">
-            <svg class="sparkline-wave-svg" viewBox="0 0 120 48">
-              <defs>
-                <linearGradient id="site-grad-green-1" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#10B981" stop-opacity="0.32"/>
-                  <stop offset="100%" stop-color="#10B981" stop-opacity="0.0"/>
-                </linearGradient>
-              </defs>
-              <path d="M 0 34 C 20 34, 35 16, 55 26 C 75 36, 95 12, 120 16 L 120 48 L 0 48 Z" fill="url(#site-grad-green-1)"/>
-              <path class="wave-line" d="M 0 34 C 20 34, 35 16, 55 26 C 75 36, 95 12, 120 16" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linecap="round"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <!-- Metric Card 2 -->
-      <div class="metric-tile">
-        <div class="metric-tile-label">
-          <span>Verified Tasks</span>
-        </div>
-        <div class="metric-tile-val">
-          <span class="metric" data-metric="decisions_117_140_total"></span>
-        </div>
-        <div class="metric-tile-bottom">
-          <span class="trend trend-up">
-            ↗ <span class="metric" data-metric="decisions_117_140_sr_accuracy_pct"></span> Accuracy
-          </span>
-          <div class="sparkline-wave-wrap">
-            <svg class="sparkline-wave-svg" viewBox="0 0 120 48">
-              <defs>
-                <linearGradient id="site-grad-green-2" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#10B981" stop-opacity="0.32"/>
-                  <stop offset="100%" stop-color="#10B981" stop-opacity="0.0"/>
-                </linearGradient>
-              </defs>
-              <path d="M 0 38 C 25 38, 45 22, 65 28 C 85 34, 100 10, 120 12 L 120 48 L 0 48 Z" fill="url(#site-grad-green-2)"/>
-              <path class="wave-line" d="M 0 38 C 25 38, 45 22, 65 28 C 85 34, 100 10, 120 12" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linecap="round"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <!-- Metric Card 3 -->
-      <div class="metric-tile">
-        <div class="metric-tile-label">
-          <span>Always-CPU Penalty</span>
-        </div>
-        <div class="metric-tile-val">
-          <span class="metric" data-metric="decisions_117_140_always_cpu_mean_regret_pct"></span>
-        </div>
-        <div class="metric-tile-bottom">
-          <span class="trend trend-warn">
-            ↗ Slow on Large Models
-          </span>
-          <div class="sparkline-wave-wrap">
-            <svg class="sparkline-wave-svg" viewBox="0 0 120 48">
-              <defs>
-                <linearGradient id="site-grad-amber" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.32"/>
-                  <stop offset="100%" stop-color="#F59E0B" stop-opacity="0.0"/>
-                </linearGradient>
-              </defs>
-              <path d="M 0 16 C 25 16, 45 34, 65 24 C 85 14, 105 38, 120 32 L 120 48 L 0 48 Z" fill="url(#site-grad-amber)"/>
-              <path class="wave-line" d="M 0 16 C 25 16, 45 34, 65 24 C 85 14, 105 38, 120 32" fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <!-- Metric Card 4 -->
-      <div class="metric-tile">
-        <div class="metric-tile-label">
-          <span>Always-RTX Penalty</span>
-        </div>
-        <div class="metric-tile-val">
-          <span class="metric" data-metric="decisions_117_140_always_rtx_mean_regret_pct"></span>
-        </div>
-        <div class="metric-tile-bottom">
-          <span class="trend trend-bad">
-            ↗ 4× Slower on Cold Starts
-          </span>
-          <div class="sparkline-wave-wrap">
-            <svg class="sparkline-wave-svg" viewBox="0 0 120 48">
-              <defs>
-                <linearGradient id="site-grad-coral" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#F43F5E" stop-opacity="0.32"/>
-                  <stop offset="100%" stop-color="#F43F5E" stop-opacity="0.0"/>
-                </linearGradient>
-              </defs>
-              <path d="M 0 14 C 25 14, 45 32, 65 22 C 85 12, 105 38, 120 36 L 120 48 L 0 48 Z" fill="url(#site-grad-coral)"/>
-              <path class="wave-line" d="M 0 14 C 25 14, 45 32, 65 22 C 85 12, 105 38, 120 36" fill="none" stroke="#F43F5E" stroke-width="2.2" stroke-linecap="round"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- =====================================================================
-         3. MIDDLE 3-COLUMN TRIPLET GRID (MATCHING MOCKUP)
-         ===================================================================== -->
-    <section class="dashboard-triplet-grid" id="how-it-works">
-      <!-- Card 1 (Left): AI Insight & Dispatch Logic -->
-      <div class="saas-card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <h2 class="card-title">SiliconRoute AI Insight</h2>
-            <span class="card-subtitle">Real-time hardware policy recommendations</span>
-          </div>
-          <div class="card-arrow-btn" title="AI Insight">
-            <svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-          </div>
-        </div>
-
-        <div class="insight-item">
-          <div class="insight-item-title">
-            <span>Hardware Dispatch Forecast</span>
-            <span class="pill pill-ok">Zero Wake</span>
-          </div>
-          <p class="insight-item-desc">
-            Small models at batch 1 run 4.0× faster on CPU than waking sleep-state GPU.
-          </p>
-        </div>
-
-        <div class="insight-item">
-          <div class="insight-item-title">
-            <span>Cold-Start Wake Protection</span>
-            <span class="pill pill-warn">Rule 1 Active</span>
-          </div>
-          <p class="insight-item-desc">
-            RTX 5070 in P8/sleep incurs driver & shader overhead. Routed to CPU for single inferences.
-          </p>
-        </div>
-
-        <!-- Interactive Router Simulator inside Card -->
-        <div style="background:var(--plate-subtle); padding:16px; border-radius:var(--radius-inner); margin-top:16px;">
-          <span style="font-size:13px; font-weight:700; color:var(--ink);">Interactive Router Simulator</span>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;">
-            <select class="select" id="site-sim-task" style="width:100%; height:36px;">
-              <option value="small">Small (MLP-256)</option>
-              <option value="large">Large (MLP-3072)</option>
-            </select>
-            <select class="select" id="site-sim-workload" style="width:100%; height:36px;">
-              <option value="single">Single Cold</option>
-              <option value="sustained">Sustained</option>
-            </select>
-          </div>
-          <div id="site-sim-result" style="margin-top:12px; padding:10px; background:var(--plate); border:1px solid var(--line); border-radius:var(--radius-pill); font-size:12.5px; font-weight:600; text-align:center;">
-            Recommended: <span style="color:var(--chip-cpu);">AMD Ryzen 9 CPU</span> (Fastest)
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 2 (Middle): Latency Scaling Spline Graphic -->
-      <div class="saas-card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <h2 class="card-title">Latency Scaling Overview</h2>
-            <span class="card-subtitle">Measured execution latency across batch sizes & chips</span>
-          </div>
-          <div class="card-arrow-btn" title="Scaling Overview">
-            <svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-          </div>
-        </div>
-
-        <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px;">
-          <div>
-            <div style="font-size:32px; font-weight:700; color:var(--ink); letter-spacing:-0.02em;">
-              <span class="metric" data-metric="crossover_mlp_b1_cpu_vs_rtx_params"></span>
-            </div>
-            <div style="font-size:13px; color:var(--ink-2); margin-top:2px;">
-              CPU vs RTX Crossover Threshold <span class="trend trend-up" style="margin-left:6px;">↗ Optimal Choice</span>
-            </div>
-          </div>
-          <div style="display:flex; align-items:center; gap:12px;">
-            <span style="font-size:12.5px; color:var(--ink-2);"><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#06B6D4;"></span> RTX 5070</span>
-            <span style="font-size:12.5px; color:var(--ink-2);"><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#FB923C;"></span> CPU</span>
-            <span style="font-size:12.5px; color:var(--ink-2);"><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#8B5CF6;"></span> Radeon 610M</span>
-          </div>
-        </div>
-
-        <!-- SVG Spline Curve Illustration Matching Mockup -->
-        <div style="height:210px; width:100%; position:relative;">
-          <svg viewBox="0 0 400 180" style="width:100%; height:100%; overflow:visible;">
-            <defs>
-              <linearGradient id="site-spline-grad-rtx" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#06B6D4" stop-opacity="0.25"/>
-                <stop offset="100%" stop-color="#06B6D4" stop-opacity="0.0"/>
-              </linearGradient>
-              <linearGradient id="site-spline-grad-cpu" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#FB923C" stop-opacity="0.22"/>
-                <stop offset="100%" stop-color="#FB923C" stop-opacity="0.0"/>
-              </linearGradient>
-            </defs>
-
-            <!-- Grid Lines (Faint & Minimal) -->
-            <line x1="0" y1="160" x2="400" y2="160" stroke="rgba(0,0,0,0.03)" stroke-width="1"/>
-            <line x1="0" y1="110" x2="400" y2="110" stroke="rgba(0,0,0,0.03)" stroke-width="1"/>
-            <line x1="0" y1="60" x2="400" y2="60" stroke="rgba(0,0,0,0.03)" stroke-width="1"/>
-
-            <!-- RTX Curve (Cyan) -->
-            <path d="M 10 130 C 100 120, 200 90, 390 40 L 390 160 L 10 160 Z" fill="url(#site-spline-grad-rtx)"/>
-            <path d="M 10 130 C 100 120, 200 90, 390 40" fill="none" stroke="#06B6D4" stroke-width="2.8" stroke-linecap="round"/>
-            <circle cx="200" cy="90" r="5" fill="#06B6D4" stroke="#FFFFFF" stroke-width="2"/>
-
-            <!-- CPU Curve (Coral) -->
-            <path d="M 10 150 C 120 140, 220 110, 390 10 L 390 160 L 10 160 Z" fill="url(#site-spline-grad-cpu)"/>
-            <path d="M 10 150 C 120 140, 220 110, 390 10" fill="none" stroke="#FB923C" stroke-width="2.8" stroke-linecap="round"/>
-            <circle cx="120" cy="140" r="5" fill="#FB923C" stroke="#FFFFFF" stroke-width="2"/>
-
-            <!-- Radeon Curve (Purple) -->
-            <path d="M 10 140 C 130 130, 250 80, 390 20" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-dasharray="4 4" stroke-linecap="round"/>
-
-            <!-- Floating Dark Interactive Tooltip Matching Mockup -->
-            <g transform="translate(180, 25)">
-              <rect width="130" height="52" rx="12" fill="#18181B" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
-              <text x="12" y="20" fill="#9CA3AF" font-size="10.5" font-family="'Plus Jakarta Sans', sans-serif">BATCH = 4</text>
-              <text x="12" y="34" fill="#FB923C" font-size="11" font-weight="600" font-family="'Plus Jakarta Sans', sans-serif">CPU: 7.8 ms</text>
-              <text x="12" y="47" fill="#06B6D4" font-size="11" font-weight="600" font-family="'Plus Jakarta Sans', sans-serif">RTX: 7.5 ms (win)</text>
-            </g>
-          </svg>
-        </div>
-      </div>
-
-      <!-- Card 3 (Right): Workload Distribution Donut Chart -->
-      <div class="saas-card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <h2 class="card-title">Routing by Hardware</h2>
-            <span class="card-subtitle">Workload distribution across physical chips</span>
-          </div>
-          <div class="card-arrow-btn" title="Distribution">
-            <svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-          </div>
-        </div>
-
-        <div class="donut-chart-container">
-          <div class="donut-graphic-wrapper">
-            <svg class="donut-svg" viewBox="0 0 200 200">
-              <circle cx="100" cy="100" r="75" fill="none" stroke="var(--bench)" stroke-width="18"/>
-              <circle class="donut-segment" cx="100" cy="100" r="75" stroke="#06B6D4" stroke-dasharray="240 471" stroke-dashoffset="0"/>
-              <circle class="donut-segment" cx="100" cy="100" r="75" stroke="#FB923C" stroke-dasharray="150 471" stroke-dashoffset="-240"/>
-              <circle class="donut-segment" cx="100" cy="100" r="75" stroke="#8B5CF6" stroke-dasharray="81 471" stroke-dashoffset="-390"/>
-            </svg>
-
-            <div class="donut-center-info">
-              <div class="donut-center-val">24 Tasks</div>
-              <div class="donut-center-label">Total Routed</div>
-            </div>
-
-            <!-- Floating Glassmorphism Percentage Badges Matching Mockup -->
-            <div class="donut-pill-badge donut-badge-dgpu">51%</div>
-            <div class="donut-pill-badge donut-badge-cpu">32%</div>
-            <div class="donut-pill-badge donut-badge-igpu">17%</div>
-          </div>
-
-          <div class="donut-legend">
-            <span class="donut-legend-item"><span class="donut-legend-dot" style="background:#06B6D4;"></span> RTX 5070</span>
-            <span class="donut-legend-item"><span class="donut-legend-dot" style="background:#FB923C;"></span> CPU</span>
-            <span class="donut-legend-item"><span class="donut-legend-dot" style="background:#8B5CF6;"></span> Radeon 610M</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- =====================================================================
-         4. RESULTS & BENCHMARKS
-         ===================================================================== -->
-    <section class="saas-card" id="results">
-      <div class="card-header">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-48); align-items: center;">
         <div>
-          <h2 class="card-title">Verified Routing Evaluation (Decisions 117–140)</h2>
-          <span class="card-subtitle">Measured execution latency on previously profiled configurations</span>
+          <h1 class="hero-headline">Every AI task, on the right chip.</h1>
+          <p class="hero-subline">
+            SiliconRoute measures the processors in your laptop, sends each AI task to the fastest one and shows the evidence.
+          </p>
+          <div class="hero-actions">
+            <a href="https://github.com/tanmaykumar-dev/siliconroute" class="btn btn-secondary" target="_blank" rel="noopener">View the code</a>
+            <a href="#reproduce" class="btn btn-primary">Run it on your laptop</a>
+          </div>
         </div>
-        <span class="pill pill-ok">100% Hardware Verified</span>
+
+        <div>
+          <div class="hero-preview">
+            <img src="img/hero_screenshot.png" alt="SiliconRoute hardware routing dashboard interface">
+            <div class="hero-caption">Measured on AMD Ryzen 5 7520U + NVIDIA RTX 5070 Laptop GPU, September 2026.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         2. REAL DEMO (Section 10.1.2)
+         ===================================================================== -->
+    <section class="site-section" id="demo">
+      <h2 class="section-title">Walkthrough Demo</h2>
+      <p class="section-desc">Recorded walkthrough demonstrating live routing, telemetry, and evidence verification.</p>
+      
+      <div style="border: 1px solid var(--rule); background: var(--sheet); padding: var(--space-8);">
+        <video controls poster="img/hero_screenshot.png" style="width: 100%; display: block;" src="media/siliconroute_demo.webm">
+          <track kind="captions" src="media/captions.vtt" srclang="en" label="English" default>
+        </video>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         3. THE PROBLEM (Section 10.1.3)
+         ===================================================================== -->
+    <section class="site-section" id="problem">
+      <h2 class="section-title">The Problem</h2>
+      <p class="section-desc">Why static scheduling fails on modern heterogeneous laptop processors:</p>
+
+      <div class="problem-row">
+        <div class="problem-figure"><span class="metric" data-metric="speedup_cpu_over_rtx_mlp_256_b1"></span></div>
+        <div class="problem-text">
+          Small tasks run faster on the host CPU than on the discrete GPU. Driver initialization and DirectML launch overhead exceed computation time on small models.
+        </div>
       </div>
 
-      <div class="saas-table-container">
-        <table class="bench-table">
+      <div class="problem-row">
+        <div class="problem-figure"><span class="metric" data-metric="overhead_rtx_cold_start_vs_sustained_mlp_3072"></span></div>
+        <div class="problem-text">
+          Cold-start session initialization incurs severe latency overhead on discrete GPUs. For sporadic single inferences, waking the GPU causes large slowdowns unless routed to the CPU.
+        </div>
+      </div>
+
+      <div class="problem-row">
+        <div class="problem-figure"><span class="metric" data-metric="identity_suspect_runs"></span></div>
+        <div class="problem-text">
+          Operating systems swap GPU adapter enumeration indices during power transitions, silently sending workloads to the wrong physical silicon without hardware-level identity verification.
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         4. HOW IT WORKS (Section 10.1.4)
+         ===================================================================== -->
+    <section class="site-section" id="how-it-works">
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-desc">An empirical feedback loop operating entirely on local hardware:</p>
+
+      <div class="step-row">
+        <div class="step-num">01</div>
+        <div class="step-name">Measure</div>
+        <div class="step-desc">Runs real ONNX workloads across CPU, integrated GPU, and discrete GPU, storing latency distributions and physical telemetry in SQLite.</div>
+      </div>
+
+      <div class="step-row">
+        <div class="step-num">02</div>
+        <div class="step-name">Learn</div>
+        <div class="step-desc">Fits non-negative least squares hardware performance rooflines per chip: time = overhead + FLOPs / compute + bytes / bandwidth.</div>
+      </div>
+
+      <div class="step-row">
+        <div class="step-num">03</div>
+        <div class="step-name">Decide</div>
+        <div class="step-desc">Evaluates task dimensions, current P-states, and power scheme to route each task to the optimal silicon for fastest, battery, or thermal goals.</div>
+      </div>
+
+      <div class="step-row">
+        <div class="step-num">04</div>
+        <div class="step-name">Verify</div>
+        <div class="step-desc">Benchmarks competing candidate processors on real silicon to confirm decisions and compute empirical regret against the ground-truth optimal choice.</div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         5. RESULTS (Section 10.1.5)
+         ===================================================================== -->
+    <section class="site-section" id="results">
+      <h2 class="section-title">Verified Hardware Results</h2>
+      <p class="section-desc">Evaluated on previously profiled configurations across 24 verified tasks (8 sustained, 8 idle-loaded, 8 cold-start):</p>
+
+      <div style="overflow-x: auto; margin-bottom: var(--space-24);">
+        <table class="data-table">
           <thead>
             <tr>
-              <th>Routing Strategy</th>
-              <th style="text-align:center;">Wins</th>
-              <th style="text-align:right;">Accuracy</th>
-              <th style="text-align:right;">Mean Slowdown</th>
-              <th style="text-align:right;">p90 Regret</th>
+              <th>Strategy</th>
+              <th class="num">Wins</th>
+              <th class="num">Total</th>
+              <th class="num">Accuracy</th>
+              <th class="num">Mean Regret</th>
+              <th class="num">P90 Regret</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td><strong>SiliconRoute (Self-Learning)</strong></td>
-              <td style="text-align:center;"><span class="metric" data-metric="decisions_117_140_sr_wins"></span> / <span class="metric" data-metric="decisions_117_140_total"></span></td>
-              <td style="text-align:right;"><span class="metric" data-metric="decisions_117_140_sr_accuracy_pct"></span></td>
-              <td style="text-align:right; font-weight:700; color:var(--ok);"><span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct"></span></td>
-              <td style="text-align:right;"><span class="metric" data-metric="decisions_117_140_sr_p90_regret_pct"></span></td>
+            <tr class="highlight">
+              <td><strong>SiliconRoute</strong></td>
+              <td class="num"><span class="metric" data-metric="decisions_117_140_sr_wins"></span></td>
+              <td class="num"><span class="metric" data-metric="decisions_117_140_total"></span></td>
+              <td class="num" style="font-weight:700;"><span class="metric" data-metric="decisions_117_140_sr_accuracy_pct"></span></td>
+              <td class="num"><span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct"></span></td>
+              <td class="num"><span class="metric" data-metric="decisions_117_140_sr_p90_regret_pct"></span></td>
             </tr>
             <tr>
-              <td>Always CPU Baseline</td>
-              <td style="text-align:center;"><span class="metric" data-metric="decisions_117_140_always_cpu_wins"></span> / <span class="metric" data-metric="decisions_117_140_total"></span></td>
-              <td style="text-align:right;"><span class="metric" data-metric="decisions_117_140_always_cpu_accuracy_pct"></span></td>
-              <td style="text-align:right; color:var(--warn);"><span class="metric" data-metric="decisions_117_140_always_cpu_mean_regret_pct"></span></td>
-              <td style="text-align:right;"><span class="metric" data-metric="decisions_117_140_always_cpu_p90_regret_pct"></span></td>
+              <td>Always-CPU</td>
+              <td class="num"><span class="metric" data-metric="decisions_117_140_always_cpu_wins"></span></td>
+              <td class="num"><span class="metric" data-metric="decisions_117_140_total"></span></td>
+              <td class="num"><span class="metric" data-metric="decisions_117_140_always_cpu_accuracy_pct"></span></td>
+              <td class="num"><span class="metric" data-metric="decisions_117_140_always_cpu_mean_regret_pct"></span></td>
+              <td class="num"><span class="metric" data-metric="decisions_117_140_always_cpu_p90_regret_pct"></span></td>
             </tr>
             <tr>
-              <td>Always RTX 5070 Baseline</td>
-              <td style="text-align:center;"><span class="metric" data-metric="decisions_117_140_always_rtx_wins"></span> / <span class="metric" data-metric="decisions_117_140_total"></span></td>
-              <td style="text-align:right;"><span class="metric" data-metric="decisions_117_140_always_rtx_accuracy_pct"></span></td>
-              <td style="text-align:right; color:var(--bad);"><span class="metric" data-metric="decisions_117_140_always_rtx_mean_regret_pct"></span></td>
-              <td style="text-align:right;"><span class="metric" data-metric="decisions_117_140_always_rtx_p90_regret_pct"></span></td>
+              <td>Always-RTX</td>
+              <td class="num"><span class="metric" data-metric="decisions_117_140_always_rtx_wins"></span></td>
+              <td class="num"><span class="metric" data-metric="decisions_117_140_total"></span></td>
+              <td class="num"><span class="metric" data-metric="decisions_117_140_always_rtx_accuracy_pct"></span></td>
+              <td class="num"><span class="metric" data-metric="decisions_117_140_always_rtx_mean_regret_pct"></span></td>
+              <td class="num"><span class="metric" data-metric="decisions_117_140_always_rtx_p90_regret_pct"></span></td>
+            </tr>
+            <tr>
+              <td>Fit-Only Router</td>
+              <td class="num"><span class="metric" data-metric="decisions_117_140_fit_only_wins"></span></td>
+              <td class="num"><span class="metric" data-metric="decisions_117_140_total"></span></td>
+              <td class="num"><span class="metric" data-metric="decisions_117_140_fit_only_accuracy_pct"></span></td>
+              <td class="num"><span class="metric" data-metric="decisions_117_140_fit_only_mean_regret_pct"></span></td>
+              <td class="num"><span class="metric" data-metric="decisions_117_140_fit_only_p90_regret_pct"></span></td>
             </tr>
           </tbody>
         </table>
       </div>
+
+      <p style="font-size: 13px; color: var(--ink-2);">
+        View complete hardware logs, raw timing arrays, and verification scripts in the 
+        <a href="https://github.com/tanmaykumar-dev/siliconroute/tree/main/results" target="_blank" rel="noopener">results repository on GitHub</a>.
+      </p>
     </section>
 
     <!-- =====================================================================
-         5. KEY FINDINGS
+         6. FINDINGS (Section 10.1.6)
          ===================================================================== -->
-    <section class="saas-card" id="findings">
-      <div class="card-header">
-        <h2 class="card-title">Key Empirical Findings</h2>
-      </div>
+    <section class="site-section" id="findings">
+      <h2 class="section-title">Physical Findings</h2>
+      <p class="section-desc">Key empirical insights derived from hardware measurements:</p>
 
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
-        <div style="background:var(--plate-subtle); padding:18px; border-radius:var(--radius-inner);">
-          <div style="font-weight:700; color:var(--ink); margin-bottom:6px;">Small MLP Overhead</div>
-          <p style="font-size:13px; color:var(--ink-2); line-height:1.5; margin:0;">
-            CPU is <span class="metric" data-metric="speedup_cpu_over_rtx_mlp_256_b1"></span> faster than RTX at batch 1 (<span class="metric" data-metric="mlp_256_b1_cpu_latency_ms"></span> vs <span class="metric" data-metric="mlp_256_b1_rtx_latency_ms"></span>) due to kernel launch and driver dispatch overhead.
-          </p>
-        </div>
+      <ol style="padding-left: 20px; line-height: 1.6; font-size: 14px; color: var(--ink);">
+        <li style="margin-bottom: 12px;">
+          <strong>CPU beats discrete GPU on small tasks:</strong> For small models (mlp-256w-4l, batch 1), the CPU completes in <span class="metric" data-metric="mlp_256_b1_cpu_latency_ms"></span> vs <span class="metric" data-metric="mlp_256_b1_rtx_latency_ms"></span> on RTX 5070 (<span class="metric" data-metric="speedup_cpu_over_rtx_mlp_256_b1"></span> faster) due to dispatch overhead.
+        </li>
+        <li style="margin-bottom: 12px;">
+          <strong>DirectML adapter numbering instability:</strong> Windows DXGI adapter indexing swapped indices in <span class="metric" data-metric="identity_suspect_runs"></span> runs, verified via in-process DXGI PCI vendor ID queries and NVML load fingerprinting.
+        </li>
+        <li style="margin-bottom: 12px;">
+          <strong>DirectML batch-8 kernel anomaly:</strong> Convolution workloads exhibit non-linear latency jumps around batch 8 (<span class="metric" data-metric="directml_anomaly_conv96_slowdown"></span> slowdown), captured by empirical lookup. <span class="tag">hypothesis</span>
+        </li>
+        <li style="margin-bottom: 12px;">
+          <strong>Session initialization dominates cold starts:</strong> Sustained RTX inference is <span class="metric" data-metric="mlp_3072_b1_sustained_rtx_ms"></span> vs CPU <span class="metric" data-metric="mlp_3072_b1_sustained_cpu_ms"></span>, but cold start session creation takes <span class="metric" data-metric="mlp_3072_cold_rtx_rounded_ms"></span> (<span class="metric" data-metric="overhead_rtx_cold_start_vs_sustained_mlp_3072"></span> overhead).
+        </li>
+      </ol>
+    </section>
 
-        <div style="background:var(--plate-subtle); padding:18px; border-radius:var(--radius-inner);">
-          <div style="font-weight:700; color:var(--ink); margin-bottom:6px;">Large MLP Throughput</div>
-          <p style="font-size:13px; color:var(--ink-2); line-height:1.5; margin:0;">
-            RTX 5070 is <span class="metric" data-metric="speedup_rtx_over_cpu_mlp_3072_b1_sustained"></span> faster than CPU under sustained execution (<span class="metric" data-metric="mlp_3072_b1_sustained_rtx_ms"></span> vs <span class="metric" data-metric="mlp_3072_b1_sustained_cpu_ms"></span>).
-          </p>
-        </div>
-
-        <div style="background:var(--plate-subtle); padding:18px; border-radius:var(--radius-inner);">
-          <div style="font-weight:700; color:var(--ink); margin-bottom:6px;">Cold Start Latency</div>
-          <p style="font-size:13px; color:var(--ink-2); line-height:1.5; margin:0;">
-            Discrete GPU first inference incurs <span class="metric" data-metric="overhead_rtx_cold_start_vs_sustained_mlp_3072"></span> overhead vs sustained execution due to session creation and shader compilation.
-          </p>
-        </div>
-
-        <div style="background:var(--plate-subtle); padding:18px; border-radius:var(--radius-inner);">
-          <div style="font-weight:700; color:var(--ink); margin-bottom:6px;">DirectML Winograd Anomaly</div>
-          <p style="font-size:13px; color:var(--ink-2); line-height:1.5; margin:0;">
-            conv-96 exhibits a <span class="metric" data-metric="directml_anomaly_conv96_slowdown"></span> slowdown on RTX vs conv-64 (un-tuned DirectML Winograd convolution algorithm boundary).
-          </p>
-        </div>
+    <!-- =====================================================================
+         7. SNAPDRAGON X2 ELITE (Section 10.1.7)
+         ===================================================================== -->
+    <section class="site-section" id="snapdragon">
+      <h2 class="section-title">Snapdragon X2 Elite</h2>
+      <div style="padding: var(--space-24); background: var(--sheet); border: 1px solid var(--rule); text-align: center;">
+        <div style="font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 4px;">Snapdragon results not yet recorded</div>
+        <div style="font-size: 13px; color: var(--ink-3);">Hardware profiling on Qualcomm Snapdragon X Elite silicon is scheduled for deployment.</div>
       </div>
     </section>
 
     <!-- =====================================================================
-         6. HONEST LIMITATIONS
+         8. LIMITATIONS (Section 10.1.8)
          ===================================================================== -->
-    <section class="saas-card" id="limitations">
-      <div class="card-header">
-        <h2 class="card-title">Technical Limitations & Scope</h2>
-      </div>
-      <ul id="site-limitations-list" style="padding-left:20px; font-size:13.5px; color:var(--ink-2); line-height:1.6;">
-        <li>Loading limitations from repository...</li>
-      </ul>
+    <section class="site-section" id="limitations">
+      <h2 class="section-title">Limitations</h2>
+      <p class="section-desc">Known boundaries and scope of this implementation:</p>
+      <ul id="site-limitations-list" style="padding-left: 20px; line-height: 1.6; font-size: 14px; color: var(--ink);"></ul>
     </section>
 
     <!-- =====================================================================
-         7. REPRODUCTION & EVIDENCE
+         9. REPRODUCE IT (Section 10.1.9)
          ===================================================================== -->
-    <section class="saas-card" id="evidence">
-      <div class="card-header">
-        <div>
-          <h2 class="card-title">Reproduce on Your Hardware</h2>
-          <span class="card-subtitle">Zero telemetry upload, completely local-first</span>
-        </div>
-      </div>
+    <section class="site-section" id="reproduce">
+      <h2 class="section-title">Reproduce It</h2>
+      <p class="section-desc">Verify results independently on your laptop hardware:</p>
 
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-bottom:20px;">
-        <div style="background:var(--plate-subtle); padding:16px; border-radius:var(--radius-inner);">
-          <span style="font-size:12px; color:var(--ink-3); font-weight:600;">FROZEN DATABASE SHA256</span>
-          <div style="font-family:var(--font-mono); font-size:12px; font-weight:600; color:var(--ink); margin-top:4px; word-break:break-all;" id="build-db-sha">98542cffb7264eee537d218e1863ccbbc174495e0bf13eb244ee22cd6f034cf5</div>
+      <div style="margin-bottom: var(--space-24);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <span style="font-size:13px; font-weight:700;">1. Clone and launch SiliconRoute:</span>
+          <button type="button" class="btn btn-secondary btn-sm code-copy-btn" data-code-target="code-start">Copy</button>
         </div>
-        <div style="background:var(--plate-subtle); padding:16px; border-radius:var(--radius-inner);">
-          <span style="font-size:12px; color:var(--ink-3); font-weight:600;">VERIFIED TESTS</span>
-          <div style="font-size:13px; font-weight:600; color:var(--ok); margin-top:4px;">69 of 69 Tests Passing</div>
-        </div>
-      </div>
-
-      <div>
-        <span style="font-size:13px; font-weight:600; color:var(--ink);">Run locally:</span>
         <div class="code-box">
-          <button class="btn btn-secondary btn-sm code-copy-btn" data-code-target="site-run-code">Copy</button>
-          <pre id="site-run-code">git clone https://github.com/tanmaykumar-dev/siliconroute.git
+          <pre id="code-start">git clone https://github.com/tanmaykumar-dev/siliconroute.git
 cd siliconroute
 start.bat</pre>
         </div>
       </div>
+
+      <div style="margin-bottom: var(--space-24);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <span style="font-size:13px; font-weight:700;">2. Run 15-minute verification benchmark:</span>
+          <button type="button" class="btn btn-secondary btn-sm code-copy-btn" data-code-target="code-reproduce">Copy</button>
+        </div>
+        <div class="code-box">
+          <pre id="code-reproduce">python scripts/reproduce.py</pre>
+        </div>
+      </div>
+
+      <div style="padding: var(--space-16); background: var(--sheet); border: 1px solid var(--rule); font-size: 13px;">
+        <span style="font-weight: 600;">Frozen Database SHA256: </span>
+        <code style="font-family: var(--font-mono); font-size: 12px;" id="build-db-sha">98542cffb7264eee537d218e1863ccbbc174495e0bf13eb244ee22cd6f034cf5</code>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         10. HOW IT WAS BUILT (Section 10.1.10)
+         ===================================================================== -->
+    <section class="site-section" id="how-it-was-built">
+      <h2 class="section-title">How It Was Built</h2>
+      <p class="section-desc">Development methodology and tooling disclosure:</p>
+      <ul id="site-built-list" style="padding-left: 20px; line-height: 1.6; font-size: 14px; color: var(--ink);"></ul>
     </section>
 
   </main>
 
+  <!-- =====================================================================
+       11. FOOTER (Section 10.1.11)
+       ===================================================================== -->
   <footer class="site-footer">
     <div class="site-container">
       <div>SiliconRoute. MIT License. Built by Tanmay.</div>

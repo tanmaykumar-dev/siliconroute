@@ -1,0 +1,10 @@
+WEBVTT
+
+00:00:01.000 --> 00:00:05.000
+Welcome to SiliconRoute: the local-first hardware AI load balancer.
+
+00:00:05.500 --> 00:00:10.000
+Observing real-time telemetry across CPU, integrated GPU, and discrete GPU.
+
+00:00:10.500 --> 00:00:16.000
+Routing tasks based on empirical execution profiles and physical roofline fits.

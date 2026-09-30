@@ -1,15 +1,12 @@
 /**
- * SiliconRoute Website Logic — Elevated SaaS Design
+ * SiliconRoute Website Logic: Red Bench (Design Spec v3 Section 10)
  * Loads local data/manifest.json, data/content.json, and data/build.json.
- * Renders .metric elements, draws hero routing trace, attaches copy buttons,
- * and powers the interactive router simulator.
+ * Renders .metric elements, populates limitations and disclosure, attaches copy buttons.
  */
 
 document.addEventListener("DOMContentLoaded", async () => {
   await loadAndRenderSite();
   setupCodeCopyButtons();
-  setupRouterSimulator();
-  drawHeroRoutingTrace();
 });
 
 async function loadAndRenderSite() {
@@ -45,7 +42,7 @@ function formatValue(key, val, unit) {
     if (key.includes("regret")) return `${val.toFixed(2)}%`;
     return `${val.toFixed(1)}%`;
   }
-  if (unit === "x") return `${val.toFixed(1)}×`;
+  if (unit === "x") return `${val.toFixed(1)}x`;
   if (unit === "GFLOP/s" || unit === "GB/s") return `${val.toFixed(1)} ${unit}`;
   if (unit === "params") {
     if (val >= 1000000) return `${(val / 1000000).toFixed(1)}M params`;
@@ -72,7 +69,7 @@ function renderBuildInfo(build) {
   const elSha = document.getElementById("build-db-sha");
   const elCommit = document.getElementById("build-git-commit");
 
-  if (elSha) elSha.textContent = build.database_sha256 || "—";
+  if (elSha) elSha.textContent = build.database_sha256 || "n/a";
   if (elCommit && build.git_commit) {
     elCommit.textContent = build.git_commit.slice(0, 10);
   }
@@ -83,64 +80,17 @@ function renderContent(content) {
   if (limList && Array.isArray(content.limitations)) {
     limList.innerHTML = content.limitations.map(item => `<li>${formatMarkdown(item)}</li>`).join("");
   }
+
+  const builtList = document.getElementById("site-built-list");
+  if (builtList && Array.isArray(content.how_this_was_built)) {
+    builtList.innerHTML = content.how_this_was_built.map(item => `<li>${formatMarkdown(item)}</li>`).join("");
+  }
 }
 
 function formatMarkdown(str) {
   if (!str) return "";
   const escaped = escapeHtml(str);
   return escaped.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-}
-
-function setupRouterSimulator() {
-  const taskSel = document.getElementById("site-sim-task");
-  const wlSel = document.getElementById("site-sim-workload");
-  const resEl = document.getElementById("site-sim-result");
-
-  if (!taskSel || !wlSel || !resEl) return;
-
-  function updateSim() {
-    const task = taskSel.value;
-    const wl = wlSel.value;
-
-    if (task === "small" && wl === "single") {
-      resEl.innerHTML = `Recommended: <strong style="color:var(--chip-cpu);">AMD Ryzen 9 CPU</strong> (Fastest — Zero GPU wake penalty)`;
-    } else if (task === "small" && wl === "sustained") {
-      resEl.innerHTML = `Recommended: <strong style="color:var(--chip-cpu);">AMD Ryzen 9 CPU</strong> (Fastest — Kernel overhead boundary)`;
-    } else if (task === "large" && wl === "single") {
-      resEl.innerHTML = `Recommended: <strong style="color:var(--chip-dgpu);">NVIDIA RTX 5070</strong> (Fastest — Compute amortizes wake)`;
-    } else {
-      resEl.innerHTML = `Recommended: <strong style="color:var(--chip-dgpu);">NVIDIA RTX 5070</strong> (Fastest — 6.4× faster than CPU)`;
-    }
-  }
-
-  taskSel.addEventListener("change", updateSim);
-  wlSel.addEventListener("change", updateSim);
-}
-
-function drawHeroRoutingTrace() {
-  const svg = document.getElementById("hero-trace-svg");
-  const sourceBox = document.getElementById("hero-task-box");
-  const destBox = document.getElementById("hero-dest-box");
-
-  if (!svg || !sourceBox || !destBox) return;
-
-  const sRect = sourceBox.getBoundingClientRect();
-  const dRect = destBox.getBoundingClientRect();
-  const cRect = svg.getBoundingClientRect();
-
-  const startX = sRect.right - cRect.left;
-  const startY = sRect.top + sRect.height / 2 - cRect.top;
-  const endX = dRect.left - cRect.left;
-  const endY = dRect.top + dRect.height / 2 - cRect.top;
-
-  const midX = (startX + endX) / 2;
-  const pathD = `M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`;
-
-  svg.innerHTML = `
-    <path d="${pathD}" fill="none" stroke="var(--ok)" stroke-width="2.5" stroke-dasharray="8 4" stroke-linecap="round">
-      <animate attributeName="stroke-dashoffset" from="40" to="0" dur="800ms" repeatCount="1" />
-    </path>
-  `;
 }
 
 function setupCodeCopyButtons() {

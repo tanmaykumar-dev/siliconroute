@@ -72,6 +72,8 @@
 - 2026-10-01 - **Design Spec v3 "Red Bench" Phase R1:** Replaced v2 styles with sharp light-only v3 tokens (paper, sheet, ink, red), removed theme toggle/dark mode, created signature 96px socket strip under top bar, implemented text-only left rail with 4px red active underline, and built ui_lint.py and control_audit.py.
 - 2026-10-01 - **Design Spec v3 "Red Bench" Phase R2:** Built Red Bench components and evidence popover system (`.metric` with "Show evidence" trigger, full provenance and SQL display, raw-samples scatter modal with focus trap, dismissible toasts, animation-free Chart.js theme, and updated `test_design_v3.py`). Zero lint violations and 35/35 audited controls passing.
 - 2026-10-01 - **Design Spec v3 "Red Bench" Phase R3:** Converted all seven app screens (Overview, Live, Analysis, Router, Results, Evidence, About) to Red Bench standards: animation: false, zero border radius, token palettes only, rectangular tags, exact confirmation dialog for hardware verification, toast notifications, and Snapdragon empty state. Zero lint violations and 35/35 audited controls passing.
+- 2026-10-01 - **Design Spec v3 "Red Bench" Phase R4:** Rebuilt static documentation website (`site/`) matching all 11 sections of Section 10.1 (real app screenshot hero, native video with captions track, 3 problem rows, 4 how-it-works rows, results table, findings, Snapdragon empty state, limitations and disclosure from README, reproduce commands with copy buttons, and short Privacy and Terms pages). Updated `scripts/build_site.py` for deterministic builds and light Red Bench OG card. Zero lint violations and 37/37 audited controls passing.
+
 
 
 
