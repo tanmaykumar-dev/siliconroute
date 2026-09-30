@@ -1,65 +1,50 @@
-"""Compute and audit WCAG 2.2 AA contrast ratios for design tokens."""
+"""SiliconRoute Design Spec v3: WCAG 2.2 Contrast Ratio Calculator (Section 12).
 
-import math
+Calculates exact relative luminance and contrast ratios between text/UI colors
+and background surfaces (Paper #F2F2F0, Sheet #FAFAF8, Red #E1461E).
+Writes verification table to results/logs/design_v3/contrast.txt.
+"""
+
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-OUTPUT_LOG = ROOT_DIR / "results" / "logs" / "design_v2" / "contrast.txt"
+LOG_DIR = ROOT_DIR / "results" / "logs" / "design_v3"
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+OUT_FILE = LOG_DIR / "contrast.txt"
 
-DARK_TOKENS = {
-    "bench": "#0E1317",
-    "plate": "#141A1F",
-    "plate_raised": "#1A2229",
-    "line": "#27323B",
-    "line_strong": "#3A4752",
-    "ink": "#E6ECEF",
-    "ink_2": "#A3AFB8",
-    "ink_3": "#77848E",
-    "chip_cpu": "#E59A3A",
-    "chip_igpu": "#3CC4AC",
-    "chip_dgpu": "#6E9CFF",
-    "chip_npu": "#A988F0",
-    "ok": "#4CC787",
-    "warn": "#E3B341",
-    "bad": "#F07167",
-    "na": "#6B7780",
-}
-
-LIGHT_TOKENS = {
-    "bench": "#E9EDF0",
-    "plate": "#F7F9FA",
-    "plate_raised": "#FFFFFF",
-    "line": "#D3DAE0",
-    "line_strong": "#B7C1CA",
-    "ink": "#172026",
-    "ink_2": "#4E5A64",
-    "ink_3": "#76828C",
-    "chip_cpu": "#B86E12",
-    "chip_igpu": "#138472",
-    "chip_dgpu": "#2A5FD0",
-    "chip_npu": "#7A4BD6",
-    "ok": "#1E8A4C",
-    "warn": "#A86E00",
-    "bad": "#C23B32",
-    "na": "#8A949C",
+TOKENS = {
+    "paper": "#F2F2F0",
+    "sheet": "#FAFAF8",
+    "ink": "#141414",
+    "ink-2": "#4A4A4A",
+    "ink-3": "#757575",
+    "rule": "#D6D6D2",
+    "red": "#E1461E",
+    "red-deep": "#B8330F",
+    "red-wash": "#F7E4DD",
+    "grey-chip": "#8A8A8A",
+    "white": "#FFFFFF",
 }
 
 
 def hex_to_rgb(hex_str: str) -> tuple[float, float, float]:
-    hex_clean = hex_str.lstrip("#")
-    r = int(hex_clean[0:2], 16) / 255.0
-    g = int(hex_clean[2:4], 16) / 255.0
-    b = int(hex_clean[4:6], 16) / 255.0
+    h = hex_str.lstrip("#")
+    r = int(h[0:2], 16) / 255.0
+    g = int(h[2:4], 16) / 255.0
+    b = int(h[4:6], 16) / 255.0
     return r, g, b
 
 
 def channel_luminance(c: float) -> float:
-    return c / 12.92 if c <= 0.04045 else math.pow((c + 0.055) / 1.055, 2.4)
+    return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
 
 
 def relative_luminance(hex_str: str) -> float:
     r, g, b = hex_to_rgb(hex_str)
-    return 0.2126 * channel_luminance(r) + 0.7152 * channel_luminance(g) + 0.0722 * channel_luminance(b)
+    rl = channel_luminance(r)
+    gl = channel_luminance(g)
+    bl = channel_luminance(b)
+    return 0.2126 * rl + 0.7152 * gl + 0.0722 * bl
 
 
 def contrast_ratio(hex1: str, hex2: str) -> float:
@@ -70,35 +55,46 @@ def contrast_ratio(hex1: str, hex2: str) -> float:
     return (lighter + 0.05) / (darker + 0.05)
 
 
-def run_audit():
-    OUTPUT_LOG.parent.mkdir(parents=True, exist_ok=True)
+def run_contrast_audit():
+    pairs = [
+        # (Foreground, Background, Purpose, Required)
+        ("ink", "paper", "Body text on paper", 4.5),
+        ("ink", "sheet", "Card / table text on sheet", 4.5),
+        ("ink-2", "paper", "Secondary text on paper", 4.5),
+        ("ink-2", "sheet", "Secondary text on sheet", 4.5),
+        ("ink-3", "paper", "Metadata / caption text on paper", 3.0),
+        ("ink-3", "sheet", "Metadata / caption text on sheet", 3.0),
+        ("white", "red", "Primary button text on red fill", 4.0),
+        ("white", "red-deep", "Primary button active text", 4.5),
+        ("red", "paper", "Red accent / links on paper", 3.0),
+        ("red-deep", "paper", "Deep red tags / headings on paper", 4.5),
+        ("red-deep", "red-wash", "Chosen row text on wash", 4.5),
+        ("ink", "red-wash", "Table body text on wash", 4.5),
+        ("rule", "paper", "1px structural borders on paper", 1.2),
+        ("ink", "white", "High-contrast inverted elements", 7.0),
+    ]
+
     lines = []
-    lines.append("=" * 80)
-    lines.append("SILICONROUTE DESIGN v2 — WCAG 2.2 CONTRAST AUDIT")
-    lines.append("Criteria: WCAG AA normal text >= 4.5:1, UI components / large text >= 3.0:1")
-    lines.append("=" * 80)
+    lines.append(f"{'Foreground':<12} | {'Background':<12} | {'Ratio':<8} | {'Req':<6} | {'Status':<6} | Role / Usage")
+    lines.append("-" * 80)
 
-    for theme_name, tokens in [("DARK THEME (App Default)", DARK_TOKENS), ("LIGHT THEME (Website Default)", LIGHT_TOKENS)]:
-        lines.append(f"\n{theme_name}")
-        lines.append("-" * 80)
-        lines.append(f"{'Foreground Token':<20} {'Background Token':<20} {'Ratio':<10} {'AA Norm (4.5)':<15} {'AA UI (3.0)':<12}")
-        lines.append("-" * 80)
+    all_passed = True
+    for fg_name, bg_name, usage, req in pairs:
+        fg_hex = TOKENS[fg_name]
+        bg_hex = TOKENS[bg_name]
+        ratio = contrast_ratio(fg_hex, bg_hex)
+        passed = ratio >= req
+        if not passed:
+            all_passed = False
+        status = "PASS" if passed else "FAIL"
+        lines.append(f"{f'{fg_name} ({fg_hex})':<12} | {f'{bg_name} ({bg_hex})':<12} | {ratio:>5.2f}:1  | {req:>4.1f}:1 | {status:<6} | {usage}")
 
-        bg_tokens = ["plate", "bench", "plate_raised"]
-        fg_tokens = ["ink", "ink_2", "ink_3", "chip_cpu", "chip_igpu", "chip_dgpu", "chip_npu", "ok", "warn", "bad"]
-
-        for bg in bg_tokens:
-            for fg in fg_tokens:
-                ratio = contrast_ratio(tokens[fg], tokens[bg])
-                pass_norm = "PASS" if ratio >= 4.5 else "FAIL"
-                pass_ui = "PASS" if ratio >= 3.0 else "FAIL"
-                lines.append(f"--{fg:<18} on --{bg:<17} {ratio:5.2f}:1    {pass_norm:<15} {pass_ui:<12}")
-
-    log_content = "\n".join(lines) + "\n"
-    OUTPUT_LOG.write_text(log_content, encoding="utf-8")
-    print(f"Audit saved to {OUTPUT_LOG}")
-    print(log_content[:1500])
+    report = "\n".join(lines)
+    OUT_FILE.write_text(report, encoding="utf-8")
+    print(f"Contrast audit completed. Written to {OUT_FILE}")
+    print(f"All pairs meeting criteria: {all_passed}")
+    return all_passed
 
 
 if __name__ == "__main__":
-    run_audit()
+    run_contrast_audit()

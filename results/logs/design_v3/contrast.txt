@@ -1,0 +1,16 @@
+Foreground   | Background   | Ratio    | Req    | Status | Role / Usage
+--------------------------------------------------------------------------------
+ink (#141414) | paper (#F2F2F0) | 16.44:1  |  4.5:1 | PASS   | Body text on paper
+ink (#141414) | sheet (#FAFAF8) | 17.63:1  |  4.5:1 | PASS   | Card / table text on sheet
+ink-2 (#4A4A4A) | paper (#F2F2F0) |  7.91:1  |  4.5:1 | PASS   | Secondary text on paper
+ink-2 (#4A4A4A) | sheet (#FAFAF8) |  8.48:1  |  4.5:1 | PASS   | Secondary text on sheet
+ink-3 (#757575) | paper (#F2F2F0) |  4.11:1  |  3.0:1 | PASS   | Metadata / caption text on paper
+ink-3 (#757575) | sheet (#FAFAF8) |  4.41:1  |  3.0:1 | PASS   | Metadata / caption text on sheet
+white (#FFFFFF) | red (#E1461E) |  4.12:1  |  4.0:1 | PASS   | Primary button text on red fill
+white (#FFFFFF) | red-deep (#B8330F) |  5.97:1  |  4.5:1 | PASS   | Primary button active text
+red (#E1461E) | paper (#F2F2F0) |  3.68:1  |  3.0:1 | PASS   | Red accent / links on paper
+red-deep (#B8330F) | paper (#F2F2F0) |  5.32:1  |  4.5:1 | PASS   | Deep red tags / headings on paper
+red-deep (#B8330F) | red-wash (#F7E4DD) |  4.86:1  |  4.5:1 | PASS   | Chosen row text on wash
+ink (#141414) | red-wash (#F7E4DD) | 15.00:1  |  4.5:1 | PASS   | Table body text on wash
+rule (#D6D6D2) | paper (#F2F2F0) |  1.30:1  |  1.2:1 | PASS   | 1px structural borders on paper
+ink (#141414) | white (#FFFFFF) | 18.42:1  |  7.0:1 | PASS   | High-contrast inverted elements

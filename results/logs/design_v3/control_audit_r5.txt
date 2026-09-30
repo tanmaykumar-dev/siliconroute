@@ -1,0 +1,39 @@
+Screen / Page             | Control Label                       | Type         | Result | Evidence
+--------------------------------------------------------------------------------------------------------------
+App (overview)            | Nav to overview                     | Navigation   | PASS   | Switched to screen overview
+App (overview)            | Show evidence                       | Button       | PASS   | Interactive element present
+App (overview)            | Route task                          | Button       | PASS   | Interactive element present
+App (live)                | Nav to live                         | Navigation   | PASS   | Switched to screen live
+App (live)                | Show data table                     | Button       | PASS   | Interactive element present
+App (live)                | Show data table                     | Button       | PASS   | Interactive element present
+App (live)                | Show data table                     | Button       | PASS   | Interactive element present
+App (live)                | Show data table                     | Button       | PASS   | Interactive element present
+App (analysis)            | Nav to analysis                     | Navigation   | PASS   | Switched to screen analysis
+App (analysis)            | Show data table                     | Button       | PASS   | Interactive element present
+App (router)              | Nav to router                       | Navigation   | PASS   | Switched to screen router
+App (router)              | Route task                          | Button       | PASS   | Interactive element present
+App (router)              | Route and verify on hardware        | Button       | PASS   | Verified up to confirmation modal
+App (results)             | Nav to results                      | Navigation   | PASS   | Switched to screen results
+App (evidence)            | Nav to evidence                     | Navigation   | PASS   | Switched to screen evidence
+App (evidence)            | Copy                                | Button       | PASS   | Interactive element present
+App (evidence)            | Copy                                | Button       | PASS   | Interactive element present
+App (about)               | Nav to about                        | Navigation   | PASS   | Switched to screen about
+App (about)               | Privacy Policy                      | Link         | PASS   | Valid link href='/site/privacy.html'
+App (about)               | Terms of Use                        | Link         | PASS   | Valid link href='/site/terms.html'
+site/index.html           | SiliconRoute                        | Link         | PASS   | Valid link href='index.html'
+site/index.html           | The problem                         | Link         | PASS   | Valid link href='#problem'
+site/index.html           | How it works                        | Link         | PASS   | Valid link href='#how-it-works'
+site/index.html           | Results                             | Link         | PASS   | Valid link href='#results'
+site/index.html           | Findings                            | Link         | PASS   | Valid link href='#findings'
+site/index.html           | Reproduce                           | Link         | PASS   | Valid link href='#reproduce'
+site/index.html           | Launch App                          | Link         | PASS   | Valid link href='/'
+site/index.html           | GitHub                              | Link         | PASS   | Valid link href='https://github.com/tanmaykumar-dev/siliconroute'
+site/index.html           | View the code                       | Link         | PASS   | Valid link href='https://github.com/tanmaykumar-dev/siliconroute'
+site/index.html           | Run it on your laptop               | Link         | PASS   | Valid link href='#reproduce'
+site/index.html           | results repository on GitHub        | Link         | PASS   | Valid link href='https://github.com/tanmaykumar-dev/siliconroute/tree/main/results'
+site/index.html           | Home                                | Link         | PASS   | Valid link href='index.html'
+site/index.html           | Privacy                             | Link         | PASS   | Valid link href='privacy.html'
+site/index.html           | Terms                               | Link         | PASS   | Valid link href='terms.html'
+site/index.html           | GitHub                              | Link         | PASS   | Valid link href='https://github.com/tanmaykumar-dev/siliconroute'
+site/index.html           | Copy                                | Button       | PASS   | Interactive element present
+site/index.html           | Copy                                | Button       | PASS   | Interactive element present

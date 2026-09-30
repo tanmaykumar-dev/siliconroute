@@ -59,6 +59,12 @@ if (ROOT / "results/logs/design_v2").exists():
         if p.is_file():
             files_to_copy.append(p.relative_to(ROOT))
 
+# Add every file in results/logs/design_v3/
+if (ROOT / "results/logs/design_v3").exists():
+    for p in (ROOT / "results/logs/design_v3").iterdir():
+        if p.is_file():
+            files_to_copy.append(p.relative_to(ROOT))
+
 # Add all screenshots in results/screenshots/v1_0/
 if (ROOT / "results/screenshots/v1_0").exists():
     for p in (ROOT / "results/screenshots/v1_0").glob("*.png"):
@@ -67,6 +73,11 @@ if (ROOT / "results/screenshots/v1_0").exists():
 # Add all screenshots in results/screenshots/v2_design/
 if (ROOT / "results/screenshots/v2_design").exists():
     for p in (ROOT / "results/screenshots/v2_design").glob("*.png"):
+        files_to_copy.append(p.relative_to(ROOT))
+
+# Add all screenshots in results/screenshots/v3_design/
+if (ROOT / "results/screenshots/v3_design").exists():
+    for p in (ROOT / "results/screenshots/v3_design").glob("*.png"):
         files_to_copy.append(p.relative_to(ROOT))
 
 if (ROOT / "docs/DESIGN_SPEC.md").exists():

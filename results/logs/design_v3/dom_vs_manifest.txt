@@ -1,0 +1,168 @@
+=========================================================================================================
+SILICONROUTE DESIGN v3: 'RED BENCH' DOM VS MANIFEST AUDIT LOG
+=========================================================================================================
+Context          | Metric Key                                 | Manifest Value   | DOM Rendered     | Status
+---------------------------------------------------------------------------------------------------------
+App (overview)   | decisions_117_140_sr_wins                  | 22               | 22               | PASS
+App (overview)   | decisions_117_140_total                    | 24               | 24               | PASS
+App (overview)   | decisions_117_140_sr_accuracy_pct          | 91.7             | 91.7%            | PASS
+App (overview)   | decisions_117_140_sr_mean_regret_pct       | 1.75             | 1.75%            | PASS
+App (overview)   | decisions_117_140_sr_wins                  | 22               | 22               | PASS
+App (overview)   | decisions_117_140_total                    | 24               | 24               | PASS
+App (overview)   | decisions_117_140_sr_accuracy_pct          | 91.7             | 91.7%            | PASS
+App (overview)   | decisions_117_140_sr_mean_regret_pct       | 1.75             | 1.75%            | PASS
+App (overview)   | decisions_117_140_sr_p90_regret_pct        | 0.0              | 0.00%            | PASS
+App (overview)   | decisions_117_140_always_cpu_wins          | 15               | 15               | PASS
+App (overview)   | decisions_117_140_total                    | 24               | 24               | PASS
+App (overview)   | decisions_117_140_always_cpu_accuracy_pct  | 62.5             | 62.5%            | PASS
+App (overview)   | decisions_117_140_always_cpu_mean_regret_pct | 113.06           | 113.06%          | PASS
+App (overview)   | decisions_117_140_always_cpu_p90_regret_pct | 420.56           | 420.56%          | PASS
+App (overview)   | decisions_117_140_always_rtx_wins          | 9                | 9                | PASS
+App (overview)   | decisions_117_140_total                    | 24               | 24               | PASS
+App (overview)   | decisions_117_140_always_rtx_accuracy_pct  | 37.5             | 37.5%            | PASS
+App (overview)   | decisions_117_140_always_rtx_mean_regret_pct | 304.93           | 304.93%          | PASS
+App (overview)   | decisions_117_140_always_rtx_p90_regret_pct | 784.34           | 784.34%          | PASS
+App (overview)   | decisions_117_140_fit_only_wins            | 19               | 19               | PASS
+App (overview)   | decisions_117_140_total                    | 24               | 24               | PASS
+App (overview)   | decisions_117_140_fit_only_accuracy_pct    | 79.2             | 79.2%            | PASS
+App (overview)   | decisions_117_140_fit_only_mean_regret_pct | 31.42            | 31.42%           | PASS
+App (overview)   | decisions_117_140_fit_only_p90_regret_pct  | 12.5             | 12.50%           | PASS
+App (overview)   | mlp_256_b1_cpu_latency_ms                  | 0.017            | 0.017 ms         | PASS
+App (overview)   | mlp_256_b1_rtx_latency_ms                  | 0.142            | 0.142 ms         | PASS
+App (overview)   | speedup_cpu_over_rtx_mlp_256_b1            | 8.4              | 8.4x             | PASS
+App (overview)   | identity_suspect_runs                      | 12               | 12               | PASS
+App (overview)   | directml_anomaly_conv96_slowdown           | 5.6              | 5.6x             | PASS
+App (overview)   | mlp_3072_b1_sustained_rtx_ms               | 0.655            | 0.655 ms         | PASS
+App (overview)   | mlp_3072_b1_sustained_cpu_ms               | 4.2              | 4.20 ms          | PASS
+App (overview)   | mlp_3072_cold_rtx_rounded_ms               | 219.9            | 219.9 ms         | PASS
+App (overview)   | overhead_rtx_cold_start_vs_sustained_mlp_3072 | 335.7            | 335.7x           | PASS
+App (overview)   | decisions_117_140_sr_wins                  | 22               | 22               | PASS
+App (overview)   | decisions_117_140_total                    | 24               | 24               | PASS
+App (overview)   | decisions_117_140_sr_accuracy_pct          | 91.7             | 91.7%            | PASS
+App (overview)   | decisions_117_140_sr_mean_regret_pct       | 1.75             | 1.75%            | PASS
+App (overview)   | decisions_117_140_sr_p90_regret_pct        | 0.0              | 0.00%            | PASS
+App (overview)   | decisions_117_140_always_cpu_wins          | 15               | 15               | PASS
+App (overview)   | decisions_117_140_total                    | 24               | 24               | PASS
+App (overview)   | decisions_117_140_always_cpu_accuracy_pct  | 62.5             | 62.5%            | PASS
+App (overview)   | decisions_117_140_always_cpu_mean_regret_pct | 113.06           | 113.06%          | PASS
+App (overview)   | decisions_117_140_always_cpu_p90_regret_pct | 420.56           | 420.56%          | PASS
+App (overview)   | decisions_117_140_always_rtx_wins          | 9                | 9                | PASS
+App (overview)   | decisions_117_140_total                    | 24               | 24               | PASS
+App (overview)   | decisions_117_140_always_rtx_accuracy_pct  | 37.5             | 37.5%            | PASS
+App (overview)   | decisions_117_140_always_rtx_mean_regret_pct | 304.93           | 304.93%          | PASS
+App (overview)   | decisions_117_140_always_rtx_p90_regret_pct | 784.34           | 784.34%          | PASS
+App (overview)   | decisions_117_140_fit_only_wins            | 19               | 19               | PASS
+App (overview)   | decisions_117_140_total                    | 24               | 24               | PASS
+App (overview)   | decisions_117_140_fit_only_accuracy_pct    | 79.2             | 79.2%            | PASS
+App (overview)   | decisions_117_140_fit_only_mean_regret_pct | 31.42            | 31.42%           | PASS
+App (overview)   | decisions_117_140_fit_only_p90_regret_pct  | 12.5             | 12.50%           | PASS
+App (overview)   | workload_sustained_sr_wins                 | 8                | 8                | PASS
+App (overview)   | workload_sustained_total                   | 8                | 8                | PASS
+App (overview)   | workload_sustained_sr_accuracy_pct         | 100.0            | 100.0%           | PASS
+App (overview)   | workload_sustained_always_cpu_wins         | 4                | 4                | PASS
+App (overview)   | workload_sustained_total                   | 8                | 8                | PASS
+App (overview)   | workload_sustained_always_rtx_wins         | 4                | 4                | PASS
+App (overview)   | workload_sustained_total                   | 8                | 8                | PASS
+App (overview)   | workload_sustained_fit_only_wins           | 8                | 8                | PASS
+App (overview)   | workload_sustained_total                   | 8                | 8                | PASS
+App (overview)   | workload_idle_loaded_sr_wins               | 8                | 8                | PASS
+App (overview)   | workload_idle_loaded_total                 | 8                | 8                | PASS
+App (overview)   | workload_idle_loaded_sr_accuracy_pct       | 100.0            | 100.0%           | PASS
+App (overview)   | workload_idle_loaded_always_cpu_wins       | 3                | 3                | PASS
+App (overview)   | workload_idle_loaded_total                 | 8                | 8                | PASS
+App (overview)   | workload_idle_loaded_always_rtx_wins       | 5                | 5                | PASS
+App (overview)   | workload_idle_loaded_total                 | 8                | 8                | PASS
+App (overview)   | workload_idle_loaded_fit_only_wins         | 7                | 7                | PASS
+App (overview)   | workload_idle_loaded_total                 | 8                | 8                | PASS
+App (overview)   | workload_cold_start_sr_wins                | 6                | 6                | PASS
+App (overview)   | workload_cold_start_total                  | 8                | 8                | PASS
+App (overview)   | workload_cold_start_sr_accuracy_pct        | 75.0             | 75.0%            | PASS
+App (overview)   | workload_cold_start_always_cpu_wins        | 8                | 8                | PASS
+App (overview)   | workload_cold_start_total                  | 8                | 8                | PASS
+App (overview)   | workload_cold_start_always_rtx_wins        | 0                | 0                | PASS
+App (overview)   | workload_cold_start_total                  | 8                | 8                | PASS
+App (overview)   | workload_cold_start_fit_only_wins          | 4                | 4                | PASS
+App (overview)   | workload_cold_start_total                  | 8                | 8                | PASS
+App (overview)   | database_size_bytes                        | 1044480          | 10,44,480        | PASS
+App (results)    | decisions_117_140_sr_wins                  | 22               | 22               | PASS
+App (results)    | decisions_117_140_total                    | 24               | 24               | PASS
+App (results)    | decisions_117_140_sr_accuracy_pct          | 91.7             | 91.7%            | PASS
+App (results)    | decisions_117_140_sr_mean_regret_pct       | 1.75             | 1.75%            | PASS
+App (results)    | decisions_117_140_sr_p90_regret_pct        | 0.0              | 0.00%            | PASS
+App (results)    | decisions_117_140_always_cpu_wins          | 15               | 15               | PASS
+App (results)    | decisions_117_140_total                    | 24               | 24               | PASS
+App (results)    | decisions_117_140_always_cpu_accuracy_pct  | 62.5             | 62.5%            | PASS
+App (results)    | decisions_117_140_always_cpu_mean_regret_pct | 113.06           | 113.06%          | PASS
+App (results)    | decisions_117_140_always_cpu_p90_regret_pct | 420.56           | 420.56%          | PASS
+App (results)    | decisions_117_140_always_rtx_wins          | 9                | 9                | PASS
+App (results)    | decisions_117_140_total                    | 24               | 24               | PASS
+App (results)    | decisions_117_140_always_rtx_accuracy_pct  | 37.5             | 37.5%            | PASS
+App (results)    | decisions_117_140_always_rtx_mean_regret_pct | 304.93           | 304.93%          | PASS
+App (results)    | decisions_117_140_always_rtx_p90_regret_pct | 784.34           | 784.34%          | PASS
+App (results)    | decisions_117_140_fit_only_wins            | 19               | 19               | PASS
+App (results)    | decisions_117_140_total                    | 24               | 24               | PASS
+App (results)    | decisions_117_140_fit_only_accuracy_pct    | 79.2             | 79.2%            | PASS
+App (results)    | decisions_117_140_fit_only_mean_regret_pct | 31.42            | 31.42%           | PASS
+App (results)    | decisions_117_140_fit_only_p90_regret_pct  | 12.5             | 12.50%           | PASS
+App (results)    | workload_sustained_sr_wins                 | 8                | 8                | PASS
+App (results)    | workload_sustained_total                   | 8                | 8                | PASS
+App (results)    | workload_sustained_sr_accuracy_pct         | 100.0            | 100.0%           | PASS
+App (results)    | workload_sustained_always_cpu_wins         | 4                | 4                | PASS
+App (results)    | workload_sustained_total                   | 8                | 8                | PASS
+App (results)    | workload_sustained_always_rtx_wins         | 4                | 4                | PASS
+App (results)    | workload_sustained_total                   | 8                | 8                | PASS
+App (results)    | workload_sustained_fit_only_wins           | 8                | 8                | PASS
+App (results)    | workload_sustained_total                   | 8                | 8                | PASS
+App (results)    | workload_idle_loaded_sr_wins               | 8                | 8                | PASS
+App (results)    | workload_idle_loaded_total                 | 8                | 8                | PASS
+App (results)    | workload_idle_loaded_sr_accuracy_pct       | 100.0            | 100.0%           | PASS
+App (results)    | workload_idle_loaded_always_cpu_wins       | 3                | 3                | PASS
+App (results)    | workload_idle_loaded_total                 | 8                | 8                | PASS
+App (results)    | workload_idle_loaded_always_rtx_wins       | 5                | 5                | PASS
+App (results)    | workload_idle_loaded_total                 | 8                | 8                | PASS
+App (results)    | workload_idle_loaded_fit_only_wins         | 7                | 7                | PASS
+App (results)    | workload_idle_loaded_total                 | 8                | 8                | PASS
+App (results)    | workload_cold_start_sr_wins                | 6                | 6                | PASS
+App (results)    | workload_cold_start_total                  | 8                | 8                | PASS
+App (results)    | workload_cold_start_sr_accuracy_pct        | 75.0             | 75.0%            | PASS
+App (results)    | workload_cold_start_always_cpu_wins        | 8                | 8                | PASS
+App (results)    | workload_cold_start_total                  | 8                | 8                | PASS
+App (results)    | workload_cold_start_always_rtx_wins        | 0                | 0                | PASS
+App (results)    | workload_cold_start_total                  | 8                | 8                | PASS
+App (results)    | workload_cold_start_fit_only_wins          | 4                | 4                | PASS
+App (results)    | workload_cold_start_total                  | 8                | 8                | PASS
+Website          | speedup_cpu_over_rtx_mlp_256_b1            | 8.4              | 8.4x             | PASS
+Website          | overhead_rtx_cold_start_vs_sustained_mlp_3072 | 335.7            | 335.7x           | PASS
+Website          | identity_suspect_runs                      | 12               | 12               | PASS
+Website          | decisions_117_140_sr_wins                  | 22               | 22               | PASS
+Website          | decisions_117_140_total                    | 24               | 24               | PASS
+Website          | decisions_117_140_sr_accuracy_pct          | 91.7             | 91.7%            | PASS
+Website          | decisions_117_140_sr_mean_regret_pct       | 1.75             | 1.75%            | PASS
+Website          | decisions_117_140_sr_p90_regret_pct        | 0.0              | 0.00%            | PASS
+Website          | decisions_117_140_always_cpu_wins          | 15               | 15               | PASS
+Website          | decisions_117_140_total                    | 24               | 24               | PASS
+Website          | decisions_117_140_always_cpu_accuracy_pct  | 62.5             | 62.5%            | PASS
+Website          | decisions_117_140_always_cpu_mean_regret_pct | 113.06           | 113.06%          | PASS
+Website          | decisions_117_140_always_cpu_p90_regret_pct | 420.56           | 420.56%          | PASS
+Website          | decisions_117_140_always_rtx_wins          | 9                | 9                | PASS
+Website          | decisions_117_140_total                    | 24               | 24               | PASS
+Website          | decisions_117_140_always_rtx_accuracy_pct  | 37.5             | 37.5%            | PASS
+Website          | decisions_117_140_always_rtx_mean_regret_pct | 304.93           | 304.93%          | PASS
+Website          | decisions_117_140_always_rtx_p90_regret_pct | 784.34           | 784.34%          | PASS
+Website          | decisions_117_140_fit_only_wins            | 19               | 19               | PASS
+Website          | decisions_117_140_total                    | 24               | 24               | PASS
+Website          | decisions_117_140_fit_only_accuracy_pct    | 79.2             | 79.2%            | PASS
+Website          | decisions_117_140_fit_only_mean_regret_pct | 31.42            | 31.42%           | PASS
+Website          | decisions_117_140_fit_only_p90_regret_pct  | 12.5             | 12.50%           | PASS
+Website          | mlp_256_b1_cpu_latency_ms                  | 0.017            | 0.017 ms         | PASS
+Website          | mlp_256_b1_rtx_latency_ms                  | 0.142            | 0.142 ms         | PASS
+Website          | speedup_cpu_over_rtx_mlp_256_b1            | 8.4              | 8.4x             | PASS
+Website          | identity_suspect_runs                      | 12               | 12               | PASS
+Website          | directml_anomaly_conv96_slowdown           | 5.6              | 5.6x             | PASS
+Website          | mlp_3072_b1_sustained_rtx_ms               | 0.655            | 0.655 ms         | PASS
+Website          | mlp_3072_b1_sustained_cpu_ms               | 4.2              | 4.20 ms          | PASS
+Website          | mlp_3072_cold_rtx_rounded_ms               | 219.9            | 219.9 ms         | PASS
+Website          | overhead_rtx_cold_start_vs_sustained_mlp_3072 | 335.7            | 335.7x           | PASS
+Website          | database_sha256                            | 98542cffb7264eee... | 98542cffb7264eee... | PASS
+=========================================================================================================
+TOTAL AUDITED METRICS: 161 | STATUS: ALL PASS
