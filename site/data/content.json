@@ -8,7 +8,8 @@
     "**Energy Telemetry**: Whole-system energy is available via WMI battery discharge rate when unplugged, and GPU package energy is available via NVML on NVIDIA. CPU package power (RAPL) and AMD iGPU power are not accessible via standard unprivileged Windows APIs.",
     "**Energy Goals Not Evaluated**: Only one GPU energy measurement exists, so the Battery and Balanced goals currently fall back to latency, and the Cool goal (GPU temperature penalty) is untested. CPU and Radeon 610M energy require battery-drain measurements (planned).",
     "**Single Laptop**: All results come from one laptop (AMD Ryzen 9 8940HX, AMD Radeon 610M, NVIDIA GeForce RTX 5070 Laptop GPU).",
-    "**Real AI Models**: MobileNet, ResNet and a small transformer are planned for v1.1."
+    "**Real AI Models**: MobileNet, ResNet and a small transformer are planned for v1.1.",
+    "**ARM Architecture & Snapdragon X Testing**: Active hardware benchmarking and profiling is currently underway on the Qualcomm Snapdragon X platform (including Snapdragon X Elite and upcoming Snapdragon X2 systems). Heterogeneous load balancing across ARM CPU cores, DirectML GPU, and the Qualcomm Hexagon NPU via QNN Execution Provider is our primary development focus."
   ],
   "how_this_was_built": [
     "**Author**: Tanmay \u2014 defined the problem, the measurement method and the project rules, and reviewed every development phase.",

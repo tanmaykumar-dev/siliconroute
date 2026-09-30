@@ -92,6 +92,7 @@ Evaluated across 8 sustained, 8 idle-loaded, and 8 cold-start tasks on real lapt
 - **Energy Goals Not Evaluated**: Only one GPU energy measurement exists, so the Battery and Balanced goals currently fall back to latency, and the Cool goal (GPU temperature penalty) is untested. CPU and Radeon 610M energy require battery-drain measurements (planned).
 - **Single Laptop**: All results come from one laptop (AMD Ryzen 9 8940HX, AMD Radeon 610M, NVIDIA GeForce RTX 5070 Laptop GPU).
 - **Real AI Models**: MobileNet, ResNet and a small transformer are planned for v1.1.
+- **ARM Architecture & Snapdragon X Testing**: Active hardware benchmarking and profiling is currently underway on the Qualcomm Snapdragon X platform (including Snapdragon X Elite and upcoming Snapdragon X2 systems). Heterogeneous load balancing across ARM CPU cores, DirectML GPU, and the Qualcomm Hexagon NPU via QNN Execution Provider is our primary development focus.
 
 ---
 
@@ -132,3 +133,13 @@ python -m pytest -q
 - **Size**: 1,044,480 bytes <!-- metric: database_size_bytes -->
 - **SHA256**: `98542cffb7264eee537d218e1863ccbbc174495e0bf13eb244ee22cd6f034cf5`
 - **Published Results & Manifest**: Located in [results/final/](results/final/).
+
+---
+
+## 9. Primary Focus & Future Roadmap: ARM & Snapdragon X2
+
+SiliconRoute's primary long-term strategic objective is heterogeneous AI load balancing on **ARM-based Windows laptops (Copilot+ PCs)**, with active hardware benchmarking currently underway on **Qualcomm Snapdragon X series** silicon:
+
+- **Active Snapdragon Hardware Testing**: We are actively profiling and evaluating execution behavior on Qualcomm Snapdragon hardware (including Snapdragon X Elite and upcoming Snapdragon X2 systems). Testing covers Qualcomm Oryon ARM CPU cores, DirectML GPU acceleration, and dedicated Hexagon NPU offload via ONNX Runtime's `QNNExecutionProvider`.
+- **Primary Goal — Tri-Silicon Load Balancing**: On modern ARM laptops, the dedicated NPU provides massive energy efficiency for neural inference, but can incur model loading and compilation overhead. SiliconRoute is expanding its physical roofline models to dynamically predict the optimal execution path across Oryon CPU cores, DirectML GPU, and Hexagon NPU under dynamic thermal and battery constraints.
+- **Battery-First Real-World Workloads**: ARM laptops prioritize battery endurance. Intelligent routing prevents power-hungry GPU wake-ups when the NPU or CPU can complete the inference with minimal energy consumption.
