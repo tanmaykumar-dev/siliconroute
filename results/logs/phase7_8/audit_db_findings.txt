@@ -1,0 +1,57 @@
+﻿=== DEVICES ===
+(1, 'cpu', 'CPU', 'CPU', None, 'cpu')
+(2, 'dml:0', 'AMD Radeon(TM) 610M', 'AMD', '0x1002', 'igpu')
+(3, 'dml:1', 'NVIDIA GeForce RTX 5070 Laptop GPU', 'NVIDIA', '0x10DE', 'dgpu')
+(4, 'dml:2', 'DirectML GPU 2', None, None, 'unknown')
+
+=== SESSIONS MEASURING BOTH CPU AND RTX FOR mlp-256w-4l B=1 ===
+(225, 'cpu', 839, 0.017, 10, 2, 0, 'verify_sustained', 0)
+(225, 'dml:1', 841, 0.142, 10, 2, 0, 'verify_sustained', 0)
+(201, 'dml:1', 817, 0.141, 10, 2, 0, 'verify_sustained', 0)
+(177, 'dml:1', 793, 0.149, 10, 2, 0, 'verify_sustained', 0)
+(143, 'dml:1', 736, 0.149, 10, 2, 0, 'verify_sustained', 0)
+(119, 'dml:1', 687, 0.138, 10, 2, 0, 'verify_sustained', 0)
+(105, 'cpu', 657, 0.019, 10, 2, 0, 'verify_sustained', 0)
+(88, 'cpu', 631, 0.018, 10, 2, 0, 'verify_sustained', 0)
+(88, 'dml:1', 633, 0.16, 10, 2, 0, 'verify_sustained', 0)
+(84, 'cpu', 458, 0.018, 30, 5, 0, 'sustained', 0)
+(84, 'dml:1', 464, 0.14, 30, 5, 0, 'sustained', 0)
+(33, 'cpu', 98, 0.018, 30, 5, 0, 'sustained', 0)
+(33, 'dml:1', 102, 0.158, 30, 5, 0, 'sustained', 0)
+(32, 'cpu', 90, 0.017, 30, 5, 0, 'sustained', 0)
+(32, 'dml:1', 88, 0.152, 30, 5, 0, 'sustained', 0)
+(17, 'dml:1', 32, 0.183, 30, 5, 0, 'sustained', 0)
+
+=== Qualifying sessions measuring BOTH CPU and RTX for mlp-256 B=1 ===
+Session 225: CPU run 839 (0.017 ms), RTX run 841 (0.142 ms) -> Ratio: 8.35x
+Session 88: CPU run 631 (0.018 ms), RTX run 633 (0.16 ms) -> Ratio: 8.89x
+Session 84: CPU run 458 (0.018 ms), RTX run 464 (0.14 ms) -> Ratio: 7.78x
+Session 33: CPU run 98 (0.018 ms), RTX run 102 (0.158 ms) -> Ratio: 8.78x
+Session 32: CPU run 90 (0.017 ms), RTX run 88 (0.152 ms) -> Ratio: 8.94x
+
+=== SESSIONS MEASURING BOTH CPU AND RTX FOR mlp-3072w-4l B=1 (sustained) ===
+Session 194: CPU run 812 (4.202 ms), RTX run 814 (0.655 ms) -> RTX speedup: 6.42x
+Session 153: CPU run 765 (4.215 ms), RTX run 764 (0.608 ms) -> RTX speedup: 6.93x
+Session 86: CPU run 605 (3.868 ms), RTX run 606 (0.611 ms) -> RTX speedup: 6.33x
+Session 85: CPU run 566 (4.537 ms), RTX run 568 (0.604 ms) -> RTX speedup: 7.51x
+
+=== COLD-START MEASUREMENTS FOR mlp-3072w-4l ===
+Decision 144: CPU WM 130 (215.775 ms), RTX WM 132 (219.895 ms)
+Decision 124: CPU WM 88 (189.752 ms), RTX WM 90 (202.779 ms)
+Decision None: CPU WM 26 (174.29 ms), RTX WM 30 (195.814 ms)
+
+=== CONV-96C-4L BATCH 8 VS BATCH 4 RUNS ===
+
+=== SINGLE_COLD RUNS FOR mlp-3072w-4l ===
+(142, 'cpu', 731, 5.885, 4.714, 1, 0, 'single_cold')
+(142, 'dml:0', 732, 10.397, 6.504, 1, 0, 'single_cold')
+(142, 'dml:1', 733, 23.195, 0.601, 1, 0, 'single_cold')
+(118, 'cpu', 684, 6.486, 5.117, 1, 0, 'single_cold')
+
+=== CONV-96 B=4 vs B=8 SESSIONS ===
+(216, 8, 'dml:1', 832, 8.876)
+(192, 8, 'dml:1', 808, 15.79)
+(152, 8, 'dml:1', 762, 22.58)
+(87, 4, 'dml:1', 621, 2.397)
+(87, 8, 'dml:1', 622, 13.527)
+(85, 8, 'dml:1', 589, 18.381)

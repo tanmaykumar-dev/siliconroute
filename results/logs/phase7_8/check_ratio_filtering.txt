@@ -1,0 +1,40 @@
+﻿
+--- All WMs, all sustained+verify_sustained ---
+  cold_start   cpu   n=28 med=39.41x (min=0.93x, max=394.97x)
+  cold_start   dml:0 n=28 med=27.93x (min=1.40x, max=447.51x)
+  cold_start   dml:1 n=28 med=230.52x (min=2.40x, max=580.13x)
+  idle_loaded  cpu   n=20 med=1.70x (min=0.71x, max=14.42x)
+  idle_loaded  dml:0 n=20 med=1.62x (min=0.98x, max=11.96x)
+  idle_loaded  dml:1 n=20 med=2.14x (min=0.91x, max=12.22x)
+
+--- WMs with decision_id IS NOT NULL ---
+  cold_start   cpu   n=16 med=39.41x (min=1.44x, max=394.97x)
+  cold_start   dml:0 n=16 med=36.25x (min=1.55x, max=447.51x)
+  cold_start   dml:1 n=16 med=248.10x (min=8.77x, max=580.13x)
+  idle_loaded  cpu   n= 8 med=1.89x (min=0.72x, max=12.84x)
+  idle_loaded  dml:0 n= 8 med=2.34x (min=1.10x, max=11.96x)
+  idle_loaded  dml:1 n= 8 med=2.63x (min=0.91x, max=12.22x)
+
+--- WMs from decisions 117-140 ---
+  cold_start   cpu   n= 8 med=37.63x (min=1.44x, max=394.97x)
+  cold_start   dml:0 n= 8 med=36.32x (min=1.68x, max=105.22x)
+  cold_start   dml:1 n= 8 med=263.07x (min=8.77x, max=371.69x)
+  idle_loaded  cpu   n= 8 med=1.89x (min=0.72x, max=12.84x)
+  idle_loaded  dml:0 n= 8 med=2.34x (min=1.10x, max=11.96x)
+  idle_loaded  dml:1 n= 8 med=2.63x (min=0.91x, max=12.22x)
+
+--- All WMs, pure run_kind = 'sustained' ---
+  cold_start   cpu   n=28 med=49.79x (min=1.04x, max=374.63x)
+  cold_start   dml:0 n=28 med=28.82x (min=1.25x, max=470.12x)
+  cold_start   dml:1 n=28 med=238.16x (min=3.48x, max=580.13x)
+  idle_loaded  cpu   n=20 med=1.89x (min=0.79x, max=15.22x)
+  idle_loaded  dml:0 n=20 med=1.65x (min=0.54x, max=12.99x)
+  idle_loaded  dml:1 n=20 med=2.25x (min=0.60x, max=12.39x)
+
+--- WMs with decision_id IS NOT NULL, pure 'sustained' ---
+  cold_start   cpu   n=16 med=51.01x (min=1.62x, max=374.63x)
+  cold_start   dml:0 n=16 med=30.77x (min=1.50x, max=470.12x)
+  cold_start   dml:1 n=16 med=255.49x (min=5.75x, max=580.13x)
+  idle_loaded  cpu   n= 8 med=2.14x (min=0.80x, max=13.56x)
+  idle_loaded  dml:0 n= 8 med=2.44x (min=0.54x, max=12.99x)
+  idle_loaded  dml:1 n= 8 med=2.74x (min=0.60x, max=12.39x)

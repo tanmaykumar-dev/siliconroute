@@ -1,0 +1,8 @@
+﻿=== IDLE_LOADED ===
+  cpu  : med=1.76x, range=[0.71x, 14.42x], n=20
+  dml:0: med=1.62x, range=[0.98x, 11.96x], n=20
+  dml:1: med=2.14x, range=[0.51x, 12.22x], n=20
+=== COLD_START ===
+  cpu  : med=41.7x, range=[0.93x, 357.94x], n=28
+  dml:0: med=27.9x, range=[1.4x, 447.51x], n=28
+  dml:1: med=230.5x, range=[2.4x, 580.13x], n=28

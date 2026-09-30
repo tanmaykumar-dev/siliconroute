@@ -2,7 +2,7 @@
   {
     "id": "c01_pytest",
     "claim": "All unit and API tests pass cleanly",
-    "value": "59 passed, 1 warning in 34.41s",
+    "value": "63 passed, 1 warning",
     "how": "python -m pytest -q"
   },
   {
@@ -98,7 +98,7 @@
   {
     "id": "c17_manifest_metric_count",
     "claim": "Number of published metrics documented in results/final/manifest.json",
-    "value": 121,
+    "value": 181,
     "how": "len(manifest['metrics'])"
   },
   {

@@ -146,30 +146,101 @@ def test_results_md_numbers_in_manifest():
     assert not untracked, f"Measurement numbers in results.md not found in manifest.json: {untracked}"
 
 
-def test_readme_numbers_in_manifest():
-    """Assert all measurement numbers in README.md are present in manifest.json."""
+def test_readme_no_unmeasured_devices():
+    """Assert that README does not contain '780M' or any GPU name not in the database's device table."""
+    assert README_PATH.exists(), f"Missing {README_PATH}"
+    content = README_PATH.read_text(encoding="utf-8")
+
+    # 1. Direct assertion: no 780M anywhere in README
+    assert "780M" not in content, "README contains forbidden GPU name '780M'"
+    assert "780m" not in content.lower(), "README contains forbidden GPU name '780m'"
+
+    # 2. Assert against database device table
+    assert DB_PATH.exists(), f"Missing {DB_PATH}"
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("SELECT label FROM device WHERE kind IN ('igpu', 'dgpu')")
+    db_gpu_labels = [row[0] for row in cur.fetchall()]
+    conn.close()
+
+    # Extract model identifiers from database GPU labels (e.g. '610M' and '5070')
+    allowed_models = set()
+    for label in db_gpu_labels:
+        for token in re.findall(r'\b[A-Za-z0-9]+\b', label):
+            if any(char.isdigit() for char in token):
+                allowed_models.add(token.upper())
+
+    # Check Radeon models mentioned in README
+    for m in re.findall(r'\bRadeon(?:\(TM\))?\s+([A-Za-z0-9]+)\b', content, re.IGNORECASE):
+        assert m.upper() in allowed_models, f"Unmeasured Radeon GPU in README: '{m}' (allowed: {allowed_models})"
+
+    # Check RTX models mentioned in README
+    for m in re.findall(r'\b(?:GeForce\s+)?RTX\s+([0-9]{4})\b', content, re.IGNORECASE):
+        assert m.upper() in allowed_models, f"Unmeasured RTX GPU in README: '{m}' (allowed: {allowed_models})"
+
+    # Check unmeasured GPU brands
+    forbidden = re.findall(r'\b(GTX|Iris|Arc|Adreno|Mali)\b', content, re.IGNORECASE)
+    assert not forbidden, f"Unmeasured GPU brand found in README: {forbidden}"
+
+
+def test_readme_metric_tags_and_numbers():
+    """Assert every measurement number with a unit or in a ratio in README.md is followed by <!-- metric: key --> matching manifest within 1%."""
     manifest = load_manifest()
-    manifest_numbers = get_all_manifest_numbers(manifest)
+    metrics = manifest.get("metrics", {})
 
     assert README_PATH.exists(), f"Missing {README_PATH}"
     content = README_PATH.read_text(encoding="utf-8")
-    measurements = extract_measurement_numbers_from_text(content)
 
-    untracked = []
-    for val, raw in measurements:
-        r1 = round(val, 1)
-        r2 = round(val, 2)
-        r3 = round(val, 3)
-        r0 = float(int(val))
-        if not any(
-            abs(val - m_num) < 1e-3
-            or abs(r2 - m_num) < 1e-2
-            or abs(r1 - m_num) < 0.15
-            or abs(r0 - m_num) < 1e-4
-            for m_num in manifest_numbers
-        ):
-            # Exclude standard architectural integers and ratio constants (batch sizes, layer counts, sections)
-            if val not in (1.0, 1.1, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 15.0, 16.0, 20.0, 24.0, 30.0, 32.0, 64.0, 96.0, 128.0, 256.0, 3072.0, 8000.0):
-                untracked.append((val, raw))
+    # Strip code blocks and URL targets
+    cleaned = re.sub(r'```.*?```', '', content, flags=re.DOTALL)
+    cleaned = re.sub(r'\[([^\]]*)\]\([^)]+\)', r'\1', cleaned)
 
-    assert not untracked, f"Measurement numbers in README.md not found in manifest.json: {untracked}"
+    # 1. Assert every measurement number with a unit has a metric tag
+    unit_pat = re.compile(r'(\d+(?:,\d{3})*(?:\.\d+)?)\s*(%|ms|GFLOP/s|GB/s|TFLOP/s|x\b|params\b|bytes\b)', re.IGNORECASE)
+    untagged_units = []
+    for m in unit_pat.finditer(cleaned):
+        after = cleaned[m.end():m.end() + 150]
+        tag_m = re.match(r'^\s*[*_\])]*\s*<!--\s*metric:\s*([a-zA-Z0-9_:]+)\s*-->', after)
+        if not tag_m:
+            ctx = cleaned[max(0, m.start() - 25):min(len(cleaned), m.end() + 35)].replace('\n', ' ')
+            untagged_units.append((m.group(0), ctx))
+
+    assert not untagged_units, f"Measurement numbers with units missing <!-- metric: ... --> tags in README.md: {untagged_units}"
+
+    # 2. Assert every ratio (e.g. 22 / 24, 8 / 8) has metric tags
+    ratio_pat = re.compile(r'\b(\d+)\s*/\s*(\d+)\b')
+    untagged_ratios = []
+    for m in ratio_pat.finditer(cleaned):
+        after = cleaned[m.end():m.end() + 150]
+        tag_m = re.match(r'^\s*[*_\])]*\s*<!--\s*metric:\s*([a-zA-Z0-9_:]+)\s*-->', after)
+        if not tag_m:
+            ctx = cleaned[max(0, m.start() - 25):min(len(cleaned), m.end() + 35)].replace('\n', ' ')
+            untagged_ratios.append((m.group(0), ctx))
+
+    assert not untagged_ratios, f"Ratios missing <!-- metric: ... --> tags in README.md: {untagged_ratios}"
+
+    # 3. Assert every metric tag in README matches manifest within 1%
+    tag_pat = re.compile(
+        r'(?:(\d+(?:,\d{3})*(?:\.\d+)?)\s*(%|ms|GFLOP/s|GB/s|TFLOP/s|x\b|params\b|bytes\b|samples\b|wins\b|decisions\b)?\s*[*_\])]*\s*)<!--\s*metric:\s*([a-zA-Z0-9_:]+)\s*-->',
+        re.IGNORECASE
+    )
+
+    mismatches = []
+    tag_count = 0
+    for m in tag_pat.finditer(cleaned):
+        tag_count += 1
+        val_str = m.group(1)
+        tag = m.group(3)
+        assert tag in metrics, f"Metric tag '{tag}' in README.md does not exist in manifest.json"
+
+        exp = metrics[tag]["value"]
+        if val_str is not None:
+            val = float(val_str.replace(",", ""))
+            exp_f = float(exp)
+            rel_diff = abs(val - exp_f) / max(abs(exp_f), 1e-4)
+            if rel_diff > 0.01 and abs(val - exp_f) > 0.02:
+                mismatches.append(f"Metric '{tag}': README={val}, manifest={exp_f} (diff={rel_diff:.2%})")
+
+    assert tag_count > 0, "No metric tags found in README.md"
+    assert not mismatches, f"Metric tag values in README.md do not match manifest within 1%: {mismatches}"
+

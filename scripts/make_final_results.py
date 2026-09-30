@@ -16,6 +16,11 @@ import sqlite3
 from typing import Any, Optional
 import numpy as np
 
+# Ensure repository root is in sys.path
+REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 # Use non-interactive backend for matplotlib
 import matplotlib
 matplotlib.use("Agg")
@@ -351,21 +356,100 @@ def main():
     reg_metric("crossover_conv_b1_cpu_vs_rtx_params", 20736, "Predictor F2 vs F4 crossover point for Conv B=1", "params", "Conv Batch 1 crossover size where RTX overtakes CPU")
     reg_metric("crossover_conv_b8_cpu_vs_rtx_params", 2916, "Predictor F2 vs F4 crossover point for Conv B=8", "params", "Conv Batch 8 crossover size where RTX overtakes CPU")
 
-    # 7. Key Findings Empirical Metrics
-    reg_metric("speedup_cpu_over_rtx_mlp_256_b1", 8.6, "0.146 ms / 0.017 ms for mlp-256w-4l batch 1", "x", "CPU speedup over RTX on tiny MLP batch 1")
-    reg_metric("speedup_rtx_over_cpu_mlp_3072_b1_sustained", 6.2, "4.2 ms / 0.673 ms for mlp-3072w-4l batch 1 sustained", "x", "RTX speedup over CPU on large MLP batch 1 sustained")
-    reg_metric("overhead_rtx_cold_start_vs_sustained_mlp_3072", 300.0, "200.0 ms / 0.67 ms for mlp-3072w-4l on RTX", "x", "RTX cold-start session initialization overhead ratio")
-    reg_metric("mlp_256_b1_cpu_latency_ms", 0.017, "Measured latency for mlp-256w-4l B=1 on CPU", "ms", "Tiny MLP CPU latency")
-    reg_metric("mlp_256_b1_rtx_latency_ms", 0.146, "Measured latency for mlp-256w-4l B=1 on RTX", "ms", "Tiny MLP RTX latency")
-    reg_metric("mlp_3072_b1_sustained_cpu_ms", 4.22, "Measured latency for mlp-3072w-4l B=1 sustained on CPU", "ms", "Large MLP sustained CPU latency")
-    reg_metric("mlp_3072_b1_sustained_rtx_ms", 0.673, "Measured latency for mlp-3072w-4l B=1 sustained on RTX", "ms", "Large MLP sustained RTX latency")
-    reg_metric("mlp_3072_cold_cpu_rounded_ms", 189.8, "Cold start latency for mlp-3072w-4l on CPU (rounded)", "ms", "Large MLP cold-start CPU latency")
-    reg_metric("mlp_3072_cold_rtx_rounded_ms", 202.8, "Cold start latency for mlp-3072w-4l on RTX (rounded)", "ms", "Large MLP cold-start RTX latency")
-    reg_metric("directml_anomaly_conv96_b8_ms", 13.5, "DirectML batch anomaly latency on conv-96c-4l B=8", "ms", "DirectML batch 8 anomaly latency")
-    reg_metric("directml_anomaly_conv96_b4_ms", 2.4, "DirectML latency on conv-96c-4l B=4", "ms", "DirectML batch 4 latency")
-    reg_metric("rtx_compute_tflops", 11.0, "Peak compute throughput on NVIDIA RTX 5070 Laptop GPU", "TFLOP/s", "RTX 5070 peak compute throughput")
-    reg_metric("bootstrap_ci_pct", 95.0, "Statistical confidence interval confidence level", "%", "Bootstrap confidence interval percentage")
-    reg_metric("cold_start_rule_threshold_pct", 30.0, "Cold-start CPU preference threshold percentage", "%", "Cold start threshold percentage")
+    # 7. Key Findings Empirical Metrics (Dynamic Rule-Based Provable Numbers)
+    import scripts.metrics as sm
+    reg_metric("speedup_cpu_over_rtx_mlp_256_b1", sm.get_speedup_cpu_over_rtx_mlp_256_b1(conn), "Latest session measuring both CPU and RTX sustained (Session 225, run 841 / run 839)", "x", "CPU speedup over RTX on tiny MLP batch 1")
+    reg_metric("mlp_256_b1_cpu_latency_ms", sm.get_mlp_256_b1_cpu_latency_ms(conn), "Measured latency for mlp-256w-4l B=1 on CPU in latest comparison session (run 839)", "ms", "Tiny MLP CPU latency")
+    reg_metric("mlp_256_b1_rtx_latency_ms", sm.get_mlp_256_b1_rtx_latency_ms(conn), "Measured latency for mlp-256w-4l B=1 on RTX in latest comparison session (run 841)", "ms", "Tiny MLP RTX latency")
+    reg_metric("mlp_256_b1_cpu_run_id", sm.get_mlp_256_b1_cpu_run_id(conn), "Run ID for CPU mlp-256w-4l B=1 in latest comparison session", "id", "CPU run ID for tiny MLP B=1 comparison")
+    reg_metric("mlp_256_b1_rtx_run_id", sm.get_mlp_256_b1_rtx_run_id(conn), "Run ID for RTX mlp-256w-4l B=1 in latest comparison session", "id", "RTX run ID for tiny MLP B=1 comparison")
+    reg_metric("mlp_256_b1_comparison_session_id", sm.get_mlp_256_b1_comparison_session_id(conn), "Latest session measuring both CPU and RTX for mlp-256w-4l B=1 sustained", "id", "Session ID for tiny MLP B=1 comparison")
+
+    reg_metric("speedup_rtx_over_cpu_mlp_3072_b1_sustained", sm.get_speedup_rtx_over_cpu_mlp_3072_b1_sustained(conn), "Latest session measuring both CPU and RTX sustained (Session 194, run 812 / run 814)", "x", "RTX speedup over CPU on large MLP batch 1 sustained")
+    reg_metric("mlp_3072_b1_sustained_cpu_ms", sm.get_mlp_3072_b1_sustained_cpu_ms(conn), "Measured latency for mlp-3072w-4l B=1 sustained on CPU in latest session (run 812)", "ms", "Large MLP sustained CPU latency")
+    reg_metric("mlp_3072_b1_sustained_rtx_ms", sm.get_mlp_3072_b1_sustained_rtx_ms(conn), "Measured latency for mlp-3072w-4l B=1 sustained on RTX in latest session (run 814)", "ms", "Large MLP sustained RTX latency")
+    reg_metric("mlp_3072_b1_sustained_cpu_run_id", sm.get_mlp_3072_b1_sustained_cpu_run_id(conn), "Run ID for CPU mlp-3072w-4l B=1 sustained in latest comparison session", "id", "CPU run ID for large MLP B=1 sustained comparison")
+    reg_metric("mlp_3072_b1_sustained_rtx_run_id", sm.get_mlp_3072_b1_sustained_rtx_run_id(conn), "Run ID for RTX mlp-3072w-4l B=1 sustained in latest comparison session", "id", "RTX run ID for large MLP B=1 sustained comparison")
+    reg_metric("mlp_3072_b1_sustained_session_id", sm.get_mlp_3072_b1_sustained_session_id(conn), "Latest session measuring both CPU and RTX for mlp-3072w-4l B=1 sustained", "id", "Session ID for large MLP B=1 sustained comparison")
+
+    reg_metric("directml_anomaly_conv96_b4_ms", sm.get_directml_anomaly_conv96_b4_ms(conn), "DirectML latency on conv-96c-4l B=4 in latest sweep session (run 621)", "ms", "DirectML batch 4 latency")
+    reg_metric("directml_anomaly_conv96_b8_ms", sm.get_directml_anomaly_conv96_b8_ms(conn), "DirectML latency on conv-96c-4l B=8 in latest sweep session (run 622)", "ms", "DirectML batch 8 anomaly latency")
+    reg_metric("directml_anomaly_conv96_slowdown", sm.get_directml_anomaly_conv96_slowdown(conn), "DirectML batch 8 vs batch 4 anomaly slowdown ratio on conv-96c-4l", "x", "DirectML batch 8 anomaly slowdown ratio")
+    reg_metric("directml_anomaly_conv96_b4_run_id", sm.get_directml_anomaly_conv96_b4_run_id(conn), "Run ID for conv-96c-4l B=4 on RTX", "id", "Conv-96 batch 4 run ID")
+    reg_metric("directml_anomaly_conv96_b8_run_id", sm.get_directml_anomaly_conv96_b8_run_id(conn), "Run ID for conv-96c-4l B=8 on RTX", "id", "Conv-96 batch 8 run ID")
+    reg_metric("directml_anomaly_conv96_session_id", sm.get_directml_anomaly_conv96_session_id(conn), "Session ID for conv-96c-4l batch sweep on RTX", "id", "Conv-96 batch sweep session ID")
+
+    reg_metric("mlp_3072_cold_cpu_rounded_ms", sm.get_mlp_3072_cold_cpu_rounded_ms(conn), "Cold start latency for mlp-3072w-4l on CPU in latest comparison decision (WM 130)", "ms", "Large MLP cold-start CPU latency")
+    reg_metric("mlp_3072_cold_rtx_rounded_ms", sm.get_mlp_3072_cold_rtx_rounded_ms(conn), "Cold start latency for mlp-3072w-4l on RTX in latest comparison decision (WM 132)", "ms", "Large MLP cold-start RTX latency")
+    reg_metric("overhead_rtx_cold_start_vs_sustained_mlp_3072", sm.get_overhead_rtx_cold_start_vs_sustained_mlp_3072(conn), "RTX cold-start session initialization overhead ratio (219.9 ms / 0.655 ms)", "x", "RTX cold-start session initialization overhead ratio")
+    reg_metric("mlp_3072_cold_cpu_wm_id", sm.get_mlp_3072_cold_cpu_wm_id(conn), "WorkloadMeasurement ID for CPU mlp-3072w-4l B=1 cold start", "id", "CPU cold-start WorkloadMeasurement ID")
+    reg_metric("mlp_3072_cold_rtx_wm_id", sm.get_mlp_3072_cold_rtx_wm_id(conn), "WorkloadMeasurement ID for RTX mlp-3072w-4l B=1 cold start", "id", "RTX cold-start WorkloadMeasurement ID")
+    reg_metric("mlp_3072_cold_decision_id", sm.get_mlp_3072_cold_decision_id(conn), "Decision ID for latest mlp-3072w-4l B=1 cold start comparison (Decision 144)", "id", "Decision ID for cold-start comparison")
+
+    reg_metric("rtx_compute_tflops", sm.get_rtx_compute_tflops(conn), "Peak compute throughput on NVIDIA RTX 5070 Laptop GPU", "TFLOP/s", "RTX 5070 peak compute throughput")
+    reg_metric("bootstrap_ci_pct", sm.get_bootstrap_ci_pct(conn), "Statistical confidence interval confidence level", "%", "Bootstrap confidence interval percentage")
+    reg_metric("cold_start_rule_threshold_pct", sm.get_cold_start_rule_threshold_pct(conn), "Cold-start CPU preference threshold percentage", "%", "Cold start threshold percentage")
+
+    # 8. Empirical Workload Slowdown Ratios
+    reg_metric("workload_idle_loaded_cpu_ratio_median", sm.get_workload_idle_loaded_cpu_ratio_median(conn), "Median slowdown ratio for CPU on idle_loaded workloads", "x", "CPU idle_loaded slowdown ratio median")
+    reg_metric("workload_idle_loaded_cpu_ratio_min", sm.get_workload_idle_loaded_cpu_ratio_min(conn), "Min slowdown ratio for CPU on idle_loaded workloads", "x", "CPU idle_loaded slowdown ratio min")
+    reg_metric("workload_idle_loaded_cpu_ratio_max", sm.get_workload_idle_loaded_cpu_ratio_max(conn), "Max slowdown ratio for CPU on idle_loaded workloads", "x", "CPU idle_loaded slowdown ratio max")
+    reg_metric("workload_idle_loaded_cpu_sample_count", sm.get_workload_idle_loaded_cpu_sample_count(conn), "Sample count for CPU on idle_loaded workloads", "samples", "CPU idle_loaded sample count")
+
+    reg_metric("workload_idle_loaded_radeon_ratio_median", sm.get_workload_idle_loaded_radeon_ratio_median(conn), "Median slowdown ratio for AMD Radeon 610M on idle_loaded workloads", "x", "AMD Radeon 610M idle_loaded slowdown ratio median")
+    reg_metric("workload_idle_loaded_radeon_ratio_min", sm.get_workload_idle_loaded_radeon_ratio_min(conn), "Min slowdown ratio for AMD Radeon 610M on idle_loaded workloads", "x", "AMD Radeon 610M idle_loaded slowdown ratio min")
+    reg_metric("workload_idle_loaded_radeon_ratio_max", sm.get_workload_idle_loaded_radeon_ratio_max(conn), "Max slowdown ratio for AMD Radeon 610M on idle_loaded workloads", "x", "AMD Radeon 610M idle_loaded slowdown ratio max")
+    reg_metric("workload_idle_loaded_radeon_sample_count", sm.get_workload_idle_loaded_radeon_sample_count(conn), "Sample count for AMD Radeon 610M on idle_loaded workloads", "samples", "AMD Radeon 610M idle_loaded sample count")
+
+    reg_metric("workload_idle_loaded_rtx_ratio_median", sm.get_workload_idle_loaded_rtx_ratio_median(conn), "Median slowdown ratio for NVIDIA RTX 5070 on idle_loaded workloads", "x", "NVIDIA RTX 5070 idle_loaded slowdown ratio median")
+    reg_metric("workload_idle_loaded_rtx_ratio_min", sm.get_workload_idle_loaded_rtx_ratio_min(conn), "Min slowdown ratio for NVIDIA RTX 5070 on idle_loaded workloads", "x", "NVIDIA RTX 5070 idle_loaded slowdown ratio min")
+    reg_metric("workload_idle_loaded_rtx_ratio_max", sm.get_workload_idle_loaded_rtx_ratio_max(conn), "Max slowdown ratio for NVIDIA RTX 5070 on idle_loaded workloads", "x", "NVIDIA RTX 5070 idle_loaded slowdown ratio max")
+    reg_metric("workload_idle_loaded_rtx_sample_count", sm.get_workload_idle_loaded_rtx_sample_count(conn), "Sample count for NVIDIA RTX 5070 on idle_loaded workloads", "samples", "NVIDIA RTX 5070 idle_loaded sample count")
+
+    reg_metric("workload_cold_start_cpu_ratio_median", sm.get_workload_cold_start_cpu_ratio_median(conn), "Median slowdown ratio for CPU on cold_start workloads", "x", "CPU cold_start slowdown ratio median")
+    reg_metric("workload_cold_start_cpu_ratio_min", sm.get_workload_cold_start_cpu_ratio_min(conn), "Min slowdown ratio for CPU on cold_start workloads", "x", "CPU cold_start slowdown ratio min")
+    reg_metric("workload_cold_start_cpu_ratio_max", sm.get_workload_cold_start_cpu_ratio_max(conn), "Max slowdown ratio for CPU on cold_start workloads", "x", "CPU cold_start slowdown ratio max")
+    reg_metric("workload_cold_start_cpu_sample_count", sm.get_workload_cold_start_cpu_sample_count(conn), "Sample count for CPU on cold_start workloads", "samples", "CPU cold_start sample count")
+
+    reg_metric("workload_cold_start_radeon_ratio_median", sm.get_workload_cold_start_radeon_ratio_median(conn), "Median slowdown ratio for AMD Radeon 610M on cold_start workloads", "x", "AMD Radeon 610M cold_start slowdown ratio median")
+    reg_metric("workload_cold_start_radeon_ratio_min", sm.get_workload_cold_start_radeon_ratio_min(conn), "Min slowdown ratio for AMD Radeon 610M on cold_start workloads", "x", "AMD Radeon 610M cold_start slowdown ratio min")
+    reg_metric("workload_cold_start_radeon_ratio_max", sm.get_workload_cold_start_radeon_ratio_max(conn), "Max slowdown ratio for AMD Radeon 610M on cold_start workloads", "x", "AMD Radeon 610M cold_start slowdown ratio max")
+    reg_metric("workload_cold_start_radeon_sample_count", sm.get_workload_cold_start_radeon_sample_count(conn), "Sample count for AMD Radeon 610M on cold_start workloads", "samples", "AMD Radeon 610M cold_start sample count")
+
+    reg_metric("workload_cold_start_rtx_ratio_median", sm.get_workload_cold_start_rtx_ratio_median(conn), "Median slowdown ratio for NVIDIA RTX 5070 on cold_start workloads", "x", "NVIDIA RTX 5070 cold_start slowdown ratio median")
+    reg_metric("workload_cold_start_rtx_ratio_min", sm.get_workload_cold_start_rtx_ratio_min(conn), "Min slowdown ratio for NVIDIA RTX 5070 on cold_start workloads", "x", "NVIDIA RTX 5070 cold_start slowdown ratio min")
+    reg_metric("workload_cold_start_rtx_ratio_max", sm.get_workload_cold_start_rtx_ratio_max(conn), "Max slowdown ratio for NVIDIA RTX 5070 on cold_start workloads", "x", "NVIDIA RTX 5070 cold_start slowdown ratio max")
+    reg_metric("workload_cold_start_rtx_sample_count", sm.get_workload_cold_start_rtx_sample_count(conn), "Sample count for NVIDIA RTX 5070 on cold_start workloads", "samples", "NVIDIA RTX 5070 cold_start sample count")
+
+    # 9. Workload Wins & Totals (Decisions 117-140)
+    reg_metric("workload_sustained_total", sm.get_workload_sustained_total(conn), "Total sustained decisions in 117-140", "decisions", "Total sustained decisions")
+    reg_metric("workload_sustained_sr_wins", sm.get_workload_sustained_sr_wins(conn), "SiliconRoute sustained wins in 117-140", "wins", "SiliconRoute sustained wins")
+    reg_metric("workload_sustained_always_cpu_wins", sm.get_workload_sustained_always_cpu_wins(conn), "Always-CPU sustained wins in 117-140", "wins", "Always-CPU sustained wins")
+    reg_metric("workload_sustained_always_rtx_wins", sm.get_workload_sustained_always_rtx_wins(conn), "Always-RTX sustained wins in 117-140", "wins", "Always-RTX sustained wins")
+    reg_metric("workload_sustained_fit_only_wins", sm.get_workload_sustained_fit_only_wins(conn), "Fit-Only sustained wins in 117-140", "wins", "Fit-Only sustained wins")
+
+    reg_metric("workload_idle_loaded_total", sm.get_workload_idle_loaded_total(conn), "Total idle_loaded decisions in 117-140", "decisions", "Total idle_loaded decisions")
+    reg_metric("workload_idle_loaded_sr_wins", sm.get_workload_idle_loaded_sr_wins(conn), "SiliconRoute idle_loaded wins in 117-140", "wins", "SiliconRoute idle_loaded wins")
+    reg_metric("workload_idle_loaded_always_cpu_wins", sm.get_workload_idle_loaded_always_cpu_wins(conn), "Always-CPU idle_loaded wins in 117-140", "wins", "Always-CPU idle_loaded wins")
+    reg_metric("workload_idle_loaded_always_rtx_wins", sm.get_workload_idle_loaded_always_rtx_wins(conn), "Always-RTX idle_loaded wins in 117-140", "wins", "Always-RTX idle_loaded wins")
+    reg_metric("workload_idle_loaded_fit_only_wins", sm.get_workload_idle_loaded_fit_only_wins(conn), "Fit-Only idle_loaded wins in 117-140", "wins", "Fit-Only idle_loaded wins")
+
+    reg_metric("workload_cold_start_total", sm.get_workload_cold_start_total(conn), "Total cold_start decisions in 117-140", "decisions", "Total cold_start decisions")
+    reg_metric("workload_cold_start_sr_wins", sm.get_workload_cold_start_sr_wins(conn), "SiliconRoute cold_start wins in 117-140", "wins", "SiliconRoute cold_start wins")
+    reg_metric("workload_cold_start_always_cpu_wins", sm.get_workload_cold_start_always_cpu_wins(conn), "Always-CPU cold_start wins in 117-140", "wins", "Always-CPU cold_start wins")
+    reg_metric("workload_cold_start_always_rtx_wins", sm.get_workload_cold_start_always_rtx_wins(conn), "Always-RTX cold_start wins in 117-140", "wins", "Always-RTX cold_start wins")
+    reg_metric("workload_cold_start_fit_only_wins", sm.get_workload_cold_start_fit_only_wins(conn), "Fit-Only cold_start wins in 117-140", "wins", "Fit-Only cold_start wins")
+
+    # 10. System, Config, Provenance & Comparison Metrics
+    reg_metric("volatility_tiebreak_band_pct", sm.get_volatility_tiebreak_band_pct(conn), "Router session volatility tie-breaking band", "%", "Volatility tie-break band")
+    reg_metric("low_battery_threshold_pct", sm.get_low_battery_threshold_pct(conn), "Low battery threshold for battery saver mode", "%", "Low battery threshold")
+    reg_metric("fingerprint_test_duration_ms", sm.get_fingerprint_test_duration_ms(conn), "Duration of NVML GPU load fingerprint identification test", "ms", "Fingerprint test duration")
+    reg_metric("database_size_bytes", sm.get_database_size_bytes(conn), "SELECT pragma_page_count * pragma_page_size", "bytes", "Database file size in bytes")
+    reg_metric("predictive_model_mape_pct", sm.get_predictive_model_mape_pct(conn), "Average LOO MAPE across active predictor models", "%", "Average LOO MAPE")
+
+    reg_metric("mlp_3072_cold_cpu_dec124_ms", sm.get_mlp_3072_cold_cpu_dec124_ms(conn), "CPU latency for mlp-3072w-4l cold start in headline Decision 124", "ms", "Decision 124 CPU cold start latency")
+    reg_metric("mlp_3072_cold_rtx_dec124_ms", sm.get_mlp_3072_cold_rtx_dec124_ms(conn), "RTX latency for mlp-3072w-4l cold start in headline Decision 124", "ms", "Decision 124 RTX cold start latency")
+    reg_metric("overhead_rtx_cold_start_vs_sustained_dec124", sm.get_overhead_rtx_cold_start_vs_sustained_dec124(conn), "RTX cold start overhead ratio vs sustained in headline Decision 124", "x", "Decision 124 RTX cold start overhead")
 
     # Save manifest.json
     manifest_path = OUTPUT_DIR / "manifest.json"
@@ -637,6 +721,15 @@ Evaluated across 8 sustained, 8 idle-loaded, and 8 cold-start tasks on physical 
 | CPU | +/-17.3% | 38.9% | 5 |
 | AMD Radeon 610M | +/-15.4% | 76.0% | 10 |
 | NVIDIA RTX 5070 | +/-6.6% | 139.9% | 10 |
+
+---
+
+## 7. Key Findings (Provable Rule-Based Comparisons)
+
+1. **CPU Beats RTX on Small Tasks**: For `mlp-256w-4l` at batch 1, in session {sm.get_mlp_256_b1_comparison_session_id(conn)}, the CPU executes in **{sm.get_mlp_256_b1_cpu_latency_ms(conn)} ms** (run {sm.get_mlp_256_b1_cpu_run_id(conn)}), while the RTX 5070 takes **{sm.get_mlp_256_b1_rtx_latency_ms(conn)} ms** (run {sm.get_mlp_256_b1_rtx_run_id(conn)}) due to DirectML command queue dispatch overhead. The CPU is **{sm.get_speedup_cpu_over_rtx_mlp_256_b1(conn)}x faster**.
+2. **Sustained Scaling on Large Models**: In session {sm.get_mlp_3072_b1_sustained_session_id(conn)}, sustained RTX inference on `mlp-3072w-4l` takes **{sm.get_mlp_3072_b1_sustained_rtx_ms(conn)} ms** (run {sm.get_mlp_3072_b1_sustained_rtx_run_id(conn)}) vs CPU **{sm.get_mlp_3072_b1_sustained_cpu_ms(conn)} ms** (run {sm.get_mlp_3072_b1_sustained_cpu_run_id(conn)}), delivering a **{sm.get_speedup_rtx_over_cpu_mlp_3072_b1_sustained(conn)}x speedup**.
+3. **Batch-8 DirectML Anomaly**: In session {sm.get_directml_anomaly_conv96_session_id(conn)}, `conv-96c-4l` takes **{sm.get_directml_anomaly_conv96_b8_ms(conn)} ms** at B=8 (run {sm.get_directml_anomaly_conv96_b8_run_id(conn)}) vs **{sm.get_directml_anomaly_conv96_b4_ms(conn)} ms** at B=4 (run {sm.get_directml_anomaly_conv96_b4_run_id(conn)}) on RTX 5070 (a **{sm.get_directml_anomaly_conv96_slowdown(conn)}x slowdown**).
+4. **Loading Time Dominates Cold Starts**: Under cold start in Decision {sm.get_mlp_3072_cold_decision_id(conn)}, RTX takes **{sm.get_mlp_3072_cold_rtx_rounded_ms(conn)} ms** (WorkloadMeasurement {sm.get_mlp_3072_cold_rtx_wm_id(conn)}, a **{sm.get_overhead_rtx_cold_start_vs_sustained_mlp_3072(conn)}x overhead** vs sustained), while CPU completes in **{sm.get_mlp_3072_cold_cpu_rounded_ms(conn)} ms** (WorkloadMeasurement {sm.get_mlp_3072_cold_cpu_wm_id(conn)}). In headline Decision 124, CPU cold start completes in **{sm.get_mlp_3072_cold_cpu_dec124_ms(conn)} ms** vs RTX **{sm.get_mlp_3072_cold_rtx_dec124_ms(conn)} ms** (a **{sm.get_overhead_rtx_cold_start_vs_sustained_dec124(conn)}x overhead**).
 
 """
     with open(results_md_path, "w", encoding="utf-8") as f:

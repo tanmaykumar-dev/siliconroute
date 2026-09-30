@@ -1,0 +1,29 @@
+﻿Found 9 functions with hardcoded session/decision/run IDs:
+
+Function: get_variability_metric
+  Line 138: AND r.session_id >= 32
+  Line 139: AND r.session_id != 38
+
+Function: get_mlp_256_b1_cpu_latency_ms
+  Line 595: AND session_id = 32
+
+Function: get_mlp_256_b1_rtx_latency_ms
+  Line 607: AND session_id = 116
+
+Function: get_mlp_3072_b1_sustained_cpu_ms
+  Line 619: AND session_id = 177
+
+Function: get_mlp_3072_b1_sustained_rtx_ms
+  Line 631: AND session_id = 225
+
+Function: get_mlp_3072_cold_cpu_rounded_ms
+  Line 643: AND decision_id = 124
+
+Function: get_mlp_3072_cold_rtx_rounded_ms
+  Line 656: AND decision_id = 124
+
+Function: get_directml_anomaly_conv96_b8_ms
+  Line 669: AND session_id = 88
+
+Function: get_directml_anomaly_conv96_b4_ms
+  Line 681: AND session_id = 88

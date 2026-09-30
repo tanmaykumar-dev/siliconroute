@@ -91,3 +91,12 @@ Evaluated across 8 sustained, 8 idle-loaded, and 8 cold-start tasks on physical 
 | AMD Radeon 610M | +/-15.4% | 76.0% | 10 |
 | NVIDIA RTX 5070 | +/-6.6% | 139.9% | 10 |
 
+---
+
+## 7. Key Findings (Provable Rule-Based Comparisons)
+
+1. **CPU Beats RTX on Small Tasks**: For `mlp-256w-4l` at batch 1, in session 225, the CPU executes in **0.017 ms** (run 839), while the RTX 5070 takes **0.142 ms** (run 841) due to DirectML command queue dispatch overhead. The CPU is **8.4x faster**.
+2. **Sustained Scaling on Large Models**: In session 194, sustained RTX inference on `mlp-3072w-4l` takes **0.655 ms** (run 814) vs CPU **4.2 ms** (run 812), delivering a **6.4x speedup**.
+3. **Batch-8 DirectML Anomaly**: In session 87, `conv-96c-4l` takes **13.5 ms** at B=8 (run 622) vs **2.4 ms** at B=4 (run 621) on RTX 5070 (a **5.6x slowdown**).
+4. **Loading Time Dominates Cold Starts**: Under cold start in Decision 144, RTX takes **219.9 ms** (WorkloadMeasurement 132, a **335.7x overhead** vs sustained), while CPU completes in **215.8 ms** (WorkloadMeasurement 130). In headline Decision 124, CPU cold start completes in **189.8 ms** vs RTX **202.8 ms** (a **309.6x overhead**).
+

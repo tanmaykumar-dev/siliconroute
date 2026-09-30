@@ -1,0 +1,5 @@
+﻿Original query (session_id >= 32 AND session_id != 38):
+  cpu: n_configs=5, med=17.3%, max=38.9%
+  dml:0: n_configs=10, med=15.4%, max=76.0%
+  dml:1: n_configs=10, med=6.6%, max=139.9%
+Sessions < 32 with timed_runs >= 20: [(9, 16), (17, 16), (18, 12)]

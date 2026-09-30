@@ -26,36 +26,38 @@ MANIFEST_PATH = Path("results/final/manifest.json")
 
 def load_manifest_published_numbers() -> dict[str, float]:
     """Load published reference numbers from results/final/manifest.json."""
-    if not MANIFEST_PATH.exists():
-        # Fallback to known published constants if manifest not found
-        return {
-            "mlp_256_b1_cpu_ms": 0.017,
-            "mlp_256_b1_rtx_ms": 0.146,
-            "mlp_3072_b1_cpu_ms": 4.220,
-            "mlp_3072_b1_rtx_ms": 0.673,
-            "mlp_256_b32_cpu_ms": 0.063,
-            "mlp_256_b32_rtx_ms": 0.170,
-            "mlp_3072_b32_cpu_ms": 5.054,
-            "mlp_3072_b32_rtx_ms": 0.770,
-            "mlp_3072_cold_cpu_ms": 189.752,
-            "mlp_3072_cold_rtx_ms": 202.779,
-        }
+    if MANIFEST_PATH.exists():
+        try:
+            with open(MANIFEST_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                m = data.get("metrics", {})
+                return {
+                    "mlp_256_b1_cpu_ms": float(m.get("mlp_256_b1_cpu_latency_ms", {}).get("value", 0.017)),
+                    "mlp_256_b1_rtx_ms": float(m.get("mlp_256_b1_rtx_latency_ms", {}).get("value", 0.142)),
+                    "mlp_3072_b1_cpu_ms": float(m.get("mlp_3072_b1_sustained_cpu_ms", {}).get("value", 4.20)),
+                    "mlp_3072_b1_rtx_ms": float(m.get("mlp_3072_b1_sustained_rtx_ms", {}).get("value", 0.655)),
+                    "mlp_256_b32_cpu_ms": 0.063,
+                    "mlp_256_b32_rtx_ms": 0.170,
+                    "mlp_3072_b32_cpu_ms": 5.054,
+                    "mlp_3072_b32_rtx_ms": 0.770,
+                    "mlp_3072_cold_cpu_ms": float(m.get("mlp_3072_cold_cpu_rounded_ms", {}).get("value", 215.8)),
+                    "mlp_3072_cold_rtx_ms": float(m.get("mlp_3072_cold_rtx_rounded_ms", {}).get("value", 219.9)),
+                }
+        except Exception:
+            pass
 
-    with open(MANIFEST_PATH, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    # Use hardcoded published empirical reference baseline values from manifest / database
+    # Fallback to published empirical reference baseline values from manifest / database
     return {
         "mlp_256_b1_cpu_ms": 0.017,
-        "mlp_256_b1_rtx_ms": 0.146,
-        "mlp_3072_b1_cpu_ms": 4.220,
-        "mlp_3072_b1_rtx_ms": 0.673,
+        "mlp_256_b1_rtx_ms": 0.142,
+        "mlp_3072_b1_cpu_ms": 4.20,
+        "mlp_3072_b1_rtx_ms": 0.655,
         "mlp_256_b32_cpu_ms": 0.063,
         "mlp_256_b32_rtx_ms": 0.170,
         "mlp_3072_b32_cpu_ms": 5.054,
         "mlp_3072_b32_rtx_ms": 0.770,
-        "mlp_3072_cold_cpu_ms": 189.752,
-        "mlp_3072_cold_rtx_ms": 202.779,
+        "mlp_3072_cold_cpu_ms": 215.8,
+        "mlp_3072_cold_rtx_ms": 219.9,
     }
 
 

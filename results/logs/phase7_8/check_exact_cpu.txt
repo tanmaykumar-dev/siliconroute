@@ -1,0 +1,15 @@
+﻿With unstable = 0 strictly:
+  cold_start   cpu   n=28 med=41.71x (min=0.93x, max=357.94x)
+  cold_start   dml:0 n=28 med=27.93x (min=1.40x, max=447.51x)
+  cold_start   dml:1 n=28 med=230.52x (min=2.40x, max=580.13x)
+  idle_loaded  cpu   n=20 med=1.76x (min=0.71x, max=14.42x)
+  idle_loaded  dml:0 n=20 med=1.62x (min=0.98x, max=11.96x)
+  idle_loaded  dml:1 n=20 med=2.14x (min=0.51x, max=12.22x)
+
+With mean_ms as baseline:
+  cold_start   cpu   n=28 med=41.67x (min=0.94x, max=369.48x)
+  cold_start   dml:0 n=28 med=28.32x (min=1.40x, max=437.01x)
+  cold_start   dml:1 n=28 med=229.58x (min=2.43x, max=588.13x)
+  idle_loaded  cpu   n=20 med=1.76x (min=0.71x, max=14.42x)
+  idle_loaded  dml:0 n=20 med=1.61x (min=0.99x, max=11.87x)
+  idle_loaded  dml:1 n=20 med=2.14x (min=0.51x, max=12.13x)

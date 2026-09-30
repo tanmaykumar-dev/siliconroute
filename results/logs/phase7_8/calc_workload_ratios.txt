@@ -1,0 +1,9 @@
+﻿Loaded 187 unique (model, batch, device) configurations with sustained runs.
+Total WorkloadMeasurement rows: 144
+Missing sustained baseline: 0
+Workload: cold_start   | Device: cpu   (CPU                 ) | Count: 28 | Median: 39.41x | Min: 0.93x | Max: 394.97x
+Workload: cold_start   | Device: dml:0 (AMD Radeon(TM) 610M ) | Count: 28 | Median: 27.93x | Min: 1.40x | Max: 447.51x
+Workload: cold_start   | Device: dml:1 (NVIDIA GeForce RTX 5070 Laptop GPU) | Count: 28 | Median: 230.52x | Min: 2.40x | Max: 580.13x
+Workload: idle_loaded  | Device: cpu   (CPU                 ) | Count: 20 | Median: 1.70x | Min: 0.71x | Max: 14.42x
+Workload: idle_loaded  | Device: dml:0 (AMD Radeon(TM) 610M ) | Count: 20 | Median: 1.62x | Min: 0.98x | Max: 11.96x
+Workload: idle_loaded  | Device: dml:1 (NVIDIA GeForce RTX 5070 Laptop GPU) | Count: 20 | Median: 2.14x | Min: 0.91x | Max: 12.22x
