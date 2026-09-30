@@ -33,16 +33,35 @@ files_to_copy: list[Path] = [
     Path("scripts/make_final_results.py"),
     Path("scripts/reproduce.py"),
     Path("scripts/metrics.py"),
+    Path("docs/DEMO_SCRIPT.md"),
 ]
 
 # Add all CSV files in results/final/
-for p in (ROOT / "results/final").glob("*.csv"):
-    files_to_copy.append(p.relative_to(ROOT))
+if (ROOT / "results/final").exists():
+    for p in (ROOT / "results/final").glob("*.csv"):
+        files_to_copy.append(p.relative_to(ROOT))
 
 # Add every file in results/logs/phase7_8/
-for p in (ROOT / "results/logs/phase7_8").iterdir():
-    if p.is_file():
+if (ROOT / "results/logs/phase7_8").exists():
+    for p in (ROOT / "results/logs/phase7_8").iterdir():
+        if p.is_file():
+            files_to_copy.append(p.relative_to(ROOT))
+
+# Add every file in results/logs/release_v1/
+if (ROOT / "results/logs/release_v1").exists():
+    for p in (ROOT / "results/logs/release_v1").iterdir():
+        if p.is_file():
+            files_to_copy.append(p.relative_to(ROOT))
+
+# Add all screenshots in results/screenshots/v1_0/
+if (ROOT / "results/screenshots/v1_0").exists():
+    for p in (ROOT / "results/screenshots/v1_0").glob("*.png"):
         files_to_copy.append(p.relative_to(ROOT))
+
+# Add demo video if exists
+demo_vid = ROOT / "results/demo/siliconroute_demo.webm"
+if demo_vid.exists():
+    files_to_copy.append(demo_vid.relative_to(ROOT))
 
 # Deduplicate
 files_to_copy = sorted(list(set(files_to_copy)))
@@ -51,8 +70,9 @@ print(f"Copying {len(files_to_copy)} files to {PKG_DIR}...")
 for rel_path in files_to_copy:
     src = ROOT / rel_path
     dst = PKG_DIR / rel_path
-    dst.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(src, dst)
+    if src.exists():
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, dst)
 
 # Generate FILES.txt with size and SHA256 for each file inside review_package/
 manifest_lines = []

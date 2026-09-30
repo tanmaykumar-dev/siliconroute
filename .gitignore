@@ -15,3 +15,4 @@ siliconroute_kit.zip
 models/*.onnx
 review_package/
 review_package.zip
+release/
