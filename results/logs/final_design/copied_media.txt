@@ -1,0 +1,15 @@
+﻿
+FullName                                                  Length
+--------                                                  ------
+E:\THE SNAP X HP\site\media\raw\01_hero_red_pcb.jpg      1624019
+E:\THE SNAP X HP\site\media\raw\02_vision_wafer_die.jpg  1079217
+E:\THE SNAP X HP\site\media\raw\03_method_wafer_grid.jpg 1157396
+E:\THE SNAP X HP\site\media\raw\04_findings_package.jpg   849767
+E:\THE SNAP X HP\site\media\raw\05_memory_modules.jpg     759880
+E:\THE SNAP X HP\site\media\raw\06_chip_on_board.jpg     2386264
+E:\THE SNAP X HP\site\media\raw\07_board_detail.jpg      1274947
+E:\THE SNAP X HP\site\media\media.json                      3297
+E:\THE SNAP X HP\site\media\CREDITS.md                       994
+E:\THE SNAP X HP\docs\DESIGN_SPEC.md                       19170
+
+

@@ -1,0 +1,82 @@
+{
+  "note": "Real photos licensed for free use (Unsplash License / Pexels License). They are atmosphere only: never caption them as SiliconRoute hardware or as the tested laptop.",
+  "media": [
+    {
+      "file": "raw/01_hero_red_pcb.jpg",
+      "role": "hero",
+      "width": 3200,
+      "height": 2133,
+      "alt": "Close-up of a red printed circuit board with a ball-grid chip footprint, memory traces and white component labels.",
+      "credit": "Photo by nic-scrollstoppingphotos on Pexels",
+      "source_url": "https://www.pexels.com/photo/28136812/",
+      "license": "Pexels License",
+      "original_filename": "pexels-nic-scrollstoppingphotos-28136812.jpg"
+    },
+    {
+      "file": "raw/02_vision_wafer_die.jpg",
+      "role": "vision",
+      "width": 2119,
+      "height": 3200,
+      "alt": "Silicon wafer seen at an angle, with one exposed die showing its circuit layout among rows of identical dies.",
+      "credit": "Photo by Laura Ockel on Unsplash",
+      "source_url": "https://unsplash.com/photos/RoZWxeFL27k",
+      "license": "Unsplash License",
+      "original_filename": "laura-ockel-RoZWxeFL27k-unsplash.jpg"
+    },
+    {
+      "file": "raw/03_method_wafer_grid.jpg",
+      "role": "method_opener",
+      "width": 3200,
+      "height": 2400,
+      "alt": "Rows of processor dies on a silicon wafer, shallow focus.",
+      "credit": "Photo by Maxence Pira on Unsplash",
+      "source_url": "https://unsplash.com/photos/aNaq4lbX99E",
+      "license": "Unsplash License",
+      "original_filename": "maxence-pira-aNaq4lbX99E-unsplash.jpg"
+    },
+    {
+      "file": "raw/04_findings_package.jpg",
+      "role": "findings_opener",
+      "width": 3200,
+      "height": 2399,
+      "alt": "Underside of a processor package with gold contact pads and rows of small capacitors.",
+      "credit": "Photo by ed-br on Pexels",
+      "source_url": "https://www.pexels.com/photo/37052613/",
+      "license": "Pexels License",
+      "original_filename": "pexels-ed-br-1727831108-37052613.jpg"
+    },
+    {
+      "file": "raw/05_memory_modules.jpg",
+      "role": "finding_cache",
+      "width": 3200,
+      "height": 2133,
+      "alt": "Several memory modules stacked on a desk, shallow focus.",
+      "credit": "Photo by sejio402 on Pexels",
+      "source_url": "https://www.pexels.com/photo/6636474/",
+      "license": "Pexels License",
+      "original_filename": "pexels-sejio402-6636474.jpg"
+    },
+    {
+      "file": "raw/06_chip_on_board.jpg",
+      "role": "problem",
+      "width": 3200,
+      "height": 2133,
+      "alt": "A processor soldered onto a dark circuit board, surrounded by small components.",
+      "credit": "Photo by waterhouse on Pexels",
+      "source_url": "https://www.pexels.com/photo/3665442/",
+      "license": "Pexels License",
+      "original_filename": "pexels-waterhouse-3665442.jpg"
+    },
+    {
+      "file": "raw/07_board_detail.jpg",
+      "role": "contact",
+      "width": 3200,
+      "height": 2134,
+      "alt": "Detail of an older motherboard with capacitors, a crystal oscillator and expansion slots.",
+      "credit": "Photo by Tima Miroshnichenko on Pexels",
+      "source_url": "https://www.pexels.com/photo/6755078/",
+      "license": "Pexels License",
+      "original_filename": "pexels-tima-miroshnichenko-6755078.jpg"
+    }
+  ]
+}

@@ -18,4 +18,6 @@ review_package.zip
 release/
 /DESIGN_SPEC*.md
 *.webp
+!site/media/*.webp
 /siliconroute/
+/siliconroute_media/

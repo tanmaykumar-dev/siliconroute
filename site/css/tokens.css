@@ -1,50 +1,77 @@
 /**
- * SiliconRoute Design Spec v3: "Red Bench" Tokens
- * Single light theme. Sharp rectangles (radius 0). No shadows, gradients, or glass.
+ * SiliconRoute Design Spec (final, revision 2): "Field Report" Tokens
+ * Single source of truth: docs/DESIGN_SPEC.md Section 2.
  */
 
 @font-face {
-  font-family: 'Archivo';
-  src: url('../fonts/archivo-variable.woff2') format('woff2-variations');
-  font-weight: 100 900;
-  font-stretch: 62% 125%;
+  font-family: 'IBM Plex Sans';
+  src: url('../fonts/ibm-plex-sans-400.woff2') format('woff2');
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'JetBrains Mono';
-  src: url('../fonts/jetbrains-mono.woff2') format('woff2-variations');
-  font-weight: 100 800;
+  font-family: 'IBM Plex Sans';
+  src: url('../fonts/ibm-plex-sans-500.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('../fonts/ibm-plex-sans-600.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('../fonts/ibm-plex-mono-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('../fonts/ibm-plex-mono-500.woff2') format('woff2');
+  font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 
 :root {
-  /* Color Palette (Section 3.1) */
-  --paper: #F2F2F0;
-  --sheet: #FAFAF8;
-  --ink: #141414;
-  --ink-2: #4A4A4A;
-  --ink-3: #757575;
-  --rule: #D6D6D2;
-  --red: #E1461E;
-  --red-deep: #B8330F;
-  --red-wash: #F7E4DD;
-  --grey-chip: #8A8A8A;
-  --white: #FFFFFF;
+  /* Color Palette (Section 2 - Light) */
+  --paper: #F3F3EF;
+  --paper-2: #EAEAE4;
+  --ink: #121211;
+  --ink-2: #4A4A45;
+  --ink-3: #6E6E67;
+  --rule: #D6D6CE;
+  --signal: #9B2A3C;
+  --cpu: #9C5A06;
+  --igpu: #0E6B60;
+  --dgpu: #23459F;
+  --npu: #5B6B12;
 
-  /* Chip Series Encoding */
-  --chip-cpu: #141414;
-  --chip-igpu: #8A8A8A;
-  --chip-dgpu: #E1461E;
-  --chip-npu: #B8330F;
+  /* Aliases for components */
+  --chip-cpu: var(--cpu);
+  --chip-igpu: var(--igpu);
+  --chip-dgpu: var(--dgpu);
+  --chip-npu: var(--npu);
+  --sheet: var(--paper-2);
+  --red: var(--signal);
+  --red-deep: var(--signal);
+  --red-wash: #F5EAEB;
 
-  /* Typography (Section 3.2) */
-  --font-sans: 'Archivo', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  /* Typography */
+  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
 
-  /* Spacing Scale (Section 3.3) */
+  /* Spacing Scale */
   --space-4: 4px;
   --space-8: 8px;
   --space-12: 12px;
@@ -54,7 +81,28 @@
   --space-48: 48px;
   --space-64: 64px;
   --space-96: 96px;
+  --space-160: 160px;
 
-  /* Border Radius: 0 everywhere (Section 3.3) */
+  /* Border Radius: 0 everywhere, 2px on inputs and buttons only */
   --radius: 0px;
+  --radius-sm: 2px;
+}
+
+:root[data-theme="dark"],
+body[data-theme="dark"] {
+  --paper: #141413;
+  --paper-2: #1C1C1A;
+  --ink: #EDEDE8;
+  --ink-2: #B4B4AC;
+  --ink-3: #8C8C84;
+  --rule: #2E2E2B;
+  --signal: #E0707F;
+  --cpu: #D99A45;
+  --igpu: #4FB3A4;
+  --dgpu: #7F9CF0;
+  --npu: #A9BC4C;
+  --sheet: var(--paper-2);
+  --red: var(--signal);
+  --red-deep: var(--signal);
+  --red-wash: #2A1A1D;
 }
