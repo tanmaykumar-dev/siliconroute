@@ -76,8 +76,19 @@ export class ClientRouter {
       if (e.key === "?" && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
         const sheet = document.getElementById("modal-shortcuts");
-        if (sheet) sheet.classList.toggle("open");
+        if (sheet) {
+          const isOpen = sheet.classList.contains("active") || sheet.classList.contains("open");
+          sheet.classList.toggle("active", !isOpen);
+          sheet.classList.remove("open");
+        }
         return;
+      }
+
+      if (e.key === "Escape") {
+        const sheet = document.getElementById("modal-shortcuts");
+        if (sheet) {
+          sheet.classList.remove("active", "open");
+        }
       }
 
       // Handle 'g' sequence prefix

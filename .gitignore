@@ -16,3 +16,5 @@ models/*.onnx
 review_package/
 review_package.zip
 release/
+/DESIGN_SPEC.md
+*.webp

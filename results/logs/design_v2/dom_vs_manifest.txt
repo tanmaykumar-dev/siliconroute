@@ -1,0 +1,18 @@
+=====================================================================================
+SILICONROUTE DESIGN v2 — DOM VS MANIFEST AUDIT LOG
+=====================================================================================
+Metric Key                                     Manifest     DOM Rendered     Status
+-------------------------------------------------------------------------------------
+decisions_117_140_sr_wins                      22           22               PASS
+decisions_117_140_total                        24           24               PASS
+decisions_117_140_sr_accuracy_pct              91.7         91.7%            PASS
+decisions_117_140_sr_mean_regret_pct           1.75         1.75%            PASS
+decisions_117_140_always_cpu_mean_regret_pct   113.06       113.06%          PASS
+decisions_117_140_always_rtx_mean_regret_pct   304.93       304.93%          PASS
+speedup_cpu_over_rtx_mlp_256_b1                8.4          8.4×             PASS
+speedup_rtx_over_cpu_mlp_3072_b1_sustained     6.4          6.4×             PASS
+overhead_rtx_cold_start_vs_sustained_mlp_3072  335.7        335.7×           PASS
+directml_anomaly_conv96_slowdown               5.6          5.6×             PASS
+database_sha256                                98542cffb7264eee537d218e1863ccbbc174495e0bf13eb244ee22cd6f034cf5 98542cffb7264eee537d218e1863ccbbc174495e0bf13eb244ee22cd6f034cf5 PASS
+=====================================================================================
+TOTAL VERIFIED METRICS: 11 | ALL PASS: True

@@ -108,7 +108,7 @@ function setupShortcutsSheet() {
   };
 
   const closeSheet = () => {
-    modal.classList.remove("active");
+    modal.classList.remove("active", "open");
     modal.setAttribute("aria-hidden", "true");
   };
 
