@@ -1,7 +1,7 @@
 /**
- * SiliconRoute Design Spec v2 — Design Tokens
- * Single source of truth for color, space, shape, typography, and depth.
- * Reused identically in site/css/tokens.css.
+ * SiliconRoute Design Spec v2 — Elevated SaaS Design Tokens
+ * Matched precisely to the high-end dashboard mockups in E:\THE SNAP X HP\ui ux data.
+ * Features pill navigation, floating card depth, and fluid motion.
  */
 
 /* --------------------------------------------------------------------------
@@ -25,35 +25,57 @@
 }
 
 /* --------------------------------------------------------------------------
-   Default / Dark Theme (App Default)
+   Default / Light Theme (Mockup Default)
    -------------------------------------------------------------------------- */
 :root,
-html[data-theme="dark"] {
-  /* Neutrals: The Bench */
-  --bench: #0E1317;
-  --plate: #141A1F;
-  --plate-raised: #1A2229;
-  --line: #27323B;
-  --line-strong: #3A4752;
-  --ink: #E6ECEF;
-  --ink-2: #A3AFB8;
-  --ink-3: #77848E;
+html[data-theme="light"] {
+  /* Canvas & Cards */
+  --bench: #EFF1F5;
+  --plate: #FFFFFF;
+  --plate-raised: #FFFFFF;
+  --plate-subtle: #F6F8FA;
+  --line: rgba(0, 0, 0, 0.05);
+  --line-strong: rgba(0, 0, 0, 0.10);
+  --line-border: #E5E7EB;
+
+  /* Typography */
+  --ink: #111827;
+  --ink-2: #6B7280;
+  --ink-3: #9CA3AF;
+  --ink-inverse: #FFFFFF;
+
+  /* Pill Navigation */
+  --nav-pill-bg: #FFFFFF;
+  --nav-pill-active-bg: #18191D;
+  --nav-pill-active-ink: #FFFFFF;
+  --nav-pill-hover-bg: #F3F4F6;
+  --nav-pill-ink: #4B5563;
 
   /* Chip Identities (Fixed Across Product) */
-  --chip-cpu: #E59A3A;
-  --chip-igpu: #3CC4AC;
-  --chip-dgpu: #6E9CFF;
-  --chip-npu: #A988F0;
+  --chip-cpu: #D97706;
+  --chip-igpu: #0D9488;
+  --chip-dgpu: #2563EB;
+  --chip-npu: #7C3AED;
 
   /* Semantic States */
-  --ok: #4CC787;
-  --warn: #E3B341;
-  --bad: #F07167;
-  --na: #6B7780;
+  --ok: #10B981;
+  --ok-bg: #ECFDF5;
+  --ok-text: #059669;
+  --warn: #F59E0B;
+  --warn-bg: #FFFBEB;
+  --warn-text: #D97706;
+  --bad: #F43F5E;
+  --bad-bg: #FFF1F2;
+  --bad-text: #E11D48;
+  --na: #6B7280;
+  --na-bg: #F3F4F6;
 
-  /* Shadows */
-  --shadow-raised: 0 12px 32px rgba(0, 0, 0, 0.45);
-  --shadow-popover: 0 16px 40px rgba(0, 0, 0, 0.60);
+  /* Shadows (Multi-layered, ultra-soft) */
+  --shadow-card: 0 10px 30px -5px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+  --shadow-card-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+  --shadow-pill: 0 4px 14px rgba(24, 25, 29, 0.12);
+  --shadow-raised: 0 16px 36px rgba(0, 0, 0, 0.08);
+  --shadow-popover: 0 20px 48px rgba(0, 0, 0, 0.14);
 
   /* Focus Ring */
   --focus-ring: 2px solid var(--chip-dgpu);
@@ -72,55 +94,73 @@ html[data-theme="dark"] {
   --space-8: 32px;
   --space-12: 48px;
   --space-16: 64px;
-  --space-24: 96px;
 
-  /* Radii (Hierarchical) */
-  --radius-control: 6px;
-  --radius-tile: 10px;
-  --radius-panel: 14px;
-  --radius-pill: 999px;
+  /* Radii (Modern Soft Rounded Curves) */
+  --radius-control: 9999px;
+  --radius-tile: 24px;
+  --radius-panel: 28px;
+  --radius-pill: 9999px;
+  --radius-inner: 16px;
 
   /* Motion */
-  --motion-fast: 120ms cubic-bezier(0.2, 0.7, 0.2, 1);
-  --motion-base: 200ms cubic-bezier(0.2, 0.7, 0.2, 1);
-  --motion-trace: 600ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  --motion-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-base: 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-slow: 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-trace: 700ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* --------------------------------------------------------------------------
-   Light Theme (Website Default)
+   Dark Theme (Sleek Obsidian SaaS)
    -------------------------------------------------------------------------- */
-html[data-theme="light"] {
-  /* Neutrals: The Bench */
-  --bench: #E9EDF0;
-  --plate: #F7F9FA;
-  --plate-raised: #FFFFFF;
-  --line: #D3DAE0;
-  --line-strong: #B7C1CA;
-  --ink: #172026;
-  --ink-2: #4E5A64;
-  --ink-3: #76828C;
+html[data-theme="dark"] {
+  --bench: #0B0E13;
+  --plate: #141820;
+  --plate-raised: #1A202A;
+  --plate-subtle: #181D26;
+  --line: rgba(255, 255, 255, 0.06);
+  --line-strong: rgba(255, 255, 255, 0.12);
+  --line-border: #262E3B;
 
-  /* Chip Identities */
-  --chip-cpu: #B86E12;
-  --chip-igpu: #138472;
-  --chip-dgpu: #2A5FD0;
-  --chip-npu: #7A4BD6;
+  --ink: #F3F4F6;
+  --ink-2: #9CA3AF;
+  --ink-3: #6B7280;
+  --ink-inverse: #111827;
 
-  /* Semantic States */
-  --ok: #1E8A4C;
-  --warn: #A86E00;
-  --bad: #C23B32;
-  --na: #8A949C;
+  --nav-pill-bg: #141820;
+  --nav-pill-active-bg: #F3F4F6;
+  --nav-pill-active-ink: #111827;
+  --nav-pill-hover-bg: #1F2633;
+  --nav-pill-ink: #9CA3AF;
 
-  /* Shadows */
-  --shadow-raised: 0 12px 32px rgba(23, 32, 38, 0.14);
-  --shadow-popover: 0 16px 40px rgba(23, 32, 38, 0.20);
+  --chip-cpu: #F59E0B;
+  --chip-igpu: #14B8A6;
+  --chip-dgpu: #3B82F6;
+  --chip-npu: #A78BFA;
+
+  --ok: #34D399;
+  --ok-bg: rgba(16, 185, 129, 0.15);
+  --ok-text: #34D399;
+  --warn: #FBBF24;
+  --warn-bg: rgba(245, 158, 11, 0.15);
+  --warn-text: #FBBF24;
+  --bad: #FB7185;
+  --bad-bg: rgba(244, 63, 94, 0.15);
+  --bad-text: #FB7185;
+  --na: #9CA3AF;
+  --na-bg: rgba(156, 163, 175, 0.15);
+
+  --shadow-card: 0 10px 30px -5px rgba(0, 0, 0, 0.35), 0 2px 6px -1px rgba(0, 0, 0, 0.20);
+  --shadow-card-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.50);
+  --shadow-pill: 0 4px 14px rgba(0, 0, 0, 0.40);
+  --shadow-raised: 0 16px 36px rgba(0, 0, 0, 0.60);
+  --shadow-popover: 0 20px 48px rgba(0, 0, 0, 0.75);
 }
 
 @media (prefers-reduced-motion: reduce) {
   :root {
     --motion-fast: 0ms;
     --motion-base: 0ms;
+    --motion-slow: 0ms;
     --motion-trace: 0ms;
   }
 }

@@ -1,4 +1,4 @@
 Release Folder: release/siliconroute-v1.0
 Total File Count: 312
-Total Size Bytes: 12857351 (12.26 MB)
+Total Size Bytes: 13586178 (12.96 MB)
 Max File Size Limit (50 MB): PASSED

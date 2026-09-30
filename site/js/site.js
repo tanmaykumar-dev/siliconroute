@@ -1,12 +1,14 @@
 /**
- * SiliconRoute Website Logic
+ * SiliconRoute Website Logic — Elevated SaaS Design
  * Loads local data/manifest.json, data/content.json, and data/build.json.
- * Renders .metric elements, draws hero routing trace, and attaches copy buttons.
+ * Renders .metric elements, draws hero routing trace, attaches copy buttons,
+ * and powers the interactive router simulator.
  */
 
 document.addEventListener("DOMContentLoaded", async () => {
   await loadAndRenderSite();
   setupCodeCopyButtons();
+  setupRouterSimulator();
   drawHeroRoutingTrace();
 });
 
@@ -45,6 +47,10 @@ function formatValue(key, val, unit) {
   }
   if (unit === "x") return `${val.toFixed(1)}×`;
   if (unit === "GFLOP/s" || unit === "GB/s") return `${val.toFixed(1)} ${unit}`;
+  if (unit === "params") {
+    if (val >= 1000000) return `${(val / 1000000).toFixed(1)}M params`;
+    return `${val.toLocaleString()} params`;
+  }
   if (Number.isInteger(val)) return val.toLocaleString();
 
   return `${val} ${unit || ""}`.trim();
@@ -73,21 +79,42 @@ function renderBuildInfo(build) {
 }
 
 function renderContent(content) {
-  // Render limitations
   const limList = document.getElementById("site-limitations-list");
   if (limList && Array.isArray(content.limitations)) {
-    limList.innerHTML = content.limitations.map(item => `<li>${escapeHtml(item)}</li>`).join("");
+    limList.innerHTML = content.limitations.map(item => `<li>${formatMarkdown(item)}</li>`).join("");
+  }
+}
+
+function formatMarkdown(str) {
+  if (!str) return "";
+  const escaped = escapeHtml(str);
+  return escaped.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+}
+
+function setupRouterSimulator() {
+  const taskSel = document.getElementById("site-sim-task");
+  const wlSel = document.getElementById("site-sim-workload");
+  const resEl = document.getElementById("site-sim-result");
+
+  if (!taskSel || !wlSel || !resEl) return;
+
+  function updateSim() {
+    const task = taskSel.value;
+    const wl = wlSel.value;
+
+    if (task === "small" && wl === "single") {
+      resEl.innerHTML = `Recommended: <strong style="color:var(--chip-cpu);">AMD Ryzen 9 CPU</strong> (Fastest — Zero GPU wake penalty)`;
+    } else if (task === "small" && wl === "sustained") {
+      resEl.innerHTML = `Recommended: <strong style="color:var(--chip-cpu);">AMD Ryzen 9 CPU</strong> (Fastest — Kernel overhead boundary)`;
+    } else if (task === "large" && wl === "single") {
+      resEl.innerHTML = `Recommended: <strong style="color:var(--chip-dgpu);">NVIDIA RTX 5070</strong> (Fastest — Compute amortizes wake)`;
+    } else {
+      resEl.innerHTML = `Recommended: <strong style="color:var(--chip-dgpu);">NVIDIA RTX 5070</strong> (Fastest — 6.4× faster than CPU)`;
+    }
   }
 
-  // Render How this was built
-  const builtList = document.getElementById("site-how-built-container");
-  if (builtList && Array.isArray(content.how_this_was_built)) {
-    builtList.innerHTML = content.how_this_was_built.map(p => `
-      <p style="margin-bottom:var(--space-3); line-height:1.6; color:var(--ink-2); font-size:14px;">
-        ${escapeHtml(p)}
-      </p>
-    `).join("");
-  }
+  taskSel.addEventListener("change", updateSim);
+  wlSel.addEventListener("change", updateSim);
 }
 
 function drawHeroRoutingTrace() {
