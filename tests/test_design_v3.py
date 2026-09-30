@@ -1,10 +1,11 @@
-"""Tests for SiliconRoute Design Spec v2 (SPEC Section 14).
+"""Tests for SiliconRoute Design Spec v3 'Red Bench' (SPEC Section 14).
 
 Verifies:
-1. /api/published-metrics matches results/final/manifest.json exactly.
-2. scripts/build_site.py is 100% deterministic (identical hashes across repeated runs).
-3. No external runtime CDN or script/link/font dependencies in frontend/ or site/.
-4. No hardcoded benchmark numbers with units in frontend/ or site/ markup.
+1. scripts/ui_lint.py reports zero violations across frontend/ and site/.
+2. /api/published-metrics matches results/final/manifest.json exactly.
+3. scripts/build_site.py is 100% deterministic (identical hashes across repeated runs).
+4. No external runtime CDN or script/link/font dependencies in frontend/ or site/.
+5. No hardcoded benchmark numbers with units in frontend/ or site/ markup.
 """
 
 import hashlib
@@ -16,11 +17,18 @@ import pytest
 
 from app.main import app
 from scripts.build_site import build_site
+from scripts.ui_lint import run_ui_lint
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 MANIFEST_PATH = ROOT_DIR / "results" / "final" / "manifest.json"
 FRONTEND_DIR = ROOT_DIR / "frontend"
 SITE_DIR = ROOT_DIR / "site"
+
+
+def test_ui_lint():
+    """Verify scripts/ui_lint.py passes with 0 violations across all files."""
+    count, violations = run_ui_lint()
+    assert count == 0, f"UI Lint failed with {count} violations: {violations[:5]}"
 
 
 def test_published_metrics_endpoint():
@@ -90,10 +98,8 @@ def test_no_external_requests():
 
 def test_no_hardcoded_numbers_frontend_site():
     """Verify published benchmark values (e.g. 1.75%, 219.9 ms) are not hardcoded in markup."""
-    # Check HTML markup files specifically
     html_files = [FRONTEND_DIR / "index.html", SITE_DIR / "index.html"]
 
-    # Known measured values from manifest that must only be delivered via .metric
     forbidden_snippets = [
         "1.75%",
         "304.93%",

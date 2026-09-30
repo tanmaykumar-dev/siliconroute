@@ -1,5 +1,5 @@
 /**
- * SiliconRoute Design Spec v2 — Metrics & Evidence System (.metric)
+ * SiliconRoute Design Spec v3: Metrics & Evidence System (.metric)
  * Fetches published manifest metrics, renders formatted values with precise unit rules,
  * and mounts interactive evidence popovers showing exact SQL, methods, and source IDs.
  */
@@ -47,7 +47,7 @@ export class MetricsSystem {
 
     // Ratio precision rules
     if (unit === "x") {
-      return `${val.toFixed(1)}×`;
+      return `${val.toFixed(1)}x`;
     }
 
     // GFLOP/s and Bandwidth
@@ -88,13 +88,21 @@ export class MetricsSystem {
   createEvidenceButton(key, metric) {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "evidence-btn";
+    btn.className = "btn-text evidence-btn";
     btn.setAttribute("aria-label", `Show evidence for ${key}`);
-    btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
+    btn.textContent = "Show evidence";
 
-    btn.addEventListener("click", (e) => {
+    const trigger = (e) => {
       e.stopPropagation();
       this.togglePopover(btn, key, metric);
+    };
+
+    btn.addEventListener("click", trigger);
+    btn.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        trigger(e);
+      }
     });
 
     return btn;
@@ -102,37 +110,67 @@ export class MetricsSystem {
 
   togglePopover(anchorBtn, key, metric) {
     if (this.activePopover) {
+      const wasSame = this.activePopover.dataset.key === key;
       this.activePopover.remove();
       this.activePopover = null;
+      if (wasSame) return;
     }
 
     const popover = document.createElement("div");
-    popover.className = "evidence-popover-panel open";
-    popover.innerHTML = `
-      <div style="font-weight:600; margin-bottom:var(--space-2); color:var(--ink);">${key}</div>
-      <div class="evidence-row">
-        <span class="evidence-row-label">Value:</span>
-        <span class="evidence-row-val">${metric.value} ${metric.unit || ""}</span>
-      </div>
-      <div class="evidence-row">
-        <span class="evidence-row-label">Description:</span>
-        <span style="color:var(--ink-2); font-size:12px;">${metric.description || "N/A"}</span>
-      </div>
-      <div class="evidence-row">
-        <span class="evidence-row-label">Calculation Method:</span>
-        <span class="evidence-row-val" style="color:var(--chip-dgpu);">${metric.method || "N/A"}</span>
-      </div>
-      ${metric.sql ? `
-      <div class="evidence-row">
+    popover.className = "evidence-popover open";
+    popover.dataset.key = key;
+    popover.setAttribute("role", "dialog");
+    popover.setAttribute("aria-label", `Evidence for ${key}`);
+
+    const sqlBlock = metric.sql ? `
+      <div class="evidence-row" style="margin-top: 8px;">
         <span class="evidence-row-label">Database SQL:</span>
-        <span class="evidence-row-val" style="font-size:11px; color:var(--ink-3);">${metric.sql}</span>
-      </div>` : ""}
+        <pre class="evidence-sql" style="background:var(--paper); padding:6px; border:1px solid var(--rule); font-family:var(--font-mono); font-size:11px; overflow-x:auto; margin-top:4px;">${metric.sql}</pre>
+      </div>` : "";
+
+    const idBlock = metric.ids || metric.run_ids || metric.decision_ids ? `
+      <div class="evidence-row" style="margin-top: 6px;">
+        <span class="evidence-row-label">Source IDs:</span>
+        <span style="font-family:var(--font-mono); font-size:11px;">${metric.ids || metric.run_ids || metric.decision_ids}</span>
+      </div>` : "";
+
+    popover.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; border-bottom:1px solid var(--rule); padding-bottom:4px;">
+        <span style="font-family:var(--font-mono); font-size:12px; font-weight:700; color:var(--ink);">${key}</span>
+        <button type="button" class="popover-close-btn" style="border:none; background:none; cursor:pointer; font-size:16px; line-height:1; color:var(--ink-2);" aria-label="Close evidence">×</button>
+      </div>
+      <div class="evidence-row" style="margin-bottom: 6px;">
+        <span class="evidence-row-label">Published Value:</span>
+        <span style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">${metric.value} ${metric.unit || ""}</span>
+      </div>
+      <div class="evidence-row" style="margin-bottom: 6px;">
+        <span class="evidence-row-label">Description:</span>
+        <span style="color:var(--ink-2); font-size:12px; line-height:1.4;">${metric.description || "Empirical measurement from SQLite database."}</span>
+      </div>
+      <div class="evidence-row" style="margin-bottom: 6px;">
+        <span class="evidence-row-label">Calculation Method:</span>
+        <span style="font-size:12px; color:var(--red-deep); font-weight:600;">${metric.method || "Direct SQL query"}</span>
+      </div>
+      ${sqlBlock}
+      ${idBlock}
     `;
+
+    const closeBtn = popover.querySelector(".popover-close-btn");
+    if (closeBtn) {
+      closeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        popover.remove();
+        this.activePopover = null;
+        anchorBtn.focus();
+      });
+    }
 
     document.body.appendChild(popover);
     const rect = anchorBtn.getBoundingClientRect();
+    popover.style.position = "absolute";
     popover.style.top = `${rect.bottom + window.scrollY + 6}px`;
-    popover.style.left = `${Math.min(rect.left + window.scrollX, window.innerWidth - 330)}px`;
+    popover.style.left = `${Math.min(rect.left + window.scrollX, window.innerWidth - 380)}px`;
+    popover.style.zIndex = "1000";
 
     this.activePopover = popover;
   }

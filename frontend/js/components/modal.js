@@ -1,7 +1,7 @@
 /**
- * SiliconRoute Design Spec v2 — Raw Samples Modal (Section 7.7)
- * Displays timing distribution, scatter chart, statistics, and accessible sample list.
- * Includes focus trap, Escape key handling, and focus restoration.
+ * SiliconRoute Design Spec v3: Raw Samples Modal (Section 7.6)
+ * Sharp sheet with 1px ink border, stats row, sample plot, text list toggle,
+ * focus trap, Esc closes, focus returns.
  */
 
 import { getChartTheme, getDeviceChartProps } from "../charts/theme.js";
@@ -108,12 +108,11 @@ export class RawSamplesModal {
       this.currentRun = run;
       this.renderRun(run);
 
-      // Focus close button or first focusable
       const closeBtn = this.modalEl.querySelector(".modal-close-btn");
       if (closeBtn) closeBtn.focus();
     } catch (err) {
       console.error("Failed to load run details:", err);
-      if (titleEl) titleEl.textContent = `Run #${runId} — error loading data`;
+      if (titleEl) titleEl.textContent = `Run #${runId}: error loading data`;
     }
   }
 
@@ -135,7 +134,7 @@ export class RawSamplesModal {
   renderRun(run) {
     const titleEl = document.getElementById("modal-run-title");
     if (titleEl) {
-      titleEl.textContent = `Run #${run.id} — ${run.provider_used} (Batch ${run.batch})`;
+      titleEl.textContent = `Run #${run.id}: ${run.provider_used} (Batch ${run.batch})`;
     }
 
     // Stats row
@@ -199,6 +198,7 @@ export class RawSamplesModal {
         ],
       },
       options: {
+        animation: false,
         responsive: true,
         maintainAspectRatio: false,
         scales: {
@@ -234,7 +234,7 @@ export class RawSamplesModal {
 
     const items = samples.map((s, i) => `<tr><td class="td-num">${i + 1}</td><td class="td-num">${s.toFixed(4)} ms</td></tr>`).join("");
     listEl.innerHTML = `
-      <div style="max-height: 180px; overflow-y: auto; margin-top: 12px; border: 1px solid var(--line); border-radius: var(--radius-control);">
+      <div style="max-height: 180px; overflow-y: auto; margin-top: 12px; border: 1px solid var(--rule);">
         <table class="bench-table" style="width: 100%; font-size: 12px;">
           <thead>
             <tr>
