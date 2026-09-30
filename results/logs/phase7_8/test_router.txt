@@ -1,0 +1,27 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.13.14, pytest-9.1.1, pluggy-1.6.0 -- E:\THE SNAP X HP\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: E:\THE SNAP X HP
+configfile: pytest.ini
+plugins: anyio-4.15.1
+collecting ... collected 11 items
+
+tests/test_router.py::test_router_measured_vs_fit_source PASSED          [  9%]
+tests/test_router.py::test_router_volatility_flag_on_session_disagreement PASSED [ 18%]
+tests/test_router.py::test_swapped_device_keys_and_ids PASSED            [ 27%]
+tests/test_router.py::test_no_invented_numbers_when_unmeasured PASSED    [ 36%]
+tests/test_router.py::test_exploration_fires_at_expected_rate_without_seed PASSED [ 45%]
+tests/test_router.py::test_energy_run_lookup_in_battery_mode PASSED      [ 54%]
+tests/test_router.py::test_router_context_and_exclusion_rules PASSED     [ 63%]
+tests/test_router.py::test_api_route_and_stats PASSED                    [ 72%]
+tests/test_router.py::test_workload_sustained_skips_wake_penalty PASSED  [ 81%]
+tests/test_router.py::test_workload_parameter_in_api PASSED              [ 90%]
+tests/test_router.py::test_idle_loaded_and_cold_start_routing PASSED     [100%]
+
+============================== warnings summary ===============================
+venv\Lib\site-packages\fastapi\testclient.py:1
+  E:\THE SNAP X HP\venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 11 passed, 1 warning in 3.34s ========================

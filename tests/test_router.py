@@ -2,6 +2,7 @@
 
 import json
 import uuid
+from typing import Optional
 from fastapi.testclient import TestClient
 import numpy as np
 from sqlmodel import Session, select
@@ -10,13 +11,57 @@ from app.db import AIModel, BenchSession, Decision, Device, Fit, Run, engine, in
 from app.main import app
 from app.router import (
     calculate_device_volatility_bands,
-    calculate_wake_penalty,
     compute_decision_statistics,
+    get_workload_slowdown_ratio,
+    is_nvidia_device,
     resolve_candidate_prediction,
     route_model,
 )
 
 client = TestClient(app)
+
+
+def make_test_run(
+    session_id: int,
+    ai_model_id: int,
+    device_id: int,
+    median_ms: float,
+    run_kind: str = "sustained",
+    energy_mj_per_inf: Optional[float] = None,
+    timed_runs: int = 10,
+    warmup_runs: int = 2,
+    batch: int = 1,
+) -> Run:
+    return Run(
+        session_id=session_id,
+        ai_model_id=ai_model_id,
+        device_id=device_id,
+        provider_used="CPUExecutionProvider",
+        provider_mismatch=False,
+        batch=batch,
+        intra_op_threads=1,
+        warmup_runs=warmup_runs,
+        timed_runs=timed_runs,
+        inner_loop_k=1,
+        session_create_ms=2.0,
+        first_run_ms=median_ms,
+        median_ms=median_ms,
+        p10_ms=median_ms * 0.95,
+        p90_ms=median_ms * 1.05,
+        mean_ms=median_ms,
+        min_ms=median_ms * 0.9,
+        max_ms=median_ms * 1.1,
+        stdev_ms=median_ms * 0.05,
+        cv=0.05,
+        spread=0.1,
+        ci_rel=0.05,
+        unstable=False,
+        run_kind=run_kind,
+        throughput_per_s=1000.0 / max(median_ms, 1e-4),
+        raw_ms_json="[]",
+        energy_mj_per_inf=energy_mj_per_inf,
+        created_at="2026-09-30T00:00:00Z",
+    )
 
 
 def test_router_measured_vs_fit_source():
@@ -261,16 +306,216 @@ def test_router_volatility_flag_on_session_disagreement():
         session.commit()
 
 
-def test_router_wake_penalty_formula():
-    """Verify that calculate_wake_penalty correctly interpolates by model weight bytes."""
-    dummy_dev_rtx = Device(id=998, key="dml:1", label="NVIDIA GeForce RTX 5070", kind="dgpu", provider="DmlExecutionProvider", is_available=True, detected_at="")
-    dummy_dev_cpu = Device(id=999, key="cpu", label="CPU", kind="cpu", provider="CPUExecutionProvider", is_available=True, detected_at="")
+def test_swapped_device_keys_and_ids():
+    """Verify that device kind and DXGI vendor_id (0x10DE = NVIDIA) drive routing, not hardcoded keys."""
+    # dml:0 is NVIDIA dGPU, dml:1 is AMD iGPU (swapped from this laptop's configuration)
+    dev_nvidia_dml0 = Device(id=101, key="dml:0", label="NVIDIA RTX 5070", kind="dgpu", vendor_id="0x10DE", vendor="NVIDIA")
+    dev_amd_dml1 = Device(id=102, key="dml:1", label="AMD Radeon Graphics", kind="igpu", vendor_id="0x1002", vendor="AMD")
+    dev_cpu = Device(id=103, key="cpu", label="AMD Ryzen 9", kind="cpu", vendor_id="0x1022", vendor="AMD")
 
-    # CPU has no wake penalty
-    model_small = AIModel(name="m1", family="mlp", source="synthetic", path="", params=100, weight_bytes=16 * 1024 * 1024)  # 16 MB
-    pen_cpu, note_cpu = calculate_wake_penalty(dummy_dev_cpu, model_small)
-    assert pen_cpu == 0.0
-    assert "no wake penalty" in note_cpu
+    assert is_nvidia_device(dev_nvidia_dml0) is True
+    assert is_nvidia_device(dev_amd_dml1) is False
+    assert is_nvidia_device(dev_cpu) is False
+
+    # Check candidate dict format
+    cand_nvidia = {"device_id": 101, "device_key": "dml:0", "device_label": "NVIDIA RTX 5070", "device_vendor_id": "0x10DE", "device_vendor": "NVIDIA"}
+    cand_amd = {"device_id": 102, "device_key": "dml:1", "device_label": "AMD Radeon Graphics", "device_vendor_id": "0x1002", "device_vendor": "AMD"}
+    assert is_nvidia_device(cand_nvidia) is True
+    assert is_nvidia_device(cand_amd) is False
+
+
+def test_no_invented_numbers_when_unmeasured():
+    """Verify that unmeasured slowdown ratios and volatility bands return None, never invented defaults."""
+    init_db()
+    u = uuid.uuid4().hex[:8]
+
+    with Session(engine) as session:
+        dev = Device(
+            key=f"test_empty_{u}",
+            label=f"Empty Dev {u}",
+            kind="dgpu",
+            provider="CPUExecutionProvider",
+            provider_options_json="{}",
+            is_available=True,
+            detected_at="2026-09-30T00:00:00Z",
+        )
+        session.add(dev)
+        session.commit()
+        session.refresh(dev)
+
+        model = AIModel(
+            name=f"test_empty_m_{u}",
+            family="conv",
+            source="synthetic",
+            path="models/test_empty.onnx",
+            sha256="testsha_empty",
+            params=500,
+            flops_per_sample=1000.0,
+            weight_bytes=2000,
+            size_mb=0.002,
+            precision="fp32",
+            input_shape_json="[[1, 3, 32, 32]]",
+            created_at="2026-09-30T00:00:00Z",
+        )
+        session.add(model)
+        session.commit()
+        session.refresh(model)
+
+        # 1. Slowdown ratio without measurements MUST be None (no 1.1x, 3.0x, 15.0x)
+        ratio_cold = get_workload_slowdown_ratio(session, dev.id, model.family, "cold_start")
+        assert ratio_cold is None
+
+        ratio_idle = get_workload_slowdown_ratio(session, dev.id, model.family, "idle_loaded")
+        assert ratio_idle is None
+
+        # 2. Volatility bands without multi-session runs MUST be None (no 15.0% default)
+        vol_bands = calculate_device_volatility_bands(session)
+        assert vol_bands.get(dev.id) is None
+
+        # Add a single warm run to allow resolve_candidate_prediction
+        bs = BenchSession(kind="latency", status="done", config_json="{}", created_at="2026-09-30T00:00:00Z")
+        session.add(bs)
+        session.commit()
+        session.refresh(bs)
+
+        r = make_test_run(
+            session_id=bs.id,
+            ai_model_id=model.id,
+            device_id=dev.id,
+            median_ms=5.0,
+            run_kind="sustained",
+        )
+        session.add(r)
+        session.commit()
+
+        cand = resolve_candidate_prediction(session, dev, model, batch=1, workload="cold_start")
+        assert cand["source"] == "warm_unmeasured_cold_start"
+        assert "no cold_start measurements for this chip" in cand["wake_status"]
+        assert cand["effective_latency_ms"] == 5.0  # Uses warm latency directly without invented multiplier
+
+        dev.is_available = False
+        session.add(dev)
+        session.commit()
+
+
+def test_exploration_fires_at_expected_rate_without_seed():
+    """Verify that calling route_model without seed uses process RNG and explores ~10% of the time."""
+    init_db()
+    u = uuid.uuid4().hex[:8]
+
+    with Session(engine) as session:
+        # Create two devices with close predictions (< 20% margin)
+        dev1 = Device(key=f"test_exp1_{u}", label=f"Exp Dev 1 {u}", kind="cpu", provider="CPUExecutionProvider", is_available=True, detected_at="2026-09-30T00:00:00Z")
+        dev2 = Device(key=f"test_exp2_{u}", label=f"Exp Dev 2 {u}", kind="dgpu", provider="CPUExecutionProvider", is_available=True, detected_at="2026-09-30T00:00:00Z")
+        session.add_all([dev1, dev2])
+        session.commit()
+        session.refresh(dev1)
+        session.refresh(dev2)
+
+        model = AIModel(
+            name=f"test_exp_m_{u}",
+            family="mlp",
+            source="synthetic",
+            path="models/test_exp.onnx",
+            sha256="testsha_exp",
+            params=1000,
+            flops_per_sample=2000.0,
+            weight_bytes=4000,
+            size_mb=0.004,
+            precision="fp32",
+            input_shape_json="[[1, 32]]",
+            created_at="2026-09-30T00:00:00Z",
+        )
+        session.add(model)
+        session.commit()
+        session.refresh(model)
+
+        bs = BenchSession(kind="latency", status="done", config_json="{}", created_at="2026-09-30T00:00:00Z")
+        session.add(bs)
+        session.commit()
+        session.refresh(bs)
+
+        # dev1: 1.00 ms (winner), dev2: 1.05 ms (runner up within 5% <= 20% explore margin)
+        r1 = make_test_run(session_id=bs.id, ai_model_id=model.id, device_id=dev1.id, median_ms=1.00)
+        r2 = make_test_run(session_id=bs.id, ai_model_id=model.id, device_id=dev2.id, median_ms=1.05)
+        session.add_all([r1, r2])
+        session.commit()
+
+        # Temporarily make all other devices unavailable
+        other_devs = session.exec(select(Device).where(Device.id.notin_([dev1.id, dev2.id]), Device.is_available == True)).all()
+        for od in other_devs:
+            od.is_available = False
+            session.add(od)
+        session.commit()
+
+        try:
+            explored_count = 0
+            trials = 1000
+            for _ in range(trials):
+                dec = route_model(session, model.id, batch=1, allow_explore=True, rng_seed=None)
+                if dec["explored"]:
+                    explored_count += 1
+
+            # With EPSILON=0.10, out of 1000 trials, expect roughly 100 explored (between 50 and 150)
+            assert 50 <= explored_count <= 150, f"Exploration rate out of expected range: {explored_count} / {trials}"
+        finally:
+            # Restore other devices
+            for od in other_devs:
+                od.is_available = True
+                session.add(od)
+            dev1.is_available = False
+            dev2.is_available = False
+            session.add_all([dev1, dev2])
+            session.commit()
+
+
+def test_energy_run_lookup_in_battery_mode():
+    """Verify that resolve_candidate_prediction queries separate energy runs (run_kind='energy')."""
+    init_db()
+    u = uuid.uuid4().hex[:8]
+
+    with Session(engine) as session:
+        dev = Device(key=f"test_en_{u}", label=f"Energy Dev {u}", kind="dgpu", provider="CPUExecutionProvider", is_available=True, detected_at="2026-09-30T00:00:00Z")
+        session.add(dev)
+        session.commit()
+        session.refresh(dev)
+
+        model = AIModel(
+            name=f"test_en_m_{u}",
+            family="mlp",
+            source="synthetic",
+            path="models/test_en.onnx",
+            sha256="testsha_en",
+            params=1000,
+            flops_per_sample=2000.0,
+            weight_bytes=4000,
+            size_mb=0.004,
+            precision="fp32",
+            input_shape_json="[[1, 32]]",
+            created_at="2026-09-30T00:00:00Z",
+        )
+        session.add(model)
+        session.commit()
+        session.refresh(model)
+
+        bs = BenchSession(kind="energy", status="done", config_json="{}", created_at="2026-09-30T00:00:00Z")
+        session.add(bs)
+        session.commit()
+        session.refresh(bs)
+
+        # 1. Latency run (energy_mj_per_inf is None)
+        r_lat = make_test_run(session_id=bs.id, ai_model_id=model.id, device_id=dev.id, median_ms=2.0)
+        # 2. Separate energy run (run_kind='energy', energy_mj_per_inf populated)
+        r_en = make_test_run(session_id=bs.id, ai_model_id=model.id, device_id=dev.id, median_ms=2.0, run_kind="energy", energy_mj_per_inf=42.5)
+        session.add_all([r_lat, r_en])
+        session.commit()
+
+        cand = resolve_candidate_prediction(session, dev, model, batch=1)
+        assert cand["energy_mj"] == 42.5
+
+        dev.is_available = False
+        session.add(dev)
+        session.commit()
 
 
 def test_router_context_and_exclusion_rules():
@@ -664,15 +909,55 @@ def test_idle_loaded_and_cold_start_routing():
         session.add(r)
         session.commit()
 
-        # 1. Test fallback ratio when no WorkloadMeasurement exists
+        # 1. Test unmeasured fallback when no WorkloadMeasurement exists
+        cand_idle_unmeasured = resolve_candidate_prediction(session, dev, model, batch=1, workload="idle_loaded")
+        assert "warm_unmeasured_idle_loaded" in cand_idle_unmeasured["source"]
+        assert "no idle_loaded measurements for this chip" in cand_idle_unmeasured["wake_status"]
+
+        # Add WorkloadMeasurement for another model in the same family to create a ratio fallback
+        from app.db import WorkloadMeasurement
+        model_other = AIModel(
+            name=f"test_wl_other_{u}",
+            family="mlp",
+            source="synthetic",
+            path="models/test_wl_other.onnx",
+            sha256="testsha_wl_other",
+            params=2000,
+            flops_per_sample=4000.0,
+            weight_bytes=8000,
+            size_mb=0.008,
+            precision="fp32",
+            input_shape_json="[[1, 32]]",
+            created_at="2026-09-29T00:00:00Z",
+        )
+        session.add(model_other)
+        session.commit()
+        session.refresh(model_other)
+
+        r_other = make_test_run(
+            session_id=bs.id,
+            ai_model_id=model_other.id,
+            device_id=dev.id,
+            median_ms=1.0,
+        )
+        session.add(r_other)
+        wm_other = WorkloadMeasurement(
+            ai_model_id=model_other.id,
+            device_id=dev.id,
+            batch=1,
+            workload="idle_loaded",
+            latency_ms=1.5,
+            created_at="2026-09-29T00:00:00Z",
+        )
+        session.add(wm_other)
+        session.commit()
+
+        # Now ratio fallback exists for mlp family (1.5 / 1.0 = 1.5x)
         cand_idle_ratio = resolve_candidate_prediction(session, dev, model, batch=1, workload="idle_loaded")
         assert "ratio_idle_loaded" in cand_idle_ratio["source"]
+        assert cand_idle_ratio["effective_latency_ms"] == 1.5
 
-        cand_cold_ratio = resolve_candidate_prediction(session, dev, model, batch=1, workload="cold_start")
-        assert "ratio_cold_start" in cand_cold_ratio["source"]
-
-        # 2. Add exact WorkloadMeasurement and verify measured-first
-        from app.db import WorkloadMeasurement
+        # 2. Add exact WorkloadMeasurement and verify measured-first overrides ratio
         wm = WorkloadMeasurement(
             ai_model_id=model.id,
             device_id=dev.id,

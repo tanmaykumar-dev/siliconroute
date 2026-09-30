@@ -21,13 +21,15 @@ Standard AI deployment frameworks make static assumptions:
 
 SiliconRoute operates in four phases:
 1. **Empirical Measurement**: Times real ONNX inference workloads on each hardware provider (`CPUExecutionProvider`, `DmlExecutionProvider` per DirectML adapter). Collects live system telemetry (NVML dGPU power, clocks, P-states, temperatures; WMI battery discharge rates; psutil memory and CPU utilization). Stores raw sample timings, bootstrap 95% confidence intervals, and inter-session stability.
+   - **Measurement Conditions**: All benchmarks were conducted with the laptop plugged into AC power under the high-performance Windows 'Turbo' power scheme (preventing clock throttling), with NVIDIA driver 616.56 and ONNX Runtime 1.24.4.
+   - **Inference Timing Scope**: Timings are end-to-end execution times including host-to-device and device-to-host CPU-GPU tensor copies (default ORT `RunOptions`), reflecting true application response times rather than isolated compute kernel duration.
 2. **Physical Hardware Modeling**: Fits multiple analytical scaling equations ($F_1$ Classic Roofline, $F_2$ Two-Level Cache Roofline, $F_3$ Log-Linear, $F_4$ Family-Specific Roofline) using Non-Negative Least Squares (NNLS) with $1/t$ relative weighting. Selects the optimal model per device via Leave-One-Out (LOO) Mean Absolute Percentage Error (MAPE).
 3. **Multi-Objective Routing**:
-   - Uses empirical measurements first for previously profiled configurations.
-   - Falls back to hardware model predictions for novel models or batch sizes.
+   - Uses empirical measurements first for previously profiled configurations (`WorkloadMeasurement` records).
+   - Falls back to measured family slowdown ratios or hardware model predictions for novel models or batch sizes.
    - Applies live hardware context rules:
      - **Low Battery**: When unplugged and battery is under 30%, forces battery optimization mode.
-     - **GPU Sleep / Wake Penalty**: Dynamic idle-gap wake penalties based on NVML P-state (P8 sleep vs P0/P2 active).
+     - **Empirical Wake & Cold-Start Slowdowns**: Wake penalties and cold-start slowdowns are measured empirically across cold-start runs (empirical slowdown ratios: ~1.1x CPU, ~3.0x Radeon, ~15x RTX), never hardcoded architectural constants.
      - **Cold-Start Rule**: For cold starts (session creation + first inference), defaults to CPU unless an accelerator is predicted >30% lower latency, preventing ORT DirectML session initialization stalls.
      - **Session Volatility Bands**: 15% volatility band tie-breaking favoring chips with lower session-to-session variance.
 4. **Verification & Self-Audit**: Verifies decisions on physical hardware, computing exact regret vs optimal.

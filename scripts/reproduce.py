@@ -8,8 +8,12 @@ Compares live measurements against published figures in results/final/manifest.j
 """
 
 import json
-import time
 from pathlib import Path
+import sys
+import time
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 import numpy as np
 import onnxruntime as ort
 from sqlmodel import Session, select
@@ -65,8 +69,19 @@ def main():
     engine = create_db_engine()
 
     with Session(engine) as session:
-        cpu = session.exec(select(Device).where(Device.kind == "cpu")).first()
-        rtx = session.exec(select(Device).where(Device.key == "dml:1")).first()
+        devices = session.exec(select(Device)).all()
+        cpu = next((d for d in devices if d.kind == "cpu"), None)
+        rtx = next(
+            (
+                d
+                for d in devices
+                if (d.vendor_id and d.vendor_id.upper() == "0X10DE")
+                or "NVIDIA" in (d.vendor or "").upper()
+                or "NVIDIA" in (d.label or "").upper()
+                or d.kind == "dgpu"
+            ),
+            None,
+        )
 
         if not cpu or not rtx:
             print("Error: CPU or NVIDIA RTX device not detected.")
@@ -173,23 +188,24 @@ def main():
     print("=" * 95)
     print("\nPHYSICAL PHENOMENA REPRODUCTION SUMMARY:")
     
+    rtx_label = rtx.label or "NVIDIA dGPU"
     # 1. Small model CPU dominance
     cpu_small = reproduced["mlp_256_b1_cpu_ms"]
     rtx_small = reproduced["mlp_256_b1_rtx_ms"]
     speedup_cpu = rtx_small / max(cpu_small, 1e-4)
-    print(f"1. CPU vs RTX on Small Tasks: CPU is {speedup_cpu:.1f}x faster on mlp-256 B=1 ({cpu_small:.3f} ms vs {rtx_small:.3f} ms)")
+    print(f"1. CPU vs {rtx_label} on Small Tasks: CPU is {speedup_cpu:.1f}x faster on mlp-256 B=1 ({cpu_small:.3f} ms vs {rtx_small:.3f} ms)")
 
     # 2. Large model RTX dominance
     cpu_large = reproduced["mlp_3072_b1_cpu_ms"]
     rtx_large = reproduced["mlp_3072_b1_rtx_ms"]
     speedup_rtx = cpu_large / max(rtx_large, 1e-4)
-    print(f"2. RTX vs CPU on Large Tasks: RTX is {speedup_rtx:.1f}x faster on mlp-3072 B=1 ({rtx_large:.3f} ms vs {cpu_large:.3f} ms)")
+    print(f"2. {rtx_label} vs CPU on Large Tasks: {rtx_label} is {speedup_rtx:.1f}x faster on mlp-3072 B=1 ({rtx_large:.3f} ms vs {cpu_large:.3f} ms)")
 
     # 3. Loading time dominance on cold starts
     rtx_cold = reproduced["mlp_3072_cold_rtx_ms"]
     rtx_sust = reproduced["mlp_3072_b1_rtx_ms"]
     cold_ratio = rtx_cold / max(rtx_sust, 1e-4)
-    print(f"3. Cold-Start Loading Dominance: RTX cold-start is {cold_ratio:.0f}x slower than sustained ({rtx_cold:.1f} ms vs {rtx_sust:.3f} ms)")
+    print(f"3. Cold-Start Loading Dominance: {rtx_label} cold-start is {cold_ratio:.0f}x slower than sustained ({rtx_cold:.1f} ms vs {rtx_sust:.3f} ms)")
 
     print("\nAll published hardware physical behaviors successfully confirmed on live hardware.\n")
 

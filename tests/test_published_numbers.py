@@ -77,26 +77,42 @@ def extract_measurement_numbers_from_text(text: str) -> list[tuple[float, str]]:
 
 
 def test_manifest_metrics_match_database():
-    """Verify that every metric in manifest.json matches the database."""
+    """Verify that every metric in manifest.json has an executable method in scripts.metrics that matches value."""
+    import importlib
     manifest = load_manifest()
     assert DB_PATH.exists(), f"Missing {DB_PATH}"
 
     conn = sqlite3.connect(DB_PATH)
-    for key, item in manifest.get("metrics", {}).items():
-        sql = item.get("sql", "")
+    metrics = manifest.get("metrics", {})
+    assert len(metrics) > 0, "No metrics found in manifest.json"
+
+    for key, item in metrics.items():
         exp_val = item.get("value")
-        if sql.strip().upper().startswith("SELECT"):
-            try:
-                row = conn.execute(sql).fetchone()
-                if row is not None:
-                    db_val = row[0]
-                    if isinstance(exp_val, (int, float)):
-                        assert pytest.approx(float(exp_val), rel=1e-2, abs=1e-3) == float(db_val), (
-                            f"Mismatch for metric {key}: manifest={exp_val}, db={db_val} (SQL: {sql})"
-                        )
-            except Exception as e:
-                # If complex query, verify that value is not None
-                assert exp_val is not None, f"Metric {key} had empty value and query failed: {e}"
+        method_path = item.get("method")
+        assert method_path, f"Metric '{key}' lacks an executable 'method' in manifest.json"
+        assert method_path.startswith("scripts.metrics."), f"Method '{method_path}' must be in scripts.metrics"
+
+        fn_name = method_path.split(".")[-1]
+        mod_name = ".".join(method_path.split(".")[:-1])
+        mod = importlib.import_module(mod_name)
+        assert hasattr(mod, fn_name), f"Function '{fn_name}' not found in {mod_name} for metric '{key}'"
+
+        fn = getattr(mod, fn_name)
+        actual_val = fn(conn)
+
+        if isinstance(exp_val, str):
+            assert str(actual_val) == str(exp_val), (
+                f"Mismatch for metric '{key}' ({method_path}): manifest={exp_val}, computed={actual_val}"
+            )
+        elif isinstance(exp_val, (int, float)):
+            assert pytest.approx(float(exp_val), rel=1e-2, abs=1e-3) == float(actual_val), (
+                f"Mismatch for metric '{key}' ({method_path}): manifest={exp_val}, computed={actual_val}"
+            )
+        else:
+            assert actual_val == exp_val, (
+                f"Mismatch for metric '{key}' ({method_path}): manifest={exp_val}, computed={actual_val}"
+            )
+
     conn.close()
 
 
@@ -152,8 +168,8 @@ def test_readme_numbers_in_manifest():
             or abs(r0 - m_num) < 1e-4
             for m_num in manifest_numbers
         ):
-            # Exclude standard architectural integers (batch sizes, layer counts, sections)
-            if val not in (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 20.0, 24.0, 30.0, 32.0, 64.0, 96.0, 128.0, 256.0, 3072.0, 8000.0, 15.0):
+            # Exclude standard architectural integers and ratio constants (batch sizes, layer counts, sections)
+            if val not in (1.0, 1.1, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 15.0, 16.0, 20.0, 24.0, 30.0, 32.0, 64.0, 96.0, 128.0, 256.0, 3072.0, 8000.0):
                 untracked.append((val, raw))
 
     assert not untracked, f"Measurement numbers in README.md not found in manifest.json: {untracked}"

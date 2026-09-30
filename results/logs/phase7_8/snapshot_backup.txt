@@ -1,5 +1,3 @@
-SNAPSHOT_PATH: data\snapshot_for_review.db
-SNAPSHOT_SIZE: 1044480 bytes
-SNAPSHOT_SHA256: 6fad84387448a4e926e147c635d03e92d00d7dee3558dd2bed771a66c5d04584
-SNAPSHOT_ZIP_PATH: data\snapshot_for_review.zip
-SNAPSHOT_ZIP_SIZE: 259991 bytes
+﻿SNAPSHOT_PATH: data\snapshot_for_review.db
+SNAPSHOT_SIZE: 1044480 bytes
+SNAPSHOT_SHA256: 0fccfa1aaa97333a8da013eaa18e951c1b92cdbf6deaac961fedaacd346466f9

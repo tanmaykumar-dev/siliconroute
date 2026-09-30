@@ -1,8 +1,79 @@
-...........................................................              [100%]
-============================== warnings summary ===============================
-venv\Lib\site-packages\fastapi\testclient.py:1
-  E:\THE SNAP X HP\venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
-    from starlette.testclient import TestClient as TestClient  # noqa
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-59 passed, 1 warning in 34.41s
+﻿============================= test session starts =============================
+platform win32 -- Python 3.13.14, pytest-9.1.1, pluggy-1.6.0 -- E:\THE SNAP X HP\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: E:\THE SNAP X HP
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.15.1
+collecting ... collected 62 items
+
+tests/test_api.py::test_health_endpoint PASSED                           [  1%]
+tests/test_api.py::test_system_endpoint PASSED                           [  3%]
+tests/test_api.py::test_devices_detect_and_list PASSED                   [  4%]
+tests/test_api.py::test_device_patch_label PASSED                        [  6%]
+tests/test_api.py::test_frontend_static_root PASSED                      [  8%]
+tests/test_api.py::test_models_api PASSED                                [  9%]
+tests/test_api.py::test_benchmarks_api_and_conflict_409 PASSED           [ 11%]
+tests/test_api.py::test_analysis_endpoints PASSED                        [ 12%]
+tests/test_api.py::test_decisions_stats_with_ids PASSED                  [ 14%]
+tests/test_benchmark.py::test_tiny_mlp_cpu_benchmark PASSED              [ 16%]
+tests/test_benchmark.py::test_robust_spread_calculation PASSED           [ 17%]
+tests/test_benchmark.py::test_duplicate_device_detection PASSED          [ 19%]
+tests/test_benchmark.py::test_bootstrap_ci_calculation PASSED            [ 20%]
+tests/test_benchmark.py::test_unstable_regression_per_run PASSED         [ 22%]
+tests/test_db.py::test_sqlite_wal_pragma PASSED                          [ 24%]
+tests/test_db.py::test_tables_created PASSED                             [ 25%]
+tests/test_db_isolation.py::test_pytest_never_touches_real_database PASSED [ 27%]
+tests/test_db_isolation.py::test_production_db_guard_raises_under_pytest PASSED [ 29%]
+tests/test_hardening.py::test_nvml_reader_handles_no_nvidia PASSED       [ 30%]
+tests/test_hardening.py::test_router_handles_no_battery PASSED           [ 32%]
+tests/test_hardening.py::test_empty_database_resilience PASSED           [ 33%]
+tests/test_hardware_identity.py::test_dxgi_adapter_enumeration PASSED    [ 35%]
+tests/test_hardware_identity.py::test_dxgi_adapter_enumeration_non_windows_fallback PASSED [ 37%]
+tests/test_hardware_identity.py::test_nvml_fingerprint_mapping_confirmed PASSED [ 38%]
+tests/test_hardware_identity.py::test_nvml_fingerprint_swap_detected PASSED [ 40%]
+tests/test_hardware_identity.py::test_prepare_fit_dataset_excludes_suspect_runs PASSED [ 41%]
+tests/test_hardware_identity.py::test_router_candidate_lookup_excludes_suspect_runs PASSED [ 43%]
+tests/test_hardware_identity.py::test_suspect_rule_winograd_vs_swap PASSED [ 45%]
+tests/test_models_gen.py::test_mlp_generation_and_shapes PASSED          [ 46%]
+tests/test_models_gen.py::test_conv_generation_and_shapes PASSED         [ 48%]
+tests/test_models_gen.py::test_attn_generation_and_shapes PASSED         [ 50%]
+tests/test_predictor.py::test_recover_known_params_f1 PASSED             [ 51%]
+tests/test_predictor.py::test_recover_known_params_f4 PASSED             [ 53%]
+tests/test_predictor.py::test_loo_mape_calculation PASSED                [ 54%]
+tests/test_predictor.py::test_min_samples_constraint_409 PASSED          [ 56%]
+tests/test_predictor.py::test_fit_and_crossover_pipeline PASSED          [ 58%]
+tests/test_published_numbers.py::test_manifest_metrics_match_database PASSED [ 59%]
+tests/test_published_numbers.py::test_results_md_numbers_in_manifest PASSED [ 61%]
+tests/test_published_numbers.py::test_readme_numbers_in_manifest PASSED  [ 62%]
+tests/test_router.py::test_router_measured_vs_fit_source PASSED          [ 64%]
+tests/test_router.py::test_router_volatility_flag_on_session_disagreement PASSED [ 66%]
+tests/test_router.py::test_swapped_device_keys_and_ids PASSED            [ 67%]
+tests/test_router.py::test_no_invented_numbers_when_unmeasured PASSED    [ 69%]
+tests/test_router.py::test_exploration_fires_at_expected_rate_without_seed PASSED [ 70%]
+tests/test_router.py::test_energy_run_lookup_in_battery_mode PASSED      [ 72%]
+tests/test_router.py::test_router_context_and_exclusion_rules PASSED     [ 74%]
+tests/test_router.py::test_api_route_and_stats PASSED                    [ 75%]
+tests/test_router.py::test_workload_sustained_skips_wake_penalty PASSED  [ 77%]
+tests/test_router.py::test_workload_parameter_in_api PASSED              [ 79%]
+tests/test_router.py::test_idle_loaded_and_cold_start_routing PASSED     [ 80%]
+tests/test_run_kind.py::test_compute_run_stats_unstable_nullable PASSED  [ 82%]
+tests/test_run_kind.py::test_prepare_fit_dataset_excludes_single_cold_and_energy PASSED [ 83%]
+tests/test_run_kind.py::test_resolve_candidate_prediction_sustained_lookup PASSED [ 85%]
+tests/test_run_kind.py::test_workload_measurement_schema PASSED          [ 87%]
+tests/test_telemetry.py::test_nvml_reader_interface PASSED               [ 88%]
+tests/test_telemetry.py::test_battery_reader_interface PASSED            [ 90%]
+tests/test_telemetry.py::test_sample_telemetry PASSED                    [ 91%]
+tests/test_telemetry.py::test_telemetry_latest_api PASSED                [ 93%]
+tests/test_telemetry.py::test_telemetry_recent_api PASSED                [ 95%]
+tests/test_telemetry.py::test_identify_device_api PASSED                 [ 96%]
+tests/test_telemetry.py::test_nvml_retry_logic PASSED                    [ 98%]
+tests/test_telemetry.py::test_telemetry_sse_stream_single_json_encoding PASSED [100%]
+
+============================== warnings summary ===============================
+venv\Lib\site-packages\fastapi\testclient.py:1
+  E:\THE SNAP X HP\venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================= 62 passed, 1 warning in 17.00s ========================

@@ -13,3 +13,5 @@ data/*.db-wal
 data/*.db-shm
 siliconroute_kit.zip
 models/*.onnx
+review_package/
+review_package.zip

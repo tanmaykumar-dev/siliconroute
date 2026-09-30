@@ -208,6 +208,16 @@ def compute_run_stats(
     }
 
 
+def is_nvidia_device(device: Optional[Device]) -> bool:
+    """Check if device is an NVIDIA GPU based on DXGI vendor_id or vendor string."""
+    if not device:
+        return False
+    vid = (device.vendor_id or "").upper()
+    vname = (device.vendor or "").upper()
+    lbl = (device.label or "").upper()
+    return vid == "0X10DE" or "NVIDIA" in vname or "NVIDIA" in lbl
+
+
 def run_latency_measurement(
     session: Optional[Session],
     bench_session_id: Optional[int],
@@ -261,7 +271,7 @@ def run_latency_measurement(
     is_nvidia_gpu = (
         device.provider == "DmlExecutionProvider"
         and nvml_reader.is_available
-        and ("nvidia" in (device.label or "").lower() or device.key == "dml:1" or device.kind == "dgpu")
+        and is_nvidia_device(device)
     )
     nvml_pstate_start: Optional[int] = None
     nvml_clock_sm_start_mhz: Optional[int] = None
@@ -445,7 +455,7 @@ def run_idle_loaded_measurement(
         time.sleep(idle_s)
 
     pstate: Optional[int] = None
-    if device.key == "dml:1" and nvml_reader.is_available:
+    if is_nvidia_device(device) and nvml_reader.is_available:
         m = nvml_reader.read_metrics()
         pstate = m.get("gpu_pstate")
 
@@ -487,7 +497,7 @@ def run_cold_start_measurement(
     feed_dict = {inp_name: inp_tensor}
 
     pstate: Optional[int] = None
-    if device.key == "dml:1" and nvml_reader.is_available:
+    if is_nvidia_device(device) and nvml_reader.is_available:
         m = nvml_reader.read_metrics()
         pstate = m.get("gpu_pstate")
 

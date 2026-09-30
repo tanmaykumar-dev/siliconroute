@@ -5,8 +5,8 @@ Implements SPEC Section 6 and Phase 5 requirements:
   Flags volatile configurations if multiple sessions disagree by >20%.
 - Per-Device Session Volatility: tracks historical variability and uses volatility bands
   as a principled tie-breaker when candidate scores are within 15%.
-- Idle-Gap GPU Wake Penalty: inspects NVIDIA GPU P-state (or >3s idle), interpolating wake
-  penalties based on model weight size between 16 MB (+0.78 ms) and 144 MB (+13.85 ms).
+- Workload-Aware Latency: resolves latency across sustained, idle_loaded, and cold_start
+  workloads using empirical measurements from WorkloadMeasurement, with measured slowdown ratios fallback.
 - Multi-Objective Routing Modes: fastest, battery, balanced, and cool.
 - Context Rules: auto-switch to battery when unplugged (<30% battery), busy GPU throttling (1.3x penalty).
 - Principled Exploration: seeded RNG epsilon-exploration (10% chance when runner-up is within 20%).
@@ -20,6 +20,7 @@ from collections import defaultdict
 from datetime import datetime, timezone
 import json
 import logging
+import os
 import random
 import time
 from typing import Any, Optional
@@ -51,17 +52,48 @@ from app.predictor import predict_for_fit
 
 logger = logging.getLogger(__name__)
 
+# Process-level RNG seeded once per process
+_PROCESS_SEED = int(os.environ.get("SILICONROUTE_RNG_SEED", str(SEED)))
+_process_rng = random.Random(_PROCESS_SEED)
+logger.info("Initialized router exploration RNG with process seed %d", _PROCESS_SEED)
+
+
+def is_nvidia_device(device: Any) -> bool:
+    """Check if device or candidate dict is an NVIDIA GPU based on DXGI vendor_id or vendor string."""
+    if not device:
+        return False
+    if isinstance(device, dict):
+        vid = (device.get("device_vendor_id") or "").upper()
+        vname = (device.get("device_vendor") or "").upper()
+        lbl = (device.get("device_label") or "").upper()
+    else:
+        vid = (getattr(device, "vendor_id", None) or "").upper()
+        vname = (getattr(device, "vendor", None) or "").upper()
+        lbl = (getattr(device, "label", None) or "").upper()
+    return vid == "0X10DE" or "NVIDIA" in vname or "NVIDIA" in lbl
+
+
+def get_device_cache_mb(device: Device) -> float:
+    """Return device cache size in MB based on key or vendor/kind."""
+    if device.key in DEVICE_CACHE_MB:
+        return DEVICE_CACHE_MB[device.key]
+    if is_nvidia_device(device) or device.kind == "dgpu":
+        return 32.0
+    if device.kind == "cpu":
+        return 64.0
+    return 16.0
+
 
 # -----------------------------------------------------------------------------
 # 1. Volatility & Historical Variability Analysis
 # -----------------------------------------------------------------------------
 
-def calculate_device_volatility_bands(session: Session) -> dict[int, float]:
+def calculate_device_volatility_bands(session: Session) -> dict[int, Optional[float]]:
     """Calculate the historical median session-to-session percentage difference per device
     over benchmark-grade runs (>= 20 samples, session_id >= 32, identity_suspect = 0),
     excluding disabled devices (is_available = 1).
     
-    Returns a dict mapping device_id -> median_diff_pct (e.g. 17.3 for CPU).
+    Returns a dict mapping device_id -> median_diff_pct (e.g. 17.3 for CPU) or None if unmeasured.
     """
     runs = session.exec(
         select(Run, Device)
@@ -92,58 +124,16 @@ def calculate_device_volatility_bands(session: Session) -> dict[int, float]:
                 diff_pct = ((max_v - min_v) / min_v) * 100.0
                 device_diffs[dev_id].append(diff_pct)
 
-    volatility: dict[int, float] = {}
+    volatility: dict[int, Optional[float]] = {}
     devices = session.exec(select(Device).where(Device.is_available == True)).all()
     for d in devices:
         if d.id in device_diffs and device_diffs[d.id]:
             volatility[d.id] = round(float(np.median(device_diffs[d.id])), 1)
         else:
-            # Default fallback volatility based on device kind
-            volatility[d.id] = 15.0 if d.kind == "cpu" else (10.0 if d.key == "dml:1" else 25.0)
+            # Never invent numbers: unmeasured volatility is None
+            volatility[d.id] = None
 
     return volatility
-
-
-# -----------------------------------------------------------------------------
-# 2. Idle-Gap GPU Wake Penalty Calculation
-# -----------------------------------------------------------------------------
-
-def calculate_wake_penalty(device: Device, model: AIModel) -> tuple[float, str]:
-    """Determine idle-gap wake penalty for an accelerator based on current telemetry.
-    
-    Returns (wake_penalty_ms, wake_status_note).
-    """
-    if device.key == "dml:1":
-        # Check live NVML telemetry for NVIDIA RTX 5070
-        metrics = nvml_reader.read_metrics()
-        pstate = metrics.get("gpu_pstate")
-        clock_mhz = metrics.get("gpu_clock_sm_mhz")
-
-        # P8 represents deep power-down idle state on NVIDIA Ada/Blackwell architecture
-        is_asleep = (pstate == 8) or (clock_mhz is not None and clock_mhz <= 300)
-
-        if is_asleep:
-            # Linear interpolation based on weight bytes from Phase 4 empirical measurements:
-            # mlp-1024 (16 MB) -> 0.78 ms penalty
-            # mlp-3072 (144 MB) -> 13.85 ms penalty
-            weight_mb = model.weight_bytes / (1024.0 * 1024.0)
-            if weight_mb <= 16.0:
-                wake_ms = 0.78 * max(0.4, weight_mb / 16.0)
-            else:
-                interp = (weight_mb - 16.0) / (144.0 - 16.0)
-                wake_ms = 0.78 + interp * (13.85 - 0.78)
-            wake_ms = min(max(wake_ms, 0.3), 16.0)
-            return round(wake_ms, 3), f"NVIDIA RTX 5070 in P8 sleep; added +{wake_ms:.2f} ms wake penalty"
-        else:
-            pstate_str = f"P{pstate}" if pstate is not None else "active"
-            return 0.0, f"NVIDIA RTX 5070 awake ({pstate_str}, clock {clock_mhz or 'N/A'} MHz)"
-
-    elif device.key == "dml:0":
-        # AMD Radeon 610M iGPU does not expose discrete P-state metrics on Windows
-        return 0.0, "wake state unknown"
-    else:
-        # Host CPU has zero accelerator wake overhead
-        return 0.0, "no wake penalty"
 
 
 # -----------------------------------------------------------------------------
@@ -201,11 +191,8 @@ def get_workload_slowdown_ratio(
     elif all_ratios:
         return float(np.median(all_ratios))
     else:
-        # Sensible hardware defaults if no measurements exist in DB yet
-        if workload == "idle_loaded":
-            return 1.1 if device_id == 1 else (3.0 if device_id == 3 else 1.5)
-        else:  # cold_start
-            return 3.0 if device_id == 1 else (15.0 if device_id == 3 else 8.0)
+        # Never invent numbers: return None when no measurements exist
+        return None
 
 
 def resolve_candidate_prediction(
@@ -277,7 +264,7 @@ def resolve_candidate_prediction(
 
     fit_latency_ms: Optional[float] = None
     if fit is not None:
-        cache_mb = DEVICE_CACHE_MB.get(device.key, 32.0)
+        cache_mb = get_device_cache_mb(device)
         fit_latency_ms = round(float(predict_for_fit(fit, model, batch, cache_mb)), 3)
 
     if warm_latency_ms is None:
@@ -308,13 +295,30 @@ def resolve_candidate_prediction(
             wake_status = f"measured {target_wl} ({wm.latency_ms:.3f} ms)"
         else:
             ratio = get_workload_slowdown_ratio(session, device.id, model.family, target_wl)
-            final_latency_ms = round(warm_latency_ms * ratio, 3)
-            source = f"ratio_{target_wl}"
-            wake_status = f"ratio fallback ({ratio:.2f}x for {model.family} on {device.key})"
+            if ratio is not None:
+                final_latency_ms = round(warm_latency_ms * ratio, 3)
+                source = f"ratio_{target_wl}"
+                wake_status = f"ratio fallback ({ratio:.2f}x for {model.family} on {device.label})"
+            else:
+                final_latency_ms = warm_latency_ms
+                source = f"warm_unmeasured_{target_wl}"
+                wake_status = f"no {target_wl} measurements for this chip; using warm latency ({warm_latency_ms:.3f} ms)"
 
-    # 3. Energy prediction lookup
+    # 3. Energy prediction lookup: query energy runs separately from latency runs
     energy_mj: Optional[float] = None
-    energy_runs = [r for r in runs if r.energy_mj_per_inf is not None and r.energy_mj_per_inf > 0]
+    energy_runs = session.exec(
+        select(Run).where(
+            Run.ai_model_id == model.id,
+            Run.device_id == device.id,
+            Run.batch == batch,
+            Run.unstable == False,
+            Run.provider_mismatch == False,
+            Run.identity_suspect == False,
+            Run.energy_mj_per_inf != None,
+            Run.energy_mj_per_inf > 0,
+        ).order_by(Run.id.desc())
+    ).all()
+
     if energy_runs:
         energy_mj = float(np.median([r.energy_mj_per_inf for r in energy_runs if r.energy_mj_per_inf]))
     else:
@@ -326,7 +330,7 @@ def resolve_candidate_prediction(
             )
         ).first()
         if fit_energy is not None:
-            cache_mb = DEVICE_CACHE_MB.get(device.key, 32.0)
+            cache_mb = get_device_cache_mb(device)
             energy_mj = float(predict_for_fit(fit_energy, model, batch, cache_mb))
 
     return {
@@ -334,6 +338,8 @@ def resolve_candidate_prediction(
         "device_key": device.key,
         "device_label": device.label,
         "device_kind": device.kind,
+        "device_vendor": device.vendor,
+        "device_vendor_id": device.vendor_id,
         "source": source,
         "base_latency_ms": round(final_latency_ms, 3),
         "fit_latency_ms": fit_latency_ms,
@@ -491,10 +497,10 @@ def route_model(
                 if "Energy data not measured for all devices; ranked by latency fallback" not in context_rules:
                     context_rules.append("Energy data not measured for all devices; ranked by latency fallback")
         elif active_mode == "cool":
-            if c["device_key"] == "dml:1" and gpu_temp is not None:
+            if is_nvidia_device(c) and gpu_temp is not None:
                 if gpu_temp > MAX_GPU_C:
                     score = 9999.0
-                    context_rules.append(f"NVIDIA GPU temperature critical ({gpu_temp:.1f} °C > {MAX_GPU_C} °C)")
+                    context_rules.append(f"{c['device_label']} temperature critical ({gpu_temp:.1f} °C > {MAX_GPU_C} °C)")
                 else:
                     penalty = 0.5 * max(0.0, gpu_temp - HOT_GPU_C) / 10.0
                     score = t_hat + penalty
@@ -506,13 +512,13 @@ def route_model(
             score = t_hat
 
         # Context Rule 2 penalization: NVIDIA GPU busy (>80% util from external processes)
-        if c["device_key"] == "dml:1" and nvml_util is not None and nvml_util > 80.0:
+        if is_nvidia_device(c) and nvml_util is not None and nvml_util > 80.0:
             score *= 1.3
-            if "NVIDIA GPU busy (>80% external load): applied 1.3x penalty" not in context_rules:
-                context_rules.append(f"NVIDIA GPU busy ({nvml_util:.0f}% load): applied 1.3x penalty")
+            if f"{c['device_label']} busy (>80% external load): applied 1.3x penalty" not in context_rules:
+                context_rules.append(f"{c['device_label']} busy ({nvml_util:.0f}% load): applied 1.3x penalty")
 
         c["raw_score"] = round(score, 4)
-        c["device_volatility_pct"] = vol_bands.get(c["device_id"], 15.0)
+        c["device_volatility_pct"] = vol_bands.get(c["device_id"])
 
     # Sort candidates by raw score ascending (best first)
     valid_candidates.sort(key=lambda x: x["raw_score"])
@@ -530,7 +536,7 @@ def route_model(
             # Within volatility band
             top_vol = top_cand["device_volatility_pct"]
             run_vol = runner_cand["device_volatility_pct"]
-            if run_vol < top_vol - 5.0:  # runner has meaningfully lower volatility (>5% difference)
+            if top_vol is not None and run_vol is not None and run_vol < top_vol - 5.0:  # runner has meaningfully lower volatility (>5% difference)
                 chosen = runner_cand
                 volatility_tie_broken = True
                 context_rules.append(
@@ -541,7 +547,7 @@ def route_model(
     # Exploration Rule: with probability EPSILON (10%), pick runner-up if within 20%
     explored = False
     if allow_explore and len(valid_candidates) > 1 and not volatility_tie_broken:
-        rng = random.Random(rng_seed or SEED)
+        rng = random.Random(rng_seed) if rng_seed is not None else _process_rng
         top_score = valid_candidates[0]["raw_score"]
         runner_score = valid_candidates[1]["raw_score"]
         if (runner_score - top_score) / max(top_score, 1e-4) <= EXPLORE_MARGIN:
@@ -598,8 +604,8 @@ def route_model(
     else:
         reason_parts.append(".")
 
-    if chosen.get("is_volatile"):
-        reason_parts.append(f"Flagged volatile (session diff {chosen.get('volatility_pct')} > 20%).")
+    if chosen.get("is_volatile") and chosen.get("volatility_pct") is not None:
+        reason_parts.append(f"Flagged volatile (session diff {chosen.get('volatility_pct'):.1f}% > 20%).")
 
     reason_parts.append(f"{plug_text}{bat_text}.")
     if volatility_tie_broken and not cold_start_rule_applied:
@@ -703,7 +709,7 @@ def execute_verification(
                 measured_times[dev_id] = run.median_ms
             elif workload in ("idle_loaded", "single"):
                 # Idle loaded: warm session, idle sleep to enter low-power state, time ONE inference
-                dev_idle_s = 5.0 if device.key == "dml:1" else (1.0 if device.key == "dml:0" else 0.2)
+                dev_idle_s = 5.0 if is_nvidia_device(device) else (1.0 if device.kind == "igpu" else 0.2)
                 meas = run_idle_loaded_measurement(
                     model=model,
                     device=device,
@@ -714,7 +720,7 @@ def execute_verification(
                 meas_info_by_dev[dev_id] = meas
             elif workload == "cold_start":
                 # Cold start: fresh session creation + first inference
-                dev_idle_s = 5.0 if device.key == "dml:1" else (1.0 if device.key == "dml:0" else 0.2)
+                dev_idle_s = 5.0 if is_nvidia_device(device) else (1.0 if device.kind == "igpu" else 0.2)
                 meas = run_cold_start_measurement(
                     model=model,
                     device=device,
@@ -835,8 +841,9 @@ def compute_decision_statistics(
             "message": "No verified decisions recorded yet",
         }
 
-    cpu_dev = session.exec(select(Device).where(Device.key == "cpu")).first()
-    rtx_dev = session.exec(select(Device).where(Device.key == "dml:1")).first()
+    all_devs = session.exec(select(Device)).all()
+    cpu_dev = next((d for d in all_devs if d.kind == "cpu"), None)
+    rtx_dev = next((d for d in all_devs if is_nvidia_device(d) or d.kind == "dgpu"), None)
 
     n = len(decisions)
     sr_wins = sum(1 for d in decisions if d.was_best)

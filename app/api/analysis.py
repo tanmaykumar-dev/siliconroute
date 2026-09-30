@@ -150,9 +150,14 @@ def get_session_variability(session: Session = Depends(get_session)) -> dict[str
     summary: list[dict[str, Any]] = []
     for d in devices:
         diffs = device_diffs.get(d.id, [])
-        med_pct = round(float(np.median(diffs)), 1) if diffs else bands.get(d.id, 15.0)
+        med_pct = round(float(np.median(diffs)), 1) if diffs else bands.get(d.id)
         max_pct = round(float(max(diffs)), 1) if diffs else med_pct
         cnt = len(diffs)
+        desc = (
+            f"median +/-{med_pct}%, max {max_pct}% ({cnt} configs)"
+            if med_pct is not None
+            else f"no multi-session measurements available ({cnt} configs)"
+        )
         summary.append({
             "device_id": d.id,
             "device_key": d.key,
@@ -161,7 +166,7 @@ def get_session_variability(session: Session = Depends(get_session)) -> dict[str
             "volatility_band_pct": med_pct,
             "max_volatility_pct": max_pct,
             "multi_session_configs_count": cnt,
-            "description": f"median +/-{med_pct}%, max {max_pct}% ({cnt} configs)",
+            "description": desc,
         })
 
     return {

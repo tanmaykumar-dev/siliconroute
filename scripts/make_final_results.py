@@ -13,7 +13,7 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 import sqlite3
-from typing import Any
+from typing import Any, Optional
 import numpy as np
 
 # Use non-interactive backend for matplotlib
@@ -94,9 +94,15 @@ def main():
         "metrics": {},
     }
 
-    def reg_metric(key: str, value: Any, sql: str, unit: str, desc: str):
+    def reg_metric(key: str, value: Any, sql: str, unit: str, desc: str, method: Optional[str] = None):
+        if method is None:
+            fn_name = f"get_{key}".replace("dml:0", "dml_0").replace("dml:1", "dml_1")
+            if key == "workload_cold_start_sr_accuracy_pct":
+                fn_name = "get_cold_start_router_accuracy"
+            method = f"scripts.metrics.{fn_name}"
         manifest["metrics"][key] = {
             "value": value,
+            "method": method,
             "sql": sql,
             "unit": unit,
             "description": desc,
