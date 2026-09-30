@@ -35,6 +35,7 @@ logging.basicConfig(
 logger = logging.getLogger("siliconroute")
 
 FRONTEND_DIR: Path = BASE_DIR / "frontend"
+SITE_DIR: Path = BASE_DIR / "site"
 
 
 @asynccontextmanager
@@ -87,6 +88,8 @@ app.include_router(fits_router)
 app.include_router(analysis_router)
 app.include_router(decisions_router)
 
-# Mount static frontend at root (must be after API routers to avoid route collision)
+# Mount static site and frontend (must be after API routers to avoid route collision)
+if SITE_DIR.exists():
+    app.mount("/site", StaticFiles(directory=str(SITE_DIR), html=True), name="site")
 if FRONTEND_DIR.exists():
     app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
