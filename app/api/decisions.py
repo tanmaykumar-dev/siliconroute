@@ -1,13 +1,17 @@
 """API endpoints for SiliconRoute decisions, routing, verification, and baseline statistics."""
 
 import json
+import logging
 from typing import Any, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 from sqlmodel import Session, select
 
+from app.config import BASE_DIR
 from app.db import Decision, get_session
 from app.router import compute_decision_statistics, execute_verification, route_model
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api", tags=["router", "decisions"])
 
@@ -170,6 +174,84 @@ def get_decision_statistics(
         else:
             dec_ids = [int(x.strip()) for x in ids.split(",") if x.strip().isdigit()]
     return compute_decision_statistics(session, decision_ids=dec_ids)
+
+
+@router.get("/manifest")
+def get_manifest_data() -> dict[str, Any]:
+    """Retrieve published manifest.json with all provenance metrics."""
+    manifest_path = BASE_DIR / "results" / "final" / "manifest.json"
+    if not manifest_path.exists():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="manifest.json not found")
+    try:
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as exc:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed reading manifest: {exc}")
+
+
+@router.get("/decisions/evaluation")
+def get_evaluation_data(session: Session = Depends(get_session)) -> dict[str, Any]:
+    """Retrieve full hardware evaluation results for headline, cold-start rule, and earlier baselines.
+    
+    Dynamically discovers evaluation ranges from manifest.json to ensure no hardcoded IDs in the frontend.
+    """
+    manifest_path = BASE_DIR / "results" / "final" / "manifest.json"
+    headline_range = [117, 140]
+    cold_start_range = [141, 148]
+    earlier_range = [93, 116]
+
+    if manifest_path.exists():
+        try:
+            with open(manifest_path, "r", encoding="utf-8") as f:
+                mf = json.load(f)
+            metrics = mf.get("metrics", {})
+            for k in metrics:
+                if k.startswith("decisions_") and k.endswith("_total"):
+                    parts = k.split("_")
+                    if len(parts) == 4 and parts[1].isdigit() and parts[2].isdigit():
+                        headline_range = [int(parts[1]), int(parts[2])]
+                elif k.startswith("cold_start_") and k.endswith("_total"):
+                    parts = k.split("_")
+                    if len(parts) == 5 and parts[2].isdigit() and parts[3].isdigit():
+                        cold_start_range = [int(parts[2]), int(parts[3])]
+        except Exception as e:
+            logger.warning("Failed parsing ranges from manifest: %s", e)
+
+    headline_ids = list(range(headline_range[0], headline_range[1] + 1))
+    cold_start_ids = list(range(cold_start_range[0], cold_start_range[1] + 1))
+    earlier_ids = list(range(earlier_range[0], earlier_range[1] + 1))
+
+    headline_stats = compute_decision_statistics(session, decision_ids=headline_ids)
+    cold_start_stats = compute_decision_statistics(session, decision_ids=cold_start_ids)
+    earlier_stats = compute_decision_statistics(session, decision_ids=earlier_ids)
+
+    all_ids = set(headline_ids + cold_start_ids + earlier_ids)
+    decs = session.exec(select(Decision).where(Decision.id.in_(all_ids))).all()
+    dec_map = {d.id: d.model_dump() for d in decs}
+
+    return {
+        "headline": {
+            "range": f"{headline_range[0]}-{headline_range[1]}",
+            "start_id": headline_range[0],
+            "end_id": headline_range[1],
+            "stats": headline_stats,
+            "decisions": [dec_map[i] for i in headline_ids if i in dec_map],
+        },
+        "cold_start_rule": {
+            "range": f"{cold_start_range[0]}-{cold_start_range[1]}",
+            "start_id": cold_start_range[0],
+            "end_id": cold_start_range[1],
+            "stats": cold_start_stats,
+            "decisions": [dec_map[i] for i in cold_start_ids if i in dec_map],
+        },
+        "earlier": {
+            "range": f"{earlier_range[0]}-{earlier_range[1]}",
+            "start_id": earlier_range[0],
+            "end_id": earlier_range[1],
+            "stats": earlier_stats,
+            "decisions": [dec_map[i] for i in earlier_ids if i in dec_map],
+        },
+    }
 
 
 @router.get("/decisions/{decision_id}", response_model=Decision)

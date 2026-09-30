@@ -235,3 +235,41 @@ def test_decisions_stats_with_ids():
         sr = data["siliconroute"]
         assert sr["wins"] == 22
         assert sr["accuracy_pct"] == 91.7
+
+
+def test_manifest_endpoint():
+    """Verify GET /api/manifest returns published manifest with valid structure."""
+    res = client.get("/api/manifest")
+    assert res.status_code == 200
+    data = res.json()
+    assert "metadata" in data
+    assert "metrics" in data
+    assert "database_sha256" in data["metadata"]
+    assert "decisions_117_140_sr_wins" in data["metrics"]
+
+
+def test_decisions_evaluation_endpoint():
+    """Verify GET /api/decisions/evaluation returns headline, cold-start, and earlier evaluations."""
+    res = client.get("/api/decisions/evaluation")
+    assert res.status_code == 200
+    data = res.json()
+    assert "headline" in data
+    assert "cold_start_rule" in data
+    assert "earlier" in data
+
+    hl = data["headline"]
+    assert hl["range"] == "117-140"
+    if hl["stats"].get("total_verified", 0) >= 24:
+        assert hl["stats"]["siliconroute"]["wins"] == 22
+        assert hl["stats"]["siliconroute"]["total"] == 24
+        assert hl["stats"]["siliconroute"]["accuracy_pct"] == 91.7
+        assert hl["stats"]["siliconroute"]["mean_regret_pct"] == 1.75
+        assert hl["stats"]["baselines"]["always_cpu"]["wins"] == 15
+        assert hl["stats"]["baselines"]["always_rtx"]["wins"] == 9
+        assert hl["stats"]["baselines"]["fit_only_router"]["wins"] == 19
+
+    cs = data["cold_start_rule"]
+    assert cs["range"] == "141-148"
+    if cs["stats"].get("total_verified", 0) >= 8:
+        assert cs["stats"]["siliconroute"]["wins"] == 6
+        assert cs["stats"]["siliconroute"]["total"] == 8

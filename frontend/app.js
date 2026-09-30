@@ -25,7 +25,7 @@ class SiliconApp {
     this.routerMode = "fastest";
     this.routerWorkload = "sustained";
     this.routerPowerBudget = null;
-    this.routerExplore = true;
+    this.routerExplore = false;
   }
 
   async init() {
@@ -759,21 +759,65 @@ class SiliconApp {
 
   async loadRouterEvaluationStats() {
     try {
-      // Specifically query Phase 5.3 evaluation decisions 93 to 116
-      const stats = await fetch("/api/decisions/stats?ids=93-116").then((r) => r.json());
-      const decisions = await fetch("/api/decisions?limit=30").then((r) => r.json());
+      const evalData = await fetch("/api/decisions/evaluation").then((r) => r.json());
 
-      this.renderEvaluationOverallTable(stats);
-      this.renderEvaluationWorkloadsTable(stats.per_workload);
-      this.renderDecisionsLogTable(decisions.filter((d) => d.id >= 93 && d.id <= 116));
+      // 1. Headline evaluation (Decisions 117 to 140)
+      if (evalData.headline) {
+        const hl = evalData.headline;
+        const titleEl = document.getElementById("eval-headline-title");
+        if (titleEl) titleEl.textContent = `Final Published Hardware Evaluation (Decisions ${hl.start_id} to ${hl.end_id})`;
+
+        const overallH = document.getElementById("eval-overall-heading");
+        if (overallH) overallH.textContent = `Overall Benchmark Accuracy & Regret (All ${hl.stats.total_verified} Decisions)`;
+
+        const wlH = document.getElementById("eval-workloads-heading");
+        const sustainedN = hl.stats.per_workload?.sustained?.total || 8;
+        if (wlH) wlH.textContent = `Per-Workload Breakdown (${sustainedN} Decisions Each)`;
+
+        const logH = document.getElementById("eval-logs-heading");
+        if (logH) logH.textContent = `Individual Verified Decision Logs (Decisions ${hl.start_id} to ${hl.end_id})`;
+
+        this.renderEvaluationOverallTable("table-eval-overall-body", hl.stats);
+        this.renderEvaluationWorkloadsTable("table-eval-workloads-body", hl.stats.per_workload);
+        this.renderDecisionsLogTable("table-decisions-log-body", hl.decisions);
+      }
+
+      // 2. Cold-Start Rule verification (Decisions 141 to 148)
+      if (evalData.cold_start_rule) {
+        const cs = evalData.cold_start_rule;
+        const csTitle = document.getElementById("eval-coldstart-title");
+        if (csTitle) csTitle.textContent = `Cold-Start Rule Verification (Decisions ${cs.start_id} to ${cs.end_id})`;
+
+        const csLogsH = document.getElementById("eval-coldstart-logs-heading");
+        if (csLogsH) csLogsH.textContent = `Cold-Start Verified Decision Logs (Decisions ${cs.start_id} to ${cs.end_id})`;
+
+        this.renderEvaluationOverallTable("table-eval-coldstart-body", cs.stats, false);
+        this.renderDecisionsLogTable("table-coldstart-log-body", cs.decisions);
+      }
+
+      // 3. Earlier evaluation (Decisions 93 to 116 in collapsed <details>)
+      if (evalData.earlier) {
+        const ear = evalData.earlier;
+        const earSumm = document.getElementById("eval-earlier-summary");
+        if (earSumm) earSumm.textContent = `Earlier Evaluation (Decisions ${ear.start_id} to ${ear.end_id}) — Click to expand`;
+
+        const earH = document.getElementById("eval-earlier-heading");
+        if (earH) earH.textContent = `Overall Benchmark Accuracy & Regret (All ${ear.stats.total_verified} Decisions)`;
+
+        const earLogH = document.getElementById("eval-earlier-logs-heading");
+        if (earLogH) earLogH.textContent = `Decision Logs (Decisions ${ear.start_id} to ${ear.end_id})`;
+
+        this.renderEvaluationOverallTable("table-earlier-overall-body", ear.stats);
+        this.renderDecisionsLogTable("table-earlier-log-body", ear.decisions);
+      }
     } catch (err) {
       console.error("Failed loading router evaluation stats:", err);
     }
   }
 
-  renderEvaluationOverallTable(stats) {
-    const tbody = document.getElementById("table-eval-overall-body");
-    if (!tbody || !stats.siliconroute) return;
+  renderEvaluationOverallTable(target, stats, includeOrtRow = true) {
+    const tbody = typeof target === "string" ? document.getElementById(target) : target;
+    if (!tbody || !stats || !stats.siliconroute) return;
 
     const rows = [
       {
@@ -782,22 +826,23 @@ class SiliconApp {
         isSr: true,
       },
       {
-        name: "Fit-Only Router (Formula without Lookups)",
-        data: stats.baselines.fit_only_router,
-      },
-      {
         name: "Always-CPU Baseline",
-        data: stats.baselines.always_cpu,
+        data: stats.baselines?.always_cpu,
       },
       {
         name: "Always-RTX Baseline",
-        data: stats.baselines.always_rtx,
+        data: stats.baselines?.always_rtx,
+      },
+      {
+        name: "Fit-Only Router (Formula without Lookups)",
+        data: stats.baselines?.fit_only_router,
       },
     ];
 
-    tbody.innerHTML = rows
+    let html = rows
       .map((r) => {
         const d = r.data;
+        if (!d) return "";
         return `
           <tr style="${r.isSr ? "background-color: rgba(60, 207, 160, 0.08); font-weight:700;" : ""}">
             <td style="color:${r.isSr ? "var(--mint)" : "var(--text)"};">${r.name}</td>
@@ -808,7 +853,10 @@ class SiliconApp {
           </tr>
         `;
       })
-      .join("") + `
+      .join("");
+
+    if (includeOrtRow) {
+      html += `
         <tr>
           <td style="color:var(--muted);">ORT ExecutionProviderDevicePolicy</td>
           <td colspan="4" style="color:var(--muted); font-size:0.8rem;">
@@ -816,10 +864,13 @@ class SiliconApp {
           </td>
         </tr>
       `;
+    }
+
+    tbody.innerHTML = html;
   }
 
-  renderEvaluationWorkloadsTable(perWl) {
-    const tbody = document.getElementById("table-eval-workloads-body");
+  renderEvaluationWorkloadsTable(target, perWl) {
+    const tbody = typeof target === "string" ? document.getElementById(target) : target;
     if (!tbody || !perWl) return;
 
     const workloads = ["sustained", "idle_loaded", "cold_start"];
@@ -853,11 +904,12 @@ class SiliconApp {
     tbody.innerHTML = html;
   }
 
-  renderDecisionsLogTable(decs) {
-    const tbody = document.getElementById("table-decisions-log-body");
-    if (!tbody) return;
+  renderDecisionsLogTable(target, decs) {
+    const tbody = typeof target === "string" ? document.getElementById(target) : target;
+    if (!tbody || !decs) return;
 
     tbody.innerHTML = decs
+      .slice()
       .sort((a, b) => b.id - a.id)
       .map((d) => {
         const ctx = typeof d.context_json === "string" ? JSON.parse(d.context_json) : (d.context_json || {});
@@ -876,7 +928,7 @@ class SiliconApp {
             <td class="td-mono text-right">${d.actual_ms ? d.actual_ms.toFixed(3) + " ms" : "N/A"}</td>
             <td><span class="badge-device ${bestDev.key === "cpu" ? "badge-cpu" : bestDev.key === "dml:0" ? "badge-dml0" : "badge-dml1"}">${bestDev.key}</span></td>
             <td class="text-center"><span class="${d.was_best ? "badge-win" : "badge-loss"}">${d.was_best ? "WIN" : "LOSS"}</span></td>
-            <td class="td-mono text-right" style="color:${d.regret_pct > 0 ? "var(--warning)" : "var(--mint)"};">${d.regret_pct !== null ? d.regret_pct.toFixed(1) + "%" : "0.0%"}</td>
+            <td class="td-mono text-right" style="color:${d.regret_pct > 0 ? "var(--warning)" : "var(--mint)"};">${d.regret_pct !== null && d.regret_pct !== undefined ? d.regret_pct.toFixed(1) + "%" : "0.0%"}</td>
           </tr>
         `;
       })

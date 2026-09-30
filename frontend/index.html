@@ -80,8 +80,9 @@
             <div class="kpi-value-row">
               <span class="kpi-value" id="kpi-gpu-power">—</span>
             </div>
-            <div class="kpi-subtext" style="display:flex; justify-content:space-between; align-items:center;">
-              <span>Core Temp: <strong id="kpi-gpu-temp">—</strong></span>
+            <div class="kpi-subtext" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.25rem;">
+              <span>Temp: <strong id="kpi-gpu-temp">—</strong></span>
+              <span>SM Clock: <strong id="kpi-gpu-clock" class="td-mono">—</strong></span>
               <span>State: <strong id="kpi-gpu-pstate">—</strong></span>
             </div>
           </div>
@@ -92,8 +93,8 @@
               <span id="kpi-igpu-power"></span>
             </div>
             <div class="kpi-subtext" style="display:flex; justify-content:space-between; align-items:center;">
-              <span>RTX SM Clock:</span>
-              <span id="kpi-gpu-clock" class="td-mono">—</span>
+              <span>DirectML Compute Adapter</span>
+              <span class="pill-na" style="font-size:0.75rem;">Sensor N/A</span>
             </div>
           </div>
         </div>
@@ -419,7 +420,7 @@
             </div>
 
             <div style="display:flex; align-items:center; gap:0.5rem; padding-bottom:0.4rem;">
-              <input type="checkbox" id="router-explore-check" checked>
+              <input type="checkbox" id="router-explore-check">
               <label for="router-explore-check" style="margin:0; font-size:0.8rem; text-transform:none;">Epsilon Exploration (10%)</label>
             </div>
 
@@ -490,19 +491,19 @@
           </div>
         </div>
 
-        <!-- Evaluation Results for Decisions 93-116 -->
+        <!-- Final Published Hardware Evaluation -->
         <div class="card">
           <div class="card-header">
             <div>
-              <div class="card-title">Phase 5.3 Hardware Evaluation Results (Decisions 93 to 116)</div>
+              <div class="card-title" id="eval-headline-title">Final Published Hardware Evaluation</div>
               <div class="card-subtitle" style="color:var(--accent-copper); font-weight:600;">
                 ★ Evaluated on previously profiled configurations across all 3 workloads
               </div>
             </div>
           </div>
 
-          <!-- Overall Comparison Table -->
-          <div style="font-weight:600; margin-bottom:0.25rem; font-size:0.9rem;">Overall Benchmark Accuracy & Regret (All 24 Decisions)</div>
+          <!-- Overall Comparison Table (Headline) -->
+          <div id="eval-overall-heading" style="font-weight:600; margin-bottom:0.25rem; font-size:0.9rem;">Overall Benchmark Accuracy &amp; Regret</div>
           <div class="table-container" style="margin-bottom:1.5rem;">
             <table>
               <thead>
@@ -521,7 +522,7 @@
           </div>
 
           <!-- Per-Workload Comparison Table -->
-          <div style="font-weight:600; margin-bottom:0.25rem; font-size:0.9rem;">Per-Workload Breakdown (8 Decisions Each)</div>
+          <div id="eval-workloads-heading" style="font-weight:600; margin-bottom:0.25rem; font-size:0.9rem;">Per-Workload Breakdown</div>
           <div class="table-container" style="margin-bottom:1.5rem;">
             <table>
               <thead>
@@ -541,8 +542,8 @@
           </div>
 
           <!-- Individual Decisions Log Table -->
-          <div style="font-weight:600; margin-bottom:0.25rem; font-size:0.9rem;">Individual Verified Decision Logs (IDs 93 to 116)</div>
-          <div class="table-container">
+          <div id="eval-logs-heading" style="font-weight:600; margin-bottom:0.25rem; font-size:0.9rem;">Individual Verified Decision Logs</div>
+          <div class="table-container" style="margin-bottom:2rem;">
             <table>
               <thead>
                 <tr>
@@ -562,6 +563,111 @@
               </tbody>
             </table>
           </div>
+
+          <!-- Cold-Start Rule Check Section -->
+          <div style="border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 1.5rem;">
+            <div class="card-title" id="eval-coldstart-title" style="font-size:1.1rem; margin-bottom:0.25rem;">
+              Cold-Start Rule Verification
+            </div>
+            <div id="eval-coldstart-subtitle" style="font-size:0.85rem; color:var(--muted); margin-bottom:1rem;">
+              Rule check: for workload cold_start, choose CPU unless another chip's predicted latency is &gt;30% lower.
+            </div>
+
+            <!-- Cold-Start Summary Table -->
+            <div class="table-container" style="margin-bottom:1.5rem;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Routing Strategy</th>
+                    <th class="text-center">Wins (k/n)</th>
+                    <th class="text-right">Accuracy %</th>
+                    <th class="text-right">Mean Regret</th>
+                    <th class="text-right">P90 Regret</th>
+                  </tr>
+                </thead>
+                <tbody id="table-eval-coldstart-body">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Cold-Start Decisions Log -->
+            <div id="eval-coldstart-logs-heading" style="font-weight:600; margin-bottom:0.25rem; font-size:0.9rem;">
+              Cold-Start Verified Decision Logs
+            </div>
+            <div class="table-container" style="margin-bottom:1.5rem;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Decision ID</th>
+                    <th>Model</th>
+                    <th class="text-center">Batch</th>
+                    <th class="text-center">Workload</th>
+                    <th>Chosen Device</th>
+                    <th class="text-right">Actual Latency</th>
+                    <th>Best Device</th>
+                    <th class="text-center">Match</th>
+                    <th class="text-right">Regret %</th>
+                  </tr>
+                </thead>
+                <tbody id="table-coldstart-log-body">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Collapsed Earlier Evaluation Section -->
+          <details style="margin-top:1.5rem; border:1px solid var(--border); border-radius:6px; padding:0.75rem; background:rgba(255,255,255,0.02);">
+            <summary id="eval-earlier-summary" style="cursor:pointer; font-weight:600; color:var(--muted); font-size:0.9rem; user-select:none;">
+              Earlier Evaluation — Click to expand
+            </summary>
+            <div style="margin-top:1rem;">
+              <div id="eval-earlier-heading" style="font-weight:600; margin-bottom:0.5rem; font-size:0.85rem; color:var(--text);">
+                Overall Benchmark Accuracy &amp; Regret
+              </div>
+              <div class="table-container" style="margin-bottom:1rem;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Routing Strategy</th>
+                      <th class="text-center">Winning Decisions (k/n)</th>
+                      <th class="text-right">Accuracy %</th>
+                      <th class="text-right">Mean Slowdown / Regret</th>
+                      <th class="text-right">P90 Regret</th>
+                    </tr>
+                  </thead>
+                  <tbody id="table-earlier-overall-body">
+                    <!-- Dynamically populated -->
+                  </tbody>
+                </table>
+              </div>
+
+              <div id="eval-earlier-logs-heading" style="font-weight:600; margin-bottom:0.5rem; font-size:0.85rem; color:var(--text);">
+                Decision Logs
+              </div>
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Decision ID</th>
+                      <th>Model</th>
+                      <th class="text-center">Batch</th>
+                      <th class="text-center">Workload</th>
+                      <th>Chosen Device</th>
+                      <th class="text-right">Actual Latency</th>
+                      <th>Best Device</th>
+                      <th class="text-center">Match</th>
+                      <th class="text-right">Regret %</th>
+                    </tr>
+                  </thead>
+                  <tbody id="table-earlier-log-body">
+                    <!-- Dynamically populated -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </details>
         </div>
       </section>
 
