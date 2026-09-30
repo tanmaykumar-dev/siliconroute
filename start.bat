@@ -3,7 +3,7 @@ REM SiliconRoute one-click start (Windows)
 cd /d "%~dp0"
 if not exist venv (
   echo Creating virtual environment...
-  py -3.12 -m venv venv || (echo Python 3.12 not found. Install it from python.org & pause & exit /b 1)
+  py -3.12 -m venv venv 2>nul || python -m venv venv || (echo Python not found. Install Python from python.org & pause & exit /b 1)
 )
 call venv\Scripts\activate
 python -m pip install --upgrade pip >nul
