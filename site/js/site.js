@@ -212,7 +212,7 @@ function updateDecisionBars(workload) {
   if (explanationEl) explanationEl.textContent = explanation;
 
   const chips = [
-    { id: "cpu", name: "AMD Ryzen 5 7520U", class: "cpu", ms: cpuMs },
+    { id: "cpu", name: "AMD Ryzen 9 8940HX", class: "cpu", ms: cpuMs },
     { id: "igpu", name: "AMD Radeon 610M", class: "igpu", ms: igpuMs },
     { id: "dgpu", name: "NVIDIA RTX 5070", class: "dgpu", ms: dgpuMs },
     { id: "npu", name: "Qualcomm NPU", class: "npu", ms: null },
