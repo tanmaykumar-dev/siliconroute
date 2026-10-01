@@ -285,39 +285,71 @@ a:hover {
 
 .section-dark {
   background-color: var(--ink);
-  color: var(--paper);
+  color: #FFFFFF;
   padding: var(--space-160) 0;
 }
 
-.section-dark h2, .section-dark .display-title, .section-dark .statement-text {
-  color: var(--paper);
+.section-dark h1,
+.section-dark h2,
+.section-dark h3,
+.section-dark .display-title,
+.section-dark .section-title,
+.section-dark .subhead,
+.section-dark .statement-text {
+  color: #FFFFFF;
 }
 
-.section-dark p, .section-dark .body-text {
-  color: var(--ink-2);
+.section-dark .section-num {
+  color: #FFFFFF;
+}
+
+.section-dark .big-metric-num {
+  color: #FFFFFF;
+}
+
+.section-dark p,
+.section-dark .body-text,
+.section-dark .small-text,
+.section-dark .caption-text,
+.section-dark .fig-caption {
+  color: #FFFFFF;
+}
+
+.section-dark strong {
+  color: #FFFFFF;
 }
 
 .section-dark :focus-visible {
-  outline: 2px solid var(--paper);
+  outline: 2px solid #FFFFFF;
   outline-offset: 3px;
 }
 
 .section-dark .btn-primary {
-  background-color: var(--paper);
+  background-color: #FFFFFF;
   color: var(--ink);
 }
 
 .section-dark .btn-primary:hover {
   background-color: var(--signal);
-  color: var(--paper);
+  color: #FFFFFF;
+}
+
+.section-dark .btn-text {
+  color: #FFFFFF;
+}
+
+.section-dark .btn-text:hover {
+  color: #FFFFFF;
+  opacity: 0.8;
 }
 
 .section-dark a {
-  color: var(--paper);
+  color: #FFFFFF;
 }
 
 .section-dark a:hover {
-  color: var(--signal);
+  color: #FFFFFF;
+  opacity: 0.8;
 }
 
 /* Section 00: Hero */
@@ -418,7 +450,7 @@ a:hover {
 /* Problem Stacked Rows */
 .problem-rows {
   margin-top: var(--space-64);
-  border-top: 1px solid var(--rule);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .problem-row {
@@ -426,16 +458,16 @@ a:hover {
   grid-template-columns: 320px 1fr;
   gap: 48px;
   padding: var(--space-48) 0;
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   align-items: center;
 }
 
 .problem-row .big-metric-num {
-  color: var(--paper);
+  color: #FFFFFF;
 }
 
 .problem-row p {
-  color: #B4B4AC;
+  color: #FFFFFF;
   font-size: 20px;
   line-height: 1.5;
 }
@@ -589,14 +621,18 @@ a:hover {
 }
 
 .section-dark .data-table th {
-  background-color: #1C1C1A;
-  color: var(--paper);
-  border-bottom: 1px solid #2E2E2B;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .section-dark .data-table td {
-  border-bottom: 1px solid #2E2E2B;
-  color: #EDEDE8;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  color: #FFFFFF;
+}
+
+.section-dark .data-table td strong {
+  color: #FFFFFF;
 }
 
 .data-table .num-col {
