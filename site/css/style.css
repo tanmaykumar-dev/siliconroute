@@ -21,11 +21,13 @@ html {
   font-size: 17px;
   -webkit-font-smoothing: antialiased;
   scroll-behavior: smooth;
+  scroll-snap-type: y proximity;
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+    scroll-snap-type: none;
   }
 }
 
@@ -35,6 +37,89 @@ body {
   flex-direction: column;
   background-color: var(--paper);
   color: var(--ink);
+}
+
+/* Scroll-reveal: content fades in + slides up when section enters viewport */
+.section-wrap > .container,
+.section-dark > .container,
+.section-wrap-quiet > .container,
+.contact-viewport > .contact-panel {
+  opacity: 0;
+  transform: translateY(48px);
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.section-wrap.in-view > .container,
+.section-dark.in-view > .container,
+.section-wrap-quiet.in-view > .container,
+.contact-viewport.in-view > .contact-panel {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Photo strips scale in gently — animation props merged into layout block below */
+
+/* Hero is always visible on load */
+.hero-viewport.in-view .hero-panel {
+  animation: heroSlideIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+}
+
+@keyframes heroSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stagger child elements within sections for a cascading reveal */
+.in-view .section-num {
+  animation: fadeSlideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+}
+
+.in-view .section-title,
+.in-view .statement-text {
+  animation: fadeSlideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+.in-view .body-text {
+  animation: fadeSlideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-wrap > .container,
+  .section-dark > .container,
+  .section-wrap-quiet > .container,
+  .contact-viewport > .contact-panel,
+  .photo-strip {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .in-view .section-num,
+  .in-view .section-title,
+  .in-view .statement-text,
+  .in-view .body-text,
+  .hero-viewport.in-view .hero-panel {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* Typography Hierarchy (Section 2) */
@@ -208,10 +293,17 @@ a:hover {
   font-size: 14px;
   color: var(--ink-2);
   text-decoration: none;
+  transition: color 0.3s ease;
 }
 
 .site-nav a:hover, .site-nav button:hover {
   color: var(--signal);
+}
+
+.site-nav a.nav-active {
+  color: var(--signal);
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 .btn-menu-toggle {
@@ -273,7 +365,12 @@ a:hover {
 }
 
 .section-wrap {
-  padding: var(--space-160) 0;
+  padding: var(--space-96) 0;
+  min-height: 100vh;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .section-wrap-quiet {
@@ -281,12 +378,22 @@ a:hover {
   padding: var(--space-96) 0;
   border-top: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
+  min-height: 100vh;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .section-dark {
   background-color: var(--ink);
   color: #FFFFFF;
-  padding: var(--space-160) 0;
+  padding: var(--space-96) 0;
+  min-height: 100vh;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .section-dark h1,
@@ -355,10 +462,11 @@ a:hover {
 /* Section 00: Hero */
 .hero-viewport {
   position: relative;
-  height: calc(100vh - 56px);
+  height: 100vh;
   min-height: 600px;
   width: 100%;
   overflow: hidden;
+  scroll-snap-align: start;
 }
 
 .hero-photo {
@@ -391,15 +499,25 @@ a:hover {
 /* Full-bleed photo strips */
 .photo-strip {
   width: 100%;
-  height: 60vh;
-  min-height: 380px;
+  height: 100vh;
+  min-height: 500px;
   overflow: hidden;
   border-top: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
+  scroll-snap-align: start;
+  /* Scroll-reveal animation */
+  opacity: 0;
+  transform: scale(1.04);
+  transition: opacity 0.8s ease-out, transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.photo-strip.in-view {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .photo-strip-55 {
-  height: 55vh;
+  height: 100vh;
 }
 
 .photo-strip-img {
@@ -737,9 +855,12 @@ a:hover {
 /* Contact Section (Section 11) */
 .contact-viewport {
   position: relative;
-  min-height: 600px;
+  min-height: 100vh;
   width: 100%;
   overflow: hidden;
+  scroll-snap-align: start;
+  display: flex;
+  align-items: center;
 }
 
 .contact-bg-photo {

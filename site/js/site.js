@@ -10,6 +10,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupDashboardButtons();
   setupCopyButtons();
   setupMobileMenu();
+  setupScrollReveal();
+  setupActiveNavHighlight();
 });
 
 let siteManifest = null;
@@ -339,4 +341,62 @@ function setupMobileMenu() {
   overlay.querySelectorAll("a").forEach(link => {
     link.addEventListener("click", closeMenu);
   });
+}
+
+/**
+ * Scroll-reveal: observe each section tile and add "in-view" when it
+ * enters the viewport. Creates the fade-in + slide-up effect.
+ */
+function setupScrollReveal() {
+  const sections = document.querySelectorAll(
+    ".hero-viewport, .section-wrap, .section-dark, .section-wrap-quiet, .photo-strip, .contact-viewport"
+  );
+
+  if (!sections.length) return;
+
+  // Use a generous threshold so the reveal triggers early
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("in-view");
+      }
+    });
+  }, {
+    threshold: 0.15,
+    rootMargin: "0px 0px -60px 0px"
+  });
+
+  sections.forEach(section => {
+    observer.observe(section);
+  });
+
+  // Mark the hero as in-view immediately (it's visible on load)
+  const hero = document.querySelector(".hero-viewport");
+  if (hero) hero.classList.add("in-view");
+}
+
+/**
+ * Highlights the active nav link as sections scroll into view.
+ */
+function setupActiveNavHighlight() {
+  const navLinks = document.querySelectorAll(".site-nav a[href^='#']");
+  const sections = document.querySelectorAll("section[id]");
+
+  if (!sections.length || !navLinks.length) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute("id");
+        navLinks.forEach(link => {
+          link.classList.toggle("nav-active", link.getAttribute("href") === `#${id}`);
+        });
+      }
+    });
+  }, {
+    threshold: 0.3,
+    rootMargin: "-80px 0px -40% 0px"
+  });
+
+  sections.forEach(section => observer.observe(section));
 }
