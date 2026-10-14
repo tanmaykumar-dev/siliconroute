@@ -77,10 +77,9 @@
           <div class="sidebar-separator"></div>
           <!-- Host Chip Status Card -->
           <div class="sidebar-footer-card">
-            <div class="sidebar-chip-avatar">CPU</div>
             <div>
-              <div class="sidebar-user-name">Ryzen 9 8940HX</div>
-              <div class="sidebar-user-role">RTX 5070 + Radeon 610M</div>
+              <div class="sidebar-user-name" id="sidebar-host-cpu-name">Host Processor</div>
+              <div class="sidebar-user-role" id="sidebar-host-gpu-summary">Probing Physical Sockets...</div>
             </div>
           </div>
         </div>
@@ -150,7 +149,7 @@
                 <!-- KPI 3: Profiled Sockets -->
                 <div class="kpi-unit">
                   <div class="kpi-unit-top">
-                    <span class="kpi-unit-value">3 Active + 1 ARM Slot</span>
+                    <span class="kpi-unit-value" id="kpi-detected-sockets-count">Probing Sockets...</span>
                     <span class="kpi-trend-badge trend-neutral" title="Hardware Profiles">&#x2197;</span>
                   </div>
                   <div class="kpi-unit-caption">Heterogeneous Sockets</div>
@@ -253,19 +252,15 @@
               <div class="card-header" style="padding: 20px 24px 16px; border-bottom: 1px solid var(--card-border);">
                 <div>
                   <div class="card-title">Multi-Chip Silicon Arena</div>
-                  <div style="font-size: 12px; color: var(--ink-3); margin-top: 2px;">
-                    Direct physical scorecard comparing host CPU, integrated GPU, discrete GPU, and Snapdragon ARM Hexagon NPU
+                  <div style="font-size: 12px; color: var(--ink-3); margin-top: 2px;" id="arena-detected-devices-sub">
+                    Direct physical scorecard comparing detected on-device processors
                   </div>
                 </div>
 
                 <div class="arena-filter-bar">
                   <input type="search" id="arena-search-input" class="card-filter-select" placeholder="Search target chip..." data-test="input-arena-search" style="padding: 6px 12px;">
                   <select id="arena-chip-filter" class="card-filter-select">
-                    <option value="all">All Silicon Targets</option>
-                    <option value="cpu">Host CPU Only</option>
-                    <option value="igpu">Integrated GPU</option>
-                    <option value="dgpu">Discrete GPU</option>
-                    <option value="npu">Snapdragon NPU Slot</option>
+                    <option value="all">All Detected Targets</option>
                   </select>
                 </div>
               </div>
