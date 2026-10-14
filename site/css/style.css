@@ -58,7 +58,7 @@ body {
   transform: translateY(0);
 }
 
-/* Photo strips scale in gently — animation props merged into layout block below */
+/* Photo strips scale in gently - animation props merged into layout block below */
 
 /* Hero is always visible on load */
 .hero-viewport.in-view .hero-panel {

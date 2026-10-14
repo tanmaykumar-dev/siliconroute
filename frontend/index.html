@@ -29,353 +29,297 @@
     <div class="app-window">
 
       <!-- ===================================================================
-           1. TOP NAVIGATION BAR (Header with centered segmented controls)
+           1. LEFT NAVIGATION SIDEBAR (Exact match to reference UI)
            =================================================================== -->
-      <header class="top-bar" role="banner">
-        <div class="brand-section" onclick="window.location.hash='#/overview'">
-          <div class="brand-icon">SR</div>
-          <span class="brand-title">SiliconRoute</span>
-        </div>
-
-        <!-- Centered Segmented Navigation Capsule -->
-        <nav class="topbar-nav" role="navigation" aria-label="Screen Navigation">
-          <button class="rail-item-btn nav-tab-btn active" data-screen="overview" data-test="nav-overview">Overview</button>
-          <button class="rail-item-btn nav-tab-btn" data-screen="live" data-test="nav-live">Live telemetry</button>
-          <button class="rail-item-btn nav-tab-btn" data-screen="analysis" data-test="nav-analysis">Analysis</button>
-          <button class="rail-item-btn nav-tab-btn" data-screen="router" data-test="nav-router">Router</button>
-          <button class="rail-item-btn nav-tab-btn" data-screen="results" data-test="nav-results">Results</button>
-          <button class="rail-item-btn nav-tab-btn" data-screen="evidence" data-test="nav-evidence">Evidence</button>
-          <button class="rail-item-btn nav-tab-btn" data-screen="about" data-test="nav-about">About</button>
-        </nav>
-
-        <!-- Right Utility Controls -->
-        <div class="topbar-right-group">
-          <div class="topbar-telemetry-badge" id="topbar-telemetry">
-            <span class="live-pulse-dot"></span>
-            <span>plugged in</span>
-            <span class="telemetry-divider">|</span>
-            <span>battery 100%</span>
-            <span class="telemetry-divider">|</span>
-            <span>live</span>
+      <aside class="sidebar-rail" role="navigation" aria-label="Main Navigation">
+        <div>
+          <div class="sidebar-brand" onclick="window.location.hash='#/overview'">
+            <div class="sidebar-brand-avatar">SR</div>
+            <div class="sidebar-brand-text">
+              <span class="sidebar-brand-title">SiliconRoute</span>
+              <span class="sidebar-brand-sub">Heterogeneous AI Balancer</span>
+            </div>
           </div>
-          <button id="theme-toggle-btn" class="btn btn-secondary btn-sm" data-test="theme-toggle">Light / Dark</button>
-          <button id="btn-shortcuts-help" class="btn btn-secondary btn-sm" data-test="btn-shortcuts-help">Shortcuts (?)</button>
-          <a href="/" class="btn btn-primary btn-sm rail-item-link" data-test="nav-back-to-website">Website</a>
+
+          <nav class="sidebar-nav" aria-label="Screen Navigation">
+            <button class="rail-item-btn sidebar-nav-btn active" data-screen="overview" data-test="nav-overview">
+              <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+              <span>Model Profiler</span>
+            </button>
+            <button class="rail-item-btn sidebar-nav-btn" data-screen="live" data-test="nav-live">
+              <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              <span>Live Telemetry</span>
+            </button>
+            <button class="rail-item-btn sidebar-nav-btn" data-screen="analysis" data-test="nav-analysis">
+              <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              <span>Silicon Analysis</span>
+            </button>
+            <button class="rail-item-btn sidebar-nav-btn" data-screen="router" data-test="nav-router">
+              <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              <span>Hardware Router</span>
+            </button>
+            <button class="rail-item-btn sidebar-nav-btn" data-screen="results" data-test="nav-results">
+              <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <span>Execution Runs</span>
+            </button>
+            <button class="rail-item-btn sidebar-nav-btn" data-screen="evidence" data-test="nav-evidence">
+              <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span>Cryptographic Proof</span>
+            </button>
+            <button class="rail-item-btn sidebar-nav-btn" data-screen="about" data-test="nav-about">
+              <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <span>Platform Specs</span>
+            </button>
+          </nav>
         </div>
-      </header>
+
+        <div>
+          <div class="sidebar-separator"></div>
+          <!-- Host Chip Status Card -->
+          <div class="sidebar-footer-card">
+            <div class="sidebar-chip-avatar">CPU</div>
+            <div>
+              <div class="sidebar-user-name">Ryzen 9 8940HX</div>
+              <div class="sidebar-user-role">RTX 5070 + Radeon 610M</div>
+            </div>
+          </div>
+        </div>
+      </aside>
 
       <!-- ===================================================================
-           2. MAIN DASHBOARD CONTENT AREA
+           2. MAIN STAGE (Right Content Canvas)
            =================================================================== -->
-      <main class="content-area" role="main">
-
-        <!-- =================================================================
-             SCREEN 1: OVERVIEW (1:1 Match to Investara Reference Layout)
-             ================================================================= -->
-        <section class="screen-container active" id="screen-overview">
-          
-          <!-- Row 1: Greeting + 3 Floating Minimal KPI Units -->
-          <div class="overview-top-row">
-            <div class="overview-greeting">
-              <div class="greeting-headline">SiliconRoute Load Balancer</div>
-              <p class="greeting-subtext">Autonomous hardware AI routing across CPU, integrated GPU, and discrete GPU</p>
-            </div>
-            
-            <div class="overview-kpis-grid">
-              <!-- KPI Unit 1: Accuracy -->
-              <div class="kpi-unit">
-                <div class="kpi-unit-top">
-                  <span class="kpi-unit-value"><span class="metric" data-metric="decisions_117_140_sr_wins"></span> of <span class="metric" data-metric="decisions_117_140_total"></span></span>
-                  <span class="kpi-trend-badge trend-up" title="91.7% accuracy">&#x2197;</span>
-                  <div class="kpi-sparkline-bars">
-                    <div class="spark-bar" style="height: 8px;"></div>
-                    <div class="spark-bar" style="height: 12px;"></div>
-                    <div class="spark-bar" style="height: 11px;"></div>
-                    <div class="spark-bar active" style="height: 18px;"></div>
-                    <div class="spark-bar active" style="height: 20px;"></div>
-                  </div>
-                </div>
-                <div class="kpi-unit-caption">Decisions Won (Fastest Chip)</div>
-              </div>
-
-              <!-- KPI Unit 2: Regret -->
-              <div class="kpi-unit">
-                <div class="kpi-unit-top">
-                  <span class="kpi-unit-value"><span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct"></span></span>
-                  <span class="kpi-trend-badge trend-up" title="Optimal">&#x2197;</span>
-                  <div class="kpi-sparkline-bars">
-                    <div class="spark-bar active" style="height: 6px;"></div>
-                    <div class="spark-bar active" style="height: 8px;"></div>
-                    <div class="spark-bar active" style="height: 7px;"></div>
-                    <div class="spark-bar" style="height: 14px;"></div>
-                    <div class="spark-bar" style="height: 18px;"></div>
-                  </div>
-                </div>
-                <div class="kpi-unit-caption">Mean Regret vs Fastest</div>
-              </div>
-
-              <!-- KPI Unit 3: Profiled Hardware & DB -->
-              <div class="kpi-unit">
-                <div class="kpi-unit-top">
-                  <span class="kpi-unit-value">3 Chips · 148 Runs</span>
-                  <span class="kpi-trend-badge trend-neutral" title="SHA256 Checksum">&#x2197;</span>
-                  <div class="kpi-sparkline-bars">
-                    <div class="spark-bar active" style="height: 10px;"></div>
-                    <div class="spark-bar active" style="height: 13px;"></div>
-                    <div class="spark-bar active" style="height: 16px;"></div>
-                    <div class="spark-bar active" style="height: 18px;"></div>
-                    <div class="spark-bar active" style="height: 20px;"></div>
-                  </div>
-                </div>
-                <div class="kpi-unit-caption">Cryptographic SQLite DB</div>
-              </div>
-            </div>
+      <div class="main-stage">
+        <!-- Stage Header -->
+        <header class="stage-header" role="banner">
+          <div class="stage-breadcrumb">
+            <a href="#/overview" class="crumb-root" data-test="crumb-root">Platform</a>
+            <span class="crumb-separator">/</span>
+            <span class="crumb-active" id="crumb-active-screen">Model-to-Silicon Profiler</span>
           </div>
 
-          <!-- Row 2: Middle Grid (Portfolio Performance Chart / Silicon Allocation) -->
-          <div class="overview-middle-grid">
-            <!-- Left Card: Model Performance & Latency -->
-            <div class="dashboard-card">
-              <div class="card-header">
-                <span class="card-title">Model Performance &amp; Latency</span>
-                <div class="card-actions">
-                  <select id="overview-chart-family-select" class="card-filter-select">
-                    <option value="mlp">Architecture: MLP</option>
-                    <option value="conv">Architecture: Conv</option>
-                  </select>
-                  <select id="overview-chart-batch-select" class="card-filter-select">
-                    <option value="1">Batch 1</option>
-                    <option value="8">Batch 8</option>
-                    <option value="32">Batch 32</option>
-                  </select>
-                  <button class="btn btn-secondary btn-sm" id="btn-toggle-overview-chart-table" data-test="toggle-overview-chart-table">Show data</button>
+          <div class="stage-header-actions">
+            <div class="topbar-telemetry-badge" id="topbar-telemetry">
+              <span class="live-pulse-dot"></span>
+              <span>plugged in</span>
+              <span class="telemetry-divider">|</span>
+              <span>battery 100%</span>
+              <span class="telemetry-divider">|</span>
+              <span>live</span>
+            </div>
+            <button id="theme-toggle-btn" class="btn btn-secondary btn-sm" data-test="theme-toggle">Light / Dark</button>
+            <button id="btn-shortcuts-help" class="btn btn-secondary btn-sm" data-test="btn-shortcuts-help">Shortcuts (?)</button>
+            <a href="/" class="btn btn-primary btn-sm rail-item-link" data-test="nav-back-to-website">Website</a>
+          </div>
+        </header>
+
+        <!-- Main Dashboard Content Area -->
+        <main class="stage-content content-area" role="main">
+
+          <!-- =================================================================
+               SCREEN 1: OVERVIEW (Model-to-Silicon Profiler & Heterogeneous Arena)
+               ================================================================= -->
+          <section class="screen-container active" id="screen-overview">
+
+            <!-- Row 1: Header + Summary KPIs -->
+            <div class="overview-top-row">
+              <div class="overview-greeting">
+                <div class="greeting-headline">SiliconRoute Heterogeneous Load Balancer</div>
+                <p class="greeting-subtext">Automated model-to-silicon arithmetic profiling, power gating, and multi-chip allocation</p>
+              </div>
+
+              <div class="overview-kpis-grid">
+                <!-- KPI 1: Decisions Won -->
+                <div class="kpi-unit">
+                  <div class="kpi-unit-top">
+                    <span class="kpi-unit-value"><span class="metric" data-metric="decisions_117_140_sr_wins"></span> of <span class="metric" data-metric="decisions_117_140_total"></span></span>
+                    <span class="kpi-trend-badge trend-up" title="Optimal Routing">&#x2197;</span>
+                  </div>
+                  <div class="kpi-unit-caption">Decisions Won (Fastest Chip)</div>
+                </div>
+
+                <!-- KPI 2: Mean Regret -->
+                <div class="kpi-unit">
+                  <div class="kpi-unit-top">
+                    <span class="kpi-unit-value"><span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct"></span></span>
+                    <span class="kpi-trend-badge trend-up" title="Optimal">&#x2197;</span>
+                  </div>
+                  <div class="kpi-unit-caption">Mean Regret vs Fastest</div>
+                </div>
+
+                <!-- KPI 3: Profiled Sockets -->
+                <div class="kpi-unit">
+                  <div class="kpi-unit-top">
+                    <span class="kpi-unit-value">3 Active + 1 ARM Slot</span>
+                    <span class="kpi-trend-badge trend-neutral" title="Hardware Profiles">&#x2197;</span>
+                  </div>
+                  <div class="kpi-unit-caption">Heterogeneous Sockets</div>
                 </div>
               </div>
-              <div class="chart-canvas-wrap" style="height: 280px;">
-                <canvas id="chart-overview-scaling"></canvas>
+            </div>
+
+            <!-- Row 2: Hero Feature 1 & 2 & 3: Profiler Top Grid (3 Cards) -->
+            <div class="profiler-top-grid">
+
+              <!-- Card 1: Model-to-Silicon Profiler -->
+              <div class="model-profile-card">
+                <div>
+                  <div class="card-top-title">Hero Feature: Model-to-Silicon Profiler</div>
+                  <div class="model-avatar-header">
+                    <div class="model-avatar-box">AI</div>
+                    <div class="model-header-meta">
+                      <div class="model-name-title" id="profile-model-name">mlp-256w-4l</div>
+                      <div class="model-arch-subtitle" id="profile-model-arch">Family: MLP - Precision: FP32</div>
+                    </div>
+                  </div>
+
+                  <div style="margin-bottom: 12px;">
+                    <label for="profile-model-select" style="font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; margin-bottom: 4px; display: block;">Select Target AI Model</label>
+                    <select id="profile-model-select" class="card-filter-select" style="width: 100%;"></select>
+                  </div>
+
+                  <div class="model-specs-list">
+                    <div class="model-spec-row">
+                      <span class="model-spec-label">Memory Footprint</span>
+                      <span class="model-spec-value" id="profile-spec-params">262,144 params</span>
+                    </div>
+                    <div class="model-spec-row">
+                      <span class="model-spec-label">FLOPs per Sample</span>
+                      <span class="model-spec-value" id="profile-spec-flops">524,288 FLOPs</span>
+                    </div>
+                    <div class="model-spec-row">
+                      <span class="model-spec-label">Arithmetic Intensity</span>
+                      <span class="model-spec-value" id="profile-spec-intensity">0.50 FLOPs/Byte</span>
+                    </div>
+                    <div class="model-spec-row" style="flex-direction: column; gap: 4px; align-items: flex-start;">
+                      <span class="model-spec-label">Roofline Boundary</span>
+                      <span class="model-spec-value" id="profile-spec-roofline" style="font-size: 11px; font-weight: 500; color: var(--ink-2); line-height: 1.4;">L3 Cache Resident (&lt;16MB) -- Favors CPU. Discrete GPU PCIe bus dispatch adds latency.</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="model-action-buttons">
+                  <button type="button" class="btn btn-primary" id="btn-allocate-silicon" data-test="btn-allocate-silicon">+ Run Silicon Allocation</button>
+                  <button type="button" class="btn btn-secondary" id="btn-benchmark-all-chips" data-test="btn-benchmark-all-chips">Benchmark Physical Silicon</button>
+                </div>
               </div>
-              <div class="chart-table-wrap" id="table-wrap-overview-scaling" style="display: none; margin-top: 12px;">
+
+              <!-- Card 2: Power Budget & Dynamic Distribution Dial -->
+              <div class="power-allocation-card">
+                <div>
+                  <div class="card-top-title">Power Budget &amp; Dynamic Allocation</div>
+                  <div style="font-size: 32px; font-weight: 800; color: var(--ink); margin-bottom: 4px;" id="power-budget-display">35 Watts</div>
+                  <div style="font-size: 12px; color: var(--ink-3); line-height: 1.4; margin-bottom: 16px;">
+                    Dynamic TDP envelope dial. At low envelopes (&le; 20W), discrete GPU is automatically disqualified to preserve battery life and prevent thermal throttling.
+                  </div>
+
+                  <div style="margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: var(--ink-2); margin-bottom: 6px;">
+                      <span>10W (Battery Floor)</span>
+                      <span>50W (Standard)</span>
+                      <span>85W (Max Boost)</span>
+                    </div>
+                    <input type="range" id="power-budget-slider" min="10" max="85" step="5" value="35" style="width: 100%;">
+                  </div>
+
+                  <div class="power-level-list">
+                    <button type="button" class="power-level-item" data-watts="15" data-test="btn-power-preset-15">15W Eco</button>
+                    <button type="button" class="power-level-item active" data-watts="35" data-test="btn-power-preset-35">35W Balanced</button>
+                    <button type="button" class="power-level-item" data-watts="65" data-test="btn-power-preset-65">65W Turbo</button>
+                    <button type="button" class="power-level-item" data-watts="85" data-test="btn-power-preset-85">85W Boost</button>
+                  </div>
+                </div>
+
+                <div class="power-status-alert" id="power-status-alert-text">
+                  At 35W: Balanced power envelope active. Dispatches based on arithmetic crossover point; high-density models engage RTX 5070.
+                </div>
+              </div>
+
+              <!-- Card 3: Latency Scaling Curves & Crossover -->
+              <div class="scaling-curves-card">
+                <div class="card-top-title">Latency Scaling &amp; Hardware Crossover</div>
+                <div style="font-size: 12px; color: var(--ink-3); margin-bottom: 12px;">
+                  Real measured execution times across model parameter scales (log-log roofline plot)
+                </div>
+                <div class="chart-canvas-wrap" style="height: 240px;">
+                  <canvas id="chart-scaling-curves"></canvas>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Row 3: Hero Feature 4: Multi-Chip Silicon Arena Scorecard -->
+            <div class="silicon-arena-card">
+              <div class="card-header" style="padding: 20px 24px 16px; border-bottom: 1px solid var(--card-border);">
+                <div>
+                  <div class="card-title">Multi-Chip Silicon Arena</div>
+                  <div style="font-size: 12px; color: var(--ink-3); margin-top: 2px;">
+                    Direct physical scorecard comparing host CPU, integrated GPU, discrete GPU, and Snapdragon ARM Hexagon NPU
+                  </div>
+                </div>
+
+                <div class="arena-filter-bar">
+                  <input type="search" id="arena-search-input" class="card-filter-select" placeholder="Search target chip..." data-test="input-arena-search" style="padding: 6px 12px;">
+                  <select id="arena-chip-filter" class="card-filter-select">
+                    <option value="all">All Silicon Targets</option>
+                    <option value="cpu">Host CPU Only</option>
+                    <option value="igpu">Integrated GPU</option>
+                    <option value="dgpu">Discrete GPU</option>
+                    <option value="npu">Snapdragon NPU Slot</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="arena-table-wrap">
                 <table class="bench-table">
                   <thead>
-                    <tr><th>Model</th><th>Params</th><th class="num">CPU (ms)</th><th class="num">Radeon 610M (ms)</th><th class="num">RTX 5070 (ms)</th></tr>
+                    <tr>
+                      <th style="min-width: 220px;">Target Silicon</th>
+                      <th>Power Draw</th>
+                      <th>Predicted Time</th>
+                      <th>Measured Actual</th>
+                      <th>Speedup / Penalty</th>
+                      <th>Routing Allocation</th>
+                      <th style="min-width: 280px;">Physical Rationale</th>
+                    </tr>
                   </thead>
-                  <tbody id="tbody-overview-scaling"></tbody>
+                  <tbody id="tbody-silicon-arena">
+                    <!-- Populated dynamically by overview.js -->
+                  </tbody>
                 </table>
               </div>
             </div>
 
-            <!-- Right Card: Silicon Allocation & Equalizer Strip -->
-            <div class="dashboard-card">
+            <!-- Row 4: Core Physical Findings Section -->
+            <div class="dashboard-card overview-findings-section" style="margin-top: 24px;">
               <div class="card-header">
-                <span class="card-title">Silicon Allocation</span>
-                <span class="status-pill status-optimal">3 Active Sockets</span>
+                <span class="card-title">Core Physical Findings</span>
+                <button type="button" class="btn btn-text btn-sm" id="overview-evidence-btn" data-test="overview-evidence-btn">Show evidence</button>
               </div>
-              <div class="allocation-stat-header">
-                <span class="allocation-sub-label">Profiled Hardware Chips</span>
-              </div>
-              <div class="allocation-big-figure">
-                <span>3 Verified</span>
-                <span class="allocation-growth-tag">&#x2197; 91.7% Accuracy</span>
-              </div>
-              <div class="allocation-legend">
-                <span class="allocation-legend-item"><span class="legend-dot cpu"></span> CPU Host</span>
-                <span class="allocation-legend-item"><span class="legend-dot igpu"></span> Radeon 610M</span>
-                <span class="allocation-legend-item"><span class="legend-dot dgpu"></span> RTX 5070</span>
-              </div>
-
-              <!-- Futuristic 45-Bar Equalizer Strip -->
-              <div class="equalizer-bar-strip" id="allocation-equalizer-bar">
-                <!-- 20 Blue Bars (RTX 5070) -->
-                <div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div>
-                <div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div>
-                <div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div>
-                <div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div>
-                <div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div><div class="eq-bar dgpu"></div>
-                <!-- 12 Teal Bars (Radeon 610M) -->
-                <div class="eq-bar igpu"></div><div class="eq-bar igpu"></div><div class="eq-bar igpu"></div><div class="eq-bar igpu"></div>
-                <div class="eq-bar igpu"></div><div class="eq-bar igpu"></div><div class="eq-bar igpu"></div><div class="eq-bar igpu"></div>
-                <div class="eq-bar igpu"></div><div class="eq-bar igpu"></div><div class="eq-bar igpu"></div><div class="eq-bar igpu"></div>
-                <!-- 13 Amber Bars (CPU Host) -->
-                <div class="eq-bar cpu"></div><div class="eq-bar cpu"></div><div class="eq-bar cpu"></div><div class="eq-bar cpu"></div>
-                <div class="eq-bar cpu"></div><div class="eq-bar cpu"></div><div class="eq-bar cpu"></div><div class="eq-bar cpu"></div>
-                <div class="eq-bar cpu"></div><div class="eq-bar cpu"></div><div class="eq-bar cpu"></div><div class="eq-bar cpu"></div>
-                <div class="eq-bar cpu"></div>
-              </div>
-
-              <!-- Sockets container -->
-              <div class="socket-strip-list" id="socket-strip" role="region" aria-label="Chip Sockets">
-                <!-- Populated dynamically by SocketStrip component -->
-              </div>
-            </div>
-          </div>
-
-          <!-- Row 3: Bottom Grid (3 Columns: Strategy / Recent Decisions / Routing Copilot) -->
-          <div class="overview-bottom-grid">
-            <!-- Column 1: Strategy Comparison (Market Watchlist Style) -->
-            <div class="dashboard-card">
-              <div class="card-header">
-                <span class="card-title">Strategy Comparison</span>
-                <button class="btn btn-text btn-sm" id="btn-overview-view-tasks" data-test="view-all-tasks-btn" onclick="window.location.hash='#/results'">View all tasks</button>
-              </div>
-              <div class="strategy-list">
-                <!-- Row 1: SiliconRoute -->
-                <div class="strategy-row">
-                  <div class="strategy-name-group">
-                    <div class="strategy-avatar sr">SR</div>
-                    <div>
-                      <strong>SiliconRoute</strong>
-                      <div style="font-size: 11px; color: var(--ink-3);">Hybrid Adaptive</div>
-                    </div>
-                  </div>
-                  <div><span class="metric" data-metric="decisions_117_140_sr_wins"></span> / <span class="metric" data-metric="decisions_117_140_total"></span></div>
-                  <div><span class="metric" data-metric="decisions_117_140_sr_mean_regret_pct"></span></div>
-                  <div style="text-align: right;"><span class="status-pill status-optimal">Optimized</span></div>
+              <div class="overview-findings-grid">
+                <div class="finding-tile">
+                  <strong>1. CPU beats discrete GPU on small tasks</strong>
+                  For small models (mlp-256w-4l, batch 1), CPU runs in <span class="metric" data-metric="mlp_256_b1_cpu_latency_ms"></span> vs <span class="metric" data-metric="mlp_256_b1_rtx_latency_ms"></span> on RTX 5070 (<span class="metric" data-metric="speedup_cpu_over_rtx_mlp_256_b1"></span> faster) due to DirectML command overhead dominating compute.
                 </div>
-
-                <!-- Row 2: Always-CPU -->
-                <div class="strategy-row">
-                  <div class="strategy-name-group">
-                    <div class="strategy-avatar cpu">CPU</div>
-                    <div>
-                      <strong>Always-CPU</strong>
-                      <div style="font-size: 11px; color: var(--ink-3);">Host Only</div>
-                    </div>
-                  </div>
-                  <div><span class="metric" data-metric="decisions_117_140_always_cpu_wins"></span> / <span class="metric" data-metric="decisions_117_140_total"></span></div>
-                  <div><span class="metric" data-metric="decisions_117_140_always_cpu_mean_regret_pct"></span></div>
-                  <div style="text-align: right;"><span class="status-pill status-spike">High Regret</span></div>
+                <div class="finding-tile">
+                  <strong>2. GPU identity swaps on hybrid laptops</strong>
+                  In <span class="metric" data-metric="identity_suspect_runs"></span> runs, DirectML adapter numbering swapped indices between discrete and integrated GPUs. Verified in-process via DXGI PCI vendor IDs and NVML fingerprinting.
                 </div>
-
-                <!-- Row 3: Always-RTX -->
-                <div class="strategy-row">
-                  <div class="strategy-name-group">
-                    <div class="strategy-avatar rtx">RTX</div>
-                    <div>
-                      <strong>Always-RTX</strong>
-                      <div style="font-size: 11px; color: var(--ink-3);">Discrete Only</div>
-                    </div>
-                  </div>
-                  <div><span class="metric" data-metric="decisions_117_140_always_rtx_wins"></span> / <span class="metric" data-metric="decisions_117_140_total"></span></div>
-                  <div><span class="metric" data-metric="decisions_117_140_always_rtx_mean_regret_pct"></span></div>
-                  <div style="text-align: right;"><span class="status-pill status-spike">Overhead Spike</span></div>
+                <div class="finding-tile">
+                  <strong>3. Batch-8 DirectML convolution anomaly</strong>
+                  Convolution kernels on DirectML exhibit non-linear latency jumps around batch 8 (<span class="metric" data-metric="directml_anomaly_conv96_slowdown"></span> slowdown), captured by empirical lookup.
                 </div>
-
-                <!-- Row 4: Fit-Only -->
-                <div class="strategy-row">
-                  <div class="strategy-name-group">
-                    <div class="strategy-avatar fit">FIT</div>
-                    <div>
-                      <strong>Fit-Only</strong>
-                      <div style="font-size: 11px; color: var(--ink-3);">Roofline Model</div>
-                    </div>
-                  </div>
-                  <div><span class="metric" data-metric="decisions_117_140_fit_only_wins"></span> / <span class="metric" data-metric="decisions_117_140_total"></span></div>
-                  <div><span class="metric" data-metric="decisions_117_140_fit_only_mean_regret_pct"></span></div>
-                  <div style="text-align: right;"><span class="status-pill status-optimal">Sub-optimal</span></div>
+                <div class="finding-tile">
+                  <strong>4. Loading time dominates cold starts</strong>
+                  On large models, RTX sustained inference is <span class="metric" data-metric="mlp_3072_b1_sustained_rtx_ms"></span> vs CPU <span class="metric" data-metric="mlp_3072_b1_sustained_cpu_ms"></span>, but cold start session creation takes <span class="metric" data-metric="mlp_3072_cold_rtx_rounded_ms"></span> (<span class="metric" data-metric="overhead_rtx_cold_start_vs_sustained_mlp_3072"></span> overhead).
                 </div>
               </div>
             </div>
 
-            <!-- Column 2: Recent Decisions (Market Watchlist Style with Logo Avatars) -->
-            <div class="dashboard-card">
-              <div class="card-header">
-                <span class="card-title">Recent Decisions</span>
-                <button class="btn btn-text btn-sm" id="overview-view-all-decisions-btn" data-test="view-all-decisions-btn">View all</button>
-              </div>
-              <div class="recent-decisions-feed" id="feed-overview-recent-decisions">
-                <!-- Rendered dynamically by OverviewScreen -->
-              </div>
-            </div>
+            <!-- Hidden container for SocketStrip component initialization -->
+            <div id="socket-strip" style="display: none;" aria-hidden="true"></div>
 
-            <!-- Column 3: AI Hardware Routing Copilot (Matching AI Portfolio Copilot) -->
-            <div class="dashboard-card copilot-card">
-              <div>
-                <div class="copilot-header-icon">&#x2742;</div>
-                <div class="copilot-bold-headline">Your Routing is currently</div>
-                <div class="copilot-insight-text">
-                  optimally balanced on CPU for small batches. Routing sustained tasks and batch 8+ to discrete GPU reduces latency by up to 21.7x.
-                </div>
-                <form class="copilot-form" id="overview-route-form">
-                  <div class="copilot-form-row">
-                    <div class="copilot-form-group">
-                      <label for="overview-model-select">Model</label>
-                      <select id="overview-model-select">
-                        <option value="mlp_256w_4l">mlp-256w-4l</option>
-                        <option value="mlp_512w_4l">mlp-512w-4l</option>
-                        <option value="mlp_1024w_4l">mlp-1024w-4l</option>
-                        <option value="mlp_2048w_4l">mlp-2048w-4l</option>
-                        <option value="mlp_3072w_4l">mlp-3072w-4l</option>
-                        <option value="conv_16c_4l">conv-16c-4l</option>
-                        <option value="conv_32c_4l">conv-32c-4l</option>
-                        <option value="conv_64c_4l">conv-64c-4l</option>
-                        <option value="conv_96c_4l">conv-96c-4l</option>
-                      </select>
-                    </div>
-                    <div class="copilot-form-group">
-                      <label for="overview-batch-select">Batch</label>
-                      <select id="overview-batch-select">
-                        <option value="1">1</option>
-                        <option value="8">8</option>
-                        <option value="32">32</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="copilot-form-row">
-                    <div class="copilot-form-group">
-                      <label for="overview-workload-select">Workload</label>
-                      <select id="overview-workload-select">
-                        <option value="sustained">sustained</option>
-                        <option value="idle_loaded">idle_loaded</option>
-                        <option value="cold_start">cold_start</option>
-                      </select>
-                    </div>
-                    <div class="copilot-form-group">
-                      <label for="overview-goal-select">Goal</label>
-                      <select id="overview-goal-select">
-                        <option value="fastest">fastest</option>
-                        <option value="battery">battery</option>
-                        <option value="balanced">balanced</option>
-                        <option value="cool">cool</option>
-                      </select>
-                    </div>
-                  </div>
-                  <button type="submit" class="copilot-cta-btn" id="btn-overview-route" data-test="btn-overview-route">Route Task</button>
-                </form>
-              </div>
-              <div class="copilot-secondary-row">
-                <button type="button" class="btn btn-secondary btn-sm" id="btn-overview-verify" data-test="route-verify" style="flex: 1;">Route &amp; verify</button>
-                <button type="button" class="btn btn-secondary btn-sm" id="btn-overview-export-csv" data-test="export-decisions-csv" style="flex: 1;">Export CSV</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Row 4: Core Physical Findings Section -->
-          <div class="dashboard-card overview-findings-section">
-            <div class="card-header">
-              <span class="card-title">Core Physical Findings</span>
-              <button class="btn btn-text btn-sm" id="overview-evidence-btn" data-test="overview-evidence-btn">Show evidence</button>
-            </div>
-            <div class="overview-findings-grid">
-              <div class="finding-tile">
-                <strong>1. CPU beats discrete GPU on small tasks</strong>
-                For small models (mlp-256w-4l, batch 1), CPU runs in <span class="metric" data-metric="mlp_256_b1_cpu_latency_ms"></span> vs <span class="metric" data-metric="mlp_256_b1_rtx_latency_ms"></span> on RTX 5070 (<span class="metric" data-metric="speedup_cpu_over_rtx_mlp_256_b1"></span> faster) due to DirectML command overhead dominating compute.
-              </div>
-              <div class="finding-tile">
-                <strong>2. GPU identity swaps on hybrid laptops</strong>
-                In <span class="metric" data-metric="identity_suspect_runs"></span> runs, DirectML adapter numbering swapped indices between discrete and integrated GPUs. Verified in-process via DXGI PCI vendor IDs and NVML fingerprinting.
-              </div>
-              <div class="finding-tile">
-                <strong>3. Batch-8 DirectML convolution anomaly</strong>
-                Convolution kernels on DirectML exhibit non-linear latency jumps around batch 8 (<span class="metric" data-metric="directml_anomaly_conv96_slowdown"></span> slowdown), captured by empirical lookup.
-              </div>
-              <div class="finding-tile">
-                <strong>4. Loading time dominates cold starts</strong>
-                On large models, RTX sustained inference is <span class="metric" data-metric="mlp_3072_b1_sustained_rtx_ms"></span> vs CPU <span class="metric" data-metric="mlp_3072_b1_sustained_cpu_ms"></span>, but cold start session creation takes <span class="metric" data-metric="mlp_3072_cold_rtx_rounded_ms"></span> (<span class="metric" data-metric="overhead_rtx_cold_start_vs_sustained_mlp_3072"></span> overhead).
-              </div>
-            </div>
-          </div>
-
-        </section>
+          </section>
 
         <!-- =================================================================
              SCREEN 2: LIVE TELEMETRY (Section 6.2)
@@ -906,8 +850,8 @@
 
       </main>
     </div>
-
   </div>
+</div>
 
   <!-- =====================================================================
        3. MODALS & OVERLAYS

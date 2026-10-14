@@ -733,3 +733,426 @@ table.bench-table tr.chosen-row td {
   gap: var(--space-16);
   min-width: 260px;
 }
+
+/* --------------------------------------------------------------------------
+   11. Model-to-Silicon Profiler Top Grid (3 Cards matching reference UI)
+   -------------------------------------------------------------------------- */
+.profiler-top-grid {
+  display: grid;
+  grid-template-columns: 3fr 3fr 4.2fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 1280px) {
+  .profiler-top-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .profiler-top-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Card 1: Model Profile Card */
+.model-profile-card {
+  background-color: #FFFFFF;
+  border-radius: var(--radius-card);
+  padding: 24px;
+  border: 1px solid var(--card-border);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.model-avatar-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.model-avatar-box {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background-color: #EEF2FF;
+  border: 1px solid #E0E7FF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4F46E5;
+  font-weight: 800;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.model-header-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.model-name-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.model-arch-subtitle {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+
+.model-specs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0;
+  border-top: 1px solid var(--card-border);
+  border-bottom: 1px solid var(--card-border);
+  margin-bottom: 16px;
+}
+
+.model-spec-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.model-spec-label {
+  color: var(--ink-2);
+}
+
+.model-spec-value {
+  font-weight: 600;
+  color: var(--ink);
+  font-family: var(--font-mono);
+}
+
+.intensity-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  background-color: #EFF6FF;
+  color: #2563EB;
+}
+
+.intensity-badge.memory-bound {
+  background-color: #FEF3C7;
+  color: #D97706;
+}
+
+.intensity-badge.compute-bound {
+  background-color: #ECFDF5;
+  color: #059669;
+}
+
+.model-action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-purple {
+  background-color: #6366F1;
+  color: #FFFFFF;
+  border-color: #6366F1;
+}
+
+.btn-purple:hover {
+  background-color: #4F46E5;
+  color: #FFFFFF;
+}
+
+.btn-orange {
+  background-color: #EF4444;
+  color: #FFFFFF;
+  border-color: #EF4444;
+}
+
+.btn-orange:hover {
+  background-color: #DC2626;
+  color: #FFFFFF;
+}
+
+/* Card 2: Power Allocation Card */
+.power-allocation-card {
+  background-color: #FFFFFF;
+  border-radius: var(--radius-card);
+  padding: 24px;
+  border: 1px solid var(--card-border);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card-top-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+
+.power-levels-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.power-level-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background-color: var(--card-bg);
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.power-level-item:hover, .power-level-item.active {
+  background-color: #EEF2FF;
+  border-color: #C7D2FE;
+}
+
+.power-level-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.power-level-tag {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.power-level-tag.eco { background-color: #10B981; }
+.power-level-tag.balanced { background-color: #F59E0B; }
+.power-level-tag.max { background-color: #EF4444; }
+
+.power-level-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.power-level-val {
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--ink-2);
+}
+
+.power-slider-wrap {
+  padding: 10px 0 4px;
+}
+
+.power-range-slider {
+  width: 100%;
+  accent-color: #6366F1;
+  cursor: pointer;
+}
+
+.power-status-alert {
+  padding: 10px 12px;
+  background-color: #F8FAFC;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+  font-size: 11px;
+  color: var(--ink-2);
+  line-height: 1.4;
+  margin-top: 10px;
+}
+
+/* Card 3: Scaling Curves Card */
+.scaling-curves-card {
+  background-color: #FFFFFF;
+  border-radius: var(--radius-card);
+  padding: 24px;
+  border: 1px solid var(--card-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.scaling-chart-box {
+  flex: 1;
+  min-height: 240px;
+  position: relative;
+}
+
+/* --------------------------------------------------------------------------
+   12. Bottom Large Card: Heterogeneous Silicon Arena & Decision Ledger
+   -------------------------------------------------------------------------- */
+.silicon-arena-card {
+  background-color: #FFFFFF;
+  border-radius: var(--radius-card);
+  padding: 24px 28px;
+  border: 1px solid var(--card-border);
+}
+
+.arena-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.arena-search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: var(--card-bg);
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  flex: 1;
+  max-width: 480px;
+}
+
+.arena-search-input {
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--ink);
+  outline: none;
+  width: 100%;
+}
+
+.arena-filter-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.arena-select {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid var(--card-border);
+  background-color: var(--card-bg);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.arena-table-wrap {
+  overflow-x: auto;
+}
+
+.arena-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+.arena-table th {
+  padding: 12px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-3);
+  border-bottom: 1px solid var(--card-border);
+}
+
+.arena-table td {
+  padding: 14px 14px;
+  border-bottom: 1px solid var(--card-border);
+  vertical-align: middle;
+}
+
+.arena-table tr:hover td {
+  background-color: var(--card-bg);
+}
+
+.chip-target-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chip-logo-box {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.chip-logo-box.cpu { background-color: #D97706; }
+.chip-logo-box.igpu { background-color: #0D9488; }
+.chip-logo-box.dgpu { background-color: #2563EB; }
+.chip-logo-box.npu { background-color: #7C3AED; }
+
+.chip-target-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.chip-target-name {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.chip-target-arch {
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+.arena-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.arena-status-badge.winner {
+  background-color: #ECFDF5;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+}
+
+.arena-status-badge.candidate {
+  background-color: #EFF6FF;
+  color: #2563EB;
+  border: 1px solid #BFDBFE;
+}
+
+.arena-status-badge.disqualified {
+  background-color: #FEF3C7;
+  color: #D97706;
+  border: 1px solid #FDE68A;
+}
+
+.arena-status-badge.upstream {
+  background-color: #F5F3FF;
+  color: #7C3AED;
+  border: 1px solid #DDD6FE;
+}
+
+.silicon-rationale-cell {
+  max-width: 340px;
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.4;
+}
+
