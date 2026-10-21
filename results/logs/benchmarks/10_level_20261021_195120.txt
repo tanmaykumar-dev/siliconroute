@@ -1,0 +1,150 @@
+===================================================================================================================
+ SILICONROUTE: AUTOMATED HARDWARE BENCHMARK & ROUTER VERIFICATION SUITE
+ Mode: STANDARD 10-LEVEL BENCHMARK
+ Timestamp (UTC): 2026-10-21T19:51:20.741701+00:00
+ Log File (Console): E:\THE SNAP X HP\results\logs\benchmarks\10_level_20261021_195120.txt
+ Raw Samples (JSON): E:\THE SNAP X HP\results\logs\benchmarks\10_level_20261021_195120.json
+===================================================================================================================
+
+[PHASE 1] HARDWARE RIG SELF-DISCOVERY (Zero Manual Hints)...
+  * Host CPU         : AMD Ryzen 9 8940HX with Radeon Graphics
+  * CPU Topology     : 16 Physical Cores / 32 Threads | 15.21 GB System RAM
+  * DXGI Adapters    : 3 physical graphics adapter(s) found:
+    - Adapter 0: NVIDIA GeForce RTX 5070 Laptop GPU (Vendor: NVIDIA 0x10DE, Dedicated VRAM: 0 MB)
+    - Adapter 1: AMD Radeon(TM) 610M (Vendor: AMD 0x1002, Dedicated VRAM: 0 MB)
+    - Adapter 2: NVIDIA GeForce RTX 5070 Laptop GPU (Vendor: NVIDIA 0x10DE, Dedicated VRAM: 0 MB)
+  * NVML Telemetry   : ACTIVE (NVIDIA GeForce RTX 5070 Laptop GPU)
+  * ORT Providers    : DmlExecutionProvider, CPUExecutionProvider
+  * NPU Socket       : NONE DETECTED ON THIS RIG
+
+  Allocatable Execution Sockets for Benchmark:
+    [cpu] CPU (Role: CPU, Provider: CPUExecutionProvider)
+    [dml:0] AMD Radeon(TM) 610M (Role: IGPU, Provider: DmlExecutionProvider)
+    [dml:1] NVIDIA GeForce RTX 5070 Laptop GPU (Role: DGPU, Provider: DmlExecutionProvider)
+
+[PHASE 2] PREPARING BENCHMARK MODELS & COMPUTING FACTS FROM MODELS:
+Lvl  | Model Name       | Batch | Parameters   | Weight (MB)  | FLOPs/Sample     | Total FLOPs      | Intensity (FLOP/B)
+-------------------------------------------------------------------------------------------------------------------
+1    | mlp-32w-4l       | 1     | 4,096        | 0.02         | 8,192            | 8,192            | 0.50              
+2    | mlp-128w-4l      | 1     | 65,536       | 0.25         | 131,072          | 131,072          | 0.50              
+3    | mlp-256w-4l      | 1     | 262,144      | 1.00         | 524,288          | 524,288          | 0.50              
+4    | conv-16c-4l      | 1     | 9,216        | 0.04         | 75,497,472       | 75,497,472       | 2048.00           
+5    | mlp-1024w-4l     | 1     | 4,194,304    | 16.00        | 8,388,608        | 8,388,608        | 0.50              
+6    | conv-32c-4l      | 1     | 36,864       | 0.14         | 301,989,888      | 301,989,888      | 2048.00           
+7    | mlp-2048w-4l     | 1     | 16,777,216   | 64.00        | 33,554,432       | 33,554,432       | 0.50              
+8    | conv-64c-4l      | 1     | 147,456      | 0.56         | 1,207,959,552    | 1,207,959,552    | 2048.00           
+9    | conv-96c-4l      | 1     | 331,776      | 1.27         | 2,717,908,992    | 2,717,908,992    | 2048.00           
+10   | conv-128c-4l     | 1     | 589,824      | 2.25         | 4,831,838,208    | 4,831,838,208    | 2048.00           
+
+===================================================================================================================
+ [PHASE 3] EXECUTING LIVE EMPIRICAL BENCHMARKS (30 Samples, Real-time NVML Telemetry)
+===================================================================================================================
+
+>>> LEVEL 01/10: mlp-32w-4l (Batch: 1) | Params: 4,096 | Weights: 0.02 MB | Total FLOPs: 8,192
+    [Router Prediction] Target Chip: CPU | Source: [MEASURED] | Reason: Chose cpu (CPU) for mlp-32w-4l (batch 1), Fastest mode. Predicted 0.011 ms (measured) vs runner-up dml:0 (0.105 ms, measured). Plugged in, battery 100%.
+      - CPU                              [cpu]:    0.010 ms |     0.84 GFLOP/s | Pwr: N/A (NVML: NVIDIA dGPU only) | Temp: N/A                    | (warmup=5, samples=30, k=385 (total inf=11550))
+      - AMD Radeon(TM) 610M              [dml:0]:    0.143 ms |     0.06 GFLOP/s | Pwr: N/A (NVML: NVIDIA dGPU only) | Temp: N/A                    | (warmup=2399, samples=30, k=39 (total inf=1170))
+      - NVIDIA GeForce RTX 5070 Laptop GPU [dml:1]:    0.153 ms |     0.05 GFLOP/s | Pwr: 17.0W (max 17.0W)          | Temp: 56.0°C (max 56.0°C)    | (warmup=5, samples=30, k=39 (total inf=1170))
+    --> Physical Fastest Chip: CPU (0.010 ms) | Verdict: MATCH (Optimal) | Regret: 0.00%
+
+>>> LEVEL 02/10: mlp-128w-4l (Batch: 1) | Params: 65,536 | Weights: 0.25 MB | Total FLOPs: 131,072
+    [Router Prediction] Target Chip: CPU | Source: [MEASURED] | Reason: Chose cpu (CPU) for mlp-128w-4l (batch 1), Fastest mode. Predicted 0.013 ms (measured) vs runner-up dml:0 (0.102 ms, measured). Plugged in, battery 100%.
+      - CPU                              [cpu]:    0.013 ms |    10.16 GFLOP/s | Pwr: N/A (NVML: NVIDIA dGPU only) | Temp: N/A                    | (warmup=5, samples=30, k=348 (total inf=10440))
+      - AMD Radeon(TM) 610M              [dml:0]:    0.114 ms |     1.15 GFLOP/s | Pwr: N/A (NVML: NVIDIA dGPU only) | Temp: N/A                    | (warmup=2268, samples=30, k=36 (total inf=1080))
+      - NVIDIA GeForce RTX 5070 Laptop GPU [dml:1]:    0.151 ms |     0.87 GFLOP/s | Pwr: 27.9W (max 27.9W)          | Temp: 57.0°C (max 57.0°C)    | (warmup=1833, samples=30, k=31 (total inf=930))
+    --> Physical Fastest Chip: CPU (0.013 ms) | Verdict: MATCH (Optimal) | Regret: 0.00%
+
+>>> LEVEL 03/10: mlp-256w-4l (Batch: 1) | Params: 262,144 | Weights: 1.00 MB | Total FLOPs: 524,288
+    [Router Prediction] Target Chip: CPU | Source: [MEASURED] | Reason: Chose cpu (CPU) for mlp-256w-4l (batch 1), Fastest mode. Predicted 0.017 ms (measured) vs runner-up dml:0 (0.138 ms, measured). Plugged in, battery 100%.
+      - CPU                              [cpu]:    0.018 ms |    29.96 GFLOP/s | Pwr: N/A (NVML: NVIDIA dGPU only) | Temp: N/A                    | (warmup=5, samples=30, k=191 (total inf=5730))
+      - AMD Radeon(TM) 610M              [dml:0]:    0.149 ms |     3.51 GFLOP/s | Pwr: N/A (NVML: NVIDIA dGPU only) | Temp: N/A                    | (warmup=1985, samples=30, k=36 (total inf=1080))
+      - NVIDIA GeForce RTX 5070 Laptop GPU [dml:1]:    0.140 ms |     3.75 GFLOP/s | Pwr: 15.3W (max 15.3W)          | Temp: 56.0°C (max 56.0°C)    | (warmup=1947, samples=30, k=39 (total inf=1170))
+    --> Physical Fastest Chip: CPU (0.018 ms) | Verdict: MATCH (Optimal) | Regret: 0.00%
+
+>>> LEVEL 04/10: conv-16c-4l (Batch: 1) | Params: 9,216 | Weights: 0.04 MB | Total FLOPs: 75,497,472
+    [Router Prediction] Target Chip: CPU | Source: [MEASURED] | Reason: Chose cpu (CPU) for conv-16c-4l (batch 1), Fastest mode. Predicted 0.162 ms (measured) vs runner-up dml:1 (0.238 ms, measured). Plugged in, battery 100%.
+      - CPU                              [cpu]:    0.169 ms |   446.73 GFLOP/s | Pwr: N/A (NVML: NVIDIA dGPU only) | Temp: N/A                    | (warmup=5, samples=30, k=29 (total inf=870))
+      - AMD Radeon(TM) 610M              [dml:0]:    0.476 ms |   158.71 GFLOP/s | Pwr: N/A (NVML: NVIDIA dGPU only) | Temp: N/A                    | (warmup=617, samples=30, k=11 (total inf=330))
+      - NVIDIA GeForce RTX 5070 Laptop GPU [dml:1]:    0.249 ms |   303.45 GFLOP/s | Pwr: 29.7W (max 29.7W)          | Temp: 59.0°C (max 59.0°C)    | (warmup=1138, samples=30, k=17 (total inf=510))
+    --> Physical Fastest Chip: CPU (0.169 ms) | Verdict: MATCH (Optimal) | Regret: 0.00%
+
+>>> LEVEL 05/10: mlp-1024w-4l (Batch: 1) | Params: 4,194,304 | Weights: 16.00 MB | Total FLOPs: 8,388,608
+    [Router Prediction] Target Chip: CPU | Source: [MEASURED] | Reason: Chose cpu (CPU) for mlp-1024w-4l (batch 1), Fastest mode. Predicted 0.057 ms (measured) vs runner-up dml:1 (0.188 ms, measured). Flagged volatile (session diff 38.9% > 20%). Plugged in, battery 100%.
+      - CPU                              [cpu]:    0.067 ms |   125.58 GFLOP/s | Pwr: N/A (NVML: NVIDIA dGPU only) | Temp: N/A                    | (warmup=5, samples=30, k=67 (total inf=2010))
+      - AMD Radeon(TM) 610M              [dml:0]:    0.648 ms |    12.94 GFLOP/s | Pwr: N/A (NVML: NVIDIA dGPU only) | Temp: N/A                    | (warmup=475, samples=30, k=8 (total inf=240))
+      - NVIDIA GeForce RTX 5070 Laptop GPU [dml:1]:    0.171 ms |    49.20 GFLOP/s | Pwr: 35.6W (max 35.6W)          | Temp: 58.0°C (max 58.0°C)    | (warmup=1623, samples=30, k=22 (total inf=660))
+    --> Physical Fastest Chip: CPU (0.067 ms) | Verdict: MATCH (Optimal) | Regret: 0.00%
+
+>>> LEVEL 06/10: conv-32c-4l (Batch: 1) | Params: 36,864 | Weights: 0.14 MB | Total FLOPs: 301,989,888
+    [Router Prediction] Target Chip: DML:1 | Source: [MEASURED] | Reason: Chose dml:1 (NVIDIA GeForce RTX 5070 Laptop GPU) for conv-32c-4l (batch 1), Fastest mode. Predicted 0.306 ms (measured) vs runner-up cpu (0.380 ms, measured). Plugged in, battery 100%.
+      - CPU                              [cpu]:    0.386 ms |   781.95 GFLOP/s | Pwr: N/A (NVML: NVIDIA dGPU only) | Temp: N/A                    | (warmup=5, samples=30, k=14 (total inf=420))
+      - AMD Radeon(TM) 610M              [dml:0]:    0.705 ms |   428.42 GFLOP/s | Pwr: N/A (NVML: NVIDIA dGPU only) | Temp: N/A                    | (warmup=434, samples=30, k=8 (total inf=240))
+      - NVIDIA GeForce RTX 5070 Laptop GPU [dml:1]:    0.310 ms |   973.22 GFLOP/s | Pwr: 15.1W (max 15.1W)          | Temp: 56.0°C (max 56.0°C)    | (warmup=478, samples=30, k=17 (total inf=510))
+    --> Physical Fastest Chip: DML:1 (0.310 ms) | Verdict: MATCH (Optimal) | Regret: 0.00%
+
+>>> LEVEL 07/10: mlp-2048w-4l (Batch: 1) | Params: 16,777,216 | Weights: 64.00 MB | Total FLOPs: 33,554,432
+    [Router Prediction] Target Chip: DML:1 | Source: [MEASURED] | Reason: Chose dml:1 (NVIDIA GeForce RTX 5070 Laptop GPU) for mlp-2048w-4l (batch 1), Fastest mode. Predicted 0.345 ms (measured) vs runner-up cpu (1.474 ms, measured). Plugged in, battery 100%.
+      - CPU                              [cpu]:    0.977 ms |    34.35 GFLOP/s | Pwr: N/A (NVML: NVIDIA dGPU only) | Temp: N/A                    | (warmup=5, samples=30, k=5 (total inf=150))
+      - AMD Radeon(TM) 610M              [dml:0]:    2.050 ms |    16.37 GFLOP/s | Pwr: N/A (NVML: NVIDIA dGPU only) | Temp: N/A                    | (warmup=145, samples=30, k=3 (total inf=90))
+      - NVIDIA GeForce RTX 5070 Laptop GPU [dml:1]:    0.367 ms |    91.48 GFLOP/s | Pwr: 15.3W (max 15.3W)          | Temp: 57.0°C (max 57.0°C)    | (warmup=755, samples=30, k=9 (total inf=270))
+    --> Physical Fastest Chip: DML:1 (0.367 ms) | Verdict: MATCH (Optimal) | Regret: 0.00%
+
+>>> LEVEL 08/10: conv-64c-4l (Batch: 1) | Params: 147,456 | Weights: 0.56 MB | Total FLOPs: 1,207,959,552
+    [Router Prediction] Target Chip: DML:1 | Source: [MEASURED] | Reason: Chose dml:1 (NVIDIA GeForce RTX 5070 Laptop GPU) for conv-64c-4l (batch 1), Fastest mode. Predicted 0.520 ms (measured) vs runner-up cpu (1.245 ms, measured). Plugged in, battery 100%.
+      - CPU                              [cpu]:    1.227 ms |   984.64 GFLOP/s | Pwr: N/A (NVML: NVIDIA dGPU only) | Temp: N/A                    | (warmup=5, samples=30, k=5 (total inf=150))
+      - AMD Radeon(TM) 610M              [dml:0]:    1.980 ms |   610.11 GFLOP/s | Pwr: N/A (NVML: NVIDIA dGPU only) | Temp: N/A                    | (warmup=159, samples=30, k=3 (total inf=90))
+      - NVIDIA GeForce RTX 5070 Laptop GPU [dml:1]:    0.535 ms |  2259.14 GFLOP/s | Pwr: 39.4W (max 39.4W)          | Temp: 60.0°C (max 60.0°C)    | (warmup=564, samples=30, k=10 (total inf=300))
+    --> Physical Fastest Chip: DML:1 (0.535 ms) | Verdict: MATCH (Optimal) | Regret: 0.00%
+
+>>> LEVEL 09/10: conv-96c-4l (Batch: 1) | Params: 331,776 | Weights: 1.27 MB | Total FLOPs: 2,717,908,992
+    [Router Prediction] Target Chip: DML:1 | Source: [MEASURED] | Reason: Chose dml:1 (NVIDIA GeForce RTX 5070 Laptop GPU) for conv-96c-4l (batch 1), Fastest mode. Predicted 0.780 ms (measured) vs runner-up cpu (2.952 ms, measured). Plugged in, battery 100%.
+      - CPU                              [cpu]:    2.936 ms |   925.69 GFLOP/s | Pwr: N/A (NVML: NVIDIA dGPU only) | Temp: N/A                    | (warmup=5, samples=30, k=2 (total inf=60))
+      - AMD Radeon(TM) 610M              [dml:0]:    3.674 ms |   739.87 GFLOP/s | Pwr: N/A (NVML: NVIDIA dGPU only) | Temp: N/A                    | (warmup=78, samples=30, k=2 (total inf=60))
+      - NVIDIA GeForce RTX 5070 Laptop GPU [dml:1]:    0.733 ms |  3707.42 GFLOP/s | Pwr: 13.6W (max 46.7W)          | Temp: 57.0°C (max 61.0°C)    | (warmup=427, samples=30, k=8 (total inf=240))
+    --> Physical Fastest Chip: DML:1 (0.733 ms) | Verdict: MATCH (Optimal) | Regret: 0.00%
+
+>>> LEVEL 10/10: conv-128c-4l (Batch: 1) | Params: 589,824 | Weights: 2.25 MB | Total FLOPs: 4,831,838,208
+    [Router Prediction] Target Chip: DML:1 | Source: [MEASURED] | Reason: Chose dml:1 (NVIDIA GeForce RTX 5070 Laptop GPU) for conv-128c-4l (batch 1), Fastest mode. Predicted 0.993 ms (measured) vs runner-up cpu (5.471 ms, fit). Plugged in, battery 100%.
+      - CPU                              [cpu]:    4.258 ms |  1134.63 GFLOP/s | Pwr: N/A (NVML: NVIDIA dGPU only) | Temp: N/A                    | (warmup=5, samples=30, k=2 (total inf=60))
+      - AMD Radeon(TM) 610M              [dml:0]:    6.899 ms |   700.34 GFLOP/s | Pwr: N/A (NVML: NVIDIA dGPU only) | Temp: N/A                    | (warmup=47, samples=30, k=1 (total inf=30))
+      - NVIDIA GeForce RTX 5070 Laptop GPU [dml:1]:    1.223 ms |  3951.45 GFLOP/s | Pwr: 13.2W (max 13.2W)          | Temp: 57.0°C (max 57.0°C)    | (warmup=284, samples=30, k=5 (total inf=150))
+    --> Physical Fastest Chip: DML:1 (1.223 ms) | Verdict: MATCH (Optimal) | Regret: 0.00%
+
+===================================================================================================================
+ [PHASE 4] FINAL PHYSICAL BENCHMARK SCORECARD & ACCURACY AUDIT
+===================================================================================================================
+Lvl  | Model Name       | Batch | Weight MB | CPU (ms)  | iGPU (ms) | dGPU (ms) | Fastest | Router Match   | Regret (%)
+-------------------------------------------------------------------------------------------------------------------
+1    | mlp-32w-4l       | 1     | 0.02      | 0.010     | 0.143     | 0.153     | CPU     | EXACT MATCH    |     0.00%
+2    | mlp-128w-4l      | 1     | 0.25      | 0.013     | 0.114     | 0.151     | CPU     | EXACT MATCH    |     0.00%
+3    | mlp-256w-4l      | 1     | 1.00      | 0.018     | 0.149     | 0.140     | CPU     | EXACT MATCH    |     0.00%
+4    | conv-16c-4l      | 1     | 0.04      | 0.169     | 0.476     | 0.249     | CPU     | EXACT MATCH    |     0.00%
+5    | mlp-1024w-4l     | 1     | 16.00     | 0.067     | 0.648     | 0.171     | CPU     | EXACT MATCH    |     0.00%
+6    | conv-32c-4l      | 1     | 0.14      | 0.386     | 0.705     | 0.310     | DML:1   | EXACT MATCH    |     0.00%
+7    | mlp-2048w-4l     | 1     | 64.00     | 0.977     | 2.050     | 0.367     | DML:1   | EXACT MATCH    |     0.00%
+8    | conv-64c-4l      | 1     | 0.56      | 1.227     | 1.980     | 0.535     | DML:1   | EXACT MATCH    |     0.00%
+9    | conv-96c-4l      | 1     | 1.27      | 2.936     | 3.674     | 0.733     | DML:1   | EXACT MATCH    |     0.00%
+10   | conv-128c-4l     | 1     | 2.25      | 4.258     | 6.899     | 1.223     | DML:1   | EXACT MATCH    |     0.00%
+-------------------------------------------------------------------------------------------------------------------
+
+Router Allocation Accuracy (Exact Match): 10/10 (100.0%)
+Empirical Regret: Mean = 0.00%, Max = 0.00%
+Benchmark Completion Timestamp: 2026-10-21T19:51:34.210080+00:00
+
+===================================================================================================================
+ [PHASE 5] ARCHITECTURAL ANALYSIS (Hypotheses & Physics Rationale)
+===================================================================================================================
+Hypothesis: For MLP models, the crossover between CPU and discrete GPU (NVIDIA RTX 5070)
+follows model weight footprint relative to the 64 MB CPU cache (AMD Ryzen 9 8940HX L3 cache),
+rather than FLOP count.
+  - MLPs possess low arithmetic intensity (~1.0 FLOP/byte), meaning every parameter is read once
+    per sample. When weights fit inside the 64 MB CPU cache, the CPU avoids DRAM latency and runs at
+    on-die cache bandwidth, outperforming the dGPU which incurs PCIe dispatch latency overhead.
+  - When MLP weights exceed 64 MB, CPU execution must stream from system DDR5 RAM (~50-70 GB/s),
+    allowing the RTX 5070's high-bandwidth GDDR6 VRAM (~350 GB/s) to overcome bus dispatch overhead.
+  - For Convolutional models with spatial kernel reuse, higher arithmetic intensity enables the GPU
+    to win at significantly smaller parameter memory footprints once compute outweighs dispatch cost.
+===================================================================================================================
+
+[COMPLETE] Full console output logged to: E:\THE SNAP X HP\results\logs\benchmarks\10_level_20261021_195120.txt
+[COMPLETE] Full raw samples & metrics logged to: E:\THE SNAP X HP\results\logs\benchmarks\10_level_20261021_195120.json

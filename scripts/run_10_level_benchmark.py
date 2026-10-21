@@ -1,11 +1,21 @@
-"""SiliconRoute: 10-Level Real Hardware Benchmark & Rig Self-Identification.
+"""SiliconRoute: 10-Level Empirical Hardware Benchmark & Generalization Suite.
 
-Performs live, empirical benchmarking across 10 levels of model scales (from 8K FLOPs
-up to 4.83 Billion FLOPs). Probes host hardware automatically with zero hardcoded specs,
-executes real inferences on each detected physical processor, logs NVML telemetry, and
-evaluates the router's allocation accuracy and hardware crossover dynamics.
+Executes live, verifiable benchmarks across 10 levels of model scales.
+Follows all project standards:
+- Hardware Rig Self-Discovery: Probes registry, DXGI, and NVML without user hints.
+- Standard Project Method: Warmup (sustained >=300ms on DML), 30 timed samples, adaptive inner loop.
+- Real-Time NVML Sampling: Samples power and temperature DURING active inference (median & max).
+- Strict Match & Regret: Match requires predicted_chip == measured_fastest_chip. Regret reported separately.
+- Dual Modes:
+  * Standard mode: Evaluates 10 model levels against measured/fitted router predictions.
+  * --unseen mode: Generates unseen model geometries and batch sizes (widths 768/1536/2560/3584,
+    conv channels 24/48/80/112, batches 2 and 4), disables measured lookup (fit_only=True),
+    and tests hardware model prediction accuracy.
+- Audit Logging: Captures complete transcript in results/logs/benchmarks/10_level_<timestamp>.txt
+  and all raw samples in results/logs/benchmarks/10_level_<timestamp>.json.
 """
 
+import argparse
 from datetime import datetime, timezone
 import json
 from pathlib import Path
@@ -22,19 +32,53 @@ import onnxruntime as ort
 import psutil
 from sqlmodel import Session, select
 
+from app.config import (
+    CPU_CACHE_MB,
+    MAX_INNER_LOOP_K,
+    MIN_SAMPLE_MS,
+    SEED,
+    TIMED_RUNS,
+    WARMUP_RUNS,
+    WARMUP_SUSTAINED_MS,
+)
 from app.db import AIModel, Device, create_db_engine
-from app.devices import detect_devices, verify_gpu_identity_mapping, get_dxgi_adapters
-from app.benchmark import run_latency_measurement
-from app.power import nvml_reader
+from app.devices import get_dxgi_adapters, make_session, verify_gpu_identity_mapping
+from app.benchmark import compute_run_stats, is_nvidia_device, prepare_input_tensor
+from app.models_gen import create_and_register_synthetic
+from app.power import NVMLMeasurementSampler, nvml_reader
 from app.router import route_model
+
+
+class TeeLogger:
+    """Tee stdout to both console and a log file simultaneously."""
+
+    def __init__(self, filepath: Path) -> None:
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+        self.file = open(filepath, "w", encoding="utf-8")
+        self.stdout = sys.stdout
+
+    def write(self, data: str) -> None:
+        self.stdout.write(data)
+        self.file.write(data)
+        self.flush()
+
+    def flush(self) -> None:
+        self.stdout.flush()
+        self.file.flush()
+
+    def close(self) -> None:
+        if self.file and not self.file.closed:
+            self.file.close()
 
 
 def probe_host_rig() -> dict:
     """Dynamically discover host processor rig without user hints."""
-    # 1. CPU Discovery via Windows Registry & psutil
     cpu_name = platform.processor()
     try:
-        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"HARDWARE\DESCRIPTION\System\CentralProcessor\0")
+        key = winreg.OpenKey(
+            winreg.HKEY_LOCAL_MACHINE,
+            r"HARDWARE\DESCRIPTION\System\CentralProcessor\0",
+        )
         val, _ = winreg.QueryValueEx(key, "ProcessorNameString")
         cpu_name = val.strip()
         winreg.CloseKey(key)
@@ -43,19 +87,16 @@ def probe_host_rig() -> dict:
 
     phys_cores = psutil.cpu_count(logical=False) or 0
     logic_cores = psutil.cpu_count(logical=True) or 0
-    ram_gb = round(psutil.virtual_memory().total / (1024 ** 3), 2)
+    ram_gb = round(psutil.virtual_memory().total / (1024**3), 2)
 
-    # 2. DXGI Adapter Discovery
     dxgi_adapters = get_dxgi_adapters()
     phys_adapters = [a for a in dxgi_adapters if not a.get("is_software")]
 
-    # 3. NVML Discovery
     nvml_info = {"available": False, "gpus": []}
     if nvml_reader.is_available:
         gname = nvml_reader.device_name or "NVIDIA GPU"
         nvml_info = {"available": True, "gpus": [gname]}
 
-    # 4. ORT Providers & NPU check
     ort_providers = ort.get_available_providers()
     has_qnn = "QNNExecutionProvider" in ort_providers
 
@@ -71,204 +112,473 @@ def probe_host_rig() -> dict:
     }
 
 
-def main():
-    print("=" * 105)
-    print(" SILICONROUTE: AUTOMATED HARDWARE RIG SELF-IDENTIFICATION & 10-LEVEL PHYSICAL BENCHMARK")
-    print(" Zero Hardcoded Specifications -- Live Hardware Self-Probe & Real Inferences Only")
-    print("=" * 105)
+def measure_device_benchmark(
+    model: AIModel,
+    device: Device,
+    batch: int,
+) -> dict:
+    """Execute latency measurement using standard project method.
 
-    # -------------------------------------------------------------------------
-    # PHASE 1: SELF-IDENTIFY THE RIG
-    # -------------------------------------------------------------------------
-    print("\n[PHASE 1] RUNNING LIVE HARDWARE PROBE (SELF-DISCOVERY)...")
-    rig = probe_host_rig()
-    gpu_map = verify_gpu_identity_mapping()
+    - Warmup: sustained >= WARMUP_SUSTAINED_MS (300ms) for DML, 5 runs for CPU
+    - Adaptive inner loop: target >= MIN_SAMPLE_MS (5.0 ms) per sample
+    - Timed runs: TIMED_RUNS = 30 samples
+    - Real-time NVML sampling during inference
+    - CPU reference output validation
+    """
+    device_opts = json.loads(device.provider_options_json or "{}")
+    device_id = device_opts.get("device_id")
 
-    print(f"  * Host CPU         : {rig['cpu_name']}")
-    print(f"  * CPU Topology     : {rig['physical_cores']} Physical Cores / {rig['logical_cores']} Threads | {rig['ram_gb']} GB System RAM")
-    print(f"  * Detected Adapters: {len(rig['dxgi_adapters'])} physical DXGI graphics adapter(s) found:")
-    for a in rig['dxgi_adapters']:
-        vram_mb = round(a.get("vram_bytes", 0) / (1024 ** 2))
-        print(f"    - DXGI Adapter {a['index']}: {a['description']} (Vendor: {a['vendor_name']} {a['vendor_id']}, Dedicated VRAM: {vram_mb} MB)")
-    if rig['nvml']['available']:
-        print(f"  * NVML Telemetry   : ACTIVE ({', '.join(rig['nvml']['gpus'])})")
+    sess = make_session(model.path, device.provider, device_id=device_id, device=device)
+    inp_name, inp_tensor = prepare_input_tensor(model, batch, sess)
+    feed_dict = {inp_name: inp_tensor}
+
+    # 1. Warm-up
+    warmup_t0 = time.perf_counter_ns()
+    warmups_done = 0
+    if "Dml" in device.provider:
+        while ((time.perf_counter_ns() - warmup_t0) / 1e6 < WARMUP_SUSTAINED_MS) or (warmups_done < WARMUP_RUNS):
+            sess.run(None, feed_dict)
+            warmups_done += 1
     else:
-        print("  * NVML Telemetry   : INACTIVE / NOT PRESENT")
-    print(f"  * ONNX Providers   : {', '.join(rig['ort_providers'])}")
-    print(f"  * NPU Socket       : {'DETECTED (QNN)' if rig['has_npu'] else 'NONE DETECTED ON THIS RIG'}")
+        for _ in range(WARMUP_RUNS):
+            sess.run(None, feed_dict)
+            warmups_done += 1
+    warmup_duration_ms = (time.perf_counter_ns() - warmup_t0) / 1e6
 
-    # Load verified devices from DB
-    engine = create_db_engine()
-    with Session(engine) as session:
-        devices = session.exec(select(Device).where(Device.is_available == True)).all()
-        # Filter out unknown devices
-        devices = [d for d in devices if d.kind in ("cpu", "igpu", "dgpu")]
+    # 2. Adaptive inner loop determination (target >= MIN_SAMPLE_MS = 5.0ms)
+    t_trial_0 = time.perf_counter_ns()
+    sess.run(None, feed_dict)
+    t_trial_ms = (time.perf_counter_ns() - t_trial_0) / 1e6
 
-    print("\n  Allocatable Physical Execution Sockets for Benchmark:")
-    for d in devices:
-        print(f"    [{d.key}] {d.label} (Role: {d.kind.upper()}, Provider: {d.provider})")
+    inner_loop_k = 1
+    if t_trial_ms < MIN_SAMPLE_MS:
+        inner_loop_k = int(np.ceil(MIN_SAMPLE_MS / max(t_trial_ms, 0.0001)))
+        inner_loop_k = min(max(inner_loop_k, 1), MAX_INNER_LOOP_K)
 
-    # -------------------------------------------------------------------------
-    # PHASE 2: 10 BENCHMARK LEVELS DEFINITION
-    # -------------------------------------------------------------------------
-    benchmark_levels = [
-        {"lvl": 1,  "name": "mlp-32w-4l",   "desc": "Micro Kernel Dispatch",       "batch": 1},
-        {"lvl": 2,  "name": "mlp-128w-4l",  "desc": "L1/L2 Cache Scale",           "batch": 1},
-        {"lvl": 3,  "name": "mlp-256w-4l",  "desc": "L3 Cache Boundary (<16MB)",   "batch": 1},
-        {"lvl": 4,  "name": "conv-16c-4l",  "desc": "Spatial Convolution (Early)", "batch": 1},
-        {"lvl": 5,  "name": "mlp-1024w-4l", "desc": "Memory Bus Transition",      "batch": 1},
-        {"lvl": 6,  "name": "conv-32c-4l",  "desc": "Mid-Scale Compute (300M FLOP)","batch": 1},
-        {"lvl": 7,  "name": "mlp-2048w-4l", "desc": "High Memory Footprint (67MB)", "batch": 1},
-        {"lvl": 8,  "name": "conv-64c-4l",  "desc": "1.21 Billion FLOPs Model",     "batch": 1},
-        {"lvl": 9,  "name": "conv-96c-4l",  "desc": "2.72 Billion FLOPs Model",     "batch": 1},
-        {"lvl": 10, "name": "conv-128c-4l", "desc": "4.83 Billion FLOPs Model",     "batch": 1},
+    # 3. NVML Sampler (Active DURING measurement if NVIDIA dGPU)
+    is_nvidia = is_nvidia_device(device) and nvml_reader.is_available
+    sampler: NVMLMeasurementSampler | None = None
+    if is_nvidia:
+        sampler = NVMLMeasurementSampler(sample_interval_s=0.005)
+        sampler.start()
+
+    # 4. Timed measurement loop (30 samples, each inner_loop_k runs)
+    raw_timings_ms: list[float] = []
+    last_output: np.ndarray | None = None
+    for _ in range(TIMED_RUNS):
+        t0 = time.perf_counter_ns()
+        for _ in range(inner_loop_k):
+            outputs = sess.run(None, feed_dict)
+        t1 = time.perf_counter_ns()
+        sample_ms = (t1 - t0) / 1e6
+        raw_timings_ms.append(sample_ms / inner_loop_k)
+        last_output = outputs[0]
+
+    # Stop NVML Sampler
+    nvml_telemetry: dict = {}
+    if sampler is not None:
+        nvml_telemetry = sampler.stop()
+
+    # 5. Statistics
+    timings = np.array(raw_timings_ms, dtype=np.float64)
+    stats = compute_run_stats(timings, batch=batch, seed=SEED + (model.id or 0) * 100 + batch)
+
+    # 6. Correctness verification vs CPU reference
+    output_matches_cpu: bool | None = None
+    max_rel_err: float | None = None
+    if last_output is not None:
+        if device.key == "cpu":
+            output_matches_cpu = True
+            max_rel_err = 0.0
+        else:
+            try:
+                cpu_sess = make_session(model.path, "CPUExecutionProvider")
+                ref_outputs = cpu_sess.run(None, feed_dict)
+                diff = np.abs(last_output - ref_outputs[0])
+                max_ref = float(np.max(np.abs(ref_outputs[0])))
+                rel_err = float(np.max(diff) / (max_ref + 1e-9))
+                max_rel_err = round(rel_err, 6)
+                output_matches_cpu = bool(rel_err <= 1e-2)
+            except Exception:
+                output_matches_cpu = None
+
+    return {
+        "device_key": device.key,
+        "device_label": device.label,
+        "provider": device.provider,
+        "warmup_runs": warmups_done,
+        "warmup_duration_ms": round(warmup_duration_ms, 2),
+        "timed_runs": TIMED_RUNS,
+        "inner_loop_k": inner_loop_k,
+        "total_timed_inferences": TIMED_RUNS * inner_loop_k,
+        "raw_timings_ms": [round(x, 4) for x in raw_timings_ms],
+        "stats": {k: round(v, 4) if isinstance(v, float) else v for k, v in stats.items()},
+        "output_matches_cpu": output_matches_cpu,
+        "max_rel_err": max_rel_err,
+        "nvml_power_samples_w": nvml_telemetry.get("power_samples_w", []),
+        "nvml_median_power_w": nvml_telemetry.get("median_power_w"),
+        "nvml_max_power_w": nvml_telemetry.get("max_power_w"),
+        "nvml_temp_samples_c": nvml_telemetry.get("temp_samples_c", []),
+        "nvml_median_temp_c": nvml_telemetry.get("median_temp_c"),
+        "nvml_max_temp_c": nvml_telemetry.get("max_temp_c"),
+    }
+
+
+def ensure_unseen_models(session: Session) -> list[dict]:
+    """Generate and register unseen models across geometries and batch sizes."""
+    unseen_configs = [
+        {"family": "mlp", "size": 768,  "layers": 4, "batch": 2},
+        {"family": "conv", "size": 24,  "layers": 4, "batch": 2},
+        {"family": "mlp", "size": 1536, "layers": 4, "batch": 2},
+        {"family": "conv", "size": 48,  "layers": 4, "batch": 2},
+        {"family": "mlp", "size": 2560, "layers": 4, "batch": 2},
+        {"family": "conv", "size": 80,  "layers": 4, "batch": 2},
+        {"family": "mlp", "size": 3584, "layers": 4, "batch": 2},
+        {"family": "conv", "size": 112, "layers": 4, "batch": 2},
+        {"family": "mlp", "size": 2560, "layers": 4, "batch": 4},
+        {"family": "conv", "size": 112, "layers": 4, "batch": 4},
     ]
 
-    print("\n[PHASE 2] PREPARING 10-LEVEL BENCHMARK SUITE (8K FLOPs -> 4.83 BILLION FLOPs):")
-    print(f"{'Lvl':<4} | {'Model Name':<14} | {'Parameters':<14} | {'FLOPs/Sample':<16} | {'GFLOPs':<10} | {'Focus / Regime'}")
-    print("-" * 90)
-
-    model_records = {}
-    with Session(engine) as session:
-        for b in benchmark_levels:
-            m = session.exec(select(AIModel).where(AIModel.name == b["name"])).first()
-            if not m:
-                print(f"Error: Model {b['name']} not found in database!")
-                return
-            model_records[b["name"]] = m
-            gflops = m.flops_per_sample / 1e9
-            print(f"{b['lvl']:<4} | {m.name:<14} | {m.params:<14,d} | {int(m.flops_per_sample):<16,d} | {gflops:<10.3f} | {b['desc']}")
-
-    # -------------------------------------------------------------------------
-    # PHASE 3: LIVE HARDWARE EXECUTION
-    # -------------------------------------------------------------------------
-    print("\n" + "=" * 105)
-    print(" [PHASE 3] EXECUTING LIVE PHYSICAL INFERENCES ACROSS DETECTED CHIPS")
-    print(" Wall-clock time recorded via high-precision hardware performance counter")
-    print("=" * 105)
-
-    results_summary = []
-    router_correct_count = 0
-
-    for b in benchmark_levels:
-        lvl = b["lvl"]
-        m = model_records[b["name"]]
-        batch = b["batch"]
-        print(f"\n>>> LEVEL {lvl:02d}/10: {m.name} ({b['desc']}) -- {m.flops_per_sample:,.0f} FLOPs")
-
-        # 1. Ask Router what it predicts & allocates
-        with Session(engine) as session:
-            route_decision = route_model(
-                session=session,
-                model_id=m.id,
-                batch=batch,
-                mode="fastest",
-                workload="sustained",
-                power_budget_w=85.0,
-                allow_explore=False,
-            )
-        predicted_winner_key = route_decision["chosen_device_key"]
-        print(f"    [Router Prediction] Allocated Target: {predicted_winner_key.upper()} (Reason: {route_decision['reason']})")
-
-        # 2. Benchmark each physical device
-        measured_times = {}
-        power_readings = {}
-        temp_readings = {}
-
-        for dev in devices:
-            timed_runs = 15 if lvl <= 7 else 5
-            warmup_runs = 3 if lvl <= 7 else 2
-
-            run_res = run_latency_measurement(
-                session=None,
-                bench_session_id=None,
-                model=m,
-                device=dev,
-                batch=batch,
-                warmup_runs=warmup_runs,
-                timed_runs=timed_runs,
-                dry_run=True,
-            )
-
-            med_ms = run_res.median_ms
-            measured_times[dev.key] = med_ms
-
-            # Compute throughput GFLOPs/sec
-            gflops_per_sec = (m.flops_per_sample / 1e9) / (med_ms / 1000.0)
-
-            # Read NVML if NVIDIA
-            pwr_str = "--"
-            temp_str = "--"
-            if dev.kind == "dgpu" and nvml_reader.is_available:
-                m_curr = nvml_reader.read_metrics()
-                pwr = m_curr.get("gpu_power_w")
-                temp = m_curr.get("gpu_temp_c")
-                if pwr: pwr_str = f"{pwr:.1f} W"
-                if temp: temp_str = f"{temp:.1f} °C"
-                power_readings[dev.key] = pwr
-                temp_readings[dev.key] = temp
-
-            print(f"      - {dev.label:<38} [{dev.key}]: {med_ms:>9.3f} ms | {gflops_per_sec:>9.2f} GFLOP/s | Power: {pwr_str:<8} | Temp: {temp_str}")
-
-        # 3. Determine real physical winner
-        actual_winner_key = min(measured_times, key=measured_times.get)
-        actual_best_ms = measured_times[actual_winner_key]
-        pred_dev_ms = measured_times[predicted_winner_key]
-        regret_pct = ((pred_dev_ms - actual_best_ms) / actual_best_ms) * 100.0
-
-        is_match = (predicted_winner_key == actual_winner_key) or (regret_pct < 3.0)
-        if is_match:
-            router_correct_count += 1
-
-        verdict = "MATCH (OPTIMAL)" if is_match else f"REGRET {regret_pct:.1f}%"
-        print(f"    --> Physical Winner: {actual_winner_key.upper()} ({actual_best_ms:.3f} ms) | Router Verdict: {verdict}")
-
-        results_summary.append({
-            "lvl": lvl,
-            "name": m.name,
-            "params": m.params,
-            "flops": m.flops_per_sample,
-            "cpu_ms": measured_times.get("cpu"),
-            "igpu_ms": measured_times.get("dml:0"),
-            "dgpu_ms": measured_times.get("dml:1"),
-            "predicted_key": predicted_winner_key,
-            "actual_key": actual_winner_key,
-            "regret_pct": regret_pct,
-            "is_match": is_match,
+    prepared = []
+    for cfg in unseen_configs:
+        m = create_and_register_synthetic(
+            session=session,
+            family=cfg["family"],
+            size=cfg["size"],
+            layers=cfg["layers"],
+        )
+        prepared.append({
+            "model": m,
+            "batch": cfg["batch"],
         })
+    return prepared
 
-    # -------------------------------------------------------------------------
-    # PHASE 4: FINAL BENCHMARK SCORECARD
-    # -------------------------------------------------------------------------
-    print("\n" + "=" * 105)
-    print(" [PHASE 4] FINAL PHYSICAL BENCHMARK SCORECARD & ACCURACY AUDIT")
-    print("=" * 105)
-    print(f"{'Lvl':<4} | {'Model Name':<13} | {'FLOPs':<14} | {'CPU (ms)':<10} | {'iGPU (ms)':<10} | {'dGPU (ms)':<10} | {'Win':<6} | {'Speedup':<12} | {'Router Match'}")
-    print("-" * 105)
 
-    for r in results_summary:
-        cpu_t = f"{r['cpu_ms']:.3f}" if r['cpu_ms'] is not None else "--"
-        igpu_t = f"{r['igpu_ms']:.3f}" if r['igpu_ms'] is not None else "--"
-        dgpu_t = f"{r['dgpu_ms']:.3f}" if r['dgpu_ms'] is not None else "--"
-        winner = r['actual_key'].upper()
+def get_standard_10_level_models(session: Session) -> list[dict]:
+    """Retrieve standard 10-level benchmark models."""
+    names = [
+        ("mlp-32w-4l", 1),
+        ("mlp-128w-4l", 1),
+        ("mlp-256w-4l", 1),
+        ("conv-16c-4l", 1),
+        ("mlp-1024w-4l", 1),
+        ("conv-32c-4l", 1),
+        ("mlp-2048w-4l", 1),
+        ("conv-64c-4l", 1),
+        ("conv-96c-4l", 1),
+        ("conv-128c-4l", 1),
+    ]
+    prepared = []
+    for name, batch in names:
+        m = session.exec(select(AIModel).where(AIModel.name == name)).first()
+        if not m:
+            raise RuntimeError(f"Required model {name} not found in database!")
+        prepared.append({"model": m, "batch": batch})
+    return prepared
 
-        best_t = min(t for t in [r['cpu_ms'], r['igpu_ms'], r['dgpu_ms']] if t is not None)
-        other_t = r['cpu_ms'] if winner == "DML:1" else r['dgpu_ms']
-        if other_t and best_t:
-            ratio = other_t / best_t
-            speedup_str = f"{ratio:.1f}x faster"
+
+def run_benchmark_suite(unseen_mode: bool = False) -> None:
+    timestamp_str = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    mode_name = "10_level_unseen" if unseen_mode else "10_level"
+    log_dir = ROOT_DIR / "results" / "logs" / "benchmarks"
+    log_dir.mkdir(parents=True, exist_ok=True)
+
+    txt_path = log_dir / f"{mode_name}_{timestamp_str}.txt"
+    json_path = log_dir / f"{mode_name}_{timestamp_str}.json"
+
+    tee = TeeLogger(txt_path)
+    sys.stdout = tee
+
+    try:
+        print("=" * 115)
+        print(" SILICONROUTE: AUTOMATED HARDWARE BENCHMARK & ROUTER VERIFICATION SUITE")
+        print(f" Mode: {'UNSEEN GENERALIZATION TEST (Fit-Only Prediction)' if unseen_mode else 'STANDARD 10-LEVEL BENCHMARK'}")
+        print(f" Timestamp (UTC): {datetime.now(timezone.utc).isoformat()}")
+        print(" Log File (Console):", txt_path)
+        print(" Raw Samples (JSON):", json_path)
+        print("=" * 115)
+
+        # ---------------------------------------------------------------------
+        # 1. HARDWARE SELF-DISCOVERY
+        # ---------------------------------------------------------------------
+        print("\n[PHASE 1] HARDWARE RIG SELF-DISCOVERY (Zero Manual Hints)...")
+        rig = probe_host_rig()
+        verify_gpu_identity_mapping()
+
+        print(f"  * Host CPU         : {rig['cpu_name']}")
+        print(f"  * CPU Topology     : {rig['physical_cores']} Physical Cores / {rig['logical_cores']} Threads | {rig['ram_gb']} GB System RAM")
+        print(f"  * DXGI Adapters    : {len(rig['dxgi_adapters'])} physical graphics adapter(s) found:")
+        for a in rig['dxgi_adapters']:
+            vram_mb = round(a.get("vram_bytes", 0) / (1024**2))
+            print(f"    - Adapter {a['index']}: {a['description']} (Vendor: {a['vendor_name']} {a['vendor_id']}, Dedicated VRAM: {vram_mb} MB)")
+        if rig['nvml']['available']:
+            print(f"  * NVML Telemetry   : ACTIVE ({', '.join(rig['nvml']['gpus'])})")
         else:
-            speedup_str = "Optimal"
+            print("  * NVML Telemetry   : INACTIVE / NOT PRESENT")
+        print(f"  * ORT Providers    : {', '.join(rig['ort_providers'])}")
+        print(f"  * NPU Socket       : {'DETECTED (QNN)' if rig['has_npu'] else 'NONE DETECTED ON THIS RIG'}")
 
-        match_str = "YES (WINNER)" if r['actual_key'] == r['predicted_key'] else f"NO ({r['regret_pct']:.1f}% reg)"
-        print(f"{r['lvl']:<4} | {r['name']:<13} | {int(r['flops']):<14,d} | {cpu_t:<10} | {igpu_t:<10} | {dgpu_t:<10} | {winner:<6} | {speedup_str:<12} | {match_str}")
+        engine = create_db_engine()
+        with Session(engine) as session:
+            devices = session.exec(select(Device).where(Device.is_available == True)).all()
+            devices = [d for d in devices if d.kind in ("cpu", "igpu", "dgpu")]
 
-    print("-" * 105)
-    acc_pct = (router_correct_count / len(benchmark_levels)) * 100.0
-    print(f"\nRouter Allocation Accuracy Across All 10 Levels: {router_correct_count}/{len(benchmark_levels)} ({acc_pct:.1f}%)")
-    print(f"Benchmark Completion Timestamp: {datetime.now(timezone.utc).isoformat()}")
-    print("All measurements performed on real physical silicon with active hardware verification.")
-    print("=" * 105 + "\n")
+        print("\n  Allocatable Execution Sockets for Benchmark:")
+        for d in devices:
+            print(f"    [{d.key}] {d.label} (Role: {d.kind.upper()}, Provider: {d.provider})")
+
+        # ---------------------------------------------------------------------
+        # 2. MODEL PREPARATION & FACT COMPUTATION
+        # ---------------------------------------------------------------------
+        print(f"\n[PHASE 2] PREPARING BENCHMARK MODELS & COMPUTING FACTS FROM MODELS:")
+        print(f"{'Lvl':<4} | {'Model Name':<16} | {'Batch':<5} | {'Parameters':<12} | {'Weight (MB)':<12} | {'FLOPs/Sample':<16} | {'Total FLOPs':<16} | {'Intensity (FLOP/B)'}")
+        print("-" * 115)
+
+        level_facts = []
+        with Session(engine) as session:
+            if unseen_mode:
+                test_items = ensure_unseen_models(session)
+            else:
+                test_items = get_standard_10_level_models(session)
+
+            for idx, item in enumerate(test_items, start=1):
+                m: AIModel = item["model"]
+                batch: int = item["batch"]
+                weight_mb = round(m.weight_bytes / (1024**2), 2)
+                total_flops = m.flops_per_sample * batch
+                intensity = round(m.flops_per_sample / max(m.weight_bytes, 1), 2)
+
+                level_facts.append({
+                    "lvl": idx,
+                    "model_id": m.id,
+                    "name": m.name,
+                    "family": m.family,
+                    "path": m.path,
+                    "batch": batch,
+                    "params": m.params,
+                    "weight_bytes": m.weight_bytes,
+                    "weight_mb": weight_mb,
+                    "flops_per_sample": m.flops_per_sample,
+                    "total_flops": total_flops,
+                    "intensity": intensity,
+                })
+                print(
+                    f"{idx:<4} | {m.name:<16} | {batch:<5} | {m.params:<12,d} | {weight_mb:<12.2f} | "
+                    f"{int(m.flops_per_sample):<16,d} | {int(total_flops):<16,d} | {intensity:<18.2f}"
+                )
+
+        # ---------------------------------------------------------------------
+        # 3. LIVE BENCHMARK EXECUTION
+        # ---------------------------------------------------------------------
+        print("\n" + "=" * 115)
+        print(" [PHASE 3] EXECUTING LIVE EMPIRICAL BENCHMARKS (30 Samples, Real-time NVML Telemetry)")
+        print("=" * 115)
+
+        results_json_levels = []
+        exact_matches = 0
+        total_levels = len(level_facts)
+
+        for fact in level_facts:
+            lvl = fact["lvl"]
+            model_id = fact["model_id"]
+            name = fact["name"]
+            family = fact["family"]
+            path = fact["path"]
+            batch: int = fact["batch"]
+            m_transient = AIModel(
+                id=model_id,
+                name=name,
+                family=family,
+                path=path,
+                params=fact["params"],
+                weight_bytes=fact["weight_bytes"],
+                flops_per_sample=fact["flops_per_sample"],
+            )
+            print(f"\n>>> LEVEL {lvl:02d}/{total_levels}: {name} (Batch: {batch}) | Params: {fact['params']:,d} | Weights: {fact['weight_mb']:.2f} MB | Total FLOPs: {fact['total_flops']:,.0f}")
+
+            # Router Prediction
+            with Session(engine) as session:
+                decision = route_model(
+                    session=session,
+                    model_id=model_id,
+                    batch=batch,
+                    mode="fastest",
+                    workload="sustained",
+                    power_budget_w=85.0,
+                    allow_explore=False,
+                    fit_only=unseen_mode,
+                )
+
+            pred_key = decision["chosen_device_key"]
+            pred_source = decision.get("chosen_source", "unknown")
+            print(f"    [Router Prediction] Target Chip: {pred_key.upper()} | Source: [{pred_source.upper()}] | Reason: {decision['reason']}")
+
+            # Measure all physical chips
+            meas_by_device: dict[str, dict] = {}
+            for dev in devices:
+                meas = measure_device_benchmark(model=m_transient, device=dev, batch=batch)
+                meas_by_device[dev.key] = meas
+
+                med_ms = meas["stats"]["median_ms"]
+                gflops_s = (fact["total_flops"] / 1e9) / (med_ms / 1000.0) if med_ms > 0 else 0.0
+
+                pwr_med = meas["nvml_median_power_w"]
+                pwr_max = meas["nvml_max_power_w"]
+                temp_med = meas["nvml_median_temp_c"]
+                temp_max = meas["nvml_max_temp_c"]
+
+                if pwr_med is not None and pwr_max is not None:
+                    pwr_str = f"{pwr_med:.1f}W (max {pwr_max:.1f}W)"
+                else:
+                    pwr_str = "N/A (NVML: NVIDIA dGPU only)"
+
+                if temp_med is not None and temp_max is not None:
+                    temp_str = f"{temp_med:.1f}°C (max {temp_max:.1f}°C)"
+                else:
+                    temp_str = "N/A"
+
+                method_str = f"warmup={meas['warmup_runs']}, samples={meas['timed_runs']}, k={meas['inner_loop_k']} (total inf={meas['total_timed_inferences']})"
+                print(
+                    f"      - {dev.label:<32} [{dev.key}]: {med_ms:>8.3f} ms | {gflops_s:>8.2f} GFLOP/s | "
+                    f"Pwr: {pwr_str:<26} | Temp: {temp_str:<22} | ({method_str})"
+                )
+
+            # Determine real fastest chip
+            measured_medians = {k: v["stats"]["median_ms"] for k, v in meas_by_device.items()}
+            fastest_key = min(measured_medians, key=measured_medians.get)
+            fastest_ms = measured_medians[fastest_key]
+            pred_ms = measured_medians.get(pred_key, 9999.0)
+
+            # Strict match rule: predicted == fastest chip
+            is_match = (pred_key == fastest_key)
+            regret_pct = ((pred_ms - fastest_ms) / max(fastest_ms, 1e-4)) * 100.0
+            if is_match:
+                exact_matches += 1
+
+            match_label = "MATCH (Optimal)" if is_match else "MISMATCH"
+            print(f"    --> Physical Fastest Chip: {fastest_key.upper()} ({fastest_ms:.3f} ms) | Verdict: {match_label} | Regret: {regret_pct:.2f}%")
+
+            results_json_levels.append({
+                "level_index": lvl,
+                "model_name": name,
+                "family": family,
+                "batch": batch,
+                "parameters": fact["params"],
+                "weight_bytes": fact["weight_bytes"],
+                "weight_mb": fact["weight_mb"],
+                "flops_per_sample": fact["flops_per_sample"],
+                "total_flops": fact["total_flops"],
+                "arithmetic_intensity_flops_per_byte": fact["intensity"],
+                "router_prediction": {
+                    "chosen_device_key": pred_key,
+                    "prediction_source": pred_source,
+                    "reason": decision["reason"],
+                    "candidates": decision["candidates"],
+                },
+                "measurements": meas_by_device,
+                "actual_fastest_device_key": fastest_key,
+                "actual_fastest_median_ms": fastest_ms,
+                "exact_match": is_match,
+                "regret_pct": round(regret_pct, 4),
+            })
+
+        # ---------------------------------------------------------------------
+        # 4. FINAL SCORECARD & AUDIT
+        # ---------------------------------------------------------------------
+        print("\n" + "=" * 115)
+        print(" [PHASE 4] FINAL PHYSICAL BENCHMARK SCORECARD & ACCURACY AUDIT")
+        print("=" * 115)
+        print(f"{'Lvl':<4} | {'Model Name':<16} | {'Batch':<5} | {'Weight MB':<9} | {'CPU (ms)':<9} | {'iGPU (ms)':<9} | {'dGPU (ms)':<9} | {'Fastest':<7} | {'Router Match':<14} | {'Regret (%)'}")
+        print("-" * 115)
+
+        for lvl_res in results_json_levels:
+            cpu_t = lvl_res["measurements"].get("cpu", {}).get("stats", {}).get("median_ms")
+            igpu_t = lvl_res["measurements"].get("dml:0", {}).get("stats", {}).get("median_ms")
+            dgpu_t = lvl_res["measurements"].get("dml:1", {}).get("stats", {}).get("median_ms")
+
+            cpu_s = f"{cpu_t:.3f}" if cpu_t is not None else "--"
+            igpu_s = f"{igpu_t:.3f}" if igpu_t is not None else "--"
+            dgpu_s = f"{dgpu_t:.3f}" if dgpu_t is not None else "--"
+
+            match_s = "EXACT MATCH" if lvl_res["exact_match"] else f"NO (Pred: {lvl_res['router_prediction']['chosen_device_key'].upper()})"
+            print(
+                f"{lvl_res['level_index']:<4} | {lvl_res['model_name']:<16} | {lvl_res['batch']:<5} | {lvl_res['weight_mb']:<9.2f} | "
+                f"{cpu_s:<9} | {igpu_s:<9} | {dgpu_s:<9} | {lvl_res['actual_fastest_device_key'].upper():<7} | {match_s:<14} | {lvl_res['regret_pct']:>8.2f}%"
+            )
+
+        print("-" * 115)
+        accuracy_pct = (exact_matches / total_levels) * 100.0
+        all_regrets = [r["regret_pct"] for r in results_json_levels]
+        mean_regret = float(np.mean(all_regrets)) if all_regrets else 0.0
+        max_regret = float(np.max(all_regrets)) if all_regrets else 0.0
+
+        print(f"\nRouter Allocation Accuracy (Exact Match): {exact_matches}/{total_levels} ({accuracy_pct:.1f}%)")
+        print(f"Empirical Regret: Mean = {mean_regret:.2f}%, Max = {max_regret:.2f}%")
+        print(f"Benchmark Completion Timestamp: {datetime.now(timezone.utc).isoformat()}")
+
+        # ---------------------------------------------------------------------
+        # 5. ARCHITECTURAL ANALYSIS & HYPOTHESIS
+        # ---------------------------------------------------------------------
+        print("\n" + "=" * 115)
+        print(" [PHASE 5] ARCHITECTURAL ANALYSIS (Hypotheses & Physics Rationale)")
+        print("=" * 115)
+        print("Hypothesis: For MLP models, the crossover between CPU and discrete GPU (NVIDIA RTX 5070)")
+        print(f"follows model weight footprint relative to the {CPU_CACHE_MB} MB CPU cache (AMD Ryzen 9 8940HX L3 cache),")
+        print("rather than FLOP count.")
+        print("  - MLPs possess low arithmetic intensity (~1.0 FLOP/byte), meaning every parameter is read once")
+        print("    per sample. When weights fit inside the 64 MB CPU cache, the CPU avoids DRAM latency and runs at")
+        print("    on-die cache bandwidth, outperforming the dGPU which incurs PCIe dispatch latency overhead.")
+        print(f"  - When MLP weights exceed {CPU_CACHE_MB} MB, CPU execution must stream from system DDR5 RAM (~50-70 GB/s),")
+        print("    allowing the RTX 5070's high-bandwidth GDDR6 VRAM (~350 GB/s) to overcome bus dispatch overhead.")
+        print("  - For Convolutional models with spatial kernel reuse, higher arithmetic intensity enables the GPU")
+        print("    to win at significantly smaller parameter memory footprints once compute outweighs dispatch cost.")
+        print("=" * 115 + "\n")
+
+        # Save structured JSON
+        final_json_payload = {
+            "benchmark_timestamp_utc": datetime.now(timezone.utc).isoformat(),
+            "mode": "unseen_generalization_fit_only" if unseen_mode else "standard_10_level",
+            "log_txt_path": str(txt_path.as_posix()),
+            "rig_discovery": rig,
+            "levels": results_json_levels,
+            "summary": {
+                "total_levels": total_levels,
+                "exact_matches": exact_matches,
+                "accuracy_pct": round(accuracy_pct, 2),
+                "mean_regret_pct": round(mean_regret, 2),
+                "max_regret_pct": round(max_regret, 2),
+            },
+            "hypothesis": (
+                f"Hypothesis: For MLP models, the crossover between CPU and discrete GPU (NVIDIA RTX 5070) "
+                f"follows model weight footprint relative to the {CPU_CACHE_MB} MB CPU cache (AMD Ryzen 9 8940HX L3 cache), "
+                f"rather than FLOP count. MLPs possess low arithmetic intensity (~1.0 FLOP/byte), meaning every parameter "
+                f"is read once per sample. When weights fit inside the 64 MB CPU cache, the CPU avoids DRAM latency and runs "
+                f"at on-die cache bandwidth, outperforming the dGPU which incurs PCIe dispatch latency overhead. "
+                f"When MLP weights exceed {CPU_CACHE_MB} MB, CPU execution must stream from system DDR5 RAM, allowing the "
+                f"RTX 5070's high-bandwidth GDDR6 VRAM to dominate."
+            ),
+        }
+
+        with open(json_path, "w", encoding="utf-8") as jf:
+            json.dump(final_json_payload, jf, indent=2)
+
+        print(f"[COMPLETE] Full console output logged to: {txt_path}")
+        print(f"[COMPLETE] Full raw samples & metrics logged to: {json_path}")
+
+    finally:
+        sys.stdout = sys.__stdout__
+        tee.close()
+
+
+def main():
+    parser = argparse.ArgumentParser(description="SiliconRoute 10-Level Empirical Hardware Benchmark")
+    parser.add_argument(
+        "--unseen",
+        action="store_true",
+        help="Run generalization test on unseen model architectures and batch sizes with measured lookup disabled (fit only).",
+    )
+    args = parser.parse_args()
+    run_benchmark_suite(unseen_mode=args.unseen)
 
 
 if __name__ == "__main__":

@@ -6,8 +6,10 @@ unavailable, adhering strictly to AGENTS.md Hard Rule 1 (never invent/mock numbe
 """
 
 import logging
+import threading
 import time
 from typing import Any, Optional
+import numpy as np
 import psutil
 
 logger = logging.getLogger(__name__)
@@ -176,3 +178,66 @@ class BatteryReader:
 
 # Global singleton reader for process-wide NVML access
 nvml_reader = NVMLReader()
+
+
+class NVMLMeasurementSampler:
+    """Samples NVML power and temperature continuously in a background thread during active inference."""
+
+    def __init__(self, reader: Optional[NVMLReader] = None, sample_interval_s: float = 0.005) -> None:
+        self.reader = reader or nvml_reader
+        self.sample_interval_s = sample_interval_s
+        self.power_samples_w: list[float] = []
+        self.temp_samples_c: list[float] = []
+        self._stop_event = threading.Event()
+        self._thread: Optional[threading.Thread] = None
+
+    def start(self) -> None:
+        if not self.reader.is_available:
+            return
+        self.power_samples_w = []
+        self.temp_samples_c = []
+        self._stop_event.clear()
+        self._thread = threading.Thread(target=self._run, daemon=True)
+        self._thread.start()
+
+    def _run(self) -> None:
+        while not self._stop_event.is_set():
+            metrics = self.reader.read_metrics()
+            p = metrics.get("gpu_power_w")
+            t = metrics.get("gpu_temp_c")
+            if p is not None:
+                self.power_samples_w.append(p)
+            if t is not None:
+                self.temp_samples_c.append(t)
+            time.sleep(self.sample_interval_s)
+
+    def stop(self) -> dict[str, Any]:
+        if self._thread is not None:
+            self._stop_event.set()
+            self._thread.join(timeout=1.0)
+            self._thread = None
+        # Collect final reading right at completion
+        if self.reader.is_available:
+            metrics = self.reader.read_metrics()
+            p = metrics.get("gpu_power_w")
+            t = metrics.get("gpu_temp_c")
+            if p is not None:
+                self.power_samples_w.append(p)
+            if t is not None:
+                self.temp_samples_c.append(t)
+
+        med_p = round(float(np.median(self.power_samples_w)), 2) if self.power_samples_w else None
+        max_p = round(float(np.max(self.power_samples_w)), 2) if self.power_samples_w else None
+        med_t = round(float(np.median(self.temp_samples_c)), 1) if self.temp_samples_c else None
+        max_t = round(float(np.max(self.temp_samples_c)), 1) if self.temp_samples_c else None
+
+        return {
+            "power_samples_w": self.power_samples_w,
+            "temp_samples_c": self.temp_samples_c,
+            "median_power_w": med_p,
+            "max_power_w": max_p,
+            "median_temp_c": med_t,
+            "max_temp_c": max_t,
+            "sample_count": len(self.power_samples_w),
+        }
+

@@ -44,7 +44,7 @@ from app.config import (
 )
 from app.db import AIModel, BenchSession, Device, Run, engine
 from app.devices import make_session
-from app.power import nvml_reader
+from app.power import NVMLMeasurementSampler, nvml_reader
 
 logger = logging.getLogger(__name__)
 
@@ -293,6 +293,11 @@ def run_latency_measurement(
         inner_loop_k = min(max(inner_loop_k, 1), MAX_INNER_LOOP_K)
 
     # 5. Timed runs (samples >= timed_runs, each sample times inner_loop_k runs)
+    sampler: Optional[NVMLMeasurementSampler] = None
+    if is_nvidia_gpu:
+        sampler = NVMLMeasurementSampler()
+        sampler.start()
+
     raw_timings_ms: list[float] = []
     last_output: Optional[np.ndarray] = None
     for _ in range(timed_runs):
@@ -304,6 +309,10 @@ def run_latency_measurement(
         raw_timings_ms.append(sample_ms / inner_loop_k)
         last_output = outputs[0]
 
+    telemetry_during: dict[str, Any] = {}
+    if sampler is not None:
+        telemetry_during = sampler.stop()
+
     # Post-timing NVML telemetry
     nvml_pstate_end: Optional[int] = None
     nvml_clock_sm_end_mhz: Optional[int] = None
@@ -312,7 +321,7 @@ def run_latency_measurement(
         m_end = nvml_reader.read_metrics()
         nvml_pstate_end = m_end.get("gpu_pstate")
         nvml_clock_sm_end_mhz = m_end.get("gpu_clock_sm_mhz")
-        gpu_temp_end_c = m_end.get("gpu_temp_c")
+        gpu_temp_end_c = telemetry_during.get("median_temp_c") or m_end.get("gpu_temp_c")
 
     # 6. Statistical calculations & Bootstrap 95% Confidence Interval
     timings = np.array(raw_timings_ms, dtype=np.float64)
@@ -400,7 +409,7 @@ def run_latency_measurement(
         energy_mj_per_inf=None,
         energy_method=None,
         idle_w=None,
-        load_w=None,
+        load_w=telemetry_during.get("median_power_w") if telemetry_during else None,
         adapter_vendor=device.vendor,
         adapter_luid=device.luid,
         identity_suspect=False,

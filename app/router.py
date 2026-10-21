@@ -201,6 +201,7 @@ def resolve_candidate_prediction(
     model: AIModel,
     batch: int,
     workload: str = "sustained",
+    fit_only: bool = False,
 ) -> dict[str, Any]:
     """Resolve latency and energy predictions for a candidate device across workloads.
     
@@ -210,20 +211,22 @@ def resolve_candidate_prediction(
     - 'cold_start': session creation + first inference (prefers WorkloadMeasurement, falls back to family slowdown ratio).
     """
     # 1. Warm steady-state latency lookup
-    runs = session.exec(
-        select(Run).where(
-            Run.ai_model_id == model.id,
-            Run.device_id == device.id,
-            Run.batch == batch,
-            Run.unstable == False,
-            Run.provider_mismatch == False,
-            Run.identity_suspect == False,
-            Run.timed_runs >= 10,
-            Run.warmup_runs >= 2,
-            Run.run_kind.in_(["sustained", "verify_sustained"]),
-            Run.session_id != None,
-        ).order_by(Run.id.desc())
-    ).all()
+    runs = []
+    if not fit_only:
+        runs = session.exec(
+            select(Run).where(
+                Run.ai_model_id == model.id,
+                Run.device_id == device.id,
+                Run.batch == batch,
+                Run.unstable == False,
+                Run.provider_mismatch == False,
+                Run.identity_suspect == False,
+                Run.timed_runs >= 10,
+                Run.warmup_runs >= 2,
+                Run.run_kind.in_(["sustained", "verify_sustained"]),
+                Run.session_id != None,
+            ).order_by(Run.id.desc())
+        ).all()
 
     source = "fit"
     warm_latency_ms: Optional[float] = None
@@ -306,18 +309,20 @@ def resolve_candidate_prediction(
 
     # 3. Energy prediction lookup: query energy runs separately from latency runs
     energy_mj: Optional[float] = None
-    energy_runs = session.exec(
-        select(Run).where(
-            Run.ai_model_id == model.id,
-            Run.device_id == device.id,
-            Run.batch == batch,
-            Run.unstable == False,
-            Run.provider_mismatch == False,
-            Run.identity_suspect == False,
-            Run.energy_mj_per_inf != None,
-            Run.energy_mj_per_inf > 0,
-        ).order_by(Run.id.desc())
-    ).all()
+    energy_runs = []
+    if not fit_only:
+        energy_runs = session.exec(
+            select(Run).where(
+                Run.ai_model_id == model.id,
+                Run.device_id == device.id,
+                Run.batch == batch,
+                Run.unstable == False,
+                Run.provider_mismatch == False,
+                Run.identity_suspect == False,
+                Run.energy_mj_per_inf != None,
+                Run.energy_mj_per_inf > 0,
+            ).order_by(Run.id.desc())
+        ).all()
 
     if energy_runs:
         energy_mj = float(np.median([r.energy_mj_per_inf for r in energy_runs if r.energy_mj_per_inf]))
@@ -366,6 +371,7 @@ def route_model(
     allow_explore: bool = True,
     rng_seed: Optional[int] = None,
     workload: str = "sustained",
+    fit_only: bool = False,
 ) -> dict[str, Any]:
     """Evaluate all candidate devices, score according to goal, and choose the optimal chip."""
     if workload not in ("sustained", "idle_loaded", "cold_start", "single"):
@@ -445,7 +451,7 @@ def route_model(
                 continue
 
         try:
-            cand = resolve_candidate_prediction(session, dev, model, batch, workload=workload)
+            cand = resolve_candidate_prediction(session, dev, model, batch, workload=workload, fit_only=fit_only)
             valid_candidates.append(cand)
         except Exception as exc:
             excluded_candidates.append({
@@ -623,9 +629,11 @@ def route_model(
         "batch": batch,
         "mode": mode,
         "workload": workload,
+        "fit_only": fit_only,
         "power_budget_w": power_budget_w,
         "chosen_device_id": chosen["device_id"],
         "chosen_device_key": chosen["device_key"],
+        "chosen_source": chosen.get("source", "unknown"),
         "explored": explored,
         "reason": final_reason,
         "context_rules": context_rules,
