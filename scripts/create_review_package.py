@@ -33,7 +33,12 @@ files_to_copy: list[Path] = [
     Path("scripts/make_final_results.py"),
     Path("scripts/reproduce.py"),
     Path("scripts/metrics.py"),
+    Path("scripts/run_10_level_benchmark.py"),
     Path("docs/DEMO_SCRIPT.md"),
+    Path("results/v1_1/x86/manifest.json"),
+    Path("tests/test_gpu_warmup_and_pstate.py"),
+    Path("tests/test_v1_1_published_numbers.py"),
+    Path("tests/test_nvml_sampler_isolation.py"),
 ]
 
 # Add all CSV files in results/final/
@@ -68,6 +73,18 @@ if (ROOT / "results/logs/design_v3").exists():
 # Add every file in results/logs/final_design/
 if (ROOT / "results/logs/final_design").exists():
     for p in (ROOT / "results/logs/final_design").iterdir():
+        if p.is_file():
+            files_to_copy.append(p.relative_to(ROOT))
+
+# Add every file in results/logs/x86_closeout/
+if (ROOT / "results/logs/x86_closeout").exists():
+    for p in (ROOT / "results/logs/x86_closeout").iterdir():
+        if p.is_file():
+            files_to_copy.append(p.relative_to(ROOT))
+
+# Add every file in results/logs/benchmarks/
+if (ROOT / "results/logs/benchmarks").exists():
+    for p in (ROOT / "results/logs/benchmarks").iterdir():
         if p.is_file():
             files_to_copy.append(p.relative_to(ROOT))
 
