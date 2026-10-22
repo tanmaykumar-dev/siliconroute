@@ -1,0 +1,397 @@
+{
+  "version": "1.1",
+  "platform": "x86",
+  "description": "SiliconRoute x86 Close-out Manifest (10-level standard, unseen near-switch, P8 audit)",
+  "metadata": {
+    "frozen_v1_0_database_sha256": "98542cffb7264eee537d218e1863ccbbc174495e0bf13eb244ee22cd6f034cf5",
+    "standard_benchmark_log": "results/logs/x86_closeout/10_level_20261022_232356.json",
+    "unseen_benchmark_log": "results/logs/x86_closeout/10_level_unseen_20261022_232418.json"
+  },
+  "metrics": {
+    "frozen_v1_0_database_sha256": {
+      "value": "98542cffb7264eee537d218e1863ccbbc174495e0bf13eb244ee22cd6f034cf5",
+      "method": "scripts.metrics.get_v1_1_database_sha256",
+      "unit": "sha256",
+      "description": "SHA256 checksum of frozen v1.0 database",
+      "source": "data/final/siliconroute_final.db"
+    },
+    "v1_1_std_log_path": {
+      "value": "results/logs/x86_closeout/10_level_20261022_232356.json",
+      "method": "scripts.metrics.get_v1_1_std_log_path",
+      "unit": "path",
+      "description": "Path to standard 10-level benchmark log",
+      "source": "results/logs/x86_closeout/"
+    },
+    "v1_1_unseen_log_path": {
+      "value": "results/logs/x86_closeout/10_level_unseen_20261022_232418.json",
+      "method": "scripts.metrics.get_v1_1_unseen_log_path",
+      "unit": "path",
+      "description": "Path to unseen near-switch benchmark log",
+      "source": "results/logs/x86_closeout/"
+    },
+    "std_total_levels": {
+      "value": 10,
+      "method": "scripts.metrics.get_v1_1_std_total_levels",
+      "unit": "levels",
+      "description": "Total levels in standard 10-level benchmark",
+      "source": "10_level_*.json"
+    },
+    "std_exact_matches": {
+      "value": 10,
+      "method": "scripts.metrics.get_v1_1_std_exact_matches",
+      "unit": "matches",
+      "description": "Exact chip matches in standard benchmark",
+      "source": "10_level_*.json"
+    },
+    "std_accuracy_pct": {
+      "value": 100.0,
+      "method": "scripts.metrics.get_v1_1_std_accuracy_pct",
+      "unit": "%",
+      "description": "Router exact-match accuracy in standard benchmark",
+      "source": "10_level_*.json"
+    },
+    "std_close_calls": {
+      "value": 1,
+      "method": "scripts.metrics.get_v1_1_std_close_calls",
+      "unit": "levels",
+      "description": "Close call count (margin < 1.5x) in standard benchmark",
+      "source": "10_level_*.json"
+    },
+    "std_close_call_matches": {
+      "value": 1,
+      "method": "scripts.metrics.get_v1_1_std_close_call_matches",
+      "unit": "matches",
+      "description": "Close call exact matches in standard benchmark",
+      "source": "10_level_*.json"
+    },
+    "std_close_call_accuracy_pct": {
+      "value": 100.0,
+      "method": "scripts.metrics.get_v1_1_std_close_call_accuracy_pct",
+      "unit": "%",
+      "description": "Close call accuracy in standard benchmark",
+      "source": "10_level_*.json"
+    },
+    "std_mean_regret_pct": {
+      "value": 0.0,
+      "method": "scripts.metrics.get_v1_1_std_mean_regret_pct",
+      "unit": "%",
+      "description": "Mean router regret in standard benchmark",
+      "source": "10_level_*.json"
+    },
+    "std_max_regret_pct": {
+      "value": 0.0,
+      "method": "scripts.metrics.get_v1_1_std_max_regret_pct",
+      "unit": "%",
+      "description": "Max router regret in standard benchmark",
+      "source": "10_level_*.json"
+    },
+    "unseen_total_levels": {
+      "value": 11,
+      "method": "scripts.metrics.get_v1_1_unseen_total_levels",
+      "unit": "levels",
+      "description": "Total unseen near-switch test levels",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_exact_matches": {
+      "value": 7,
+      "method": "scripts.metrics.get_v1_1_unseen_exact_matches",
+      "unit": "matches",
+      "description": "Exact chip matches on unseen models (fit only)",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_accuracy_pct": {
+      "value": 63.64,
+      "method": "scripts.metrics.get_v1_1_unseen_accuracy_pct",
+      "unit": "%",
+      "description": "Fit-only accuracy on unseen near-switch models",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_close_calls": {
+      "value": 7,
+      "method": "scripts.metrics.get_v1_1_unseen_close_calls",
+      "unit": "levels",
+      "description": "Close calls (margin < 1.5x) on unseen models",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_close_call_matches": {
+      "value": 3,
+      "method": "scripts.metrics.get_v1_1_unseen_close_call_matches",
+      "unit": "matches",
+      "description": "Close call exact matches on unseen models",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_close_call_accuracy_pct": {
+      "value": 42.86,
+      "method": "scripts.metrics.get_v1_1_unseen_close_call_accuracy_pct",
+      "unit": "%",
+      "description": "Close call accuracy on unseen models",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mean_regret_pct": {
+      "value": 9.69,
+      "method": "scripts.metrics.get_v1_1_unseen_mean_regret_pct",
+      "unit": "%",
+      "description": "Mean regret on unseen near-switch models",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_max_regret_pct": {
+      "value": 30.44,
+      "method": "scripts.metrics.get_v1_1_unseen_max_regret_pct",
+      "unit": "%",
+      "description": "Max regret on unseen near-switch models",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp1792_b1_margin": {
+      "value": 1.3,
+      "method": "scripts.metrics.get_v1_1_unseen_mlp1792_b1_margin",
+      "unit": "x",
+      "description": "Decision margin for mlp-1792w-4l batch 1",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp1792_b1_winner": {
+      "value": "dml:1",
+      "method": "scripts.metrics.get_v1_1_unseen_mlp1792_b1_winner",
+      "unit": "device",
+      "description": "Fastest device for mlp-1792w-4l batch 1",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp1792_b1_regret_pct": {
+      "value": 30.44,
+      "method": "scripts.metrics.get_v1_1_unseen_mlp1792_b1_regret_pct",
+      "unit": "%",
+      "description": "Regret for mlp-1792w-4l batch 1",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp1792_b2_margin": {
+      "value": 1.47,
+      "method": "scripts.metrics.get_v1_1_unseen_mlp1792_b2_margin",
+      "unit": "x",
+      "description": "Decision margin for mlp-1792w-4l batch 2",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp1792_b2_winner": {
+      "value": "cpu",
+      "method": "scripts.metrics.get_v1_1_unseen_mlp1792_b2_winner",
+      "unit": "device",
+      "description": "Fastest device for mlp-1792w-4l batch 2",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp1792_b2_regret_pct": {
+      "value": 0.0,
+      "method": "scripts.metrics.get_v1_1_unseen_mlp1792_b2_regret_pct",
+      "unit": "%",
+      "description": "Regret for mlp-1792w-4l batch 2",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp1920_b1_margin": {
+      "value": 1.28,
+      "method": "scripts.metrics.get_v1_1_unseen_mlp1920_b1_margin",
+      "unit": "x",
+      "description": "Decision margin for mlp-1920w-4l batch 1",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp1920_b1_winner": {
+      "value": "dml:1",
+      "method": "scripts.metrics.get_v1_1_unseen_mlp1920_b1_winner",
+      "unit": "device",
+      "description": "Fastest device for mlp-1920w-4l batch 1",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp1920_b1_regret_pct": {
+      "value": 27.63,
+      "method": "scripts.metrics.get_v1_1_unseen_mlp1920_b1_regret_pct",
+      "unit": "%",
+      "description": "Regret for mlp-1920w-4l batch 1",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp1920_b2_margin": {
+      "value": 1.22,
+      "method": "scripts.metrics.get_v1_1_unseen_mlp1920_b2_margin",
+      "unit": "x",
+      "description": "Decision margin for mlp-1920w-4l batch 2",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp1920_b2_winner": {
+      "value": "dml:1",
+      "method": "scripts.metrics.get_v1_1_unseen_mlp1920_b2_winner",
+      "unit": "device",
+      "description": "Fastest device for mlp-1920w-4l batch 2",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp1920_b2_regret_pct": {
+      "value": 21.53,
+      "method": "scripts.metrics.get_v1_1_unseen_mlp1920_b2_regret_pct",
+      "unit": "%",
+      "description": "Regret for mlp-1920w-4l batch 2",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp2176_b1_margin": {
+      "value": 2.43,
+      "method": "scripts.metrics.get_v1_1_unseen_mlp2176_b1_margin",
+      "unit": "x",
+      "description": "Decision margin for mlp-2176w-4l batch 1",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp2176_b1_winner": {
+      "value": "dml:1",
+      "method": "scripts.metrics.get_v1_1_unseen_mlp2176_b1_winner",
+      "unit": "device",
+      "description": "Fastest device for mlp-2176w-4l batch 1",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp2176_b1_regret_pct": {
+      "value": 0.0,
+      "method": "scripts.metrics.get_v1_1_unseen_mlp2176_b1_regret_pct",
+      "unit": "%",
+      "description": "Regret for mlp-2176w-4l batch 1",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp2176_b2_margin": {
+      "value": 2.84,
+      "method": "scripts.metrics.get_v1_1_unseen_mlp2176_b2_margin",
+      "unit": "x",
+      "description": "Decision margin for mlp-2176w-4l batch 2",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp2176_b2_winner": {
+      "value": "dml:1",
+      "method": "scripts.metrics.get_v1_1_unseen_mlp2176_b2_winner",
+      "unit": "device",
+      "description": "Fastest device for mlp-2176w-4l batch 2",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp2176_b2_regret_pct": {
+      "value": 0.0,
+      "method": "scripts.metrics.get_v1_1_unseen_mlp2176_b2_regret_pct",
+      "unit": "%",
+      "description": "Regret for mlp-2176w-4l batch 2",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp2304_b1_margin": {
+      "value": 3.02,
+      "method": "scripts.metrics.get_v1_1_unseen_mlp2304_b1_margin",
+      "unit": "x",
+      "description": "Decision margin for mlp-2304w-4l batch 1",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp2304_b1_winner": {
+      "value": "dml:1",
+      "method": "scripts.metrics.get_v1_1_unseen_mlp2304_b1_winner",
+      "unit": "device",
+      "description": "Fastest device for mlp-2304w-4l batch 1",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp2304_b1_regret_pct": {
+      "value": 0.0,
+      "method": "scripts.metrics.get_v1_1_unseen_mlp2304_b1_regret_pct",
+      "unit": "%",
+      "description": "Regret for mlp-2304w-4l batch 1",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp2304_b2_margin": {
+      "value": 3.67,
+      "method": "scripts.metrics.get_v1_1_unseen_mlp2304_b2_margin",
+      "unit": "x",
+      "description": "Decision margin for mlp-2304w-4l batch 2",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp2304_b2_winner": {
+      "value": "dml:1",
+      "method": "scripts.metrics.get_v1_1_unseen_mlp2304_b2_winner",
+      "unit": "device",
+      "description": "Fastest device for mlp-2304w-4l batch 2",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_mlp2304_b2_regret_pct": {
+      "value": 0.0,
+      "method": "scripts.metrics.get_v1_1_unseen_mlp2304_b2_regret_pct",
+      "unit": "%",
+      "description": "Regret for mlp-2304w-4l batch 2",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_conv12_b1_margin": {
+      "value": 1.27,
+      "method": "scripts.metrics.get_v1_1_unseen_conv12_b1_margin",
+      "unit": "x",
+      "description": "Decision margin for conv-12c-4l batch 1",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_conv12_b1_winner": {
+      "value": "dml:1",
+      "method": "scripts.metrics.get_v1_1_unseen_conv12_b1_winner",
+      "unit": "device",
+      "description": "Fastest device for conv-12c-4l batch 1",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_conv12_b1_regret_pct": {
+      "value": 26.96,
+      "method": "scripts.metrics.get_v1_1_unseen_conv12_b1_regret_pct",
+      "unit": "%",
+      "description": "Regret for conv-12c-4l batch 1",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_conv20_b1_margin": {
+      "value": 1.07,
+      "method": "scripts.metrics.get_v1_1_unseen_conv20_b1_margin",
+      "unit": "x",
+      "description": "Decision margin for conv-20c-4l batch 1",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_conv20_b1_winner": {
+      "value": "cpu",
+      "method": "scripts.metrics.get_v1_1_unseen_conv20_b1_winner",
+      "unit": "device",
+      "description": "Fastest device for conv-20c-4l batch 1",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_conv20_b1_regret_pct": {
+      "value": 0.0,
+      "method": "scripts.metrics.get_v1_1_unseen_conv20_b1_regret_pct",
+      "unit": "%",
+      "description": "Regret for conv-20c-4l batch 1",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_conv28_b1_margin": {
+      "value": 1.21,
+      "method": "scripts.metrics.get_v1_1_unseen_conv28_b1_margin",
+      "unit": "x",
+      "description": "Decision margin for conv-28c-4l batch 1",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_conv28_b1_winner": {
+      "value": "dml:1",
+      "method": "scripts.metrics.get_v1_1_unseen_conv28_b1_winner",
+      "unit": "device",
+      "description": "Fastest device for conv-28c-4l batch 1",
+      "source": "10_level_unseen_*.json"
+    },
+    "unseen_conv28_b1_regret_pct": {
+      "value": 0.0,
+      "method": "scripts.metrics.get_v1_1_unseen_conv28_b1_regret_pct",
+      "unit": "%",
+      "description": "Regret for conv-28c-4l batch 1",
+      "source": "10_level_unseen_*.json"
+    },
+    "rtx_sustained_runs_total": {
+      "value": 90,
+      "method": "scripts.metrics.get_v1_1_rtx_sustained_runs_total",
+      "unit": "runs",
+      "description": "Total historical sustained runs on RTX 5070",
+      "source": "SELECT count(*) FROM run WHERE device_id = rtx AND run_kind = 'sustained'"
+    },
+    "rtx_sustained_p8_runs": {
+      "value": 13,
+      "method": "scripts.metrics.get_v1_1_rtx_sustained_p8_runs",
+      "unit": "runs",
+      "description": "Historical sustained runs on RTX 5070 starting in P8",
+      "source": "SELECT count(*) FROM run WHERE nvml_pstate_start = 8"
+    },
+    "rtx_sustained_p8_pct": {
+      "value": 14.44,
+      "method": "scripts.metrics.get_v1_1_rtx_sustained_p8_pct",
+      "unit": "%",
+      "description": "Percentage of historical sustained RTX runs starting in P8",
+      "source": "Historical audit"
+    }
+  }
+}

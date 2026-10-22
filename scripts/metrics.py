@@ -1105,3 +1105,403 @@ def get_overhead_rtx_cold_start_vs_sustained_dec124(conn: sqlite3.Connection) ->
     sust_rtx = get_mlp_3072_b1_sustained_rtx_ms(conn)
     return round(cold_rtx / sust_rtx, 1)
 
+
+# =============================================================================
+# v1.1 x86 Close-out Metrics (10-level standard, unseen near-switch, P8 audit)
+# =============================================================================
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+FROZEN_DB_PATH = ROOT_DIR / "data" / "final" / "siliconroute_final.db"
+FROZEN_DB_SHA256 = "98542cffb7264eee537d218e1863ccbbc174495e0bf13eb244ee22cd6f034cf5"
+
+
+def _get_v1_1_std_log_dict() -> dict[str, Any]:
+    log_dir = ROOT_DIR / "results" / "logs" / "x86_closeout"
+    logs = sorted([p for p in log_dir.glob("10_level_*.json") if "unseen" not in p.name])
+    if not logs:
+        raise FileNotFoundError(f"No standard 10-level benchmark json log found in {log_dir}")
+    with open(logs[-1], "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _get_v1_1_unseen_log_dict() -> dict[str, Any]:
+    log_dir = ROOT_DIR / "results" / "logs" / "x86_closeout"
+    logs = sorted([p for p in log_dir.glob("10_level_unseen_*.json")])
+    if not logs:
+        raise FileNotFoundError(f"No unseen 10-level benchmark json log found in {log_dir}")
+    with open(logs[-1], "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def get_v1_1_database_sha256(conn: Optional[sqlite3.Connection] = None) -> str:
+    return FROZEN_DB_SHA256
+
+
+def get_v1_1_std_log_path(conn: Optional[sqlite3.Connection] = None) -> str:
+    log_dir = ROOT_DIR / "results" / "logs" / "x86_closeout"
+    logs = sorted([p for p in log_dir.glob("10_level_*.json") if "unseen" not in p.name])
+    return str(logs[-1].relative_to(ROOT_DIR)).replace("\\", "/")
+
+
+def get_v1_1_unseen_log_path(conn: Optional[sqlite3.Connection] = None) -> str:
+    log_dir = ROOT_DIR / "results" / "logs" / "x86_closeout"
+    logs = sorted([p for p in log_dir.glob("10_level_unseen_*.json")])
+    return str(logs[-1].relative_to(ROOT_DIR)).replace("\\", "/")
+
+
+# 1. Standard 10-level summary metrics
+def get_v1_1_std_total_levels(conn: Optional[sqlite3.Connection] = None) -> int:
+    return int(_get_v1_1_std_log_dict()["summary"]["total_levels"])
+
+
+def get_v1_1_std_exact_matches(conn: Optional[sqlite3.Connection] = None) -> int:
+    return int(_get_v1_1_std_log_dict()["summary"]["exact_matches"])
+
+
+def get_v1_1_std_accuracy_pct(conn: Optional[sqlite3.Connection] = None) -> float:
+    return float(_get_v1_1_std_log_dict()["summary"]["accuracy_pct"])
+
+
+def get_v1_1_std_close_calls(conn: Optional[sqlite3.Connection] = None) -> int:
+    return int(_get_v1_1_std_log_dict()["summary"]["total_close_calls"])
+
+
+def get_v1_1_std_close_call_matches(conn: Optional[sqlite3.Connection] = None) -> int:
+    return int(_get_v1_1_std_log_dict()["summary"]["close_call_matches"])
+
+
+def get_v1_1_std_close_call_accuracy_pct(conn: Optional[sqlite3.Connection] = None) -> float:
+    return float(_get_v1_1_std_log_dict()["summary"]["close_call_accuracy_pct"])
+
+
+def get_v1_1_std_mean_regret_pct(conn: Optional[sqlite3.Connection] = None) -> float:
+    return float(_get_v1_1_std_log_dict()["summary"]["mean_regret_pct"])
+
+
+def get_v1_1_std_max_regret_pct(conn: Optional[sqlite3.Connection] = None) -> float:
+    return float(_get_v1_1_std_log_dict()["summary"]["max_regret_pct"])
+
+
+# 2. Unseen near-switch benchmark summary metrics
+def get_v1_1_unseen_total_levels(conn: Optional[sqlite3.Connection] = None) -> int:
+    return int(_get_v1_1_unseen_log_dict()["summary"]["total_levels"])
+
+
+def get_v1_1_unseen_exact_matches(conn: Optional[sqlite3.Connection] = None) -> int:
+    return int(_get_v1_1_unseen_log_dict()["summary"]["exact_matches"])
+
+
+def get_v1_1_unseen_accuracy_pct(conn: Optional[sqlite3.Connection] = None) -> float:
+    return float(_get_v1_1_unseen_log_dict()["summary"]["accuracy_pct"])
+
+
+def get_v1_1_unseen_close_calls(conn: Optional[sqlite3.Connection] = None) -> int:
+    return int(_get_v1_1_unseen_log_dict()["summary"]["total_close_calls"])
+
+
+def get_v1_1_unseen_close_call_matches(conn: Optional[sqlite3.Connection] = None) -> int:
+    return int(_get_v1_1_unseen_log_dict()["summary"]["close_call_matches"])
+
+
+def get_v1_1_unseen_close_call_accuracy_pct(conn: Optional[sqlite3.Connection] = None) -> float:
+    return float(_get_v1_1_unseen_log_dict()["summary"]["close_call_accuracy_pct"])
+
+
+def get_v1_1_unseen_mean_regret_pct(conn: Optional[sqlite3.Connection] = None) -> float:
+    return float(_get_v1_1_unseen_log_dict()["summary"]["mean_regret_pct"])
+
+
+def get_v1_1_unseen_max_regret_pct(conn: Optional[sqlite3.Connection] = None) -> float:
+    return float(_get_v1_1_unseen_log_dict()["summary"]["max_regret_pct"])
+
+
+# 3. Near-switch individual case helper
+def _get_unseen_level(model_name: str, batch: int) -> dict[str, Any]:
+    d = _get_v1_1_unseen_log_dict()
+    for lvl in d.get("levels", []):
+        if lvl["model_name"] == model_name and lvl["batch"] == batch:
+            return lvl
+    raise KeyError(f"Level for {model_name} batch {batch} not found in unseen log")
+
+
+def get_v1_1_unseen_mlp1792_b1_margin(conn: Optional[sqlite3.Connection] = None) -> float:
+    return float(_get_unseen_level("mlp-1792w-4l", 1)["decision_margin"])
+
+
+def get_v1_1_unseen_mlp1792_b1_winner(conn: Optional[sqlite3.Connection] = None) -> str:
+    return str(_get_unseen_level("mlp-1792w-4l", 1)["actual_fastest_device_key"])
+
+
+def get_v1_1_unseen_mlp1792_b1_regret_pct(conn: Optional[sqlite3.Connection] = None) -> float:
+    return round(float(_get_unseen_level("mlp-1792w-4l", 1)["regret_pct"]), 2)
+
+
+def get_v1_1_unseen_mlp1792_b2_margin(conn: Optional[sqlite3.Connection] = None) -> float:
+    return float(_get_unseen_level("mlp-1792w-4l", 2)["decision_margin"])
+
+
+def get_v1_1_unseen_mlp1792_b2_winner(conn: Optional[sqlite3.Connection] = None) -> str:
+    return str(_get_unseen_level("mlp-1792w-4l", 2)["actual_fastest_device_key"])
+
+
+def get_v1_1_unseen_mlp1792_b2_regret_pct(conn: Optional[sqlite3.Connection] = None) -> float:
+    return round(float(_get_unseen_level("mlp-1792w-4l", 2)["regret_pct"]), 2)
+
+
+def get_v1_1_unseen_mlp1920_b1_margin(conn: Optional[sqlite3.Connection] = None) -> float:
+    return float(_get_unseen_level("mlp-1920w-4l", 1)["decision_margin"])
+
+
+def get_v1_1_unseen_mlp1920_b1_winner(conn: Optional[sqlite3.Connection] = None) -> str:
+    return str(_get_unseen_level("mlp-1920w-4l", 1)["actual_fastest_device_key"])
+
+
+def get_v1_1_unseen_mlp1920_b1_regret_pct(conn: Optional[sqlite3.Connection] = None) -> float:
+    return round(float(_get_unseen_level("mlp-1920w-4l", 1)["regret_pct"]), 2)
+
+
+def get_v1_1_unseen_mlp1920_b2_margin(conn: Optional[sqlite3.Connection] = None) -> float:
+    return float(_get_unseen_level("mlp-1920w-4l", 2)["decision_margin"])
+
+
+def get_v1_1_unseen_mlp1920_b2_winner(conn: Optional[sqlite3.Connection] = None) -> str:
+    return str(_get_unseen_level("mlp-1920w-4l", 2)["actual_fastest_device_key"])
+
+
+def get_v1_1_unseen_mlp1920_b2_regret_pct(conn: Optional[sqlite3.Connection] = None) -> float:
+    return round(float(_get_unseen_level("mlp-1920w-4l", 2)["regret_pct"]), 2)
+
+
+def get_v1_1_unseen_mlp2176_b1_margin(conn: Optional[sqlite3.Connection] = None) -> float:
+    return float(_get_unseen_level("mlp-2176w-4l", 1)["decision_margin"])
+
+
+def get_v1_1_unseen_mlp2176_b1_winner(conn: Optional[sqlite3.Connection] = None) -> str:
+    return str(_get_unseen_level("mlp-2176w-4l", 1)["actual_fastest_device_key"])
+
+
+def get_v1_1_unseen_mlp2176_b1_regret_pct(conn: Optional[sqlite3.Connection] = None) -> float:
+    return round(float(_get_unseen_level("mlp-2176w-4l", 1)["regret_pct"]), 2)
+
+
+def get_v1_1_unseen_mlp2176_b2_margin(conn: Optional[sqlite3.Connection] = None) -> float:
+    return float(_get_unseen_level("mlp-2176w-4l", 2)["decision_margin"])
+
+
+def get_v1_1_unseen_mlp2176_b2_winner(conn: Optional[sqlite3.Connection] = None) -> str:
+    return str(_get_unseen_level("mlp-2176w-4l", 2)["actual_fastest_device_key"])
+
+
+def get_v1_1_unseen_mlp2176_b2_regret_pct(conn: Optional[sqlite3.Connection] = None) -> float:
+    return round(float(_get_unseen_level("mlp-2176w-4l", 2)["regret_pct"]), 2)
+
+
+def get_v1_1_unseen_mlp2304_b1_margin(conn: Optional[sqlite3.Connection] = None) -> float:
+    return float(_get_unseen_level("mlp-2304w-4l", 1)["decision_margin"])
+
+
+def get_v1_1_unseen_mlp2304_b1_winner(conn: Optional[sqlite3.Connection] = None) -> str:
+    return str(_get_unseen_level("mlp-2304w-4l", 1)["actual_fastest_device_key"])
+
+
+def get_v1_1_unseen_mlp2304_b1_regret_pct(conn: Optional[sqlite3.Connection] = None) -> float:
+    return round(float(_get_unseen_level("mlp-2304w-4l", 1)["regret_pct"]), 2)
+
+
+def get_v1_1_unseen_mlp2304_b2_margin(conn: Optional[sqlite3.Connection] = None) -> float:
+    return float(_get_unseen_level("mlp-2304w-4l", 2)["decision_margin"])
+
+
+def get_v1_1_unseen_mlp2304_b2_winner(conn: Optional[sqlite3.Connection] = None) -> str:
+    return str(_get_unseen_level("mlp-2304w-4l", 2)["actual_fastest_device_key"])
+
+
+def get_v1_1_unseen_mlp2304_b2_regret_pct(conn: Optional[sqlite3.Connection] = None) -> float:
+    return round(float(_get_unseen_level("mlp-2304w-4l", 2)["regret_pct"]), 2)
+
+
+def get_v1_1_unseen_conv12_b1_margin(conn: Optional[sqlite3.Connection] = None) -> float:
+    return float(_get_unseen_level("conv-12c-4l", 1)["decision_margin"])
+
+
+def get_v1_1_unseen_conv12_b1_winner(conn: Optional[sqlite3.Connection] = None) -> str:
+    return str(_get_unseen_level("conv-12c-4l", 1)["actual_fastest_device_key"])
+
+
+def get_v1_1_unseen_conv12_b1_regret_pct(conn: Optional[sqlite3.Connection] = None) -> float:
+    return round(float(_get_unseen_level("conv-12c-4l", 1)["regret_pct"]), 2)
+
+
+def get_v1_1_unseen_conv20_b1_margin(conn: Optional[sqlite3.Connection] = None) -> float:
+    return float(_get_unseen_level("conv-20c-4l", 1)["decision_margin"])
+
+
+def get_v1_1_unseen_conv20_b1_winner(conn: Optional[sqlite3.Connection] = None) -> str:
+    return str(_get_unseen_level("conv-20c-4l", 1)["actual_fastest_device_key"])
+
+
+def get_v1_1_unseen_conv20_b1_regret_pct(conn: Optional[sqlite3.Connection] = None) -> float:
+    return round(float(_get_unseen_level("conv-20c-4l", 1)["regret_pct"]), 2)
+
+
+def get_v1_1_unseen_conv28_b1_margin(conn: Optional[sqlite3.Connection] = None) -> float:
+    return float(_get_unseen_level("conv-28c-4l", 1)["decision_margin"])
+
+
+def get_v1_1_unseen_conv28_b1_winner(conn: Optional[sqlite3.Connection] = None) -> str:
+    return str(_get_unseen_level("conv-28c-4l", 1)["actual_fastest_device_key"])
+
+
+def get_v1_1_unseen_conv28_b1_regret_pct(conn: Optional[sqlite3.Connection] = None) -> float:
+    return round(float(_get_unseen_level("conv-28c-4l", 1)["regret_pct"]), 2)
+
+
+# 4. Sustained RTX P8 Audit metrics
+def get_v1_1_rtx_sustained_runs_total(conn: Optional[sqlite3.Connection] = None) -> int:
+    close_conn = False
+    if conn is None:
+        conn = sqlite3.connect(f"file:{FROZEN_DB_PATH.resolve()}?mode=ro&immutable=1", uri=True)
+        close_conn = True
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM device WHERE key = 'dml:1'")
+        row = cur.fetchone()
+        if not row:
+            return 0
+        cur.execute("SELECT count(*) FROM run WHERE device_id = ? AND run_kind = 'sustained'", (row[0],))
+        return int(cur.fetchone()[0])
+    finally:
+        if close_conn:
+            conn.close()
+
+
+def get_v1_1_rtx_sustained_p8_runs(conn: Optional[sqlite3.Connection] = None) -> int:
+    close_conn = False
+    if conn is None:
+        conn = sqlite3.connect(f"file:{FROZEN_DB_PATH.resolve()}?mode=ro&immutable=1", uri=True)
+        close_conn = True
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM device WHERE key = 'dml:1'")
+        row = cur.fetchone()
+        if not row:
+            return 0
+        cur.execute(
+            "SELECT count(*) FROM run WHERE device_id = ? AND run_kind = 'sustained' AND nvml_pstate_start = 8",
+            (row[0],),
+        )
+        return int(cur.fetchone()[0])
+    finally:
+        if close_conn:
+            conn.close()
+
+
+def get_v1_1_rtx_sustained_p8_pct(conn: Optional[sqlite3.Connection] = None) -> float:
+    tot = get_v1_1_rtx_sustained_runs_total(conn)
+    p8 = get_v1_1_rtx_sustained_p8_runs(conn)
+    return round((p8 / tot * 100.0) if tot > 0 else 0.0, 2)
+
+
+# 5. Manifest builder for v1.1 x86
+def build_v1_1_manifest(
+    conn: Optional[sqlite3.Connection] = None,
+    output_path: Optional[Path] = None,
+) -> dict[str, Any]:
+    """Compile and publish results/v1_1/x86/manifest.json."""
+    if output_path is None:
+        output_path = ROOT_DIR / "results" / "v1_1" / "x86" / "manifest.json"
+
+    metrics_registry: list[tuple[str, Any, str, str, str, str]] = [
+        # (name, value, unit, description, method_name, source)
+        ("frozen_v1_0_database_sha256", get_v1_1_database_sha256(conn), "sha256", "SHA256 checksum of frozen v1.0 database", "get_v1_1_database_sha256", "data/final/siliconroute_final.db"),
+        ("v1_1_std_log_path", get_v1_1_std_log_path(conn), "path", "Path to standard 10-level benchmark log", "get_v1_1_std_log_path", "results/logs/x86_closeout/"),
+        ("v1_1_unseen_log_path", get_v1_1_unseen_log_path(conn), "path", "Path to unseen near-switch benchmark log", "get_v1_1_unseen_log_path", "results/logs/x86_closeout/"),
+        ("std_total_levels", get_v1_1_std_total_levels(conn), "levels", "Total levels in standard 10-level benchmark", "get_v1_1_std_total_levels", "10_level_*.json"),
+        ("std_exact_matches", get_v1_1_std_exact_matches(conn), "matches", "Exact chip matches in standard benchmark", "get_v1_1_std_exact_matches", "10_level_*.json"),
+        ("std_accuracy_pct", get_v1_1_std_accuracy_pct(conn), "%", "Router exact-match accuracy in standard benchmark", "get_v1_1_std_accuracy_pct", "10_level_*.json"),
+        ("std_close_calls", get_v1_1_std_close_calls(conn), "levels", "Close call count (margin < 1.5x) in standard benchmark", "get_v1_1_std_close_calls", "10_level_*.json"),
+        ("std_close_call_matches", get_v1_1_std_close_call_matches(conn), "matches", "Close call exact matches in standard benchmark", "get_v1_1_std_close_call_matches", "10_level_*.json"),
+        ("std_close_call_accuracy_pct", get_v1_1_std_close_call_accuracy_pct(conn), "%", "Close call accuracy in standard benchmark", "get_v1_1_std_close_call_accuracy_pct", "10_level_*.json"),
+        ("std_mean_regret_pct", get_v1_1_std_mean_regret_pct(conn), "%", "Mean router regret in standard benchmark", "get_v1_1_std_mean_regret_pct", "10_level_*.json"),
+        ("std_max_regret_pct", get_v1_1_std_max_regret_pct(conn), "%", "Max router regret in standard benchmark", "get_v1_1_std_max_regret_pct", "10_level_*.json"),
+        ("unseen_total_levels", get_v1_1_unseen_total_levels(conn), "levels", "Total unseen near-switch test levels", "get_v1_1_unseen_total_levels", "10_level_unseen_*.json"),
+        ("unseen_exact_matches", get_v1_1_unseen_exact_matches(conn), "matches", "Exact chip matches on unseen models (fit only)", "get_v1_1_unseen_exact_matches", "10_level_unseen_*.json"),
+        ("unseen_accuracy_pct", get_v1_1_unseen_accuracy_pct(conn), "%", "Fit-only accuracy on unseen near-switch models", "get_v1_1_unseen_accuracy_pct", "10_level_unseen_*.json"),
+        ("unseen_close_calls", get_v1_1_unseen_close_calls(conn), "levels", "Close calls (margin < 1.5x) on unseen models", "get_v1_1_unseen_close_calls", "10_level_unseen_*.json"),
+        ("unseen_close_call_matches", get_v1_1_unseen_close_call_matches(conn), "matches", "Close call exact matches on unseen models", "get_v1_1_unseen_close_call_matches", "10_level_unseen_*.json"),
+        ("unseen_close_call_accuracy_pct", get_v1_1_unseen_close_call_accuracy_pct(conn), "%", "Close call accuracy on unseen models", "get_v1_1_unseen_close_call_accuracy_pct", "10_level_unseen_*.json"),
+        ("unseen_mean_regret_pct", get_v1_1_unseen_mean_regret_pct(conn), "%", "Mean regret on unseen near-switch models", "get_v1_1_unseen_mean_regret_pct", "10_level_unseen_*.json"),
+        ("unseen_max_regret_pct", get_v1_1_unseen_max_regret_pct(conn), "%", "Max regret on unseen near-switch models", "get_v1_1_unseen_max_regret_pct", "10_level_unseen_*.json"),
+        ("unseen_mlp1792_b1_margin", get_v1_1_unseen_mlp1792_b1_margin(conn), "x", "Decision margin for mlp-1792w-4l batch 1", "get_v1_1_unseen_mlp1792_b1_margin", "10_level_unseen_*.json"),
+        ("unseen_mlp1792_b1_winner", get_v1_1_unseen_mlp1792_b1_winner(conn), "device", "Fastest device for mlp-1792w-4l batch 1", "get_v1_1_unseen_mlp1792_b1_winner", "10_level_unseen_*.json"),
+        ("unseen_mlp1792_b1_regret_pct", get_v1_1_unseen_mlp1792_b1_regret_pct(conn), "%", "Regret for mlp-1792w-4l batch 1", "get_v1_1_unseen_mlp1792_b1_regret_pct", "10_level_unseen_*.json"),
+        ("unseen_mlp1792_b2_margin", get_v1_1_unseen_mlp1792_b2_margin(conn), "x", "Decision margin for mlp-1792w-4l batch 2", "get_v1_1_unseen_mlp1792_b2_margin", "10_level_unseen_*.json"),
+        ("unseen_mlp1792_b2_winner", get_v1_1_unseen_mlp1792_b2_winner(conn), "device", "Fastest device for mlp-1792w-4l batch 2", "get_v1_1_unseen_mlp1792_b2_winner", "10_level_unseen_*.json"),
+        ("unseen_mlp1792_b2_regret_pct", get_v1_1_unseen_mlp1792_b2_regret_pct(conn), "%", "Regret for mlp-1792w-4l batch 2", "get_v1_1_unseen_mlp1792_b2_regret_pct", "10_level_unseen_*.json"),
+        ("unseen_mlp1920_b1_margin", get_v1_1_unseen_mlp1920_b1_margin(conn), "x", "Decision margin for mlp-1920w-4l batch 1", "get_v1_1_unseen_mlp1920_b1_margin", "10_level_unseen_*.json"),
+        ("unseen_mlp1920_b1_winner", get_v1_1_unseen_mlp1920_b1_winner(conn), "device", "Fastest device for mlp-1920w-4l batch 1", "get_v1_1_unseen_mlp1920_b1_winner", "10_level_unseen_*.json"),
+        ("unseen_mlp1920_b1_regret_pct", get_v1_1_unseen_mlp1920_b1_regret_pct(conn), "%", "Regret for mlp-1920w-4l batch 1", "get_v1_1_unseen_mlp1920_b1_regret_pct", "10_level_unseen_*.json"),
+        ("unseen_mlp1920_b2_margin", get_v1_1_unseen_mlp1920_b2_margin(conn), "x", "Decision margin for mlp-1920w-4l batch 2", "get_v1_1_unseen_mlp1920_b2_margin", "10_level_unseen_*.json"),
+        ("unseen_mlp1920_b2_winner", get_v1_1_unseen_mlp1920_b2_winner(conn), "device", "Fastest device for mlp-1920w-4l batch 2", "get_v1_1_unseen_mlp1920_b2_winner", "10_level_unseen_*.json"),
+        ("unseen_mlp1920_b2_regret_pct", get_v1_1_unseen_mlp1920_b2_regret_pct(conn), "%", "Regret for mlp-1920w-4l batch 2", "get_v1_1_unseen_mlp1920_b2_regret_pct", "10_level_unseen_*.json"),
+        ("unseen_mlp2176_b1_margin", get_v1_1_unseen_mlp2176_b1_margin(conn), "x", "Decision margin for mlp-2176w-4l batch 1", "get_v1_1_unseen_mlp2176_b1_margin", "10_level_unseen_*.json"),
+        ("unseen_mlp2176_b1_winner", get_v1_1_unseen_mlp2176_b1_winner(conn), "device", "Fastest device for mlp-2176w-4l batch 1", "get_v1_1_unseen_mlp2176_b1_winner", "10_level_unseen_*.json"),
+        ("unseen_mlp2176_b1_regret_pct", get_v1_1_unseen_mlp2176_b1_regret_pct(conn), "%", "Regret for mlp-2176w-4l batch 1", "get_v1_1_unseen_mlp2176_b1_regret_pct", "10_level_unseen_*.json"),
+        ("unseen_mlp2176_b2_margin", get_v1_1_unseen_mlp2176_b2_margin(conn), "x", "Decision margin for mlp-2176w-4l batch 2", "get_v1_1_unseen_mlp2176_b2_margin", "10_level_unseen_*.json"),
+        ("unseen_mlp2176_b2_winner", get_v1_1_unseen_mlp2176_b2_winner(conn), "device", "Fastest device for mlp-2176w-4l batch 2", "get_v1_1_unseen_mlp2176_b2_winner", "10_level_unseen_*.json"),
+        ("unseen_mlp2176_b2_regret_pct", get_v1_1_unseen_mlp2176_b2_regret_pct(conn), "%", "Regret for mlp-2176w-4l batch 2", "get_v1_1_unseen_mlp2176_b2_regret_pct", "10_level_unseen_*.json"),
+        ("unseen_mlp2304_b1_margin", get_v1_1_unseen_mlp2304_b1_margin(conn), "x", "Decision margin for mlp-2304w-4l batch 1", "get_v1_1_unseen_mlp2304_b1_margin", "10_level_unseen_*.json"),
+        ("unseen_mlp2304_b1_winner", get_v1_1_unseen_mlp2304_b1_winner(conn), "device", "Fastest device for mlp-2304w-4l batch 1", "get_v1_1_unseen_mlp2304_b1_winner", "10_level_unseen_*.json"),
+        ("unseen_mlp2304_b1_regret_pct", get_v1_1_unseen_mlp2304_b1_regret_pct(conn), "%", "Regret for mlp-2304w-4l batch 1", "get_v1_1_unseen_mlp2304_b1_regret_pct", "10_level_unseen_*.json"),
+        ("unseen_mlp2304_b2_margin", get_v1_1_unseen_mlp2304_b2_margin(conn), "x", "Decision margin for mlp-2304w-4l batch 2", "get_v1_1_unseen_mlp2304_b2_margin", "10_level_unseen_*.json"),
+        ("unseen_mlp2304_b2_winner", get_v1_1_unseen_mlp2304_b2_winner(conn), "device", "Fastest device for mlp-2304w-4l batch 2", "get_v1_1_unseen_mlp2304_b2_winner", "10_level_unseen_*.json"),
+        ("unseen_mlp2304_b2_regret_pct", get_v1_1_unseen_mlp2304_b2_regret_pct(conn), "%", "Regret for mlp-2304w-4l batch 2", "get_v1_1_unseen_mlp2304_b2_regret_pct", "10_level_unseen_*.json"),
+        ("unseen_conv12_b1_margin", get_v1_1_unseen_conv12_b1_margin(conn), "x", "Decision margin for conv-12c-4l batch 1", "get_v1_1_unseen_conv12_b1_margin", "10_level_unseen_*.json"),
+        ("unseen_conv12_b1_winner", get_v1_1_unseen_conv12_b1_winner(conn), "device", "Fastest device for conv-12c-4l batch 1", "get_v1_1_unseen_conv12_b1_winner", "10_level_unseen_*.json"),
+        ("unseen_conv12_b1_regret_pct", get_v1_1_unseen_conv12_b1_regret_pct(conn), "%", "Regret for conv-12c-4l batch 1", "get_v1_1_unseen_conv12_b1_regret_pct", "10_level_unseen_*.json"),
+        ("unseen_conv20_b1_margin", get_v1_1_unseen_conv20_b1_margin(conn), "x", "Decision margin for conv-20c-4l batch 1", "get_v1_1_unseen_conv20_b1_margin", "10_level_unseen_*.json"),
+        ("unseen_conv20_b1_winner", get_v1_1_unseen_conv20_b1_winner(conn), "device", "Fastest device for conv-20c-4l batch 1", "get_v1_1_unseen_conv20_b1_winner", "10_level_unseen_*.json"),
+        ("unseen_conv20_b1_regret_pct", get_v1_1_unseen_conv20_b1_regret_pct(conn), "%", "Regret for conv-20c-4l batch 1", "get_v1_1_unseen_conv20_b1_regret_pct", "10_level_unseen_*.json"),
+        ("unseen_conv28_b1_margin", get_v1_1_unseen_conv28_b1_margin(conn), "x", "Decision margin for conv-28c-4l batch 1", "get_v1_1_unseen_conv28_b1_margin", "10_level_unseen_*.json"),
+        ("unseen_conv28_b1_winner", get_v1_1_unseen_conv28_b1_winner(conn), "device", "Fastest device for conv-28c-4l batch 1", "get_v1_1_unseen_conv28_b1_winner", "10_level_unseen_*.json"),
+        ("unseen_conv28_b1_regret_pct", get_v1_1_unseen_conv28_b1_regret_pct(conn), "%", "Regret for conv-28c-4l batch 1", "get_v1_1_unseen_conv28_b1_regret_pct", "10_level_unseen_*.json"),
+        ("rtx_sustained_runs_total", get_v1_1_rtx_sustained_runs_total(conn), "runs", "Total historical sustained runs on RTX 5070", "get_v1_1_rtx_sustained_runs_total", "SELECT count(*) FROM run WHERE device_id = rtx AND run_kind = 'sustained'"),
+        ("rtx_sustained_p8_runs", get_v1_1_rtx_sustained_p8_runs(conn), "runs", "Historical sustained runs on RTX 5070 starting in P8", "get_v1_1_rtx_sustained_p8_runs", "SELECT count(*) FROM run WHERE nvml_pstate_start = 8"),
+        ("rtx_sustained_p8_pct", get_v1_1_rtx_sustained_p8_pct(conn), "%", "Percentage of historical sustained RTX runs starting in P8", "get_v1_1_rtx_sustained_p8_pct", "Historical audit"),
+    ]
+
+    metrics_dict: dict[str, Any] = {}
+    for name, val, unit, desc, meth, src in metrics_registry:
+        metrics_dict[name] = {
+            "value": val,
+            "method": f"scripts.metrics.{meth}",
+            "unit": unit,
+            "description": desc,
+            "source": src,
+        }
+
+    manifest = {
+        "version": "1.1",
+        "platform": "x86",
+        "description": "SiliconRoute x86 Close-out Manifest (10-level standard, unseen near-switch, P8 audit)",
+        "metadata": {
+            "frozen_v1_0_database_sha256": FROZEN_DB_SHA256,
+            "standard_benchmark_log": get_v1_1_std_log_path(conn),
+            "unseen_benchmark_log": get_v1_1_unseen_log_path(conn),
+        },
+        "metrics": metrics_dict,
+    }
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2)
+
+    return manifest
+
+
+if __name__ == "__main__":
+    out = ROOT_DIR / "results" / "v1_1" / "x86" / "manifest.json"
+    m = build_v1_1_manifest(output_path=out)
+    print(f"Published v1.1 x86 manifest to {out} with {len(m['metrics'])} metrics.")
+
+
