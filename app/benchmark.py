@@ -293,10 +293,13 @@ def run_latency_measurement(
         inner_loop_k = min(max(inner_loop_k, 1), MAX_INNER_LOOP_K)
 
     # 5. Timed runs (samples >= timed_runs, each sample times inner_loop_k runs)
+    # NVML sampler thread is isolated to run ONLY during NVIDIA dGPU timing
     sampler: Optional[NVMLMeasurementSampler] = None
     if is_nvidia_gpu:
         sampler = NVMLMeasurementSampler()
-        sampler.start()
+        sampler.start(device_key=device.key)
+    else:
+        sampler = None
 
     raw_timings_ms: list[float] = []
     last_output: Optional[np.ndarray] = None

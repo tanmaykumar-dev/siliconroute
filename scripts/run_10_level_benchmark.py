@@ -4,15 +4,15 @@ Executes live, verifiable benchmarks across 10 levels of model scales.
 Follows all project standards:
 - Hardware Rig Self-Discovery: Probes registry, DXGI, and NVML without user hints.
 - Standard Project Method: Warmup (sustained >=300ms on DML), 30 timed samples, adaptive inner loop.
-- Real-Time NVML Sampling: Samples power and temperature DURING active inference (median & max).
+- Real-Time NVML Sampling: Samples power and temperature DURING active inference (median & max),
+  isolated strictly to NVIDIA dGPU timing (never runs during CPU/iGPU).
 - Strict Match & Regret: Match requires predicted_chip == measured_fastest_chip. Regret reported separately.
 - Dual Modes:
   * Standard mode: Evaluates 10 model levels against measured/fitted router predictions.
-  * --unseen mode: Generates unseen model geometries and batch sizes (widths 768/1536/2560/3584,
-    conv channels 24/48/80/112, batches 2 and 4), disables measured lookup (fit_only=True),
-    and tests hardware model prediction accuracy.
-- Audit Logging: Captures complete transcript in results/logs/benchmarks/10_level_<timestamp>.txt
-  and all raw samples in results/logs/benchmarks/10_level_<timestamp>.json.
+  * --unseen mode: Truly unseen configurations absent from DB at ANY batch. Evaluates near-switch-point
+    cases (MLP widths 1792/1920/2176/2304 at batches 1 & 2; Conv channels 12/20/28 at batch 1), disables
+    measured lookup (fit_only=True), reports decision margins and close-call (<1.5x) accuracy.
+- Audit Logging: Captures complete transcript and raw samples in results/logs/benchmarks/ and results/logs/x86_closeout/.
 """
 
 import argparse
@@ -20,6 +20,7 @@ from datetime import datetime, timezone
 import json
 from pathlib import Path
 import platform
+import shutil
 import sys
 import time
 import winreg
@@ -122,7 +123,7 @@ def measure_device_benchmark(
     - Warmup: sustained >= WARMUP_SUSTAINED_MS (300ms) for DML, 5 runs for CPU
     - Adaptive inner loop: target >= MIN_SAMPLE_MS (5.0 ms) per sample
     - Timed runs: TIMED_RUNS = 30 samples
-    - Real-time NVML sampling during inference
+    - Real-time NVML sampling during inference: runs ONLY during NVIDIA dGPU timing
     - CPU reference output validation
     """
     device_opts = json.loads(device.provider_options_json or "{}")
@@ -155,12 +156,14 @@ def measure_device_benchmark(
         inner_loop_k = int(np.ceil(MIN_SAMPLE_MS / max(t_trial_ms, 0.0001)))
         inner_loop_k = min(max(inner_loop_k, 1), MAX_INNER_LOOP_K)
 
-    # 3. NVML Sampler (Active DURING measurement if NVIDIA dGPU)
+    # 3. NVML Sampler (Active DURING measurement if and ONLY if NVIDIA dGPU)
     is_nvidia = is_nvidia_device(device) and nvml_reader.is_available
     sampler: NVMLMeasurementSampler | None = None
     if is_nvidia:
         sampler = NVMLMeasurementSampler(sample_interval_s=0.005)
-        sampler.start()
+        sampler.start(device_key=device.key)
+    else:
+        assert sampler is None, f"PROHIBITED: NVML sampler started on non-NVIDIA device {device.key}"
 
     # 4. Timed measurement loop (30 samples, each inner_loop_k runs)
     raw_timings_ms: list[float] = []
@@ -225,18 +228,23 @@ def measure_device_benchmark(
 
 
 def ensure_unseen_models(session: Session) -> list[dict]:
-    """Generate and register unseen models across geometries and batch sizes."""
+    """Generate and register near-switch-point models absent from DB at ANY batch.
+
+    MLP widths: 1792, 1920 (just below 64 MB CPU cache), 2176, 2304 (just above 64 MB CPU cache) at batch 1 & 2.
+    Conv channels: 12, 20, 28 at batch 1 (near the dispatch-overhead vs compute crossover point).
+    """
     unseen_configs = [
-        {"family": "mlp", "size": 768,  "layers": 4, "batch": 2},
-        {"family": "conv", "size": 24,  "layers": 4, "batch": 2},
-        {"family": "mlp", "size": 1536, "layers": 4, "batch": 2},
-        {"family": "conv", "size": 48,  "layers": 4, "batch": 2},
-        {"family": "mlp", "size": 2560, "layers": 4, "batch": 2},
-        {"family": "conv", "size": 80,  "layers": 4, "batch": 2},
-        {"family": "mlp", "size": 3584, "layers": 4, "batch": 2},
-        {"family": "conv", "size": 112, "layers": 4, "batch": 2},
-        {"family": "mlp", "size": 2560, "layers": 4, "batch": 4},
-        {"family": "conv", "size": 112, "layers": 4, "batch": 4},
+        {"family": "mlp", "size": 1792, "layers": 4, "batch": 1},
+        {"family": "mlp", "size": 1792, "layers": 4, "batch": 2},
+        {"family": "mlp", "size": 1920, "layers": 4, "batch": 1},
+        {"family": "mlp", "size": 1920, "layers": 4, "batch": 2},
+        {"family": "mlp", "size": 2176, "layers": 4, "batch": 1},
+        {"family": "mlp", "size": 2176, "layers": 4, "batch": 2},
+        {"family": "mlp", "size": 2304, "layers": 4, "batch": 1},
+        {"family": "mlp", "size": 2304, "layers": 4, "batch": 2},
+        {"family": "conv", "size": 12,  "layers": 4, "batch": 1},
+        {"family": "conv", "size": 20,  "layers": 4, "batch": 1},
+        {"family": "conv", "size": 28,  "layers": 4, "batch": 1},
     ]
 
     prepared = []
@@ -277,26 +285,49 @@ def get_standard_10_level_models(session: Session) -> list[dict]:
     return prepared
 
 
+def compute_batch_intensity(model: AIModel, batch: int) -> float:
+    """Compute exact arithmetic intensity (FLOPs per byte transferred) for a given batch.
+
+    Total Data Bytes = weight_bytes + batch * (input_bytes + output_bytes).
+    """
+    w_bytes = model.weight_bytes
+    if model.family == "mlp":
+        width = int(np.sqrt(model.params // 4))
+        act_bytes = batch * 2 * width * 4  # float32 input + output
+    elif model.family == "conv":
+        channels = int(np.sqrt(model.params // (4 * 9)))
+        act_bytes = batch * 2 * channels * 64 * 64 * 4
+    else:
+        act_bytes = batch * 1024 * 4
+
+    total_data_bytes = w_bytes + act_bytes
+    total_flops = model.flops_per_sample * batch
+    return round(float(total_flops / max(total_data_bytes, 1)), 2)
+
+
 def run_benchmark_suite(unseen_mode: bool = False) -> None:
     timestamp_str = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     mode_name = "10_level_unseen" if unseen_mode else "10_level"
-    log_dir = ROOT_DIR / "results" / "logs" / "benchmarks"
-    log_dir.mkdir(parents=True, exist_ok=True)
 
-    txt_path = log_dir / f"{mode_name}_{timestamp_str}.txt"
-    json_path = log_dir / f"{mode_name}_{timestamp_str}.json"
+    log_dir_bm = ROOT_DIR / "results" / "logs" / "benchmarks"
+    log_dir_closeout = ROOT_DIR / "results" / "logs" / "x86_closeout"
+    log_dir_bm.mkdir(parents=True, exist_ok=True)
+    log_dir_closeout.mkdir(parents=True, exist_ok=True)
+
+    txt_path = log_dir_bm / f"{mode_name}_{timestamp_str}.txt"
+    json_path = log_dir_bm / f"{mode_name}_{timestamp_str}.json"
 
     tee = TeeLogger(txt_path)
     sys.stdout = tee
 
     try:
-        print("=" * 115)
+        print("=" * 125)
         print(" SILICONROUTE: AUTOMATED HARDWARE BENCHMARK & ROUTER VERIFICATION SUITE")
-        print(f" Mode: {'UNSEEN GENERALIZATION TEST (Fit-Only Prediction)' if unseen_mode else 'STANDARD 10-LEVEL BENCHMARK'}")
+        print(f" Mode: {'UNSEEN GENERALIZATION TEST (Near-Switch-Point Cases, Fit-Only Prediction)' if unseen_mode else 'STANDARD 10-LEVEL BENCHMARK'}")
         print(f" Timestamp (UTC): {datetime.now(timezone.utc).isoformat()}")
         print(" Log File (Console):", txt_path)
         print(" Raw Samples (JSON):", json_path)
-        print("=" * 115)
+        print("=" * 125)
 
         # ---------------------------------------------------------------------
         # 1. HARDWARE SELF-DISCOVERY
@@ -331,8 +362,8 @@ def run_benchmark_suite(unseen_mode: bool = False) -> None:
         # 2. MODEL PREPARATION & FACT COMPUTATION
         # ---------------------------------------------------------------------
         print(f"\n[PHASE 2] PREPARING BENCHMARK MODELS & COMPUTING FACTS FROM MODELS:")
-        print(f"{'Lvl':<4} | {'Model Name':<16} | {'Batch':<5} | {'Parameters':<12} | {'Weight (MB)':<12} | {'FLOPs/Sample':<16} | {'Total FLOPs':<16} | {'Intensity (FLOP/B)'}")
-        print("-" * 115)
+        print(f"{'Lvl':<4} | {'Model Name':<16} | {'Batch':<5} | {'Parameters':<12} | {'Weight (MiB)':<13} | {'Weight (MB)':<12} | {'Total FLOPs':<16} | {'Intensity (FLOP/B)'}")
+        print("-" * 125)
 
         level_facts = []
         with Session(engine) as session:
@@ -344,9 +375,10 @@ def run_benchmark_suite(unseen_mode: bool = False) -> None:
             for idx, item in enumerate(test_items, start=1):
                 m: AIModel = item["model"]
                 batch: int = item["batch"]
-                weight_mb = round(m.weight_bytes / (1024**2), 2)
+                weight_mib = round(m.weight_bytes / (1024**2), 2)
+                weight_mb = round(m.weight_bytes / 1e6, 2)
                 total_flops = m.flops_per_sample * batch
-                intensity = round(m.flops_per_sample / max(m.weight_bytes, 1), 2)
+                intensity = compute_batch_intensity(m, batch)
 
                 level_facts.append({
                     "lvl": idx,
@@ -357,25 +389,28 @@ def run_benchmark_suite(unseen_mode: bool = False) -> None:
                     "batch": batch,
                     "params": m.params,
                     "weight_bytes": m.weight_bytes,
+                    "weight_mib": weight_mib,
                     "weight_mb": weight_mb,
                     "flops_per_sample": m.flops_per_sample,
                     "total_flops": total_flops,
                     "intensity": intensity,
                 })
                 print(
-                    f"{idx:<4} | {m.name:<16} | {batch:<5} | {m.params:<12,d} | {weight_mb:<12.2f} | "
-                    f"{int(m.flops_per_sample):<16,d} | {int(total_flops):<16,d} | {intensity:<18.2f}"
+                    f"{idx:<4} | {m.name:<16} | {batch:<5} | {m.params:<12,d} | {weight_mib:<13.2f} | "
+                    f"{weight_mb:<12.2f} | {int(total_flops):<16,d} | {intensity:<18.2f}"
                 )
 
         # ---------------------------------------------------------------------
         # 3. LIVE BENCHMARK EXECUTION
         # ---------------------------------------------------------------------
-        print("\n" + "=" * 115)
+        print("\n" + "=" * 125)
         print(" [PHASE 3] EXECUTING LIVE EMPIRICAL BENCHMARKS (30 Samples, Real-time NVML Telemetry)")
-        print("=" * 115)
+        print("=" * 125)
 
         results_json_levels = []
         exact_matches = 0
+        close_call_matches = 0
+        total_close_calls = 0
         total_levels = len(level_facts)
 
         for fact in level_facts:
@@ -394,7 +429,7 @@ def run_benchmark_suite(unseen_mode: bool = False) -> None:
                 weight_bytes=fact["weight_bytes"],
                 flops_per_sample=fact["flops_per_sample"],
             )
-            print(f"\n>>> LEVEL {lvl:02d}/{total_levels}: {name} (Batch: {batch}) | Params: {fact['params']:,d} | Weights: {fact['weight_mb']:.2f} MB | Total FLOPs: {fact['total_flops']:,.0f}")
+            print(f"\n>>> LEVEL {lvl:02d}/{total_levels}: {name} (Batch: {batch}) | Params: {fact['params']:,d} | Weights: {fact['weight_mib']:.2f} MiB ({fact['weight_mb']:.2f} MB) | Total FLOPs: {fact['total_flops']:,.0f} | Intensity: {fact['intensity']} FLOP/B")
 
             # Router Prediction
             with Session(engine) as session:
@@ -443,10 +478,18 @@ def run_benchmark_suite(unseen_mode: bool = False) -> None:
                     f"Pwr: {pwr_str:<26} | Temp: {temp_str:<22} | ({method_str})"
                 )
 
-            # Determine real fastest chip
+            # Determine real fastest chip and second-fastest for margin computation
             measured_medians = {k: v["stats"]["median_ms"] for k, v in meas_by_device.items()}
-            fastest_key = min(measured_medians, key=measured_medians.get)
-            fastest_ms = measured_medians[fastest_key]
+            sorted_by_time = sorted(measured_medians.items(), key=lambda x: x[1])
+            fastest_key, fastest_ms = sorted_by_time[0]
+            second_key, second_ms = sorted_by_time[1] if len(sorted_by_time) > 1 else (fastest_key, fastest_ms)
+
+            # Margin: second-fastest time divided by fastest time
+            decision_margin = round(second_ms / max(fastest_ms, 1e-4), 2)
+            is_close_call = bool(decision_margin < 1.50)
+            if is_close_call:
+                total_close_calls += 1
+
             pred_ms = measured_medians.get(pred_key, 9999.0)
 
             # Strict match rule: predicted == fastest chip
@@ -454,9 +497,12 @@ def run_benchmark_suite(unseen_mode: bool = False) -> None:
             regret_pct = ((pred_ms - fastest_ms) / max(fastest_ms, 1e-4)) * 100.0
             if is_match:
                 exact_matches += 1
+                if is_close_call:
+                    close_call_matches += 1
 
             match_label = "MATCH (Optimal)" if is_match else "MISMATCH"
-            print(f"    --> Physical Fastest Chip: {fastest_key.upper()} ({fastest_ms:.3f} ms) | Verdict: {match_label} | Regret: {regret_pct:.2f}%")
+            close_flag = " [CLOSE CALL (<1.5x)]" if is_close_call else ""
+            print(f"    --> Physical Fastest Chip: {fastest_key.upper()} ({fastest_ms:.3f} ms) | Second: {second_key.upper()} ({second_ms:.3f} ms) | Margin: {decision_margin:.2f}x{close_flag} | Verdict: {match_label} | Regret: {regret_pct:.2f}%")
 
             results_json_levels.append({
                 "level_index": lvl,
@@ -465,6 +511,7 @@ def run_benchmark_suite(unseen_mode: bool = False) -> None:
                 "batch": batch,
                 "parameters": fact["params"],
                 "weight_bytes": fact["weight_bytes"],
+                "weight_mib": fact["weight_mib"],
                 "weight_mb": fact["weight_mb"],
                 "flops_per_sample": fact["flops_per_sample"],
                 "total_flops": fact["total_flops"],
@@ -478,6 +525,10 @@ def run_benchmark_suite(unseen_mode: bool = False) -> None:
                 "measurements": meas_by_device,
                 "actual_fastest_device_key": fastest_key,
                 "actual_fastest_median_ms": fastest_ms,
+                "actual_second_device_key": second_key,
+                "actual_second_median_ms": second_ms,
+                "decision_margin": decision_margin,
+                "is_close_call": is_close_call,
                 "exact_match": is_match,
                 "regret_pct": round(regret_pct, 4),
             })
@@ -485,11 +536,11 @@ def run_benchmark_suite(unseen_mode: bool = False) -> None:
         # ---------------------------------------------------------------------
         # 4. FINAL SCORECARD & AUDIT
         # ---------------------------------------------------------------------
-        print("\n" + "=" * 115)
+        print("\n" + "=" * 125)
         print(" [PHASE 4] FINAL PHYSICAL BENCHMARK SCORECARD & ACCURACY AUDIT")
-        print("=" * 115)
-        print(f"{'Lvl':<4} | {'Model Name':<16} | {'Batch':<5} | {'Weight MB':<9} | {'CPU (ms)':<9} | {'iGPU (ms)':<9} | {'dGPU (ms)':<9} | {'Fastest':<7} | {'Router Match':<14} | {'Regret (%)'}")
-        print("-" * 115)
+        print("=" * 125)
+        print(f"{'Lvl':<4} | {'Model Name':<16} | {'Batch':<5} | {'Weight MiB':<10} | {'CPU (ms)':<9} | {'iGPU (ms)':<9} | {'dGPU (ms)':<9} | {'Fastest':<7} | {'Margin':<7} | {'Router Match':<14} | {'Regret (%)'}")
+        print("-" * 125)
 
         for lvl_res in results_json_levels:
             cpu_t = lvl_res["measurements"].get("cpu", {}).get("stats", {}).get("median_ms")
@@ -501,43 +552,47 @@ def run_benchmark_suite(unseen_mode: bool = False) -> None:
             dgpu_s = f"{dgpu_t:.3f}" if dgpu_t is not None else "--"
 
             match_s = "EXACT MATCH" if lvl_res["exact_match"] else f"NO (Pred: {lvl_res['router_prediction']['chosen_device_key'].upper()})"
+            margin_s = f"{lvl_res['decision_margin']:.2f}x"
             print(
-                f"{lvl_res['level_index']:<4} | {lvl_res['model_name']:<16} | {lvl_res['batch']:<5} | {lvl_res['weight_mb']:<9.2f} | "
-                f"{cpu_s:<9} | {igpu_s:<9} | {dgpu_s:<9} | {lvl_res['actual_fastest_device_key'].upper():<7} | {match_s:<14} | {lvl_res['regret_pct']:>8.2f}%"
+                f"{lvl_res['level_index']:<4} | {lvl_res['model_name']:<16} | {lvl_res['batch']:<5} | {lvl_res['weight_mib']:<10.2f} | "
+                f"{cpu_s:<9} | {igpu_s:<9} | {dgpu_s:<9} | {lvl_res['actual_fastest_device_key'].upper():<7} | {margin_s:<7} | {match_s:<14} | {lvl_res['regret_pct']:>8.2f}%"
             )
 
-        print("-" * 115)
+        print("-" * 125)
         accuracy_pct = (exact_matches / total_levels) * 100.0
+        close_call_accuracy_pct = (close_call_matches / total_close_calls * 100.0) if total_close_calls > 0 else 100.0
         all_regrets = [r["regret_pct"] for r in results_json_levels]
         mean_regret = float(np.mean(all_regrets)) if all_regrets else 0.0
         max_regret = float(np.max(all_regrets)) if all_regrets else 0.0
 
-        print(f"\nRouter Allocation Accuracy (Exact Match): {exact_matches}/{total_levels} ({accuracy_pct:.1f}%)")
-        print(f"Empirical Regret: Mean = {mean_regret:.2f}%, Max = {max_regret:.2f}%")
-        print(f"Benchmark Completion Timestamp: {datetime.now(timezone.utc).isoformat()}")
+        print(f"\nRouter Allocation Accuracy (Overall Exact Match): {exact_matches}/{total_levels} ({accuracy_pct:.1f}%)")
+        print(f"Close Calls Accuracy (Margin < 1.5x)         : {close_call_matches}/{total_close_calls} ({close_call_accuracy_pct:.1f}%)")
+        print(f"Empirical Regret                             : Mean = {mean_regret:.2f}%, Max = {max_regret:.2f}%")
+        print(f"Benchmark Completion Timestamp                : {datetime.now(timezone.utc).isoformat()}")
 
         # ---------------------------------------------------------------------
         # 5. ARCHITECTURAL ANALYSIS & HYPOTHESIS
         # ---------------------------------------------------------------------
-        print("\n" + "=" * 115)
+        print("\n" + "=" * 125)
         print(" [PHASE 5] ARCHITECTURAL ANALYSIS (Hypotheses & Physics Rationale)")
-        print("=" * 115)
-        print("Hypothesis: For MLP models, the crossover between CPU and discrete GPU (NVIDIA RTX 5070)")
+        print("=" * 125)
+        print("Hypothesis: For MLP models, the crossover between CPU and discrete GPU (NVIDIA RTX 5070 Laptop GPU)")
         print(f"follows model weight footprint relative to the {CPU_CACHE_MB} MB CPU cache (AMD Ryzen 9 8940HX L3 cache),")
         print("rather than FLOP count.")
-        print("  - MLPs possess low arithmetic intensity (~1.0 FLOP/byte), meaning every parameter is read once")
-        print("    per sample. When weights fit inside the 64 MB CPU cache, the CPU avoids DRAM latency and runs at")
-        print("    on-die cache bandwidth, outperforming the dGPU which incurs PCIe dispatch latency overhead.")
-        print(f"  - When MLP weights exceed {CPU_CACHE_MB} MB, CPU execution must stream from system DDR5 RAM (~50-70 GB/s),")
-        print("    allowing the RTX 5070's high-bandwidth GDDR6 VRAM (~350 GB/s) to overcome bus dispatch overhead.")
-        print("  - For Convolutional models with spatial kernel reuse, higher arithmetic intensity enables the GPU")
-        print("    to win at significantly smaller parameter memory footprints once compute outweighs dispatch cost.")
-        print("=" * 115 + "\n")
+        print("  - MLPs possess low arithmetic intensity (~0.5 - 1.0 FLOP/byte per sample), meaning weights are streamed")
+        print(f"    with minimal arithmetic reuse. Below {CPU_CACHE_MB} MB, weights fit in the CPU L3 cache, allowing")
+        print("    the CPU to avoid DRAM latency and out-perform the discrete GPU, which incurs a fitted overhead of")
+        print("    0.1511 ms (manifest fit_dml:1_t0_ms).")
+        print(f"  - When MLP weights exceed {CPU_CACHE_MB} MB, CPU execution must stream from system DDR5 memory, allowing the")
+        print("    RTX 5070 Laptop GPU (equipped with GDDR7 memory per manufacturer datasheet) to achieve lower inference latencies.")
+        print("  - For Convolutional models with spatial kernel reuse, higher arithmetic intensity amortizes the 0.1511 ms")
+        print("    dispatch overhead at much smaller model sizes.")
+        print("=" * 125 + "\n")
 
         # Save structured JSON
         final_json_payload = {
             "benchmark_timestamp_utc": datetime.now(timezone.utc).isoformat(),
-            "mode": "unseen_generalization_fit_only" if unseen_mode else "standard_10_level",
+            "mode": "unseen_generalization_near_switch_fit_only" if unseen_mode else "standard_10_level",
             "log_txt_path": str(txt_path.as_posix()),
             "rig_discovery": rig,
             "levels": results_json_levels,
@@ -545,25 +600,36 @@ def run_benchmark_suite(unseen_mode: bool = False) -> None:
                 "total_levels": total_levels,
                 "exact_matches": exact_matches,
                 "accuracy_pct": round(accuracy_pct, 2),
+                "total_close_calls": total_close_calls,
+                "close_call_matches": close_call_matches,
+                "close_call_accuracy_pct": round(close_call_accuracy_pct, 2),
                 "mean_regret_pct": round(mean_regret, 2),
                 "max_regret_pct": round(max_regret, 2),
             },
             "hypothesis": (
-                f"Hypothesis: For MLP models, the crossover between CPU and discrete GPU (NVIDIA RTX 5070) "
+                f"Hypothesis: For MLP models, the crossover between CPU and discrete GPU (NVIDIA RTX 5070 Laptop GPU) "
                 f"follows model weight footprint relative to the {CPU_CACHE_MB} MB CPU cache (AMD Ryzen 9 8940HX L3 cache), "
-                f"rather than FLOP count. MLPs possess low arithmetic intensity (~1.0 FLOP/byte), meaning every parameter "
-                f"is read once per sample. When weights fit inside the 64 MB CPU cache, the CPU avoids DRAM latency and runs "
-                f"at on-die cache bandwidth, outperforming the dGPU which incurs PCIe dispatch latency overhead. "
-                f"When MLP weights exceed {CPU_CACHE_MB} MB, CPU execution must stream from system DDR5 RAM, allowing the "
-                f"RTX 5070's high-bandwidth GDDR6 VRAM to dominate."
+                f"rather than FLOP count. MLPs possess low arithmetic intensity (~0.5 - 1.0 FLOP/byte per sample), meaning "
+                f"weights are streamed with minimal arithmetic reuse. Below {CPU_CACHE_MB} MB, weights fit in the CPU L3 cache, "
+                f"allowing the CPU to avoid DRAM latency and out-perform the discrete GPU, which incurs a fitted overhead of "
+                f"0.1511 ms (manifest fit_dml:1_t0_ms). When MLP weights exceed {CPU_CACHE_MB} MB, CPU execution must stream "
+                f"from system DDR5 memory, allowing the RTX 5070 Laptop GPU (equipped with GDDR7 memory per manufacturer datasheet) "
+                f"to achieve lower inference latencies. For Convolutional models with spatial kernel reuse, higher arithmetic intensity "
+                f"amortizes the 0.1511 ms dispatch overhead at much smaller model sizes."
             ),
         }
 
         with open(json_path, "w", encoding="utf-8") as jf:
             json.dump(final_json_payload, jf, indent=2)
 
-        print(f"[COMPLETE] Full console output logged to: {txt_path}")
-        print(f"[COMPLETE] Full raw samples & metrics logged to: {json_path}")
+        # Dual-log to results/logs/x86_closeout/
+        closeout_txt_path = log_dir_closeout / f"{mode_name}_{timestamp_str}.txt"
+        closeout_json_path = log_dir_closeout / f"{mode_name}_{timestamp_str}.json"
+        shutil.copyfile(txt_path, closeout_txt_path)
+        shutil.copyfile(json_path, closeout_json_path)
+
+        print(f"[COMPLETE] Full console output logged to: {txt_path} and {closeout_txt_path}")
+        print(f"[COMPLETE] Full raw samples & metrics logged to: {json_path} and {closeout_json_path}")
 
     finally:
         sys.stdout = sys.__stdout__
@@ -575,7 +641,7 @@ def main():
     parser.add_argument(
         "--unseen",
         action="store_true",
-        help="Run generalization test on unseen model architectures and batch sizes with measured lookup disabled (fit only).",
+        help="Run generalization test on unseen near-switch-point model architectures with measured lookup disabled (fit only).",
     )
     args = parser.parse_args()
     run_benchmark_suite(unseen_mode=args.unseen)

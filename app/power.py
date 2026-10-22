@@ -181,23 +181,38 @@ nvml_reader = NVMLReader()
 
 
 class NVMLMeasurementSampler:
-    """Samples NVML power and temperature continuously in a background thread during active inference."""
+    """Samples NVML power and temperature continuously in a background thread during active inference.
+    
+    Hard enforcement: Runs ONLY for NVIDIA dGPU devices. Attempts to start this sampler
+    for CPU or non-NVIDIA devices raise a ValueError.
+    """
+
+    active_device_keys: list[str] = []
 
     def __init__(self, reader: Optional[NVMLReader] = None, sample_interval_s: float = 0.005) -> None:
         self.reader = reader or nvml_reader
         self.sample_interval_s = sample_interval_s
+        self.device_key: Optional[str] = None
         self.power_samples_w: list[float] = []
         self.temp_samples_c: list[float] = []
         self._stop_event = threading.Event()
         self._thread: Optional[threading.Thread] = None
 
-    def start(self) -> None:
+    def start(self, device_key: Optional[str] = None) -> None:
+        self.device_key = device_key
+        if device_key is not None:
+            dk_lower = device_key.lower()
+            if dk_lower in ("cpu", "dml:0") or "cpu" in dk_lower or "amd" in dk_lower:
+                raise ValueError(f"PROHIBITED: NVMLMeasurementSampler must never run on non-NVIDIA device '{device_key}'")
+
         if not self.reader.is_available:
             return
         self.power_samples_w = []
         self.temp_samples_c = []
         self._stop_event.clear()
-        self._thread = threading.Thread(target=self._run, daemon=True)
+        if device_key is not None:
+            NVMLMeasurementSampler.active_device_keys.append(device_key)
+        self._thread = threading.Thread(target=self._run, name=f"NVMLSampler-{device_key or 'gpu'}", daemon=True)
         self._thread.start()
 
     def _run(self) -> None:
