@@ -51,18 +51,6 @@ def create_db_engine(db_path: Optional[Path] = None):
         cur.execute("PRAGMA foreign_keys=ON")     # enforce relational integrity
         cur.close()
 
-    # Auto-migrate not_warm column if run table exists and lacks it
-    try:
-        with eng.connect() as conn:
-            from sqlalchemy import text
-            res = conn.execute(text("PRAGMA table_info(run)"))
-            cols = [r[1] for r in res.fetchall()]
-            if cols and "not_warm" not in cols:
-                conn.execute(text("ALTER TABLE run ADD COLUMN not_warm BOOLEAN DEFAULT 0"))
-                conn.commit()
-    except Exception:
-        pass
-
     return eng
 
 
@@ -295,6 +283,8 @@ class WorkloadMeasurement(SQLModel, table=True):
 
 def _migrate_columns(target_engine) -> None:
     """Ensure existing SQLite tables have newly added columns."""
+    if "final" in str(target_engine.url).lower():
+        return
     from sqlalchemy import text
     try:
         with target_engine.connect() as conn:
@@ -315,6 +305,7 @@ def _migrate_columns(target_engine) -> None:
                     ("nvml_clock_sm_end_mhz", "INTEGER"),
                     ("energy_above_idle_mj_per_inf", "FLOAT"),
                     ("run_kind", "TEXT DEFAULT 'sustained'"),
+                    ("not_warm", "BOOLEAN DEFAULT 0"),
                 ]
                 for col_name, col_type in new_run_cols:
                     if col_name not in run_cols:

@@ -82,7 +82,7 @@ def test_manifest_metrics_match_database():
     manifest = load_manifest()
     assert DB_PATH.exists(), f"Missing {DB_PATH}"
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(f"file:{DB_PATH.resolve()}?mode=ro&immutable=1", uri=True)
     metrics = manifest.get("metrics", {})
     assert len(metrics) > 0, "No metrics found in manifest.json"
 
@@ -157,7 +157,7 @@ def test_readme_no_unmeasured_devices():
 
     # 2. Assert against database device table
     assert DB_PATH.exists(), f"Missing {DB_PATH}"
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(f"file:{DB_PATH.resolve()}?mode=ro&immutable=1", uri=True)
     cur = conn.cursor()
     cur.execute("SELECT label FROM device WHERE kind IN ('igpu', 'dgpu')")
     db_gpu_labels = [row[0] for row in cur.fetchall()]

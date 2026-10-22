@@ -46,6 +46,8 @@ SiliconRoute operates in four phases:
 
 *All numbers sourced from `results/final/manifest.json` and generated from `data/final/siliconroute_final.db`.*
 
+For subsequent x86 benchmark updates and unseen model evaluations, see [results/v1_1/x86/](results/v1_1/x86/).
+
 ### 24-Decision Hardware Evaluation (Decisions 117–140)
 Evaluated across 8 sustained, 8 idle-loaded, and 8 cold-start tasks on real laptop hardware (AMD Ryzen 9 8940HX, AMD Radeon 610M, NVIDIA GeForce RTX 5070 Laptop GPU):
 

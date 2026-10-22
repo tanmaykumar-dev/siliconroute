@@ -1,6 +1,6 @@
 """Phase 4 Gate Verification & Hardware Model Report.
 
-Generates the exact tables required by SPEC Section 5 and BUILD_PROMPTS.md:
+Generates the exact tables required by SPEC Section 5 and docs/dev/BUILD_PROMPTS.md:
 - Table 1: Per-device fits, LOO MAPE comparison across F1/F2/F3, t0, GFLOP/s, GB/s, R2_log
 - Table 2: MLP crossover points at batch 1, 8, 32 between CPU and RTX 5070
 - Table 3: Cold-start latency and wake penalties with NVIDIA P-state split

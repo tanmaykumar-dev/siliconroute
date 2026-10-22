@@ -218,15 +218,17 @@ def get_fit_metric(conn: sqlite3.Connection, dev_key: str, metric_name: str) -> 
 
 def get_crossover_param_metric(conn: sqlite3.Connection, family: str, batch: int) -> int:
     """Compute physical crossover parameter count between CPU and RTX from active fits."""
-    from app.db import create_db_engine
+    from sqlalchemy import create_engine
     from app.predictor import calculate_crossover
     from sqlmodel import Session
 
-    engine = create_db_engine(Path("data/final/siliconroute_final.db"))
-    with Session(engine) as session:
+    eng = create_engine("sqlite://", creator=lambda: conn)
+    with Session(eng) as session:
         cur = conn.cursor()
-        cpu_id = cur.execute("SELECT id FROM device WHERE kind = 'cpu'").fetchone()[0]
-        rtx_id = cur.execute("SELECT id FROM device WHERE vendor_id = '0x10DE' OR kind = 'dgpu'").fetchone()[0]
+        cur.execute("SELECT id FROM device WHERE kind = ?", ("cpu",))
+        cpu_id = cur.fetchone()[0]
+        cur.execute("SELECT id FROM device WHERE vendor_id = ? OR kind = ?", ("0x10DE", "dgpu"))
+        rtx_id = cur.fetchone()[0]
         co = calculate_crossover(session, cpu_id, rtx_id, family=family, batch=batch)
         return int(co["crossover"]["params"])
 

@@ -1,8 +1,8 @@
 ---
 description: Build all phases 1-8 in order with a real-data verification gate after each; pause only for hardware steps, risky changes or repeated failures
 ---
-1. Read AGENTS.md, docs/SPEC.md, BUILD_PROMPTS.md (sections 2-4) and .agents/skills/windows-ai-hardware/SKILL.md.
-2. Create a task-list artifact: phases 1-8, each with its scope and its "Done when" criteria from BUILD_PROMPTS.md section 4. Ask me which phase to start from if I did not say.
+1. Read AGENTS.md, docs/SPEC.md, docs/dev/BUILD_PROMPTS.md (sections 2-4) and .agents/skills/windows-ai-hardware/SKILL.md.
+2. Create a task-list artifact: phases 1-8, each with its scope and its "Done when" criteria from docs/dev/BUILD_PROMPTS.md section 4. Ask me which phase to start from if I did not say.
 3. For each phase, in order:
    a. Post a short implementation plan (files, functions, tests). Continue without waiting UNLESS the plan changes the stack, changes AGENTS.md/SPEC.md, deletes files, or needs a library not in requirements.txt. In those cases wait for my approval.
    b. Implement in small steps. Run `python -m pytest -q` after each file.

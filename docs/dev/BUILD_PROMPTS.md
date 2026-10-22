@@ -87,7 +87,7 @@ work), commit, then start autopilot from phase 2:
 
 ```
 /autopilot
-Continue from phase 2. Follow @AGENTS.md, @docs/SPEC.md and @BUILD_PROMPTS.md exactly.
+Continue from phase 2. Follow @AGENTS.md, @docs/SPEC.md and @docs/dev/BUILD_PROMPTS.md exactly.
 Real data only. At every gate paste the real outputs. Stop if a gate fails twice.
 ```
 
