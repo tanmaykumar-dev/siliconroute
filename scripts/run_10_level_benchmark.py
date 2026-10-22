@@ -133,10 +133,43 @@ def measure_device_benchmark(
     inp_name, inp_tensor = prepare_input_tensor(model, batch, sess)
     feed_dict = {inp_name: inp_tensor}
 
+    is_nvidia = is_nvidia_device(device) and nvml_reader.is_available
+
     # 1. Warm-up
     warmup_t0 = time.perf_counter_ns()
     warmups_done = 0
-    if "Dml" in device.provider:
+    clock_history: list[tuple[float, int]] = []
+
+    if is_nvidia:
+        while True:
+            sess.run(None, feed_dict)
+            warmups_done += 1
+            now_s = time.perf_counter()
+            elapsed_s = (time.perf_counter_ns() - warmup_t0) / 1e9
+
+            m_curr = nvml_reader.read_metrics()
+            pstate = m_curr.get("gpu_pstate")
+            clock = m_curr.get("gpu_clock_sm_mhz")
+            if clock is not None:
+                clock_history.append((now_s, clock))
+
+            if elapsed_s >= 3.0:
+                break
+
+            pstate_active = (pstate in (0, 2)) if pstate is not None else False
+            clock_stable = False
+            if clock_history and (now_s - clock_history[0][0] >= 0.20):
+                recent_clocks = [c for t, c in clock_history if now_s - t <= 0.25]
+                if len(recent_clocks) >= 2:
+                    c_min = min(recent_clocks)
+                    c_max = max(recent_clocks)
+                    c_mean = float(np.mean(recent_clocks))
+                    if c_mean > 0 and (c_max - c_min) / c_mean <= 0.10:
+                        clock_stable = True
+
+            if warmups_done >= WARMUP_RUNS and pstate_active and clock_stable:
+                break
+    elif "Dml" in device.provider:
         while ((time.perf_counter_ns() - warmup_t0) / 1e6 < WARMUP_SUSTAINED_MS) or (warmups_done < WARMUP_RUNS):
             sess.run(None, feed_dict)
             warmups_done += 1
@@ -157,7 +190,15 @@ def measure_device_benchmark(
         inner_loop_k = min(max(inner_loop_k, 1), MAX_INNER_LOOP_K)
 
     # 3. NVML Sampler (Active DURING measurement if and ONLY if NVIDIA dGPU)
-    is_nvidia = is_nvidia_device(device) and nvml_reader.is_available
+    nvml_pstate_start: int | None = None
+    nvml_clock_sm_start_mhz: int | None = None
+    if is_nvidia:
+        m_start = nvml_reader.read_metrics()
+        nvml_pstate_start = m_start.get("gpu_pstate")
+        nvml_clock_sm_start_mhz = m_start.get("gpu_clock_sm_mhz")
+
+    not_warm = bool(is_nvidia and nvml_pstate_start == 8)
+
     sampler: NVMLMeasurementSampler | None = None
     if is_nvidia:
         sampler = NVMLMeasurementSampler(sample_interval_s=0.005)
@@ -181,6 +222,13 @@ def measure_device_benchmark(
     nvml_telemetry: dict = {}
     if sampler is not None:
         nvml_telemetry = sampler.stop()
+
+    nvml_pstate_end: int | None = None
+    nvml_clock_sm_end_mhz: int | None = None
+    if is_nvidia:
+        m_end = nvml_reader.read_metrics()
+        nvml_pstate_end = m_end.get("gpu_pstate")
+        nvml_clock_sm_end_mhz = m_end.get("gpu_clock_sm_mhz")
 
     # 5. Statistics
     timings = np.array(raw_timings_ms, dtype=np.float64)
@@ -224,6 +272,11 @@ def measure_device_benchmark(
         "nvml_temp_samples_c": nvml_telemetry.get("temp_samples_c", []),
         "nvml_median_temp_c": nvml_telemetry.get("median_temp_c"),
         "nvml_max_temp_c": nvml_telemetry.get("max_temp_c"),
+        "nvml_pstate_start": nvml_pstate_start,
+        "nvml_pstate_end": nvml_pstate_end,
+        "nvml_clock_sm_start_mhz": nvml_clock_sm_start_mhz,
+        "nvml_clock_sm_end_mhz": nvml_clock_sm_end_mhz,
+        "not_warm": not_warm,
     }
 
 

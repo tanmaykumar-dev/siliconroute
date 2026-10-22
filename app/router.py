@@ -221,6 +221,8 @@ def resolve_candidate_prediction(
                 Run.unstable == False,
                 Run.provider_mismatch == False,
                 Run.identity_suspect == False,
+                (Run.not_warm == False) | (Run.not_warm == None),
+                (Run.nvml_pstate_start != 8) | (Run.nvml_pstate_start == None),
                 Run.timed_runs >= 10,
                 Run.warmup_runs >= 2,
                 Run.run_kind.in_(["sustained", "verify_sustained"]),
@@ -319,6 +321,8 @@ def resolve_candidate_prediction(
                 Run.unstable == False,
                 Run.provider_mismatch == False,
                 Run.identity_suspect == False,
+                (Run.not_warm == False) | (Run.not_warm == None),
+                (Run.nvml_pstate_start != 8) | (Run.nvml_pstate_start == None),
                 Run.energy_mj_per_inf != None,
                 Run.energy_mj_per_inf > 0,
             ).order_by(Run.id.desc())

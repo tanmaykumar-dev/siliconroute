@@ -254,11 +254,50 @@ def run_latency_measurement(
     sess.run(None, feed_dict)
     first_run_ms = (time.perf_counter_ns() - t_first_start) / 1e6
 
-    # 4. Warm-up runs: for DML devices, sustain for >= WARMUP_SUSTAINED_MS (300 ms)
-    # to ensure the GPU exits idle power-saving states (e.g. P8 -> P0/P2)
+    # Check if this device is an NVIDIA GPU to read NVML telemetry
+    is_nvidia_gpu = (
+        device.provider == "DmlExecutionProvider"
+        and nvml_reader.is_available
+        and is_nvidia_device(device)
+    )
+
+    # 4. Warm-up runs: for NVIDIA GPU, keep running until active P-state (P0 or P2)
+    # and stable SM clock (within 10% variation over 200 ms), capped at 3 s.
     warmup_t0 = time.perf_counter_ns()
     warmups_done = 0
-    if "Dml" in device.provider:
+    clock_history: list[tuple[float, int]] = []
+
+    if is_nvidia_gpu:
+        while True:
+            sess.run(None, feed_dict)
+            warmups_done += 1
+            now_s = time.perf_counter()
+            elapsed_s = (time.perf_counter_ns() - warmup_t0) / 1e9
+
+            m_curr = nvml_reader.read_metrics()
+            pstate = m_curr.get("gpu_pstate")
+            clock = m_curr.get("gpu_clock_sm_mhz")
+            if clock is not None:
+                clock_history.append((now_s, clock))
+
+            # Hard cap at 3.0 s
+            if elapsed_s >= 3.0:
+                break
+
+            pstate_active = (pstate in (0, 2)) if pstate is not None else False
+            clock_stable = False
+            if clock_history and (now_s - clock_history[0][0] >= 0.20):
+                recent_clocks = [c for t, c in clock_history if now_s - t <= 0.25]
+                if len(recent_clocks) >= 2:
+                    c_min = min(recent_clocks)
+                    c_max = max(recent_clocks)
+                    c_mean = float(np.mean(recent_clocks))
+                    if c_mean > 0 and (c_max - c_min) / c_mean <= 0.10:
+                        clock_stable = True
+
+            if warmups_done >= warmup_runs and pstate_active and clock_stable:
+                break
+    elif "Dml" in device.provider:
         while ((time.perf_counter_ns() - warmup_t0) / 1e6 < WARMUP_SUSTAINED_MS) or (warmups_done < warmup_runs):
             sess.run(None, feed_dict)
             warmups_done += 1
@@ -267,12 +306,7 @@ def run_latency_measurement(
             sess.run(None, feed_dict)
             warmups_done += 1
 
-    # Check if this device is an NVIDIA GPU to read NVML telemetry
-    is_nvidia_gpu = (
-        device.provider == "DmlExecutionProvider"
-        and nvml_reader.is_available
-        and is_nvidia_device(device)
-    )
+    # Record telemetry at the start of timing
     nvml_pstate_start: Optional[int] = None
     nvml_clock_sm_start_mhz: Optional[int] = None
     gpu_temp_start_c: Optional[float] = None
@@ -281,6 +315,9 @@ def run_latency_measurement(
         nvml_pstate_start = m_start.get("gpu_pstate")
         nvml_clock_sm_start_mhz = m_start.get("gpu_clock_sm_mhz")
         gpu_temp_start_c = m_start.get("gpu_temp_c")
+
+    # Mark runs starting in low-power P8 as not_warm
+    not_warm = bool(is_nvidia_gpu and nvml_pstate_start == 8)
 
     # Adaptive inner-loop determination for sub-millisecond workloads (target >= MIN_SAMPLE_MS)
     t_trial_0 = time.perf_counter_ns()
@@ -416,6 +453,7 @@ def run_latency_measurement(
         adapter_vendor=device.vendor,
         adapter_luid=device.luid,
         identity_suspect=False,
+        not_warm=not_warm,
         created_at=now_iso,
     )
     if not dry_run and session is not None and bench_session_id is not None:

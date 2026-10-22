@@ -137,6 +137,8 @@ def prepare_fit_dataset(
         Run.provider_mismatch == False,
         Run.unstable == False,
         Run.identity_suspect == False,
+        (Run.not_warm == False) | (Run.not_warm == None),
+        (Run.nvml_pstate_start != 8) | (Run.nvml_pstate_start == None),
         Run.timed_runs >= 10,
         Run.warmup_runs >= 2,
         Run.run_kind.in_(["sustained", "verify_sustained"]),

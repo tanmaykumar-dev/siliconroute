@@ -51,6 +51,18 @@ def create_db_engine(db_path: Optional[Path] = None):
         cur.execute("PRAGMA foreign_keys=ON")     # enforce relational integrity
         cur.close()
 
+    # Auto-migrate not_warm column if run table exists and lacks it
+    try:
+        with eng.connect() as conn:
+            from sqlalchemy import text
+            res = conn.execute(text("PRAGMA table_info(run)"))
+            cols = [r[1] for r in res.fetchall()]
+            if cols and "not_warm" not in cols:
+                conn.execute(text("ALTER TABLE run ADD COLUMN not_warm BOOLEAN DEFAULT 0"))
+                conn.commit()
+    except Exception:
+        pass
+
     return eng
 
 
@@ -201,6 +213,7 @@ class Run(SQLModel, table=True):
     adapter_luid: Optional[str] = None         # DXGI LUID at run time
     physics_note: Optional[str] = None         # Physics notes (e.g. Winograd conv FLOP/s anomaly)
     identity_suspect: bool = Field(default=False) # True if run was mislabeled/swapped
+    not_warm: bool = Field(default=False, index=True) # True if run started in low-power P-state (e.g. P8)
     created_at: str
 
 
